@@ -170,7 +170,7 @@ namespace YACCS.Commands
 		{
 			var (isEnumerable, reader) = GetReader(parameter);
 			var length = Math.Min(input.Count, Math.Max(parameter.Length, 1));
-			var results = new ITypeReaderResult[length];
+			var results = new List<ITypeReaderResult>(length);
 
 			var tCache = cache.TypeReaders;
 			// Iterate at least once even for arguments with zero length
@@ -188,8 +188,7 @@ namespace YACCS.Commands
 				{
 					return result;
 				}
-
-				results[i - startIndex] = result;
+				results.Add(result);
 			}
 
 			// Length being 1 and not enumerable so return without dealing with the array
@@ -198,9 +197,9 @@ namespace YACCS.Commands
 				return results[0];
 			}
 
-			// Copy the values from the type reader result array to an array of the parameter type
-			var output = Array.CreateInstance(parameter.EnumerableType, results.Length);
-			for (var i = 0; i < results.Length; ++i)
+			// Copy the values from the type reader result list to an array of the parameter type
+			var output = Array.CreateInstance(parameter.EnumerableType, results.Count);
+			for (var i = 0; i < results.Count; ++i)
 			{
 				output.SetValue(results[i].Arg, i);
 			}

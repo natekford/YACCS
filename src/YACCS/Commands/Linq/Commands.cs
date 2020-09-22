@@ -6,9 +6,6 @@ using System.Reflection;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 
-using QCommands = System.Collections.Generic.IEnumerable<YACCS.Commands.Models.IQueryableCommand>;
-using QEntities = System.Collections.Generic.IEnumerable<YACCS.Commands.Models.IQueryableEntity>;
-
 namespace YACCS.Commands.Linq
 {
 	public static class Commands
@@ -30,10 +27,12 @@ namespace YACCS.Commands.Linq
 			}
 		}
 
-		public static QCommands ByDelegate(this QCommands commands, Delegate @delegate)
+		public static IEnumerable<T> ByDelegate<T>(this IEnumerable<T> commands, Delegate @delegate)
+			where T : IQueryableCommand
 			=> commands.ByDelegate(@delegate, false);
 
-		public static QCommands ByDelegate(this QCommands commands, Delegate @delegate, bool includeMethod)
+		public static IEnumerable<T> ByDelegate<T>(this IEnumerable<T> commands, Delegate @delegate, bool includeMethod)
+			where T : IQueryableCommand
 		{
 			var d = commands.ByAttribute((DelegateCommandAttribute d) => d.Delegate == @delegate);
 			if (!includeMethod)
@@ -43,10 +42,12 @@ namespace YACCS.Commands.Linq
 			return d.Union(commands.ByMethod(@delegate.Method));
 		}
 
-		public static QEntities ById(this QEntities commands, string id)
+		public static IEnumerable<T> ById<T>(this IEnumerable<T> commands, string id)
+			where T : IQueryableEntity
 			=> commands.ByAttribute((IIdAttribute x) => x.Id == id);
 
-		public static QCommands ByLastPartOfName(this QCommands commands, string name)
+		public static IEnumerable<T> ByLastPartOfName<T>(this IEnumerable<T> commands, string name)
+			where T : IQueryableCommand
 		{
 			return commands.Where(x => x.Names.Any(n =>
 			{
@@ -55,10 +56,12 @@ namespace YACCS.Commands.Linq
 			}));
 		}
 
-		public static QCommands ByMethod(this QCommands commands, MethodInfo method)
+		public static IEnumerable<T> ByMethod<T>(this IEnumerable<T> commands, MethodInfo method)
+			where T : IQueryableCommand
 			=> commands.ByAttribute((MethodInfoCommandAttribute x) => x.Method == method);
 
-		public static QCommands ByName(this QCommands commands, IEnumerable<string> parts)
+		public static IEnumerable<T> ByName<T>(this IEnumerable<T> commands, IEnumerable<string> parts)
+			where T : IQueryableCommand
 		{
 			var name = new Name(parts);
 			return commands.Where(x => x.Names.Any(n => name == n));

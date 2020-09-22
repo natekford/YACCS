@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -33,7 +34,7 @@ namespace YACCS.Commands.Models
 		{
 			private readonly bool _IsGeneric;
 			private readonly bool _IsVoid;
-			private readonly Lazy<PropertyInfo> _TaskResultProperty;
+			private readonly Lazy<Func<Task, object>> _TaskResultDelegate;
 
 			public IReadOnlyList<object> Attributes { get; }
 			public string Id { get; }
@@ -49,11 +50,22 @@ namespace YACCS.Commands.Models
 			{
 				_IsVoid = returnType == typeof(void);
 				_IsGeneric = returnType.IsGenericType;
-				_TaskResultProperty = new Lazy<PropertyInfo>(() =>
+				_TaskResultDelegate = new Lazy<Func<Task, object>>(() =>
 				{
-					return typeof(Task<>)
-						.MakeGenericType(returnType.GenericTypeArguments)
-						.GetProperty(nameof(Task<object>.Result));
+					/*
+					 *	(Task Task) =>
+					 *	{
+					 *		return ((Task<T>)Task).Result;
+					 *	}
+					 */
+
+					var instanceExpr = Expression.Parameter(typeof(Task), "Task");
+					var instanceCastExpr = Expression.Convert(instanceExpr, returnType);
+					var propertyExpr = Expression.Property(instanceCastExpr, nameof(Task<object>.Result));
+					var propertyCastExpr = Expression.Convert(propertyExpr, typeof(object));
+
+					var lambda = Expression.Lambda<Func<Task, object>>(propertyCastExpr, instanceExpr);
+					return lambda.Compile();
 				});
 
 				Attributes = mutable.Attributes.ToImmutableArray();
@@ -106,7 +118,7 @@ namespace YACCS.Commands.Models
 					}
 
 					// It has a value? Ok, let's get it
-					var result = _TaskResultProperty.Value.GetValue(value);
+					var result = _TaskResultDelegate.Value.Invoke(task);
 					return ConvertValue(this, context, result);
 				}
 

@@ -143,33 +143,33 @@ namespace YACCS.Parsing
 		/// <param name="input"></param>
 		/// <param name="startQuotes"></param>
 		/// <param name="endQuotes"></param>
-		/// <param name="startIndexes">Assumed to be in order.</param>
-		/// <param name="endIndexes">Assumed to be in order</param>
+		/// <param name="startIndices">Assumed to be in order.</param>
+		/// <param name="endIndices">Assumed to be in order</param>
 		/// <param name="result"></param>
 		/// <returns></returns>
 		public static bool TryParse(
 			string input,
 			IReadOnlyList<char> startQuotes,
 			IReadOnlyList<char> endQuotes,
-			IReadOnlyList<int> startIndexes,
-			IReadOnlyList<int> endIndexes,
+			IReadOnlyList<int> startIndices,
+			IReadOnlyList<int> endIndices,
 			out ParseArgs result)
 		{
-			if (startIndexes.Count != endIndexes.Count)
+			if (startIndices.Count != endIndices.Count)
 			{
 				result = default;
 				return false;
 			}
 			// No quotes means just return splitting on space
-			if (startIndexes.Count == 0)
+			if (startIndices.Count == 0)
 			{
 				var immutable = input.Split(' ').ToImmutableArray();
 				result = new ParseArgs(immutable, startQuotes, endQuotes);
 				return true;
 			}
 
-			var minStart = startIndexes[0];
-			var maxEnd = endIndexes[endIndexes.Count - 1];
+			var minStart = startIndices[0];
+			var maxEnd = endIndices[endIndices.Count - 1];
 			if (minStart == 0 && maxEnd == input.Length - 1)
 			{
 				var trimmed = GetTrimmedString(input, minStart + 1, maxEnd);
@@ -185,16 +185,16 @@ namespace YACCS.Parsing
 			}
 			// If all start indexes are less than any end index this is fairly easy
 			// Just pair them off from the outside in
-			if (!startIndexes.Any(s => endIndexes.Any(e => s > e)))
+			if (!startIndices.Any(s => endIndices.Any(e => s > e)))
 			{
-				AddIfNotWhitespace(args, input, startIndexes[0], endIndexes[endIndexes.Count - 1] + 1);
+				AddIfNotWhitespace(args, input, startIndices[0], endIndices[endIndices.Count - 1] + 1);
 			}
 			else
 			{
-				for (int i = 0, previousEnd = int.MaxValue; i < startIndexes.Count; ++i)
+				for (int i = 0, previousEnd = int.MaxValue; i < startIndices.Count; ++i)
 				{
-					var start = startIndexes[i];
-					var end = endIndexes[i];
+					var start = startIndices[i];
+					var end = endIndices[i];
 
 					// If the last ending is before the current start that means everything
 					// in between is ignored unless we manually add it + we need to split it
@@ -206,8 +206,8 @@ namespace YACCS.Parsing
 
 					// No starts before next end means simple quotes
 					// Some starts before next end means nested quotes
-					var skip = startIndexes.Skip(i + 1).Count(x => x < end);
-					previousEnd = endIndexes[i += skip] + 1;
+					var skip = startIndices.Skip(i + 1).Count(x => x < end);
+					previousEnd = endIndices[i += skip] + 1;
 					AddIfNotWhitespace(args, input, start, previousEnd);
 				}
 			}
@@ -224,18 +224,18 @@ namespace YACCS.Parsing
 		private static void AddIfNotWhitespace(
 			ImmutableArray<string>.Builder builder,
 			string input,
-			int start,
-			int end)
+			int startIndex,
+			int endIndex)
 		{
-			var trimmed = GetTrimmedString(input, start, end);
+			var trimmed = GetTrimmedString(input, startIndex, endIndex);
 			if (trimmed.Length != 0)
 			{
 				builder.Add(trimmed);
 			}
 		}
 
-		private static string GetTrimmedString(string input, int start, int end)
-			=> input[start..end].Trim();
+		private static string GetTrimmedString(string input, int startIndex, int endIndex)
+			=> input[startIndex..endIndex].Trim();
 
 		private static string[] Split(string input)
 			=> input.Split(_SplitChars, StringSplitOptions.RemoveEmptyEntries);

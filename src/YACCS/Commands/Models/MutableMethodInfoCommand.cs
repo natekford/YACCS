@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -83,13 +84,47 @@ namespace YACCS.Commands.Models
 
 		private sealed class ImmutableMethodInfoCommand : ImmutableCommand
 		{
+			private readonly Lazy<Func<ICommandGroup>> _CreateDelegate;
 			private readonly ICommandGroup _DO_NOT_USE_THIS_FOR_EXECUTION;
 			private readonly Type _GroupType;
+			private readonly Lazy<Func<ICommandGroup, object?[], object>> _InvokeDelegate;
 			private readonly MethodInfo _Method;
 
 			public ImmutableMethodInfoCommand(MutableMethodInfoCommand mutable)
 				: base(mutable, mutable.Method.ReturnType)
 			{
+				_CreateDelegate = new Lazy<Func<ICommandGroup>>(() =>
+				{
+					var ctor = _GroupType.GetConstructor(Type.EmptyTypes);
+					var ctorExpr = Expression.New(ctor);
+					var lambda = Expression.Lambda<Func<ICommandGroup>>(ctorExpr);
+					return lambda.Compile();
+				});
+				_InvokeDelegate = new Lazy<Func<ICommandGroup, object?[], object>>(() =>
+				{
+					/*
+					 *	(ICommandGroup Group, object?[] Args) =>
+					 *	{
+					 *		return ((GroupType)Group).Method((ParamType)Args[0], (ParamType)Args[1], ...);
+					 *	}
+					 */
+
+					var instanceExpr = Expression.Parameter(typeof(ICommandGroup), "Group");
+					var argsExpr = Expression.Parameter(typeof(object?[]), "Args");
+
+					var instanceCastExpr = Expression.Convert(instanceExpr, _GroupType);
+					var argsCastExpr = _Method.GetParameters().Select((x, i) =>
+					{
+						var indexExpr = Expression.Constant(i);
+						var accessExpr = Expression.ArrayAccess(argsExpr, indexExpr);
+						return Expression.Convert(accessExpr, x.ParameterType);
+					});
+					var invokeExpr = Expression.Call(instanceCastExpr, _Method, argsCastExpr);
+
+					var lambda = Expression.Lambda<Func<ICommandGroup, object?[], object>>(invokeExpr, instanceExpr, argsExpr);
+					return lambda.Compile();
+				});
+
 				_Method = mutable.Method;
 				_GroupType = mutable.GroupType;
 				_DO_NOT_USE_THIS_FOR_EXECUTION = CreateGroup();
@@ -100,12 +135,12 @@ namespace YACCS.Commands.Models
 				try
 				{
 					var group = CreateGroup();
-
 					await group.BeforeExecutionAsync(this, context).ConfigureAwait(false);
-					var value = _Method.Invoke(group, args);
-					var result = await ConvertValueAsync(context, value).ConfigureAwait(false);
-					await group.AfterExecutionAsync(this, context).ConfigureAwait(false);
 
+					var value = _InvokeDelegate.Value.Invoke(group, args);
+					var result = await ConvertValueAsync(context, value).ConfigureAwait(false);
+
+					await group.AfterExecutionAsync(this, context).ConfigureAwait(false);
 					return result;
 				}
 				catch (Exception e)
@@ -119,7 +154,7 @@ namespace YACCS.Commands.Models
 
 			private ICommandGroup CreateGroup()
 			{
-				var instance = Activator.CreateInstance(_GroupType);
+				var instance = _CreateDelegate.Value.Invoke();
 				if (!(instance is ICommandGroup group))
 				{
 					throw new InvalidOperationException("Invalid group.");
