@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30503.244
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YACCS", "src\YACCS\YACCS.csproj", "{27A75592-09DD-49B6-BDD9-3FF895B578D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YACCS.Tests", "tests\YACCS.Tests\YACCS.Tests.csproj", "{D86D69CA-9443-40A8-B5B4-443B14796864}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{27A75592-09DD-49B6-BDD9-3FF895B578D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27A75592-09DD-49B6-BDD9-3FF895B578D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27A75592-09DD-49B6-BDD9-3FF895B578D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27A75592-09DD-49B6-BDD9-3FF895B578D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D86D69CA-9443-40A8-B5B4-443B14796864}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D86D69CA-9443-40A8-B5B4-443B14796864}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D86D69CA-9443-40A8-B5B4-443B14796864}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D86D69CA-9443-40A8-B5B4-443B14796864}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {36DF2B61-7B58-40C6-AA2D-99DF4537B1EB}
+	EndGlobalSection
+EndGlobal
