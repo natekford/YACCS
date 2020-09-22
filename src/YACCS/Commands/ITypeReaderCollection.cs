@@ -6,6 +6,6 @@ namespace YACCS.Commands
 {
 	public interface ITypeReaderCollection
 	{
-		ITypeReader GetReader(Type type);
+		bool TryGetReader(Type type, out ITypeReader result);
 	}
 }

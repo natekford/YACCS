@@ -7,12 +7,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Results;
-using YACCS.Commands.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace YACCS.Tests.Commands
 {
@@ -22,12 +23,12 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task CommandDelegateBuilding_Test()
 		{
-			var @delegate = (Func<string, Task<bool>>)((string arg) => Task.FromResult(true));
+			var @delegate = (Func<IContext, Task<bool>>)((IContext arg) => Task.FromResult(true));
 			var names = new[] { new Name(new[] { "Joe" }) };
 			var command = new MutableDelegateCommand(@delegate, names);
 			var immutable = command.ToCommand();
 
-			var args = new object[] { null };
+			var args = new object[] { new FakeContext() };
 			var result = await immutable.GetResultAsync(null, args).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
 		}
@@ -70,12 +71,6 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(3, byName.Length,
 				"Received wrong count of commands when searching by name.");
 		}
-	}
-
-	public sealed class MiscContext : IContext
-	{
-		public Guid Id { get; } = Guid.NewGuid();
-		public IServiceProvider Services { get; } = EmptyServiceProvider.Instance;
 	}
 
 	[Command(_1, _2, _3)]

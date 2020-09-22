@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 using YACCS.Results;
+using YACCS.TypeReaders;
 
 namespace YACCS.Commands
 {
@@ -56,6 +57,155 @@ namespace YACCS.Commands
 			IReadOnlyList<string> input,
 			CommandScore candidate)
 			=> ProcessAllPreconditions(new PreconditionCache(), context, input, candidate);
+
+		public async Task<CommandScore> ProcessAllPreconditions(
+			PreconditionCache cache,
+			IContext context,
+			IReadOnlyList<string> input,
+			CommandScore candidate)
+		{
+			if (candidate.Stage != CommandStage.CorrectArgCount || candidate.Command == null)
+			{
+				throw new ArgumentException("Invalid stage.", nameof(candidate));
+			}
+
+			var command = candidate.Command;
+			var pResult = await ProcessPreconditionsAsync(
+				cache,
+				context,
+				command
+			).ConfigureAwait(false);
+			if (!pResult.IsSuccess)
+			{
+				return CommandScore.FromFailedPrecondition(command, context, pResult, 0);
+			}
+
+			var args = new object?[command.Parameters.Count];
+			var startIndex = candidate.Score;
+			for (var i = 0; i < args.Length; ++i)
+			{
+				var parameter = command.Parameters[i];
+
+				var trResult = await ProcessTypeReadersAsync(
+					cache,
+					context,
+					parameter,
+					input,
+					startIndex
+				).ConfigureAwait(false);
+				if (!trResult.IsSuccess)
+				{
+					return CommandScore.FromFailedTypeReader(command, context, trResult, i);
+				}
+
+				var ppResult = await ProcessParameterPreconditionsAsync(
+					cache,
+					context,
+					parameter,
+					trResult.Arg
+				).ConfigureAwait(false);
+				if (!ppResult.IsSuccess)
+				{
+					return CommandScore.FromFailedParameterPrecondition(command, context, trResult, i);
+				}
+
+				startIndex += parameter.Length;
+				args[i] = trResult.Arg;
+			}
+			return CommandScore.FromCanExecute(command, context, args);
+		}
+
+		public async Task<IResult> ProcessParameterPreconditionsAsync(
+			PreconditionCache cache,
+			IContext context,
+			IParameter parameter,
+			object? value)
+		{
+			var ppCache = cache.ParameterPreconditions;
+			foreach (var precondition in parameter.Preconditions)
+			{
+				var key = (value, precondition);
+				if (!ppCache.TryGetValue(key, out var result))
+				{
+					// TODO: enumerables
+					result = await precondition.CheckAsync(context, value).ConfigureAwait(false);
+					ppCache[key] = result;
+				}
+				if (!result.IsSuccess)
+				{
+					return result;
+				}
+			}
+			return SuccessResult.Instance;
+		}
+
+		public async Task<IResult> ProcessPreconditionsAsync(
+			PreconditionCache cache,
+			IContext context,
+			ICommand candidate)
+		{
+			var pCache = cache.Preconditions;
+			foreach (var precondition in candidate.Preconditions)
+			{
+				var key = precondition;
+				if (!pCache.TryGetValue(key, out var result))
+				{
+					result = await precondition.CheckAsync(context, candidate).ConfigureAwait(false);
+					pCache[key] = result;
+				}
+				if (!result.IsSuccess)
+				{
+					return result;
+				}
+			}
+			return SuccessResult.Instance;
+		}
+
+		public async Task<ITypeReaderResult> ProcessTypeReadersAsync(
+			PreconditionCache cache,
+			IContext context,
+			IParameter parameter,
+			IReadOnlyList<string> input,
+			int startIndex)
+		{
+			var (isEnumerable, reader) = GetReader(parameter);
+			var length = Math.Min(input.Count, Math.Max(parameter.Length, 1));
+			var results = new ITypeReaderResult[length];
+
+			var tCache = cache.TypeReaders;
+			// Iterate at least once even for arguments with zero length
+			// in cases of IContext, etc
+			var endIndex = startIndex + length;
+			for (var i = startIndex; i < endIndex; ++i)
+			{
+				var key = (input[i], parameter.ParameterType);
+				if (!tCache.TryGetValue(key, out var result))
+				{
+					result = await reader.ReadAsync(context, input[i]).ConfigureAwait(false);
+					tCache[key] = result;
+				}
+				if (!result.IsSuccess)
+				{
+					return result;
+				}
+
+				results[i - startIndex] = result;
+			}
+
+			// Length being 1 and not enumerable so return without dealing with the array
+			if (parameter.Length == 1 && !isEnumerable)
+			{
+				return results[0];
+			}
+
+			// Copy the values from the type reader result array to an array of the parameter type
+			var output = Array.CreateInstance(parameter.EnumerableType, results.Length);
+			for (var i = 0; i < results.Length; ++i)
+			{
+				output.SetValue(results[i].Arg, i);
+			}
+			return TypeReaderResult.FromSuccess(output);
+		}
 
 		public void Remove(ICommand command)
 			=> _CommandTrie.Remove(command);
@@ -136,149 +286,18 @@ namespace YACCS.Commands
 			return matches;
 		}
 
-		private async Task<CommandScore> ProcessAllPreconditions(
-			PreconditionCache cache,
-			IContext context,
-			IReadOnlyList<string> input,
-			CommandScore candidate)
+		private (bool IsEnumerable, ITypeReader Reader) GetReader(IParameter parameter)
 		{
-			if (candidate.Stage != CommandStage.CorrectArgCount || candidate.Command == null)
+			if (_Readers.TryGetReader(parameter.ParameterType, out var reader))
 			{
-				throw new ArgumentException("Invalid stage.", nameof(candidate));
+				return (false, reader);
 			}
-
-			var command = candidate.Command;
-			var pResult = await ProcessPreconditionsAsync(
-				cache,
-				context,
-				command
-			).ConfigureAwait(false);
-			if (!pResult.IsSuccess)
+			if (parameter.EnumerableType != null
+				&& _Readers.TryGetReader(parameter.EnumerableType, out reader))
 			{
-				return CommandScore.FromFailedPrecondition(command, context, pResult, 0);
+				return (true, reader);
 			}
-
-			var args = new object?[command.Parameters.Count];
-			var startIndex = candidate.Score;
-			for (var i = 0; i < args.Length; ++i)
-			{
-				var parameter = command.Parameters[i];
-
-				var trResult = await ProcessTypeReadersAsync(
-					cache,
-					context,
-					parameter,
-					input,
-					startIndex
-				).ConfigureAwait(false);
-				if (!trResult.IsSuccess)
-				{
-					return CommandScore.FromFailedTypeReader(command, context, trResult, i);
-				}
-
-				var ppResult = await ProcessParameterPreconditionsAsync(
-					cache,
-					context,
-					parameter,
-					trResult.Arg
-				).ConfigureAwait(false);
-				if (!ppResult.IsSuccess)
-				{
-					return CommandScore.FromFailedParameterPrecondition(command, context, trResult, i);
-				}
-
-				startIndex += parameter.Length;
-				args[i] = trResult.Arg;
-			}
-			return CommandScore.FromCanExecute(command, context, args);
-		}
-
-		private async Task<IResult> ProcessParameterPreconditionsAsync(
-			PreconditionCache cache,
-			IContext context,
-			IParameter parameter,
-			object? value)
-		{
-			var ppCache = cache.ParameterPreconditions;
-			foreach (var precondition in parameter.Preconditions)
-			{
-				var key = (value, precondition);
-				if (!ppCache.TryGetValue(key, out var result))
-				{
-					// TODO: enumerables
-					result = await precondition.CheckAsync(context, value).ConfigureAwait(false);
-					ppCache[key] = result;
-				}
-				if (!result.IsSuccess)
-				{
-					return result;
-				}
-			}
-			return SuccessResult.Instance;
-		}
-
-		private async Task<IResult> ProcessPreconditionsAsync(
-			PreconditionCache cache,
-			IContext context,
-			ICommand candidate)
-		{
-			var pCache = cache.Preconditions;
-			foreach (var precondition in candidate.Preconditions)
-			{
-				var key = precondition;
-				if (!pCache.TryGetValue(key, out var result))
-				{
-					result = await precondition.CheckAsync(context, candidate).ConfigureAwait(false);
-					pCache[key] = result;
-				}
-				if (!result.IsSuccess)
-				{
-					return result;
-				}
-			}
-			return SuccessResult.Instance;
-		}
-
-		private async Task<ITypeReaderResult> ProcessTypeReadersAsync(
-			PreconditionCache cache,
-			IContext context,
-			IParameter parameter,
-			IReadOnlyList<string> input,
-			int startIndex)
-		{
-			var reader = _Readers.GetReader(parameter.ParameterType);
-			var results = new ITypeReaderResult[parameter.Length];
-
-			var tCache = cache.TypeReaders;
-			for (var i = startIndex; i <= startIndex + parameter.Length; ++i)
-			{
-				var key = (input[i], parameter.ParameterType);
-				if (!tCache.TryGetValue(key, out var result))
-				{
-					result = await reader.ReadAsync(context, input[i]).ConfigureAwait(false);
-					tCache[key] = result;
-				}
-				if (!result.IsSuccess)
-				{
-					return result;
-				}
-
-				results[i - startIndex] = result;
-			}
-
-			// Length being 1 means not enumerable so return without dealing with the array
-			if (parameter.Length == 1)
-			{
-				return results[0];
-			}
-
-			// Copy the values from the type reader result array to an array of the parameter type
-			var output = Array.CreateInstance(parameter.ParameterType, results.Length);
-			for (var i = 0; i < output.Length; ++i)
-			{
-				output.SetValue(results[i].Arg, i);
-			}
-			return TypeReaderResult.FromSuccess(output);
+			throw new ArgumentException($"There is no converter specified for {parameter.ParameterType.Name}.");
 		}
 	}
 }

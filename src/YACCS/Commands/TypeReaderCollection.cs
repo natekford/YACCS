@@ -22,6 +22,8 @@ namespace YACCS.Commands
 		{
 			Register(new StringTypeReader());
 			Register(new UriTypeReader());
+			Register(new ContextTypeReader<IContext>());
+			RegisterWithNullable(new TryParseTypeReader<char>(char.TryParse));
 			RegisterWithNullable(new TryParseTypeReader<bool>(bool.TryParse));
 			RegisterWithNullable(new NumberTypeReader<sbyte>(sbyte.TryParse));
 			RegisterWithNullable(new NumberTypeReader<byte>(byte.TryParse));
@@ -76,5 +78,8 @@ namespace YACCS.Commands
 			_Readers[typeof(T)] = reader;
 			_Readers[typeof(T?)] = new NullableTypeReader<T>(reader);
 		}
+
+		public bool TryGetReader(Type type, out ITypeReader result)
+			=> _Readers.TryGetValue(type, out result);
 	}
 }

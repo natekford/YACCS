@@ -19,6 +19,12 @@ namespace YACCS.Commands.Models
 		public IList<IParameterPrecondition> Preconditions { get; set; } = new List<IParameterPrecondition>();
 		private string DebuggerDisplay => $"Name = {ParameterName}, Type = {ParameterType}";
 
+		public MutableParameter() : base(null)
+		{
+			ParameterName = "";
+			ParameterType = typeof(void);
+		}
+
 		public MutableParameter(ParameterInfo parameter) : base(parameter)
 		{
 			IsOptional = parameter.IsOptional;
@@ -33,6 +39,7 @@ namespace YACCS.Commands.Models
 		private sealed class ImmutableParameter : IParameter
 		{
 			public IReadOnlyList<object> Attributes { get; }
+			public Type? EnumerableType { get; }
 			public string Id { get; }
 			public bool IsOptional { get; }
 			public int Length { get; }
@@ -51,6 +58,24 @@ namespace YACCS.Commands.Models
 				ParameterName = mutable.ParameterName;
 				ParameterType = mutable.ParameterType;
 				Preconditions = mutable.Get<IParameterPrecondition>().ToImmutableArray();
+				EnumerableType = GetEnumerableType(mutable.ParameterType);
+			}
+
+			private static Type? GetEnumerableType(Type type)
+			{
+				if (type.IsInterface && type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+				{
+					return type.GetGenericArguments()[0];
+				}
+				foreach (var @interface in type.GetInterfaces())
+				{
+					if (@interface.IsGenericType
+						&& @interface.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+					{
+						return @interface.GetGenericArguments()[0];
+					}
+				}
+				return null;
 			}
 		}
 	}

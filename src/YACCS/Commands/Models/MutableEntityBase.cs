@@ -16,11 +16,14 @@ namespace YACCS.Commands.Models
 		IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 		private string DebuggerDisplay => $"Id = {Id}, Attribute Count = {Attributes.Count}";
 
-		protected MutableEntityBase(ICustomAttributeProvider provider)
+		protected MutableEntityBase(ICustomAttributeProvider? provider)
 		{
-			foreach (var attribute in provider.GetCustomAttributes(true))
+			if (provider != null)
 			{
-				Attributes.Add(attribute);
+				foreach (var attribute in provider.GetCustomAttributes(true))
+				{
+					Attributes.Add(attribute);
+				}
 			}
 
 			Id = Get<IIdAttribute>().SingleOrDefault()?.Id ?? Guid.NewGuid().ToString();
