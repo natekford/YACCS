@@ -6,66 +6,14 @@ using System.Reflection;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 
+using QCommands = System.Collections.Generic.IEnumerable<YACCS.Commands.Models.IQueryableCommand>;
+using QEntities = System.Collections.Generic.IEnumerable<YACCS.Commands.Models.IQueryableEntity>;
+
 namespace YACCS.Commands.Linq
 {
 	public static class Commands
 	{
-		public static IEnumerable<IQueryableCommand> ByDelegate(
-			this IEnumerable<IQueryableCommand> commands,
-			Delegate @delegate)
-			=> commands.ByDelegate(@delegate, false);
-
-		public static IEnumerable<IQueryableCommand> ByDelegate(
-			this IEnumerable<IQueryableCommand> commands,
-			Delegate @delegate,
-			bool includeMethod)
-		{
-			foreach (var command in commands)
-			{
-				foreach (var attribute in command.Attributes)
-				{
-					if (attribute is DelegateCommandAttribute d && d.Delegate == @delegate)
-					{
-						yield return command;
-					}
-					else if (includeMethod && attribute is MethodInfoCommandAttribute m && m.Method == @delegate.Method)
-					{
-						yield return command;
-					}
-				}
-			}
-		}
-
-		public static IEnumerable<IQueryableEntity> ById(
-			this IEnumerable<IQueryableEntity> commands,
-			string id)
-			=> commands.ByAttribute((IIdAttribute x) => x.Id == id);
-
-		public static IEnumerable<IQueryableCommand> ByLastPartOfName(
-			this IEnumerable<IQueryableCommand> commands,
-			string name)
-		{
-			return commands.Where(x => x.Names.Any(n =>
-			{
-				const StringComparison COMPARISON = StringComparison.OrdinalIgnoreCase;
-				return n.Parts[^1].Equals(name, COMPARISON);
-			}));
-		}
-
-		public static IEnumerable<IQueryableCommand> ByMethod(
-			this IEnumerable<IQueryableCommand> commands,
-			MethodInfo method)
-			=> commands.ByAttribute((MethodInfoCommandAttribute x) => x.Method == method);
-
-		public static IEnumerable<IQueryableCommand> ByName(
-			this IEnumerable<IQueryableCommand> commands,
-			IEnumerable<string> parts)
-		{
-			var name = new Name(parts);
-			return commands.Where(x => x.Names.Any(n => n == name));
-		}
-
-		private static IEnumerable<TEntity> ByAttribute<TEntity, TAttribute>(
+		public static IEnumerable<TEntity> ByAttribute<TEntity, TAttribute>(
 			this IEnumerable<TEntity> entities,
 			Func<TAttribute, bool> predicate)
 			where TEntity : IQueryableEntity
@@ -80,6 +28,40 @@ namespace YACCS.Commands.Linq
 					}
 				}
 			}
+		}
+
+		public static QCommands ByDelegate(this QCommands commands, Delegate @delegate)
+			=> commands.ByDelegate(@delegate, false);
+
+		public static QCommands ByDelegate(this QCommands commands, Delegate @delegate, bool includeMethod)
+		{
+			var d = commands.ByAttribute((DelegateCommandAttribute d) => d.Delegate == @delegate);
+			if (!includeMethod)
+			{
+				return d;
+			}
+			return d.Union(commands.ByMethod(@delegate.Method));
+		}
+
+		public static QEntities ById(this QEntities commands, string id)
+			=> commands.ByAttribute((IIdAttribute x) => x.Id == id);
+
+		public static QCommands ByLastPartOfName(this QCommands commands, string name)
+		{
+			return commands.Where(x => x.Names.Any(n =>
+			{
+				const StringComparison COMPARISON = StringComparison.OrdinalIgnoreCase;
+				return n.Parts[^1].Equals(name, COMPARISON);
+			}));
+		}
+
+		public static QCommands ByMethod(this QCommands commands, MethodInfo method)
+			=> commands.ByAttribute((MethodInfoCommandAttribute x) => x.Method == method);
+
+		public static QCommands ByName(this QCommands commands, IEnumerable<string> parts)
+		{
+			var name = new Name(parts);
+			return commands.Where(x => x.Names.Any(n => name == n));
 		}
 	}
 }

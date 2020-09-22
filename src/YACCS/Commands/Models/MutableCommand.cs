@@ -13,88 +13,27 @@ using YACCS.Results;
 namespace YACCS.Commands.Models
 {
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
-	public sealed class MutableCommand : MutableEntityBase, IMutableCommand
+	public abstract class MutableCommand : MutableEntityBase, IMutableCommand
 	{
-		public Type GroupType { get; }
-		public MethodInfo Method { get; }
 		public IList<IName> Names { get; set; }
 		public IList<IMutableParameter> Parameters { get; set; }
 		IEnumerable<IName> IQueryableCommand.Names => Names;
 		private string DebuggerDisplay => $"Name = {Names[0]}, Parameter Count = {Parameters.Count}";
 
-		public MutableCommand(ICommandGroup group, MethodInfo method, IEnumerable<string>? extraNames = null)
-			: base(method)
+		protected MutableCommand(MethodInfo method) : base(method)
 		{
-			var names = GetDirectCommandNames(method).Concat(extraNames ?? Enumerable.Empty<string>());
-
-			GroupType = group.GetType();
-			Method = method;
-			Names = GetFullNames(group, names);
+			Names = new List<IName>();
 			Parameters = method.GetParameters().Select(x => new MutableParameter(x)).ToList<IMutableParameter>();
-
-			Attributes.Add(new MethodInfoCommandAttribute(Method));
 		}
 
-		public MutableCommand(ICommandGroup group, Delegate @delegate, IEnumerable<string>? extraNames = null)
-			: this(group, @delegate.Method, extraNames)
+		public abstract ICommand ToCommand();
+
+		[DebuggerDisplay("{DebuggerDisplay,nq}")]
+		protected abstract class ImmutableCommand : ICommand
 		{
-			Attributes.Add(new DelegateCommandAttribute(@delegate));
-		}
-
-		public static IEnumerable<string> GetDirectCommandNames(MethodInfo method)
-		{
-			return method
-				.GetCustomAttributes()
-				.OfType<ICommandAttribute>()
-				.SingleOrDefault()
-				?.Names ?? Enumerable.Empty<string>();
-		}
-
-		public static IList<IName> GetFullNames(ICommandGroup group, IEnumerable<string> names)
-		{
-			var output = new List<IEnumerable<string>>(names.Select(x => new[] { x }));
-			if (output.Count == 0)
-			{
-				output.Add(Enumerable.Empty<string>());
-			}
-
-			var type = group.GetType();
-			while (type != null)
-			{
-				var command = type
-					.GetCustomAttributes()
-					.OfType<ICommandAttribute>()
-					.SingleOrDefault();
-				if (command != null)
-				{
-					var count = output.Count;
-					for (var i = 0; i < count; ++i)
-					{
-						foreach (var name in command.Names)
-						{
-							output.Add(output[i].Prepend(name));
-						}
-					}
-					output.RemoveRange(0, count);
-				}
-				type = type.DeclaringType;
-			}
-
-			return output.Select(x => new Name(x)).ToList<IName>();
-		}
-
-		public ICommand ToCommand()
-					=> new ImmutableCommand(this);
-
-		private sealed class ImmutableCommand : ICommand
-		{
-			private static readonly PropertyInfo _TaskResultProperty =
-				typeof(Task<>)
-				.GetProperty(nameof(Task<object>.Result));
-
-			private readonly ICommandGroup _DO_NOT_USE_THIS_FOR_EXECUTION;
-			private readonly Type _GroupType;
-			private readonly MethodInfo _Method;
+			private readonly bool _IsGeneric;
+			private readonly bool _IsVoid;
+			private readonly Lazy<PropertyInfo> _TaskResultProperty;
 
 			public IReadOnlyList<object> Attributes { get; }
 			public string Id { get; }
@@ -104,12 +43,18 @@ namespace YACCS.Commands.Models
 			public int Priority { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 			IEnumerable<IName> IQueryableCommand.Names => Names;
+			private string DebuggerDisplay => $"Name = {Names[0]}, Parameter Count = {Parameters.Count}";
 
-			public ImmutableCommand(MutableCommand mutable)
+			protected ImmutableCommand(MutableCommand mutable, Type returnType)
 			{
-				_Method = mutable.Method;
-				_GroupType = mutable.GroupType;
-				_DO_NOT_USE_THIS_FOR_EXECUTION = CreateGroup();
+				_IsVoid = returnType == typeof(void);
+				_IsGeneric = returnType.IsGenericType;
+				_TaskResultProperty = new Lazy<PropertyInfo>(() =>
+				{
+					return typeof(Task<>)
+						.MakeGenericType(returnType.GenericTypeArguments)
+						.GetProperty(nameof(Task<object>.Result));
+				});
 
 				Attributes = mutable.Attributes.ToImmutableArray();
 				Id = mutable.Id;
@@ -119,29 +64,11 @@ namespace YACCS.Commands.Models
 				Priority = mutable.Get<IPriorityAttribute>().SingleOrDefault()?.Priority ?? 0;
 			}
 
-			public async Task<ExecutionResult> GetResultAsync(IContext context, object?[] args)
-			{
-				try
-				{
-					var group = CreateGroup();
+			public abstract Task<ExecutionResult> GetResultAsync(IContext context, object?[] args);
 
-					await group.BeforeExecutionAsync(this, context).ConfigureAwait(false);
-					var value = _Method.Invoke(group, args);
-					var result = await ConvertValueAsync(context, value).ConfigureAwait(false);
-					await group.AfterExecutionAsync(this, context).ConfigureAwait(false);
+			public abstract bool IsValidContext(IContext context);
 
-					return result;
-				}
-				catch (Exception e)
-				{
-					return new ExecutionResult(this, context, new ExceptionResult(e));
-				}
-			}
-
-			public bool IsValidContext(IContext context)
-				=> _DO_NOT_USE_THIS_FOR_EXECUTION.IsValidContext(context);
-
-			private async Task<ExecutionResult> ConvertValueAsync(IContext context, object? value)
+			protected async Task<ExecutionResult> ConvertValueAsync(IContext context, object? value)
 			{
 				static ExecutionResult ConvertValue(
 					ICommand command,
@@ -161,8 +88,7 @@ namespace YACCS.Commands.Models
 				}
 
 				// Void method. No value to return, we're done
-				var type = _Method.ReturnType;
-				if (type == typeof(void))
+				if (_IsVoid)
 				{
 					return new ExecutionResult(this, context, SuccessResult.Instance);
 				}
@@ -174,27 +100,17 @@ namespace YACCS.Commands.Models
 					await task.ConfigureAwait(false);
 
 					// Not generic? No value to return, we're done
-					if (!type.IsGenericType)
+					if (!_IsGeneric)
 					{
 						return new ExecutionResult(this, context, SuccessResult.Instance);
 					}
 
 					// It has a value? Ok, let's get it
-					var result = _TaskResultProperty.GetValue(value);
+					var result = _TaskResultProperty.Value.GetValue(value);
 					return ConvertValue(this, context, result);
 				}
 
 				return ConvertValue(this, context, value);
-			}
-
-			private ICommandGroup CreateGroup()
-			{
-				var instance = Activator.CreateInstance(_GroupType);
-				if (!(instance is ICommandGroup group))
-				{
-					throw new InvalidOperationException("Invalid group.");
-				}
-				return group;
 			}
 		}
 	}

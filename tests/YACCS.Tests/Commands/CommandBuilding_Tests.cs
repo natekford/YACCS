@@ -20,16 +20,62 @@ namespace YACCS.Tests.Commands
 	public class CommandBuilding_Tests
 	{
 		[TestMethod]
-		public async Task TestMethod1()
+		public async Task CommandDelegateBuilding_Test()
+		{
+			var @delegate = (Func<string, Task<bool>>)((string arg) => Task.FromResult(true));
+			var names = new[] { new Name(new[] { "Joe" }) };
+			var command = new MutableDelegateCommand(@delegate, names);
+			var immutable = command.ToCommand();
+
+			var args = new object[] { null };
+			var result = await immutable.GetResultAsync(null, args).ConfigureAwait(false);
+			Assert.IsTrue(result.IsSuccess);
+		}
+
+		[TestMethod]
+		public async Task CommandBuildingAndQuerying_Test()
 		{
 			var commands = new List<ICommand>();
-			await foreach (var command in CommandServiceUtils.GetCommandsAsync(typeof(Misc)))
+			await foreach (var command in typeof(Misc).GetCommandsAsync())
 			{
 				commands.Add(command);
 			}
 
 			Assert.AreEqual(4, commands.Count);
+
+			var byId = commands.ById(Misc._Id).ToArray();
+			Assert.AreEqual(1, byId.Length,
+				"Received wrong count of commands when searching by id.");
+
+			var t = new Misc.Help();
+			var @delegate = (Func<IReadOnlyList<string>, Task<IResult>>)t.CommandFour;
+
+			var byDelegate1 = commands.ByDelegate(@delegate, false).ToArray();
+			Assert.AreEqual(0, byDelegate1.Length,
+				"Received wrong count of commands when searching by delegate.");
+
+			var byDelegate2 = commands.ByDelegate(@delegate, true).ToArray();
+			Assert.AreEqual(1, byDelegate2.Length,
+				"Received wrong count of commands when searching by delegate (including method).");
+
+			var byMethod = commands.ByMethod(@delegate.Method).ToArray();
+			Assert.AreEqual(1, byMethod.Length,
+				"Received wrong count of commands when searching by method.");
+
+			var byLastPartOfName = commands.ByLastPartOfName(Misc._7).ToArray();
+			Assert.AreEqual(1, byLastPartOfName.Length,
+				"Received wrong count of commands when searching by last part of name.");
+
+			var byName = commands.ByName(new[] { Misc._1, Misc._4 }).ToArray();
+			Assert.AreEqual(3, byName.Length,
+				"Received wrong count of commands when searching by name.");
 		}
+	}
+
+	public sealed class MiscContext : IContext
+	{
+		public Guid Id { get; } = Guid.NewGuid();
+		public IServiceProvider Services { get; } = EmptyServiceProvider.Instance;
 	}
 
 	[Command(_1, _2, _3)]
@@ -72,37 +118,6 @@ namespace YACCS.Tests.Commands
 			public Task<IResult> CommandFour(IReadOnlyList<string> list)
 			{
 				return SuccessResult.InstanceTask;
-			}
-
-			public override Task OnCommandBuildingAsync(IList<IMutableCommand> commands)
-			{
-				var byId = commands.ById(_Id).ToArray();
-				Assert.AreEqual(1, byId.Length,
-					"Received wrong count of commands when searching by id.");
-
-				var @delegate = (Func<IReadOnlyList<string>, Task<IResult>>)CommandFour;
-
-				var byDelegate1 = commands.ByDelegate(@delegate, false).ToArray();
-				Assert.AreEqual(0, byDelegate1.Length,
-					"Received wrong count of commands when searching by delegate.");
-
-				var byDelegate2 = commands.ByDelegate(@delegate, true).ToArray();
-				Assert.AreEqual(1, byDelegate2.Length,
-					"Received wrong count of commands when searching by delegate (including method).");
-
-				var byMethod = commands.ByMethod(@delegate.Method).ToArray();
-				Assert.AreEqual(1, byMethod.Length,
-					"Received wrong count of commands when searching by method.");
-
-				var byLastPartOfName = commands.ByLastPartOfName(_7).ToArray();
-				Assert.AreEqual(1, byLastPartOfName.Length,
-					"Received wrong count of commands when searching by last part of name.");
-
-				var byName = commands.ByName(new[] { _1, _4 }).ToArray();
-				Assert.AreEqual(3, byLastPartOfName.Length,
-					"Received wrong count of commands when searching by name.");
-
-				return Task.CompletedTask;
 			}
 		}
 	}

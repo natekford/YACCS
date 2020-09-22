@@ -29,6 +29,7 @@ namespace YACCS.Commands.Models
 		public IParameter ToParameter()
 			=> new ImmutableParameter(this);
 
+		[DebuggerDisplay("{DebuggerDisplay,nq}")]
 		private sealed class ImmutableParameter : IParameter
 		{
 			public IReadOnlyList<object> Attributes { get; }
@@ -39,6 +40,7 @@ namespace YACCS.Commands.Models
 			public Type ParameterType { get; }
 			public IReadOnlyList<IParameterPrecondition> Preconditions { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
+			private string DebuggerDisplay => $"Name = {ParameterName}, Type = {ParameterType}";
 
 			public ImmutableParameter(MutableParameter mutable)
 			{

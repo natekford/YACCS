@@ -18,7 +18,7 @@ namespace YACCS.Commands
 		public static readonly ImmutableArray<CommandScore> QuoteMismatch
 			= new[] { CommandScore.FromQuoteMismatch() }.ToImmutableArray();
 
-		public static async Task<IReadOnlyList<ICommand>> CreateCommandsAsync(Type type)
+		public static async Task<IReadOnlyList<ICommand>> CreateCommandsAsync(this Type type)
 		{
 			const BindingFlags FLAGS = 0
 				| BindingFlags.Public
@@ -49,42 +49,45 @@ namespace YACCS.Commands
 					list = new List<IMutableCommand>();
 				}
 
-				list.Add(new MutableCommand(group, method));
+				list.Add(new MutableMethodInfoCommand(group, method));
 			}
 
 			if (group != null && list != null)
 			{
 				await group.OnCommandBuildingAsync(list).ConfigureAwait(false);
+
+				// Commands have been modified by whoever implemented them
+				// We can now return them in an immutable state
 				return list.Select(x => x.ToCommand()).ToArray();
 			}
 			return Array.Empty<ICommand>();
 		}
 
-		public static async IAsyncEnumerable<ICommand> GetCommandsAsync(IEnumerable<Assembly> assemblies)
+		public static async IAsyncEnumerable<ICommand> GetCommandsAsync(this IEnumerable<Assembly> assemblies)
 		{
 			foreach (var assembly in assemblies)
 			{
-				await foreach (var command in GetCommandsAsync(assembly))
+				await foreach (var command in assembly.GetCommandsAsync())
 				{
 					yield return command;
 				}
 			}
 		}
 
-		public static async IAsyncEnumerable<ICommand> GetCommandsAsync(Assembly assembly)
+		public static async IAsyncEnumerable<ICommand> GetCommandsAsync(this Assembly assembly)
 		{
 			foreach (var type in assembly.GetExportedTypes())
 			{
-				await foreach (var command in GetCommandsAsync(type))
+				await foreach (var command in type.GetCommandsAsync())
 				{
 					yield return command;
 				}
 			}
 		}
 
-		public static async IAsyncEnumerable<ICommand> GetCommandsAsync(Type type)
+		public static async IAsyncEnumerable<ICommand> GetCommandsAsync(this Type type)
 		{
-			var commands = await CreateCommandsAsync(type).ConfigureAwait(false);
+			var commands = await type.CreateCommandsAsync().ConfigureAwait(false);
 			foreach (var command in commands)
 			{
 				yield return command;

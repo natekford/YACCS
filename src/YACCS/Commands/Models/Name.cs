@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel;
 using System.Diagnostics;
 
 namespace YACCS.Commands.Models
@@ -15,6 +14,22 @@ namespace YACCS.Commands.Models
 		public Name(IEnumerable<string> parts)
 		{
 			Parts = parts.ToImmutableArray();
+		}
+
+		public static bool operator !=(Name? objA, IName? objB)
+			=> !(objA == objB);
+
+		public static bool operator ==(Name? objA, IName? objB)
+		{
+			if (ReferenceEquals(objA, objB))
+			{
+				return true;
+			}
+			if (objA is null || objB is null)
+			{
+				return false;
+			}
+			return objA.Equals(objB);
 		}
 
 		public int CompareTo(object obj)
