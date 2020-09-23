@@ -8,19 +8,16 @@ namespace YACCS.Commands
 {
 	public class CommandTrie
 	{
-		private readonly Dictionary<string, ICommand> _Commands = new Dictionary<string, ICommand>();
-		public Node Root { get; } = new Node();
+		private readonly Dictionary<string, ICommand> _Commands;
+		private readonly IEqualityComparer<string> _Comparer;
 
-		public CommandTrie()
-		{
-		}
+		public Node Root { get; }
 
-		public CommandTrie(IEnumerable<ICommand> commands)
+		public CommandTrie(IEqualityComparer<string> comparer)
 		{
-			foreach (var command in commands)
-			{
-				Add(command);
-			}
+			_Commands = new Dictionary<string, ICommand>();
+			_Comparer = comparer;
+			Root = new Node(_Comparer);
 		}
 
 		public int Add(ICommand command)
@@ -39,12 +36,12 @@ namespace YACCS.Commands
 					var part = name.Parts[i];
 					if (!node.Edges.TryGetValue(part, out var next))
 					{
-						next = new Node();
-						node.Edges.Add(part, next);
+						next = new Node(_Comparer);
+						node.MutableEdges.Add(part, next);
 					}
-					if (i == name.Parts.Count - 1 && !next.Values.Contains(command))
+					if (i == name.Parts.Count - 1 && !next.MutableValues.Contains(command))
 					{
-						next.Values.Add(command);
+						next.MutableValues.Add(command);
 						++added;
 					}
 					node = next;
@@ -89,7 +86,7 @@ namespace YACCS.Commands
 					{
 						break;
 					}
-					if (i == name.Parts.Count - 1 && next.Values.Remove(command))
+					if (i == name.Parts.Count - 1 && next.MutableValues.Remove(command))
 					{
 						++removed;
 					}
@@ -116,9 +113,16 @@ namespace YACCS.Commands
 
 		public sealed class Node
 		{
-			public IDictionary<string, Node> Edges { get; }
-				= new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
-			public IList<ICommand> Values { get; } = new List<ICommand>();
+			public IReadOnlyDictionary<string, Node> Edges => MutableEdges;
+			public IReadOnlyList<ICommand> Values => MutableValues;
+			internal Dictionary<string, Node> MutableEdges { get; }
+			internal List<ICommand> MutableValues { get; }
+
+			public Node(IEqualityComparer<string> comparer)
+			{
+				MutableEdges = new Dictionary<string, Node>(comparer);
+				MutableValues = new List<ICommand>();
+			}
 		}
 	}
 }

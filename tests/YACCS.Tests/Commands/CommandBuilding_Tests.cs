@@ -26,16 +26,29 @@ namespace YACCS.Tests.Commands
 		{
 			var @delegate = (Func<IContext, Task<bool>>)((IContext arg) => Task.FromResult(true));
 			var names = new[] { new Name(new[] { "Joe" }) };
-			var command = new MutableDelegateCommand(@delegate, names);
+			var command = new DelegateCommand(@delegate, names);
 			var immutable = command.ToCommand();
+			Assert.AreEqual(names.Length, command.Names.Count);
+			Assert.AreEqual(names[0], command.Names[0]);
+			Assert.AreEqual(1, command.Parameters.Count);
+			Assert.AreEqual(1, command.Attributes.Count);
+			Assert.IsInstanceOfType(command.Attributes[0], typeof(DelegateCommandAttribute));
 
 			var args = new object[] { new FakeContext() };
 			var result = await immutable.GetResultAsync(null, args).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
+			Assert.IsInstanceOfType(result.Result, typeof(ValueResult));
+			Assert.IsTrue(result.TryGetValue(out bool value));
+			Assert.AreEqual(true, value);
 		}
 
 		[TestMethod]
-		public async Task CommandBuildingAndQuerying_Test()
+		public async Task CommandMethodInfoBuilding_Test()
+		{
+		}
+
+		[TestMethod]
+		public async Task CommandQuerying_Test()
 		{
 			var commands = new List<ICommand>();
 			await foreach (var command in typeof(Misc).GetCommandsAsync())
@@ -45,7 +58,7 @@ namespace YACCS.Tests.Commands
 
 			Assert.AreEqual(4, commands.Count);
 
-			var byId = commands.ById(Misc._Id).ToArray();
+			var byId = commands.ById(Misc._CommandTwoId).ToArray();
 			Assert.AreEqual(1, byId.Length,
 				"Received wrong count of commands when searching by id.");
 
@@ -86,19 +99,21 @@ namespace YACCS.Tests.Commands
 		public const string _7 = "7";
 		public const string _8 = "8";
 		public const string _9 = "9";
-		public const string _Id = "id";
+		public const string _CommandOneId = "id_1";
+		public const string _CommandTwoId = "id_2";
 
 		[Command(_4, _5, _6)]
 		public sealed class Help : CommandGroup<IContext>
 		{
 			[Command(_7, _8, _9)]
+			[Id(_CommandOneId)]
 			public Task<IResult> CommandOne()
 			{
 				return SuccessResult.InstanceTask;
 			}
 
 			[Command]
-			[Id(_Id)]
+			[Id(_CommandTwoId)]
 			public Task<IResult> CommandTwo(string arg)
 			{
 				return SuccessResult.InstanceTask;

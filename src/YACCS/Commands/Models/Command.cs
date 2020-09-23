@@ -14,17 +14,17 @@ using YACCS.Results;
 namespace YACCS.Commands.Models
 {
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
-	public abstract class MutableCommand : MutableEntityBase, IMutableCommand
+	public abstract class Command : EntityBase, IMutableCommand
 	{
 		public IList<IName> Names { get; set; }
 		public IList<IMutableParameter> Parameters { get; set; }
 		IEnumerable<IName> IQueryableCommand.Names => Names;
 		private string DebuggerDisplay => $"Name = {Names[0]}, Parameter Count = {Parameters.Count}";
 
-		protected MutableCommand(MethodInfo method) : base(method)
+		protected Command(MethodInfo method) : base(method)
 		{
 			Names = new List<IName>();
-			Parameters = method.GetParameters().Select(x => new MutableParameter(x)).ToList<IMutableParameter>();
+			Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IMutableParameter>();
 		}
 
 		public abstract ICommand ToCommand();
@@ -46,7 +46,7 @@ namespace YACCS.Commands.Models
 			IEnumerable<IName> IQueryableCommand.Names => Names;
 			private string DebuggerDisplay => $"Name = {Names[0]}, Parameter Count = {Parameters.Count}";
 
-			protected ImmutableCommand(MutableCommand mutable, Type returnType)
+			protected ImmutableCommand(Command mutable, Type returnType)
 			{
 				_IsVoid = returnType == typeof(void);
 				_IsGeneric = returnType.IsGenericType;

@@ -21,7 +21,6 @@
     <Folder Include="TypeReaders\" />
     <Folder Include="ParameterPreconditions\" />
     <Folder Include="Preconditions\" />
-    <Folder Include="Parsing\" />
   </ItemGroup>
 
 </Project>

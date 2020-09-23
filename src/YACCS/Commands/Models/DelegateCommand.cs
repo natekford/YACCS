@@ -9,11 +9,11 @@ using YACCS.Results;
 
 namespace YACCS.Commands.Models
 {
-	public sealed class MutableDelegateCommand : MutableCommand
+	public sealed class DelegateCommand : Command
 	{
 		public Delegate Delegate { get; }
 
-		public MutableDelegateCommand(Delegate @delegate, IEnumerable<IName> names)
+		public DelegateCommand(Delegate @delegate, IEnumerable<IName> names)
 			: base(@delegate.Method)
 		{
 			Delegate = @delegate;
@@ -33,7 +33,7 @@ namespace YACCS.Commands.Models
 			private readonly Delegate _Delegate;
 			private readonly Lazy<Func<object?[], object>> _InvokeDelegate;
 
-			public ImmutableDelegateCommand(MutableDelegateCommand mutable)
+			public ImmutableDelegateCommand(DelegateCommand mutable)
 				: base(mutable, mutable.Delegate.Method.ReturnType)
 			{
 				_Delegate = mutable.Delegate;

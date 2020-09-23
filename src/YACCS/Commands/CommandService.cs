@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
+using YACCS.Parsing;
 using YACCS.Results;
 using YACCS.TypeReaders;
 
@@ -11,13 +13,35 @@ namespace YACCS.Commands
 {
 	public class CommandService : ICommandService
 	{
-		private readonly CommandTrie _CommandTrie = new CommandTrie();
+		private static readonly ImmutableArray<CommandScore> NotFound
+			= new[] { CommandScore.FromNotFound() }.ToImmutableArray();
+		private static readonly ImmutableArray<CommandScore> QuoteMismatch
+			= new[] { CommandScore.FromQuoteMismatch() }.ToImmutableArray();
+
+		private readonly AsyncEvent<CommandExecutedEventArgs> _CommandExecuted
+			= new AsyncEvent<CommandExecutedEventArgs>();
+		private readonly CommandTrie _CommandTrie;
+		private readonly ICommandServiceConfig _Config;
 		private readonly ITypeReaderCollection _Readers;
 
 		public IReadOnlyCollection<ICommand> Commands => _CommandTrie.GetCommands();
 
-		public CommandService(ITypeReaderCollection readers)
+		public event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted
 		{
+			add => _CommandExecuted.Add(value);
+			remove => _CommandExecuted.Remove(value);
+		}
+
+		public event AsyncEventHandler<ExceptionEventArgs<CommandExecutedEventArgs>> CommandExecutedException
+		{
+			add => _CommandExecuted.Exception.Add(value);
+			remove => _CommandExecuted.Exception.Remove(value);
+		}
+
+		public CommandService(ICommandServiceConfig config, ITypeReaderCollection readers)
+		{
+			_CommandTrie = new CommandTrie(config.CommandNameComparer);
+			_Config = config;
 			_Readers = readers;
 		}
 
@@ -48,6 +72,58 @@ namespace YACCS.Commands
 					input,
 					candidate
 				).ConfigureAwait(false));
+			}
+			return GetSortedCommandScores(matches);
+		}
+
+		public IReadOnlyList<CommandScore> GetCommands(string input)
+		{
+			if (ParseArgs.TryParse(
+				input,
+				_Config.StartQuotes,
+				_Config.EndQuotes,
+				_Config.Separators,
+				out var args))
+			{
+				return GetCommands(args.Arguments);
+			}
+			return QuoteMismatch;
+		}
+
+		public IReadOnlyList<CommandScore> GetCommands(IReadOnlyList<string> input)
+		{
+			var count = input.Count;
+			if (count == 0)
+			{
+				return NotFound;
+			}
+
+			var node = _CommandTrie.Root;
+			var matches = new List<CommandScore>();
+			for (var i = 0; i < count; ++i)
+			{
+				foreach (var command in node.Values)
+				{
+					var (min, max) = GetMinAndMaxArgs(command);
+					// Trivial cases, provided input length is not in the possible arg length
+					if (count < min)
+					{
+						matches.Add(CommandScore.FromNotEnoughArgs(command, i));
+					}
+					else if (count > max)
+					{
+						matches.Add(CommandScore.FromTooManyArgs(command, i));
+					}
+					else
+					{
+						matches.Add(CommandScore.FromCorrectArgCount(command, i));
+					}
+				}
+
+				if (!node.Edges.TryGetValue(input[i], out node))
+				{
+					break;
+				}
 			}
 			return GetSortedCommandScores(matches);
 		}
@@ -209,44 +285,6 @@ namespace YACCS.Commands
 		public void Remove(ICommand command)
 			=> _CommandTrie.Remove(command);
 
-		public IReadOnlyList<CommandScore> TryFind(IReadOnlyList<string> input)
-		{
-			var count = input.Count;
-			if (count == 0)
-			{
-				return CommandServiceUtils.NotFound;
-			}
-
-			var node = _CommandTrie.Root;
-			var matches = new List<CommandScore>();
-			for (var i = 0; i < count; ++i)
-			{
-				foreach (var command in node.Values)
-				{
-					var (min, max) = GetMinAndMaxArgs(command);
-					// Trivial cases, provided input length is not in the possible arg length
-					if (count < min)
-					{
-						matches.Add(CommandScore.FromNotEnoughArgs(command, i));
-					}
-					else if (count > max)
-					{
-						matches.Add(CommandScore.FromTooManyArgs(command, i));
-					}
-					else
-					{
-						matches.Add(CommandScore.FromCorrectArgCount(command, i));
-					}
-				}
-
-				if (!node.Edges.TryGetValue(input[i], out node))
-				{
-					break;
-				}
-			}
-			return GetSortedCommandScores(matches);
-		}
-
 		private static (int Min, int Max) GetMinAndMaxArgs(ICommand command)
 		{
 			var @base = command.Names[0].Parts.Count;
@@ -274,7 +312,7 @@ namespace YACCS.Commands
 		{
 			if (matches.Count == 0)
 			{
-				return CommandServiceUtils.NotFound;
+				return NotFound;
 			}
 
 			if (matches.Count > 1)

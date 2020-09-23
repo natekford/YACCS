@@ -13,11 +13,6 @@ namespace YACCS.Commands
 {
 	public static class CommandServiceUtils
 	{
-		public static readonly ImmutableArray<CommandScore> NotFound
-			= new[] { CommandScore.FromNotFound() }.ToImmutableArray();
-		public static readonly ImmutableArray<CommandScore> QuoteMismatch
-			= new[] { CommandScore.FromQuoteMismatch() }.ToImmutableArray();
-
 		public static async Task<IReadOnlyList<ICommand>> CreateCommandsAsync(this Type type)
 		{
 			const BindingFlags FLAGS = 0
@@ -25,7 +20,6 @@ namespace YACCS.Commands
 				| BindingFlags.Instance
 				| BindingFlags.FlattenHierarchy;
 
-			ICommandGroup? group = null;
 			List<IMutableCommand>? list = null;
 			foreach (var method in type.GetMethods(FLAGS))
 			{
@@ -38,22 +32,28 @@ namespace YACCS.Commands
 					continue;
 				}
 
-				if (group is null || list is null)
-				{
-					var instance = Activator.CreateInstance(type);
-					if (!(instance is ICommandGroup temp))
-					{
-						throw new ArgumentException($"{type.Name} does not implement {nameof(ICommandGroup)}.");
-					}
-					group = temp;
-					list = new List<IMutableCommand>();
-				}
-
-				list.Add(new MutableMethodInfoCommand(group, method));
+				list ??= new List<IMutableCommand>();
+				list.Add(new ReflectionCommand(type, method));
 			}
 
-			if (group != null && list != null)
+			if (list != null)
 			{
+				object instance;
+				try
+				{
+					instance = Activator.CreateInstance(type);
+				}
+				catch (Exception e)
+				{
+					throw new InvalidCommandTypeException(
+						$"Unable to create an instance of {type.Name}. Is it missing a public parameterless constructor?", e);
+				}
+				if (!(instance is ICommandGroup group))
+				{
+					throw new InvalidCommandTypeException(
+						$"{type.Name} does not implement {nameof(ICommandGroup)}.");
+				}
+
 				await group.OnCommandBuildingAsync(list).ConfigureAwait(false);
 
 				// Commands have been modified by whoever implemented them
@@ -99,15 +99,6 @@ namespace YACCS.Commands
 					yield return command;
 				}
 			}
-		}
-
-		public static IReadOnlyList<CommandScore> TryFind(this ICommandService service, string input)
-		{
-			if (ParseArgs.TryParse(input, out var args))
-			{
-				return service.TryFind(args.Arguments);
-			}
-			return QuoteMismatch;
 		}
 	}
 }

@@ -20,10 +20,10 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task ProcessTypeReadersCharFailure_Test()
 		{
-			var commandService = new CommandService(new TypeReaderCollection());
+			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderCollection());
 			var cache = new PreconditionCache();
 			var context = new FakeContext();
-			var parameter = new MutableParameter
+			var parameter = new Parameter
 			{
 				IsOptional = false,
 				ParameterName = "Test",
@@ -52,10 +52,10 @@ namespace YACCS.Tests.Commands
 			var value = "joeba";
 			var type = value.GetType();
 
-			var commandService = new CommandService(new TypeReaderCollection());
+			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderCollection());
 			var cache = new PreconditionCache();
 			var context = new FakeContext();
-			var parameter = new MutableParameter
+			var parameter = new Parameter
 			{
 				IsOptional = false,
 				ParameterName = "Test",
@@ -86,10 +86,10 @@ namespace YACCS.Tests.Commands
 			var value = 2;
 			var type = value.GetType();
 
-			var commandService = new CommandService(new TypeReaderCollection());
+			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderCollection());
 			var cache = new PreconditionCache();
 			var context = new FakeContext();
-			var parameter = new MutableParameter
+			var parameter = new Parameter
 			{
 				IsOptional = false,
 				ParameterName = "Test",
@@ -120,10 +120,10 @@ namespace YACCS.Tests.Commands
 			var value = 2;
 			var type = value.GetType();
 
-			var commandService = new CommandService(new TypeReaderCollection());
+			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderCollection());
 			var cache = new PreconditionCache();
 			var context = new FakeContext();
-			var parameter = new MutableParameter
+			var parameter = new Parameter
 			{
 				IsOptional = false,
 				ParameterName = "Test",
@@ -154,10 +154,10 @@ namespace YACCS.Tests.Commands
 			var value = new[] { 1, 2, 3, 4 };
 			var type = value.GetType();
 
-			var commandService = new CommandService(new TypeReaderCollection());
+			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderCollection());
 			var cache = new PreconditionCache();
 			var context = new FakeContext();
-			var parameter = new MutableParameter
+			var parameter = new Parameter
 			{
 				IsOptional = false,
 				ParameterName = "Test",
@@ -193,10 +193,10 @@ namespace YACCS.Tests.Commands
 			var value = new[] { 1, 2, 3, 4 };
 			var type = value.GetType();
 
-			var commandService = new CommandService(new TypeReaderCollection());
+			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderCollection());
 			var cache = new PreconditionCache();
 			var context = new FakeContext();
-			var parameter = new MutableParameter
+			var parameter = new Parameter
 			{
 				IsOptional = false,
 				ParameterName = "Test",
@@ -232,10 +232,10 @@ namespace YACCS.Tests.Commands
 			var value = new[] { 1, 2, 3, 4 };
 			var type = value.GetType();
 
-			var commandService = new CommandService(new TypeReaderCollection());
+			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderCollection());
 			var cache = new PreconditionCache();
 			var context = new FakeContext();
-			var parameter = new MutableParameter
+			var parameter = new Parameter
 			{
 				IsOptional = false,
 				ParameterName = "Test",

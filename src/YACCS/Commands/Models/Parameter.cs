@@ -11,7 +11,7 @@ using YACCS.ParameterPreconditions;
 namespace YACCS.Commands.Models
 {
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
-	public sealed class MutableParameter : MutableEntityBase, IMutableParameter
+	public sealed class Parameter : EntityBase, IMutableParameter
 	{
 		public bool IsOptional { get; set; }
 		public string ParameterName { get; set; }
@@ -19,13 +19,13 @@ namespace YACCS.Commands.Models
 		public IList<IParameterPrecondition> Preconditions { get; set; } = new List<IParameterPrecondition>();
 		private string DebuggerDisplay => $"Name = {ParameterName}, Type = {ParameterType}";
 
-		public MutableParameter() : base(null)
+		public Parameter() : base(null)
 		{
 			ParameterName = "";
 			ParameterType = typeof(void);
 		}
 
-		public MutableParameter(ParameterInfo parameter) : base(parameter)
+		public Parameter(ParameterInfo parameter) : base(parameter)
 		{
 			IsOptional = parameter.IsOptional;
 			ParameterName = parameter.Name;
@@ -49,7 +49,7 @@ namespace YACCS.Commands.Models
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 			private string DebuggerDisplay => $"Name = {ParameterName}, Type = {ParameterType}";
 
-			public ImmutableParameter(MutableParameter mutable)
+			public ImmutableParameter(Parameter mutable)
 			{
 				Attributes = mutable.Attributes.ToImmutableArray();
 				Id = mutable.Id;

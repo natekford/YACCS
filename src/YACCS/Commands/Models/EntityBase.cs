@@ -9,14 +9,14 @@ using YACCS.Commands.Attributes;
 namespace YACCS.Commands.Models
 {
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
-	public abstract class MutableEntityBase : IMutableEntityBase
+	public abstract class EntityBase : IMutableEntityBase
 	{
 		public IList<object> Attributes { get; set; } = new List<object>();
 		public string Id { get; set; }
 		IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 		private string DebuggerDisplay => $"Id = {Id}, Attribute Count = {Attributes.Count}";
 
-		protected MutableEntityBase(ICustomAttributeProvider? provider)
+		protected EntityBase(ICustomAttributeProvider? provider)
 		{
 			if (provider != null)
 			{

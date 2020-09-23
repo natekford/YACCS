@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 namespace YACCS.Results
 {
@@ -21,6 +22,19 @@ namespace YACCS.Results
 				return nested.GetMostNestedResult();
 			}
 			return actual;
+		}
+
+		public static bool TryGetValue<T>(
+			this ExecutionResult result,
+			[NotNullWhen(true)] out T value)
+		{
+			if (result.Result is ValueResult vResult && vResult.Value is T t)
+			{
+				value = t;
+				return true;
+			}
+			value = default!;
+			return false;
 		}
 	}
 }

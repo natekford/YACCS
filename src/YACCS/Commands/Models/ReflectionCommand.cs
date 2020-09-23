@@ -10,15 +10,15 @@ using YACCS.Results;
 
 namespace YACCS.Commands.Models
 {
-	public sealed class MutableMethodInfoCommand : MutableCommand
+	public sealed class ReflectionCommand : Command
 	{
 		public Type GroupType { get; }
 		public MethodInfo Method { get; }
 
-		public MutableMethodInfoCommand(ICommandGroup group, MethodInfo method, IEnumerable<string>? extraNames = null)
+		public ReflectionCommand(Type group, MethodInfo method, IEnumerable<string>? extraNames = null)
 			: base(method)
 		{
-			GroupType = group.GetType();
+			GroupType = group;
 			Method = method;
 
 			foreach (var name in GetFullNames(group, GetDirectCommandNames(method, extraNames)))
@@ -29,7 +29,7 @@ namespace YACCS.Commands.Models
 		}
 
 		public override ICommand ToCommand()
-			=> new ImmutableMethodInfoCommand(this);
+			=> new ImmutableReflectionCommand(this);
 
 		private static IEnumerable<string> GetDirectCommandNames(ICustomAttributeProvider method, IEnumerable<string>? extraNames)
 		{
@@ -49,7 +49,7 @@ namespace YACCS.Commands.Models
 			return methodNames.Concat(extraNames);
 		}
 
-		private static IList<IName> GetFullNames(ICommandGroup group, IEnumerable<string> names)
+		private static IList<IName> GetFullNames(Type group, IEnumerable<string> names)
 		{
 			var output = new List<IEnumerable<string>>(names.Select(x => new[] { x }));
 			if (output.Count == 0)
@@ -57,7 +57,7 @@ namespace YACCS.Commands.Models
 				output.Add(Enumerable.Empty<string>());
 			}
 
-			var type = group.GetType();
+			var type = group;
 			while (type != null)
 			{
 				var command = type
@@ -82,7 +82,7 @@ namespace YACCS.Commands.Models
 			return output.Select(x => new Name(x)).ToList<IName>();
 		}
 
-		private sealed class ImmutableMethodInfoCommand : ImmutableCommand
+		private sealed class ImmutableReflectionCommand : ImmutableCommand
 		{
 			private readonly Lazy<Func<ICommandGroup>> _CreateDelegate;
 			private readonly ICommandGroup _DO_NOT_USE_THIS_FOR_EXECUTION;
@@ -90,7 +90,7 @@ namespace YACCS.Commands.Models
 			private readonly Lazy<Func<ICommandGroup, object?[], object>> _InvokeDelegate;
 			private readonly MethodInfo _Method;
 
-			public ImmutableMethodInfoCommand(MutableMethodInfoCommand mutable)
+			public ImmutableReflectionCommand(ReflectionCommand mutable)
 				: base(mutable, mutable.Method.ReturnType)
 			{
 				_CreateDelegate = new Lazy<Func<ICommandGroup>>(() =>
