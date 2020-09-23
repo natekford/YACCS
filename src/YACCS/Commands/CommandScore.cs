@@ -50,8 +50,18 @@ namespace YACCS.Commands
 			return new CommandScore(command, result, STAGE, score, null, null);
 		}
 
-		public static CommandScore FromFailedParameterPrecondition(
+		public static CommandScore FromFailedOptionalArgs(
 			IImmutableCommand command,
+			IContext context,
+			int score)
+		{
+			var result = NotEnoughArgsResult.Instance;
+			const CommandStage STAGE = CommandStage.FailedTypeReader;
+			return new CommandScore(command, result, STAGE, score, context, null);
+		}
+
+		public static CommandScore FromFailedParameterPrecondition(
+					IImmutableCommand command,
 			IContext context,
 			IResult result,
 			int score)

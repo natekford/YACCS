@@ -14,15 +14,20 @@ namespace YACCS.ParameterPreconditions
 
 		public Task<IResult> CheckAsync(IContext context, object? value)
 		{
-			if (!(context is TContext castedContext))
-			{
-				return InvalidContextResult.InstanceTask;
-			}
 			if (!(value is TValue castedValue))
 			{
 				return InvalidParameterResult.InstanceTask;
 			}
-			return CheckAsync(castedContext, castedValue);
+			return CheckAsync(context, castedValue);
+		}
+
+		public Task<IResult> CheckAsync(IContext context, [MaybeNull] TValue value)
+		{
+			if (!(context is TContext castedContext))
+			{
+				return InvalidContextResult.InstanceTask;
+			}
+			return CheckAsync(castedContext, value);
 		}
 	}
 }

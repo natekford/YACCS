@@ -13,7 +13,7 @@ namespace YACCS.Commands.Models
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public sealed class Parameter : EntityBase, IParameter
 	{
-		public bool IsOptional { get; set; }
+		public object? DefaultValue { get; set; }
 		public string ParameterName { get; set; }
 		public Type ParameterType { get; set; }
 		public IList<IParameterPrecondition> Preconditions { get; set; } = new List<IParameterPrecondition>();
@@ -27,7 +27,7 @@ namespace YACCS.Commands.Models
 
 		public Parameter(ParameterInfo parameter) : base(parameter)
 		{
-			IsOptional = parameter.IsOptional;
+			DefaultValue = parameter.DefaultValue;
 			ParameterName = parameter.Name;
 			ParameterType = parameter.ParameterType;
 		}
@@ -39,9 +39,9 @@ namespace YACCS.Commands.Models
 		private sealed class ImmutableParameter : IImmutableParameter
 		{
 			public IReadOnlyList<object> Attributes { get; }
+			public object? DefaultValue { get; }
 			public Type? EnumerableType { get; }
 			public string Id { get; }
-			public bool IsOptional { get; }
 			public int Length { get; }
 			public string ParameterName { get; }
 			public Type ParameterType { get; }
@@ -52,8 +52,8 @@ namespace YACCS.Commands.Models
 			public ImmutableParameter(Parameter mutable)
 			{
 				Attributes = mutable.Attributes.ToImmutableArray();
+				DefaultValue = mutable.DefaultValue;
 				Id = mutable.Id;
-				IsOptional = mutable.IsOptional;
 				Length = mutable.Get<ILengthAttribute>().SingleOrDefault()?.Length ?? 1;
 				ParameterName = mutable.ParameterName;
 				ParameterType = mutable.ParameterType;

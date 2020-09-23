@@ -9,6 +9,7 @@
 		FailedPrecondition = 3,
 		FailedTypeReader = 4,
 		FailedParameterPrecondition = 5,
-		CanExecute = 6,
+		UnableToGetRequiredArgs = 6,
+		CanExecute = 7,
 	}
 }

@@ -146,6 +146,7 @@ namespace YACCS.Commands
 			}
 
 			var command = candidate.Command;
+			// Any precondition fails, command is not valid
 			var pResult = await ProcessPreconditionsAsync(
 				cache,
 				context,
@@ -157,8 +158,9 @@ namespace YACCS.Commands
 			}
 
 			var args = new object?[command.Parameters.Count];
+			var argCount = 0;
 			var startIndex = candidate.Score;
-			for (var i = 0; i < args.Length; ++i)
+			for (var i = 0; i < command.Parameters.Count && startIndex < input.Count; ++i)
 			{
 				var parameter = command.Parameters[i];
 
@@ -182,11 +184,37 @@ namespace YACCS.Commands
 				).ConfigureAwait(false);
 				if (!ppResult.IsSuccess)
 				{
-					return CommandScore.FromFailedParameterPrecondition(command, context, trResult, i);
+					return CommandScore.FromFailedParameterPrecondition(command, context, ppResult, i);
 				}
 
-				startIndex += parameter.Length;
 				args[i] = trResult.Arg;
+				++argCount;
+				startIndex += parameter.Length;
+			}
+
+			// Deal with optional parameters if we don't have full arguments
+			for (var i = argCount; i < command.Parameters.Count; ++i)
+			{
+				var parameter = command.Parameters[i];
+
+				if (!parameter.IsOptional())
+				{
+					return CommandScore.FromFailedOptionalArgs(command, context, i);
+				}
+
+				var arg = parameter.DefaultValue;
+				var ppResult = await ProcessParameterPreconditionsAsync(
+					cache,
+					context,
+					parameter,
+					arg
+				).ConfigureAwait(false);
+				if (!ppResult.IsSuccess)
+				{
+					return CommandScore.FromFailedParameterPrecondition(command, context, ppResult, i);
+				}
+
+				args[i] = parameter.DefaultValue;
 			}
 			return CommandScore.FromCanExecute(command, context, args);
 		}
@@ -299,7 +327,7 @@ namespace YACCS.Commands
 					max = int.MaxValue;
 					break;
 				}
-				if (!parameter.IsOptional)
+				if (!parameter.IsOptional())
 				{
 					min += parameter.Length;
 				}

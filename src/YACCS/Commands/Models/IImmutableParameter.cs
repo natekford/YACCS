@@ -7,8 +7,8 @@ namespace YACCS.Commands.Models
 {
 	public interface IImmutableParameter : IImmutableEntityBase
 	{
+		object? DefaultValue { get; }
 		Type? EnumerableType { get; }
-		bool IsOptional { get; }
 		int Length { get; }
 		string ParameterName { get; }
 		Type ParameterType { get; }

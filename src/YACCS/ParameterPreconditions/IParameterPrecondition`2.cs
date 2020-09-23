@@ -7,7 +7,7 @@ using YACCS.Results;
 namespace YACCS.ParameterPreconditions
 {
 	public interface IParameterPrecondition<in TContext, in TValue>
-		: IParameterPrecondition
+		: IParameterPrecondition<TValue>
 		where TContext : IContext
 	{
 		Task<IResult> CheckAsync(TContext context, [MaybeNull] TValue value);

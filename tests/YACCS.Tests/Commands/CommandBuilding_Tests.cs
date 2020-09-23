@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,6 +14,7 @@ using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
+using YACCS.ParameterPreconditions;
 using YACCS.Results;
 
 namespace YACCS.Tests.Commands
@@ -101,6 +102,7 @@ namespace YACCS.Tests.Commands
 		public const string _9 = "9";
 		public const string _CommandOneId = "id_1";
 		public const string _CommandTwoId = "id_2";
+		public const string _ParamId = "param_id";
 
 		[Command(_4, _5, _6)]
 		public sealed class Help : CommandGroup<IContext>
@@ -120,7 +122,7 @@ namespace YACCS.Tests.Commands
 			}
 
 			[Command]
-			public Task<IResult> CommandThree(int position, string arg)
+			public Task<IResult> CommandThree([Id(_ParamId)] int position, string arg)
 			{
 				return SuccessResult.InstanceTask;
 			}
@@ -130,6 +132,29 @@ namespace YACCS.Tests.Commands
 			{
 				return SuccessResult.InstanceTask;
 			}
+
+			public override Task OnCommandBuildingAsync(IList<ICommand> commands)
+			{
+				var allParameters = commands.SelectMany(x => x.Parameters);
+
+				var pos = allParameters
+					.GetParameterById<int>(_ParamId)
+					.AddParameterPrecondition(new NotNegative());
+
+				return Task.CompletedTask;
+			}
+		}
+	}
+
+	public sealed class NotNegative : ParameterPrecondition<FakeContext, int>
+	{
+		public override Task<IResult> CheckAsync(FakeContext context, [MaybeNull] int value)
+		{
+			if (value >= 0)
+			{
+				return SuccessResult.InstanceTask;
+			}
+			return Result.FromError("Is negative.").AsTask();
 		}
 	}
 }

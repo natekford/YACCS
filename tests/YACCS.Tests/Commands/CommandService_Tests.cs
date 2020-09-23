@@ -25,7 +25,6 @@ namespace YACCS.Tests.Commands
 			var context = new FakeContext();
 			var parameter = new Parameter
 			{
-				IsOptional = false,
 				ParameterName = "Test",
 				ParameterType = typeof(char),
 				Attributes = new List<object>
@@ -57,7 +56,6 @@ namespace YACCS.Tests.Commands
 			var context = new FakeContext();
 			var parameter = new Parameter
 			{
-				IsOptional = false,
 				ParameterName = "Test",
 				ParameterType = type,
 				Attributes = new List<object>
@@ -91,7 +89,6 @@ namespace YACCS.Tests.Commands
 			var context = new FakeContext();
 			var parameter = new Parameter
 			{
-				IsOptional = false,
 				ParameterName = "Test",
 				ParameterType = type,
 				Attributes = new List<object>
@@ -125,7 +122,6 @@ namespace YACCS.Tests.Commands
 			var context = new FakeContext();
 			var parameter = new Parameter
 			{
-				IsOptional = false,
 				ParameterName = "Test",
 				ParameterType = type,
 				Attributes = new List<object>
@@ -159,7 +155,6 @@ namespace YACCS.Tests.Commands
 			var context = new FakeContext();
 			var parameter = new Parameter
 			{
-				IsOptional = false,
 				ParameterName = "Test",
 				ParameterType = type,
 				Attributes = new List<object>
@@ -198,7 +193,6 @@ namespace YACCS.Tests.Commands
 			var context = new FakeContext();
 			var parameter = new Parameter
 			{
-				IsOptional = false,
 				ParameterName = "Test",
 				ParameterType = type,
 				Attributes = new List<object>
@@ -237,7 +231,6 @@ namespace YACCS.Tests.Commands
 			var context = new FakeContext();
 			var parameter = new Parameter
 			{
-				IsOptional = false,
 				ParameterName = "Test",
 				ParameterType = type,
 				Attributes = new List<object>
