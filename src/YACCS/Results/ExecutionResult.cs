@@ -5,11 +5,11 @@ namespace YACCS.Results
 {
 	public class ExecutionResult : Result, INestedResult
 	{
-		public ICommand Command { get; }
+		public IImmutableCommand Command { get; }
 		public IContext Context { get; }
 		public IResult Result { get; }
 
-		public ExecutionResult(ICommand command, IContext context, IResult result)
+		public ExecutionResult(IImmutableCommand command, IContext context, IResult result)
 			: base(result.IsSuccess, result.Response)
 		{
 			Command = command;

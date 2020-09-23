@@ -1,18 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using YACCS.Preconditions;
-using YACCS.Results;
 
 namespace YACCS.Commands.Models
 {
-	public interface ICommand : IEntityBase, IQueryableCommand, IContextValidator
+	public interface ICommand : IEntityBase, IQueryableCommand
 	{
-		new IReadOnlyList<IName> Names { get; }
-		IReadOnlyList<IParameter> Parameters { get; }
-		IReadOnlyList<IPrecondition> Preconditions { get; }
-		int Priority { get; }
+		new IList<IName> Names { get; set; }
+		IList<IParameter> Parameters { get; set; }
 
-		Task<ExecutionResult> GetResultAsync(IContext context, object?[] args);
+		IImmutableCommand ToCommand();
 	}
 }

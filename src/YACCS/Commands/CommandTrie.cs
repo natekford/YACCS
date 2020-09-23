@@ -8,19 +8,19 @@ namespace YACCS.Commands
 {
 	public class CommandTrie
 	{
-		private readonly Dictionary<string, ICommand> _Commands;
+		private readonly Dictionary<string, IImmutableCommand> _Commands;
 		private readonly IEqualityComparer<string> _Comparer;
 
 		public Node Root { get; }
 
 		public CommandTrie(IEqualityComparer<string> comparer)
 		{
-			_Commands = new Dictionary<string, ICommand>();
+			_Commands = new Dictionary<string, IImmutableCommand>();
 			_Comparer = comparer;
 			Root = new Node(_Comparer);
 		}
 
-		public int Add(ICommand command)
+		public int Add(IImmutableCommand command)
 		{
 			if (!_Commands.TryAdd(command.Id, command))
 			{
@@ -50,13 +50,13 @@ namespace YACCS.Commands
 			return added;
 		}
 
-		public IReadOnlyList<ICommand> GetCommands()
+		public IReadOnlyList<IImmutableCommand> GetCommands()
 			=> _Commands.Values.ToImmutableArray();
 
-		public IReadOnlyList<ICommand> GetCommands(Node node)
+		public IReadOnlyList<IImmutableCommand> GetCommands(Node node)
 		{
 			var set = new HashSet<string>();
-			var array = ImmutableArray.CreateBuilder<ICommand>();
+			var array = ImmutableArray.CreateBuilder<IImmutableCommand>();
 			foreach (var command in GetCommandsEnumerable(node))
 			{
 				if (!set.Add(command.Id))
@@ -68,7 +68,7 @@ namespace YACCS.Commands
 			return array.MoveToImmutable();
 		}
 
-		public int Remove(ICommand command)
+		public int Remove(IImmutableCommand command)
 		{
 			if (!_Commands.Remove(command.Id))
 			{
@@ -96,7 +96,7 @@ namespace YACCS.Commands
 			return removed;
 		}
 
-		private IEnumerable<ICommand> GetCommandsEnumerable(Node node)
+		private IEnumerable<IImmutableCommand> GetCommandsEnumerable(Node node)
 		{
 			foreach (var command in node.Values)
 			{
@@ -114,14 +114,14 @@ namespace YACCS.Commands
 		public sealed class Node
 		{
 			public IReadOnlyDictionary<string, Node> Edges => MutableEdges;
-			public IReadOnlyList<ICommand> Values => MutableValues;
+			public IReadOnlyList<IImmutableCommand> Values => MutableValues;
 			internal Dictionary<string, Node> MutableEdges { get; }
-			internal List<ICommand> MutableValues { get; }
+			internal List<IImmutableCommand> MutableValues { get; }
 
 			public Node(IEqualityComparer<string> comparer)
 			{
 				MutableEdges = new Dictionary<string, Node>(comparer);
-				MutableValues = new List<ICommand>();
+				MutableValues = new List<IImmutableCommand>();
 			}
 		}
 	}

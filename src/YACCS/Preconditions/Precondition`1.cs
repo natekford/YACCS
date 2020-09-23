@@ -8,9 +8,9 @@ namespace YACCS.Preconditions
 {
 	public abstract class Precondition<TContext> : IPrecondition<TContext> where TContext : IContext
 	{
-		public abstract Task<IResult> CheckAsync(TContext context, ICommand command);
+		public abstract Task<IResult> CheckAsync(TContext context, IImmutableCommand command);
 
-		public Task<IResult> CheckAsync(IContext context, ICommand command)
+		public Task<IResult> CheckAsync(IContext context, IImmutableCommand command)
 		{
 			if (!(context is TContext castedContext))
 			{

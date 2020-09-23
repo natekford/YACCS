@@ -13,14 +13,14 @@ namespace YACCS.Commands
 {
 	public static class CommandServiceUtils
 	{
-		public static async Task<IReadOnlyList<ICommand>> CreateCommandsAsync(this Type type)
+		public static async Task<IReadOnlyList<IImmutableCommand>> CreateCommandsAsync(this Type type)
 		{
 			const BindingFlags FLAGS = 0
 				| BindingFlags.Public
 				| BindingFlags.Instance
 				| BindingFlags.FlattenHierarchy;
 
-			List<IMutableCommand>? list = null;
+			List<ICommand>? list = null;
 			foreach (var method in type.GetMethods(FLAGS))
 			{
 				var command = method
@@ -32,7 +32,7 @@ namespace YACCS.Commands
 					continue;
 				}
 
-				list ??= new List<IMutableCommand>();
+				list ??= new List<ICommand>();
 				list.Add(new ReflectionCommand(type, method));
 			}
 
@@ -60,10 +60,10 @@ namespace YACCS.Commands
 				// We can now return them in an immutable state
 				return list.Select(x => x.ToCommand()).ToArray();
 			}
-			return Array.Empty<ICommand>();
+			return Array.Empty<IImmutableCommand>();
 		}
 
-		public static async IAsyncEnumerable<ICommand> GetCommandsAsync(this IEnumerable<Assembly> assemblies)
+		public static async IAsyncEnumerable<IImmutableCommand> GetCommandsAsync(this IEnumerable<Assembly> assemblies)
 		{
 			foreach (var assembly in assemblies)
 			{
@@ -74,7 +74,7 @@ namespace YACCS.Commands
 			}
 		}
 
-		public static async IAsyncEnumerable<ICommand> GetCommandsAsync(this Assembly assembly)
+		public static async IAsyncEnumerable<IImmutableCommand> GetCommandsAsync(this Assembly assembly)
 		{
 			foreach (var type in assembly.GetExportedTypes())
 			{
@@ -85,7 +85,7 @@ namespace YACCS.Commands
 			}
 		}
 
-		public static async IAsyncEnumerable<ICommand> GetCommandsAsync(this Type type)
+		public static async IAsyncEnumerable<IImmutableCommand> GetCommandsAsync(this Type type)
 		{
 			var commands = await type.CreateCommandsAsync().ConfigureAwait(false);
 			foreach (var command in commands)

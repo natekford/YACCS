@@ -7,10 +7,10 @@ namespace YACCS.Commands
 {
 	public interface ICommandGroup : IContextValidator
 	{
-		Task AfterExecutionAsync(ICommand command, IContext context);
+		Task AfterExecutionAsync(IImmutableCommand command, IContext context);
 
-		Task BeforeExecutionAsync(ICommand command, IContext context);
+		Task BeforeExecutionAsync(IImmutableCommand command, IContext context);
 
-		Task OnCommandBuildingAsync(IList<IMutableCommand> commands);
+		Task OnCommandBuildingAsync(IList<ICommand> commands);
 	}
 }

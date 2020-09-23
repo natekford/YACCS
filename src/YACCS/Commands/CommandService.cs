@@ -24,7 +24,7 @@ namespace YACCS.Commands
 		private readonly ICommandServiceConfig _Config;
 		private readonly ITypeReaderCollection _Readers;
 
-		public IReadOnlyCollection<ICommand> Commands => _CommandTrie.GetCommands();
+		public IReadOnlyCollection<IImmutableCommand> Commands => _CommandTrie.GetCommands();
 
 		public event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted
 		{
@@ -45,7 +45,7 @@ namespace YACCS.Commands
 			_Readers = readers;
 		}
 
-		public void Add(ICommand command)
+		public void Add(IImmutableCommand command)
 			=> _CommandTrie.Add(command);
 
 		public async Task<IReadOnlyList<CommandScore>> GetBestMatchesAsync(
@@ -194,7 +194,7 @@ namespace YACCS.Commands
 		public async Task<IResult> ProcessParameterPreconditionsAsync(
 			PreconditionCache cache,
 			IContext context,
-			IParameter parameter,
+			IImmutableParameter parameter,
 			object? value)
 		{
 			var ppCache = cache.ParameterPreconditions;
@@ -218,7 +218,7 @@ namespace YACCS.Commands
 		public async Task<IResult> ProcessPreconditionsAsync(
 			PreconditionCache cache,
 			IContext context,
-			ICommand candidate)
+			IImmutableCommand candidate)
 		{
 			var pCache = cache.Preconditions;
 			foreach (var precondition in candidate.Preconditions)
@@ -240,7 +240,7 @@ namespace YACCS.Commands
 		public async Task<ITypeReaderResult> ProcessTypeReadersAsync(
 			PreconditionCache cache,
 			IContext context,
-			IParameter parameter,
+			IImmutableParameter parameter,
 			IReadOnlyList<string> input,
 			int startIndex)
 		{
@@ -282,10 +282,10 @@ namespace YACCS.Commands
 			return TypeReaderResult.FromSuccess(output);
 		}
 
-		public void Remove(ICommand command)
+		public void Remove(IImmutableCommand command)
 			=> _CommandTrie.Remove(command);
 
-		private static (int Min, int Max) GetMinAndMaxArgs(ICommand command)
+		private static (int Min, int Max) GetMinAndMaxArgs(IImmutableCommand command)
 		{
 			var @base = command.Names[0].Parts.Count;
 			var min = @base;
@@ -323,7 +323,7 @@ namespace YACCS.Commands
 			return matches;
 		}
 
-		private (bool IsEnumerable, ITypeReader Reader) GetReader(IParameter parameter)
+		private (bool IsEnumerable, ITypeReader Reader) GetReader(IImmutableParameter parameter)
 		{
 			if (_Readers.TryGetReader(parameter.ParameterType, out var reader))
 			{

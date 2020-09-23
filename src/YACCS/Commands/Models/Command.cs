@@ -14,23 +14,23 @@ using YACCS.Results;
 namespace YACCS.Commands.Models
 {
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
-	public abstract class Command : EntityBase, IMutableCommand
+	public abstract class Command : EntityBase, ICommand
 	{
 		public IList<IName> Names { get; set; }
-		public IList<IMutableParameter> Parameters { get; set; }
+		public IList<IParameter> Parameters { get; set; }
 		IEnumerable<IName> IQueryableCommand.Names => Names;
 		private string DebuggerDisplay => $"Name = {Names[0]}, Parameter Count = {Parameters.Count}";
 
 		protected Command(MethodInfo method) : base(method)
 		{
 			Names = new List<IName>();
-			Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IMutableParameter>();
+			Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IParameter>();
 		}
 
-		public abstract ICommand ToCommand();
+		public abstract IImmutableCommand ToCommand();
 
 		[DebuggerDisplay("{DebuggerDisplay,nq}")]
-		protected abstract class ImmutableCommand : ICommand
+		protected abstract class ImmutableCommand : IImmutableCommand
 		{
 			private readonly bool _IsGeneric;
 			private readonly bool _IsVoid;
@@ -39,7 +39,7 @@ namespace YACCS.Commands.Models
 			public IReadOnlyList<object> Attributes { get; }
 			public string Id { get; }
 			public IReadOnlyList<IName> Names { get; }
-			public IReadOnlyList<IParameter> Parameters { get; }
+			public IReadOnlyList<IImmutableParameter> Parameters { get; }
 			public IReadOnlyList<IPrecondition> Preconditions { get; }
 			public int Priority { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
@@ -83,7 +83,7 @@ namespace YACCS.Commands.Models
 			protected async Task<ExecutionResult> ConvertValueAsync(IContext context, object? value)
 			{
 				static ExecutionResult ConvertValue(
-					ICommand command,
+					IImmutableCommand command,
 					IContext context,
 					object? value)
 				{

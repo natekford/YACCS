@@ -50,7 +50,7 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task CommandQuerying_Test()
 		{
-			var commands = new List<ICommand>();
+			var commands = new List<IImmutableCommand>();
 			await foreach (var command in typeof(Misc).GetCommandsAsync())
 			{
 				commands.Add(command);

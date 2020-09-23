@@ -8,6 +8,6 @@ namespace YACCS.Preconditions
 {
 	public interface IPrecondition
 	{
-		Task<IResult> CheckAsync(IContext context, ICommand command);
+		Task<IResult> CheckAsync(IContext context, IImmutableCommand command);
 	}
 }

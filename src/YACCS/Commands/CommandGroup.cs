@@ -8,10 +8,10 @@ namespace YACCS.Commands
 {
 	public abstract class CommandGroup<T> : ICommandGroup where T : IContext
 	{
-		public ICommand Command { get; private set; } = default!;
+		public IImmutableCommand Command { get; private set; } = default!;
 		public T Context { get; private set; } = default!;
 
-		public virtual Task AfterExecutionAsync(ICommand command, IContext context)
+		public virtual Task AfterExecutionAsync(IImmutableCommand command, IContext context)
 		{
 			if (command is null)
 			{
@@ -32,13 +32,13 @@ namespace YACCS.Commands
 			return Task.CompletedTask;
 		}
 
-		public virtual Task BeforeExecutionAsync(ICommand command, IContext context)
+		public virtual Task BeforeExecutionAsync(IImmutableCommand command, IContext context)
 			=> Task.CompletedTask;
 
 		public virtual bool IsValidContext(IContext context)
 			=> context is T;
 
-		public virtual Task OnCommandBuildingAsync(IList<IMutableCommand> commands)
+		public virtual Task OnCommandBuildingAsync(IList<ICommand> commands)
 			=> Task.CompletedTask;
 	}
 }

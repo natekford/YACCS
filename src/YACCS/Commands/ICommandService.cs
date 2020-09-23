@@ -7,13 +7,13 @@ namespace YACCS.Commands
 {
 	public interface ICommandService
 	{
-		IReadOnlyCollection<ICommand> Commands { get; }
+		IReadOnlyCollection<IImmutableCommand> Commands { get; }
 
 		event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted;
 
 		event AsyncEventHandler<ExceptionEventArgs<CommandExecutedEventArgs>> CommandExecutedException;
 
-		void Add(ICommand command);
+		void Add(IImmutableCommand command);
 
 		Task<IReadOnlyList<CommandScore>> GetBestMatchesAsync(
 			IContext context,
@@ -29,6 +29,6 @@ namespace YACCS.Commands
 			IReadOnlyList<string> input,
 			CommandScore candidate);
 
-		void Remove(ICommand command);
+		void Remove(IImmutableCommand command);
 	}
 }

@@ -9,7 +9,7 @@ using YACCS.Commands.Attributes;
 namespace YACCS.Commands.Models
 {
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
-	public abstract class EntityBase : IMutableEntityBase
+	public abstract class EntityBase : IEntityBase
 	{
 		public IList<object> Attributes { get; set; } = new List<object>();
 		public string Id { get; set; }

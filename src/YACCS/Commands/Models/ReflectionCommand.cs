@@ -28,7 +28,7 @@ namespace YACCS.Commands.Models
 			Attributes.Add(new MethodInfoCommandAttribute(Method));
 		}
 
-		public override ICommand ToCommand()
+		public override IImmutableCommand ToCommand()
 			=> new ImmutableReflectionCommand(this);
 
 		private static IEnumerable<string> GetDirectCommandNames(ICustomAttributeProvider method, IEnumerable<string>? extraNames)

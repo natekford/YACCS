@@ -25,7 +25,7 @@ namespace YACCS.Commands.Models
 			Attributes.Add(new DelegateCommandAttribute(@delegate));
 		}
 
-		public override ICommand ToCommand()
+		public override IImmutableCommand ToCommand()
 			=> new ImmutableDelegateCommand(this);
 
 		private sealed class ImmutableDelegateCommand : ImmutableCommand

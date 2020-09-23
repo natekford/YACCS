@@ -11,7 +11,7 @@ using YACCS.ParameterPreconditions;
 namespace YACCS.Commands.Models
 {
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
-	public sealed class Parameter : EntityBase, IMutableParameter
+	public sealed class Parameter : EntityBase, IParameter
 	{
 		public bool IsOptional { get; set; }
 		public string ParameterName { get; set; }
@@ -32,11 +32,11 @@ namespace YACCS.Commands.Models
 			ParameterType = parameter.ParameterType;
 		}
 
-		public IParameter ToParameter()
+		public IImmutableParameter ToParameter()
 			=> new ImmutableParameter(this);
 
 		[DebuggerDisplay("{DebuggerDisplay,nq}")]
-		private sealed class ImmutableParameter : IParameter
+		private sealed class ImmutableParameter : IImmutableParameter
 		{
 			public IReadOnlyList<object> Attributes { get; }
 			public Type? EnumerableType { get; }
