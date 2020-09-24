@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
@@ -16,7 +17,7 @@ namespace YACCS.Commands
 			= new AsyncEvent<CommandExecutedEventArgs>();
 		private readonly CommandTrie _CommandTrie;
 		private readonly ICommandServiceConfig _Config;
-		private readonly ITypeReaderCollection _Readers;
+		private readonly ITypeReaderRegistry _Readers;
 
 		public IReadOnlyCollection<IImmutableCommand> Commands => _CommandTrie.GetCommands();
 
@@ -32,7 +33,7 @@ namespace YACCS.Commands
 			remove => _CommandExecuted.Exception.Remove(value);
 		}
 
-		public CommandService(ICommandServiceConfig config, ITypeReaderCollection readers)
+		public CommandService(ICommandServiceConfig config, ITypeReaderRegistry readers)
 		{
 			_CommandTrie = new CommandTrie(config.CommandNameComparer);
 			_Config = config;
@@ -99,7 +100,7 @@ namespace YACCS.Commands
 
 			try
 			{
-				var result = await command.GetResultAsync(context, args).ConfigureAwait(false);
+				var result = await command.ExecuteAsync(context, args).ConfigureAwait(false);
 				var e = new CommandExecutedEventArgs(command, context, result);
 				await _CommandExecuted.InvokeAsync(e).ConfigureAwait(false);
 			}
@@ -110,6 +111,34 @@ namespace YACCS.Commands
 					.WithExceptions(ex);
 				await _CommandExecuted.Exception.InvokeAsync(e).ConfigureAwait(false);
 			}
+		}
+
+		public ImmutableArray<IImmutableCommand> Find(string input)
+		{
+			if (!ParseArgs.TryParse(
+				input,
+				_Config.StartQuotes,
+				_Config.EndQuotes,
+				_Config.Separators,
+				out var parseArgs))
+			{
+				return ImmutableArray<IImmutableCommand>.Empty;
+			}
+
+			var args = parseArgs.Arguments;
+			var node = _CommandTrie.Root;
+			for (var i = 0; i < args.Count; ++i)
+			{
+				if (!node.Edges.TryGetValue(args[i], out node))
+				{
+					break;
+				}
+				if (i == args.Count - 1)
+				{
+					return node.Values.ToImmutableArray();
+				}
+			}
+			return ImmutableArray<IImmutableCommand>.Empty;
 		}
 
 		public IReadOnlyList<CommandScore> GetCommands(
@@ -339,6 +368,9 @@ namespace YACCS.Commands
 
 		public void Remove(IImmutableCommand command)
 			=> _CommandTrie.Remove(command);
+
+		IReadOnlyList<IImmutableCommand> ICommandService.Find(string input)
+			=> Find(input);
 
 		private static (int Min, int Max) GetMinAndMaxArgs(IImmutableCommand command)
 		{

@@ -8,10 +8,10 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Commands
 {
-	public class TypeReaderCollection : ITypeReaderCollection
+	public class TypeReaderRegistry : ITypeReaderRegistry
 	{
 		private static readonly MethodInfo _RegisterMethod =
-			typeof(TypeReaderCollection)
+			typeof(TypeReaderRegistry)
 			.GetTypeInfo()
 			.DeclaredMethods
 			.Single(x => x.Name == nameof(RegisterWithNullable));
@@ -19,7 +19,7 @@ namespace YACCS.Commands
 		private readonly Dictionary<Type, ITypeReader> _Readers
 			= new Dictionary<Type, ITypeReader>();
 
-		public TypeReaderCollection()
+		public TypeReaderRegistry()
 		{
 			Register(new StringTypeReader());
 			Register(new UriTypeReader());
@@ -40,6 +40,8 @@ namespace YACCS.Commands
 			RegisterWithNullable(new DateTimeTypeReader<DateTime>(DateTime.TryParse));
 			RegisterWithNullable(new DateTimeTypeReader<DateTimeOffset>(DateTimeOffset.TryParse));
 			RegisterWithNullable(new TimeSpanTypeReader<TimeSpan>(TimeSpan.TryParse));
+
+			this.Register(typeof(TypeReaderRegistry).Assembly.GetTypeReaders());
 		}
 
 		public ITypeReader GetReader(Type type)

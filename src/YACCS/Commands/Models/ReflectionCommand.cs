@@ -141,11 +141,12 @@ namespace YACCS.Commands.Models
 				_DO_NOT_USE_THIS_FOR_EXECUTION = CreateGroup();
 			}
 
-			public override async Task<ExecutionResult> GetResultAsync(IContext context, object?[] args)
+			public override async Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args)
 			{
 				try
 				{
 					var group = CreateGroup();
+					// TODO: inject services
 					await group.BeforeExecutionAsync(this, context).ConfigureAwait(false);
 
 					var value = _InvokeDelegate.Value.Invoke(group, args);

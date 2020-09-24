@@ -3,7 +3,7 @@
 namespace YACCS.Commands.Attributes
 {
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-	public class DelegateCommandAttribute : Attribute
+	public class DelegateCommandAttribute : Attribute, IDelegateCommandAttribute
 	{
 		public Delegate Delegate { get; }
 

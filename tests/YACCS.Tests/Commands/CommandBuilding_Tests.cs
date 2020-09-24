@@ -31,7 +31,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsInstanceOfType(command.Attributes[0], typeof(DelegateCommandAttribute));
 
 			var args = new object[] { new FakeContext() };
-			var result = await immutable.GetResultAsync(null, args).ConfigureAwait(false);
+			var result = await immutable.ExecuteAsync(null, args).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
 			Assert.IsInstanceOfType(result.Result, typeof(ValueResult));
 			Assert.IsTrue(result.TryGetValue(out bool value));

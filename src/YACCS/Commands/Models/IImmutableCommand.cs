@@ -13,6 +13,6 @@ namespace YACCS.Commands.Models
 		IReadOnlyList<IPrecondition> Preconditions { get; }
 		int Priority { get; }
 
-		Task<ExecutionResult> GetResultAsync(IContext context, object?[] args);
+		Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args);
 	}
 }

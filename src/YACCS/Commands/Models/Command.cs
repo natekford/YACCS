@@ -76,7 +76,7 @@ namespace YACCS.Commands.Models
 				Priority = mutable.Get<IPriorityAttribute>().SingleOrDefault()?.Priority ?? 0;
 			}
 
-			public abstract Task<ExecutionResult> GetResultAsync(IContext context, object?[] args);
+			public abstract Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args);
 
 			public abstract bool IsValidContext(IContext context);
 

@@ -65,7 +65,7 @@ namespace YACCS.Commands.Models
 				});
 			}
 
-			public override async Task<ExecutionResult> GetResultAsync(IContext context, object?[] args)
+			public override async Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args)
 			{
 				try
 				{

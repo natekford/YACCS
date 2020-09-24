@@ -4,7 +4,7 @@ using System.Reflection;
 namespace YACCS.Commands.Attributes
 {
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-	public class MethodInfoCommandAttribute : Attribute
+	public class MethodInfoCommandAttribute : Attribute, IMethodInfoCommandAttribute
 	{
 		public MethodInfo Method { get; }
 

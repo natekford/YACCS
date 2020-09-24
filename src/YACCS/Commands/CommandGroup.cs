@@ -12,6 +12,9 @@ namespace YACCS.Commands
 		public T Context { get; private set; } = default!;
 
 		public virtual Task AfterExecutionAsync(IImmutableCommand command, IContext context)
+			=> Task.CompletedTask;
+
+		public virtual Task BeforeExecutionAsync(IImmutableCommand command, IContext context)
 		{
 			if (command is null)
 			{
@@ -31,9 +34,6 @@ namespace YACCS.Commands
 			Context = castedContext;
 			return Task.CompletedTask;
 		}
-
-		public virtual Task BeforeExecutionAsync(IImmutableCommand command, IContext context)
-			=> Task.CompletedTask;
 
 		public virtual bool IsValidContext(IContext context)
 			=> context is T;

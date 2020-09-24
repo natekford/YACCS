@@ -18,6 +18,8 @@ namespace YACCS.Commands
 
 		Task<IResult> ExecuteAsync(IContext context, string input);
 
+		IReadOnlyList<IImmutableCommand> Find(string input);
+
 		void Remove(IImmutableCommand command);
 	}
 }
