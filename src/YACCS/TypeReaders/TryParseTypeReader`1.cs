@@ -5,6 +5,8 @@ using YACCS.Results;
 
 namespace YACCS.TypeReaders
 {
+	public delegate bool TryParseDelegate<T>(string input, out T result);
+
 	public class TryParseTypeReader<T> : TypeReader<T>
 	{
 		private readonly TryParseDelegate<T> _Delegate;
@@ -22,7 +24,5 @@ namespace YACCS.TypeReaders
 			}
 			return TypeReaderResult<T>.FailureTask;
 		}
-
-		public delegate bool TryParseDelegate<TResult>(string input, out TResult result);
 	}
 }

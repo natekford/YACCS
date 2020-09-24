@@ -40,7 +40,20 @@ namespace YACCS.Commands
 		}
 
 		public void Add(IImmutableCommand command)
-			=> _CommandTrie.Add(command);
+		{
+			foreach (var parameter in command.Parameters)
+			{
+				if (parameter.OverriddenTypeReader != null)
+				{
+					continue;
+				}
+				if (!_Readers.TryGetReader(parameter.ParameterType, out _))
+				{
+					throw new ArgumentException($"{parameter.ParameterType} is missing a type reader.", nameof(command));
+				}
+			}
+			_CommandTrie.Add(command);
+		}
 
 		public async Task<IResult> ExecuteAsync(IContext context, string input)
 		{

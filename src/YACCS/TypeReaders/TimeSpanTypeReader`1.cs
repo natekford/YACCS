@@ -3,13 +3,15 @@ using System.Globalization;
 
 namespace YACCS.TypeReaders
 {
+	public delegate bool TimeSpanDelegate<T>(string input, IFormatProvider provider, out T result);
+
 	public class TimeSpanTypeReader<T> : TryParseTypeReader<T>
 	{
-		public TimeSpanTypeReader(TimeSpanDelegate @delegate) : base(Convert(@delegate))
+		public TimeSpanTypeReader(TimeSpanDelegate<T> @delegate) : base(Convert(@delegate))
 		{
 		}
 
-		public static TryParseDelegate<T> Convert(TimeSpanDelegate @delegate)
+		public static TryParseDelegate<T> Convert(TimeSpanDelegate<T> @delegate)
 		{
 			return (string input, out T result) =>
 			{
@@ -17,7 +19,5 @@ namespace YACCS.TypeReaders
 				return @delegate(input, provider, out result);
 			};
 		}
-
-		public delegate bool TimeSpanDelegate(string input, IFormatProvider provider, out T result);
 	}
 }

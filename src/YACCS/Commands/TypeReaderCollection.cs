@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
@@ -43,21 +44,20 @@ namespace YACCS.Commands
 
 		public ITypeReader GetReader(Type type)
 		{
-			if (!_Readers.TryGetValue(type, out var reader))
+			if (TryGetReader(type, out var reader))
 			{
-				throw new ArgumentException("There is no converter specified for given type.", type.Name);
+				return reader;
 			}
-			return reader;
+			throw new ArgumentException($"There is no converter specified for {type.Name}.", nameof(type));
 		}
 
 		public ITypeReader<T> GetReader<T>()
 		{
-			var reader = GetReader(typeof(T));
-			if (!(reader is ITypeReader<T> castedReader))
+			if (GetReader(typeof(T)) is ITypeReader<T> reader)
 			{
-				throw new ArgumentException("Invalid converter registered for this type.", nameof(T));
+				return reader;
 			}
-			return castedReader;
+			throw new ArgumentException($"Invalid converter registered for {typeof(T).Name}.", nameof(T));
 		}
 
 		public void Register<T>(ITypeReader<T> reader)
@@ -65,11 +65,13 @@ namespace YACCS.Commands
 
 		public void Register(ITypeReader reader, Type type)
 		{
-			_Readers[type] = reader;
-
 			if (type.IsValueType)
 			{
 				_RegisterMethod.MakeGenericMethod(type).Invoke(this, new object[] { reader });
+			}
+			else
+			{
+				_Readers[type] = reader;
 			}
 		}
 
@@ -79,7 +81,22 @@ namespace YACCS.Commands
 			_Readers[typeof(T?)] = new NullableTypeReader<T>(reader);
 		}
 
-		public bool TryGetReader(Type type, out ITypeReader result)
-			=> _Readers.TryGetValue(type, out result);
+		public bool TryGetReader(Type type, [NotNullWhen(true)] out ITypeReader? result)
+		{
+			if (_Readers.TryGetValue(type, out result))
+			{
+				return true;
+			}
+			if (type.IsEnum)
+			{
+				var readerType = typeof(EnumTypeReader<>).MakeGenericType(type);
+				var enumReader = (ITypeReader)Activator.CreateInstance(readerType);
+				Register(enumReader, type);
+				result = enumReader;
+				return true;
+			}
+			result = null;
+			return false;
+		}
 	}
 }

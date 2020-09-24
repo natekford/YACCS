@@ -3,13 +3,15 @@ using System.Globalization;
 
 namespace YACCS.TypeReaders
 {
+	public delegate bool NumberDelegate<T>(string input, NumberStyles style, IFormatProvider provider, out T result);
+
 	public class NumberTypeReader<T> : TryParseTypeReader<T>
 	{
-		public NumberTypeReader(NumberDelegate @delegate) : base(Convert(@delegate))
+		public NumberTypeReader(NumberDelegate<T> @delegate) : base(Convert(@delegate))
 		{
 		}
 
-		public static TryParseDelegate<T> Convert(NumberDelegate @delegate)
+		public static TryParseDelegate<T> Convert(NumberDelegate<T> @delegate)
 		{
 			return (string input, out T result) =>
 			{
@@ -18,7 +20,5 @@ namespace YACCS.TypeReaders
 				return @delegate(input, STYLE, provider, out result);
 			};
 		}
-
-		public delegate bool NumberDelegate(string input, NumberStyles style, IFormatProvider provider, out T result);
 	}
 }
