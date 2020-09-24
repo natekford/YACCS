@@ -21,8 +21,8 @@ namespace YACCS.Tests.Commands
 		public async Task ProcessTypeReadersCharFailure_Test()
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderCollection());
-			var cache = new PreconditionCache();
 			var context = new FakeContext();
+			var cache = new PreconditionCache(context);
 			var parameter = new Parameter
 			{
 				ParameterName = "Test",
@@ -37,7 +37,6 @@ namespace YACCS.Tests.Commands
 
 			var result = await commandService.ProcessTypeReadersAsync(
 				cache,
-				context,
 				parameter,
 				input,
 				startIndex
@@ -52,8 +51,8 @@ namespace YACCS.Tests.Commands
 			var type = value.GetType();
 
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderCollection());
-			var cache = new PreconditionCache();
 			var context = new FakeContext();
+			var cache = new PreconditionCache(context);
 			var parameter = new Parameter
 			{
 				ParameterName = "Test",
@@ -68,7 +67,6 @@ namespace YACCS.Tests.Commands
 
 			var result = await commandService.ProcessTypeReadersAsync(
 				cache,
-				context,
 				parameter,
 				input,
 				startIndex
@@ -85,8 +83,8 @@ namespace YACCS.Tests.Commands
 			var type = value.GetType();
 
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderCollection());
-			var cache = new PreconditionCache();
 			var context = new FakeContext();
+			var cache = new PreconditionCache(context);
 			var parameter = new Parameter
 			{
 				ParameterName = "Test",
@@ -101,7 +99,6 @@ namespace YACCS.Tests.Commands
 
 			var result = await commandService.ProcessTypeReadersAsync(
 				cache,
-				context,
 				parameter,
 				input,
 				startIndex
@@ -118,8 +115,8 @@ namespace YACCS.Tests.Commands
 			var type = value.GetType();
 
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderCollection());
-			var cache = new PreconditionCache();
 			var context = new FakeContext();
+			var cache = new PreconditionCache(context);
 			var parameter = new Parameter
 			{
 				ParameterName = "Test",
@@ -134,7 +131,6 @@ namespace YACCS.Tests.Commands
 
 			var result = await commandService.ProcessTypeReadersAsync(
 				cache,
-				context,
 				parameter,
 				input,
 				startIndex
@@ -151,8 +147,8 @@ namespace YACCS.Tests.Commands
 			var type = value.GetType();
 
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderCollection());
-			var cache = new PreconditionCache();
 			var context = new FakeContext();
+			var cache = new PreconditionCache(context);
 			var parameter = new Parameter
 			{
 				ParameterName = "Test",
@@ -167,7 +163,6 @@ namespace YACCS.Tests.Commands
 
 			var result = await commandService.ProcessTypeReadersAsync(
 				cache,
-				context,
 				parameter,
 				input,
 				startIndex
@@ -189,8 +184,8 @@ namespace YACCS.Tests.Commands
 			var type = value.GetType();
 
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderCollection());
-			var cache = new PreconditionCache();
 			var context = new FakeContext();
+			var cache = new PreconditionCache(context);
 			var parameter = new Parameter
 			{
 				ParameterName = "Test",
@@ -205,7 +200,6 @@ namespace YACCS.Tests.Commands
 
 			var result = await commandService.ProcessTypeReadersAsync(
 				cache,
-				context,
 				parameter,
 				input,
 				startIndex
@@ -227,8 +221,8 @@ namespace YACCS.Tests.Commands
 			var type = value.GetType();
 
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderCollection());
-			var cache = new PreconditionCache();
 			var context = new FakeContext();
+			var cache = new PreconditionCache(context);
 			var parameter = new Parameter
 			{
 				ParameterName = "Test",
@@ -243,7 +237,6 @@ namespace YACCS.Tests.Commands
 
 			var result = await commandService.ProcessTypeReadersAsync(
 				cache,
-				context,
 				parameter,
 				input,
 				startIndex

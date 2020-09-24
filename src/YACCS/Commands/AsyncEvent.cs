@@ -9,10 +9,13 @@ namespace YACCS.Commands
 
 	public class AsyncEvent<T> where T : HandledEventArgs
 	{
-		public AsyncEvent<ExceptionEventArgs<T>> Exception = new AsyncEvent<ExceptionEventArgs<T>>();
+		private readonly Lazy<AsyncEvent<ExceptionEventArgs<T>>> _Exception
+			= new Lazy<AsyncEvent<ExceptionEventArgs<T>>>(() => new AsyncEvent<ExceptionEventArgs<T>>());
 		private readonly List<AsyncEventHandler<T>> _Handlers
 			= new List<AsyncEventHandler<T>>();
 		private readonly object _Lock = new object();
+
+		public AsyncEvent<ExceptionEventArgs<T>> Exception => _Exception.Value;
 
 		public void Add(AsyncEventHandler<T> handler)
 		{

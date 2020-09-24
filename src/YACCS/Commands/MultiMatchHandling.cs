@@ -2,7 +2,7 @@
 {
 	public enum MultiMatchHandling
 	{
-		Exception = 0,
+		Error = 0,
 		Best = 1,
 	}
 }

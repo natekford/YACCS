@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 
 using YACCS.Commands.Models;
+using YACCS.Results;
 
 namespace YACCS.Commands
 {
@@ -15,19 +16,7 @@ namespace YACCS.Commands
 
 		void Add(IImmutableCommand command);
 
-		Task<IReadOnlyList<CommandScore>> GetBestMatchesAsync(
-			IContext context,
-			IReadOnlyList<string> input,
-			IReadOnlyList<CommandScore> candidates);
-
-		IReadOnlyList<CommandScore> GetCommands(string input);
-
-		IReadOnlyList<CommandScore> GetCommands(IReadOnlyList<string> input);
-
-		Task<CommandScore> ProcessAllPreconditions(
-			IContext context,
-			IReadOnlyList<string> input,
-			CommandScore candidate);
+		Task<IResult> ExecuteAsync(IContext context, string input);
 
 		void Remove(IImmutableCommand command);
 	}

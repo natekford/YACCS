@@ -7,27 +7,26 @@ using YACCS.Results;
 namespace YACCS.ParameterPreconditions
 {
 	public abstract class ParameterPrecondition<TContext, TValue>
-		: IParameterPrecondition<TContext, TValue>
-		where TContext : IContext
+		: IParameterPrecondition<TContext, TValue> where TContext : IContext
 	{
-		public abstract Task<IResult> CheckAsync(TContext context, [MaybeNull] TValue value);
+		public abstract Task<IResult> CheckAsync(CommandInfo info, TContext context, [MaybeNull] TValue value);
 
-		public Task<IResult> CheckAsync(IContext context, object? value)
+		public Task<IResult> CheckAsync(CommandInfo info, IContext context, object? value)
 		{
 			if (!(value is TValue castedValue))
 			{
 				return InvalidParameterResult.InstanceTask;
 			}
-			return CheckAsync(context, castedValue);
+			return CheckAsync(info, context, castedValue);
 		}
 
-		public Task<IResult> CheckAsync(IContext context, [MaybeNull] TValue value)
+		public Task<IResult> CheckAsync(CommandInfo info, IContext context, [MaybeNull] TValue value)
 		{
 			if (!(context is TContext castedContext))
 			{
 				return InvalidContextResult.InstanceTask;
 			}
-			return CheckAsync(castedContext, value);
+			return CheckAsync(info, castedContext, value);
 		}
 	}
 }

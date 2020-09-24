@@ -7,6 +7,7 @@ using System.Reflection;
 
 using YACCS.Commands.Attributes;
 using YACCS.ParameterPreconditions;
+using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Models
 {
@@ -14,6 +15,7 @@ namespace YACCS.Commands.Models
 	public sealed class Parameter : EntityBase, IParameter
 	{
 		public object? DefaultValue { get; set; }
+		public ITypeReader? OverriddenTypeReader { get; set; }
 		public string ParameterName { get; set; }
 		public Type ParameterType { get; set; }
 		public IList<IParameterPrecondition> Preconditions { get; set; } = new List<IParameterPrecondition>();
@@ -27,13 +29,28 @@ namespace YACCS.Commands.Models
 
 		public Parameter(ParameterInfo parameter) : base(parameter)
 		{
-			DefaultValue = parameter.DefaultValue;
+			DefaultValue = GetDefaultValue(parameter);
 			ParameterName = parameter.Name;
 			ParameterType = parameter.ParameterType;
 		}
 
 		public IImmutableParameter ToParameter()
 			=> new ImmutableParameter(this);
+
+		private static object? GetDefaultValue(ParameterInfo parameter)
+		{
+			// Not optional and has no default value
+			if (parameter.DefaultValue == DBNull.Value)
+			{
+				return DBNull.Value;
+			}
+			// Optional but has no default value
+			if (parameter.DefaultValue == Type.Missing)
+			{
+				return DBNull.Value;
+			}
+			return parameter.DefaultValue;
+		}
 
 		[DebuggerDisplay("{DebuggerDisplay,nq}")]
 		private sealed class ImmutableParameter : IImmutableParameter
@@ -43,6 +60,7 @@ namespace YACCS.Commands.Models
 			public Type? EnumerableType { get; }
 			public string Id { get; }
 			public int Length { get; }
+			public ITypeReader? OverriddenTypeReader { get; }
 			public string ParameterName { get; }
 			public Type ParameterType { get; }
 			public IReadOnlyList<IParameterPrecondition> Preconditions { get; }
@@ -55,6 +73,7 @@ namespace YACCS.Commands.Models
 				DefaultValue = mutable.DefaultValue;
 				Id = mutable.Id;
 				Length = mutable.Get<ILengthAttribute>().SingleOrDefault()?.Length ?? 1;
+				OverriddenTypeReader = mutable.OverriddenTypeReader;
 				ParameterName = mutable.ParameterName;
 				ParameterType = mutable.ParameterType;
 				Preconditions = mutable.Get<IParameterPrecondition>().ToImmutableArray();

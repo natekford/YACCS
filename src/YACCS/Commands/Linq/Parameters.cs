@@ -4,6 +4,7 @@ using System.Linq;
 
 using YACCS.Commands.Models;
 using YACCS.ParameterPreconditions;
+using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Linq
 {
@@ -46,14 +47,22 @@ namespace YACCS.Commands.Linq
 		}
 
 		public static IParameter<TValue> GetParameterById<TValue>(
-									this IEnumerable<IParameter> parameters,
+			this IEnumerable<IParameter> parameters,
 			string id)
 		{
 			return parameters
 				.ById(id)
 				.Single()
-				.AsParameter()
 				.AsType<TValue>();
+		}
+
+		public static IEnumerable<IParameter<TValue>> GetParametersById<TValue>(
+			this IEnumerable<IParameter> parameters,
+			string id)
+		{
+			return parameters
+				.ById(id)
+				.Select(AsType<TValue>);
 		}
 
 		public static IParameter<TValue> RemoveDefaultValue<TValue>(this IParameter<TValue> parameter)
@@ -68,6 +77,14 @@ namespace YACCS.Commands.Linq
 			TValue value)
 		{
 			parameter.DefaultValue = value;
+			return parameter;
+		}
+
+		public static IParameter<TValue> SetOverridenTypeReader<TValue>(
+			this IParameter<TValue> parameter,
+			ITypeReader<TValue> typeReader)
+		{
+			parameter.OverriddenTypeReader = typeReader;
 			return parameter;
 		}
 	}
@@ -91,6 +108,11 @@ namespace YACCS.Commands.Linq
 			get => _Actual.Id;
 			set => _Actual.Id = value;
 		}
+		public ITypeReader<TValue>? OverridenTypeReader
+		{
+			get => _Actual.OverriddenTypeReader as ITypeReader<TValue>;
+			set => _Actual.OverriddenTypeReader = value;
+		}
 		public string ParameterName
 		{
 			get => _Actual.ParameterName;
@@ -102,6 +124,11 @@ namespace YACCS.Commands.Linq
 			set => _Actual.ParameterType = value;
 		}
 		IEnumerable<object> IQueryableEntity.Attributes => Attributes;
+		ITypeReader? IParameter.OverriddenTypeReader
+		{
+			get => OverridenTypeReader;
+			set => OverridenTypeReader = value as ITypeReader<TValue>;
+		}
 
 		public Parameter(IParameter actual)
 		{

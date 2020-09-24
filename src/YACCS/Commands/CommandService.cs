@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
@@ -13,11 +12,6 @@ namespace YACCS.Commands
 {
 	public class CommandService : ICommandService
 	{
-		private static readonly ImmutableArray<CommandScore> NotFound
-			= new[] { CommandScore.FromNotFound() }.ToImmutableArray();
-		private static readonly ImmutableArray<CommandScore> QuoteMismatch
-			= new[] { CommandScore.FromQuoteMismatch() }.ToImmutableArray();
-
 		private readonly AsyncEvent<CommandExecutedEventArgs> _CommandExecuted
 			= new AsyncEvent<CommandExecutedEventArgs>();
 		private readonly CommandTrie _CommandTrie;
@@ -48,12 +42,177 @@ namespace YACCS.Commands
 		public void Add(IImmutableCommand command)
 			=> _CommandTrie.Add(command);
 
-		public async Task<IReadOnlyList<CommandScore>> GetBestMatchesAsync(
+		public async Task<IResult> ExecuteAsync(IContext context, string input)
+		{
+			if (!ParseArgs.TryParse(
+				input,
+				_Config.StartQuotes,
+				_Config.EndQuotes,
+				_Config.Separators,
+				out var parseArgs))
+			{
+				return QuoteMismatchResult.Instance;
+			}
+
+			var args = parseArgs.Arguments;
+			var commands = GetCommands(context, args);
+			if (commands.Count == 0)
+			{
+				return CommandNotFoundResult.Instance;
+			}
+
+			var scores = await ProcessAllPreconditionsAsync(commands, context, args).ConfigureAwait(false);
+
+			var highestScore = scores[0];
+			if (!highestScore.Result.IsSuccess)
+			{
+				return highestScore.Result;
+			}
+			if (scores.Count > 1
+				&& scores[1].Result.IsSuccess
+				&& _Config.MultiMatchHandling == MultiMatchHandling.Error)
+			{
+				return MultiMatchHandlingErrorResult.Instance;
+			}
+
+			_ = Task.Run(async () =>
+			{
+				var command = highestScore.Command!;
+				var args = highestScore.Args!;
+
+				try
+				{
+					var result = await command.GetResultAsync(context, args).ConfigureAwait(false);
+					var e = new CommandExecutedEventArgs(command, context, result);
+					await _CommandExecuted.InvokeAsync(e).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+					var result = new ExceptionResult(ex);
+					var e = new CommandExecutedEventArgs(command, context, result)
+						.WithExceptions(ex);
+					await _CommandExecuted.Exception.InvokeAsync(e).ConfigureAwait(false);
+				}
+			});
+			return SuccessResult.Instance;
+		}
+
+		public IReadOnlyList<CommandScore> GetCommands(
+			IContext context,
+			IReadOnlyList<string> input)
+		{
+			var count = input.Count;
+			if (count == 0)
+			{
+				return Array.Empty<CommandScore>();
+			}
+
+			var node = _CommandTrie.Root;
+			var matches = new List<CommandScore>();
+			for (var i = 0; i < count; ++i)
+			{
+				foreach (var command in node.Values)
+				{
+					if (!command.IsValidContext(context))
+					{
+						matches.Add(CommandScore.FromInvalidContext(command, context, i));
+					}
+
+					var (min, max) = GetMinAndMaxArgs(command);
+					// Trivial cases, provided input length is not in the possible arg length
+					if (count < min)
+					{
+						matches.Add(CommandScore.FromNotEnoughArgs(command, context, i));
+					}
+					else if (count > max)
+					{
+						matches.Add(CommandScore.FromTooManyArgs(command, context, i));
+					}
+					else
+					{
+						matches.Add(CommandScore.FromCorrectArgCount(command, context, i));
+					}
+				}
+
+				if (!node.Edges.TryGetValue(input[i], out node))
+				{
+					break;
+				}
+			}
+			SortMatches(matches);
+			return matches;
+		}
+
+		public async Task<CommandScore> ProcessAllPreconditionsAsync(
+			PreconditionCache cache,
+			IImmutableCommand command,
 			IContext context,
 			IReadOnlyList<string> input,
-			IReadOnlyList<CommandScore> candidates)
+			int startIndex)
 		{
-			var cache = new PreconditionCache();
+			// Any precondition fails, command is not valid
+			var pResult = await ProcessPreconditionsAsync(
+				cache,
+				command
+			).ConfigureAwait(false);
+			if (!pResult.IsSuccess)
+			{
+				return CommandScore.FromFailedPrecondition(command, context, pResult, 0);
+			}
+
+			var args = new object?[command.Parameters.Count];
+			var currentIndex = startIndex;
+			for (var i = 0; i < command.Parameters.Count; ++i)
+			{
+				var parameter = command.Parameters[i];
+
+				var arg = parameter.DefaultValue;
+				// We still have more args to parse so let's look through those
+				if (currentIndex < input.Count)
+				{
+					var trResult = await ProcessTypeReadersAsync(
+						cache,
+						parameter,
+						input,
+						startIndex
+					).ConfigureAwait(false);
+					if (!trResult.IsSuccess)
+					{
+						return CommandScore.FromFailedTypeReader(command, context, trResult, i);
+					}
+
+					arg = trResult.Arg;
+					currentIndex += parameter.Length;
+				}
+				// We don't have any more args to parse.
+				// If the parameter isn't optional it's a failure
+				else if (!parameter.IsOptional())
+				{
+					return CommandScore.FromFailedOptionalArgs(command, context, i);
+				}
+
+				var ppResult = await ProcessParameterPreconditionsAsync(
+					cache,
+					command,
+					parameter,
+					arg
+				).ConfigureAwait(false);
+				if (!ppResult.IsSuccess)
+				{
+					return CommandScore.FromFailedParameterPrecondition(command, context, ppResult, i);
+				}
+
+				args[i] = arg;
+			}
+			return CommandScore.FromCanExecute(command, context, args);
+		}
+
+		public async Task<IReadOnlyList<CommandScore>> ProcessAllPreconditionsAsync(
+			IReadOnlyList<CommandScore> candidates,
+			IContext context,
+			IReadOnlyList<string> input)
+		{
+			var cache = new PreconditionCache(context);
 			var matches = new List<CommandScore>();
 			for (var i = 0; i < candidates.Count; ++i)
 			{
@@ -66,175 +225,29 @@ namespace YACCS.Commands
 					continue;
 				}
 
-				matches.Add(await ProcessAllPreconditions(
+				matches.Add(await ProcessAllPreconditionsAsync(
 					cache,
+					candidate.Command!,
 					context,
 					input,
-					candidate
+					candidate.Score
 				).ConfigureAwait(false));
 			}
-			return GetSortedCommandScores(matches);
-		}
-
-		public IReadOnlyList<CommandScore> GetCommands(string input)
-		{
-			if (ParseArgs.TryParse(
-				input,
-				_Config.StartQuotes,
-				_Config.EndQuotes,
-				_Config.Separators,
-				out var args))
-			{
-				return GetCommands(args.Arguments);
-			}
-			return QuoteMismatch;
-		}
-
-		public IReadOnlyList<CommandScore> GetCommands(IReadOnlyList<string> input)
-		{
-			var count = input.Count;
-			if (count == 0)
-			{
-				return NotFound;
-			}
-
-			var node = _CommandTrie.Root;
-			var matches = new List<CommandScore>();
-			for (var i = 0; i < count; ++i)
-			{
-				foreach (var command in node.Values)
-				{
-					var (min, max) = GetMinAndMaxArgs(command);
-					// Trivial cases, provided input length is not in the possible arg length
-					if (count < min)
-					{
-						matches.Add(CommandScore.FromNotEnoughArgs(command, i));
-					}
-					else if (count > max)
-					{
-						matches.Add(CommandScore.FromTooManyArgs(command, i));
-					}
-					else
-					{
-						matches.Add(CommandScore.FromCorrectArgCount(command, i));
-					}
-				}
-
-				if (!node.Edges.TryGetValue(input[i], out node))
-				{
-					break;
-				}
-			}
-			return GetSortedCommandScores(matches);
-		}
-
-		public Task<CommandScore> ProcessAllPreconditions(
-			IContext context,
-			IReadOnlyList<string> input,
-			CommandScore candidate)
-			=> ProcessAllPreconditions(new PreconditionCache(), context, input, candidate);
-
-		public async Task<CommandScore> ProcessAllPreconditions(
-			PreconditionCache cache,
-			IContext context,
-			IReadOnlyList<string> input,
-			CommandScore candidate)
-		{
-			if (candidate.Stage != CommandStage.CorrectArgCount || candidate.Command == null)
-			{
-				throw new ArgumentException("Invalid stage.", nameof(candidate));
-			}
-
-			var command = candidate.Command;
-			// Any precondition fails, command is not valid
-			var pResult = await ProcessPreconditionsAsync(
-				cache,
-				context,
-				command
-			).ConfigureAwait(false);
-			if (!pResult.IsSuccess)
-			{
-				return CommandScore.FromFailedPrecondition(command, context, pResult, 0);
-			}
-
-			var args = new object?[command.Parameters.Count];
-			var argCount = 0;
-			var startIndex = candidate.Score;
-			for (var i = 0; i < command.Parameters.Count && startIndex < input.Count; ++i)
-			{
-				var parameter = command.Parameters[i];
-
-				var trResult = await ProcessTypeReadersAsync(
-					cache,
-					context,
-					parameter,
-					input,
-					startIndex
-				).ConfigureAwait(false);
-				if (!trResult.IsSuccess)
-				{
-					return CommandScore.FromFailedTypeReader(command, context, trResult, i);
-				}
-
-				var ppResult = await ProcessParameterPreconditionsAsync(
-					cache,
-					context,
-					parameter,
-					trResult.Arg
-				).ConfigureAwait(false);
-				if (!ppResult.IsSuccess)
-				{
-					return CommandScore.FromFailedParameterPrecondition(command, context, ppResult, i);
-				}
-
-				args[i] = trResult.Arg;
-				++argCount;
-				startIndex += parameter.Length;
-			}
-
-			// Deal with optional parameters if we don't have full arguments
-			for (var i = argCount; i < command.Parameters.Count; ++i)
-			{
-				var parameter = command.Parameters[i];
-
-				if (!parameter.IsOptional())
-				{
-					return CommandScore.FromFailedOptionalArgs(command, context, i);
-				}
-
-				var arg = parameter.DefaultValue;
-				var ppResult = await ProcessParameterPreconditionsAsync(
-					cache,
-					context,
-					parameter,
-					arg
-				).ConfigureAwait(false);
-				if (!ppResult.IsSuccess)
-				{
-					return CommandScore.FromFailedParameterPrecondition(command, context, ppResult, i);
-				}
-
-				args[i] = parameter.DefaultValue;
-			}
-			return CommandScore.FromCanExecute(command, context, args);
+			SortMatches(matches);
+			return matches;
 		}
 
 		public async Task<IResult> ProcessParameterPreconditionsAsync(
 			PreconditionCache cache,
-			IContext context,
+			IImmutableCommand command,
 			IImmutableParameter parameter,
 			object? value)
 		{
-			var ppCache = cache.ParameterPreconditions;
+			var info = new CommandInfo(command, parameter);
 			foreach (var precondition in parameter.Preconditions)
 			{
-				var key = (value, precondition);
-				if (!ppCache.TryGetValue(key, out var result))
-				{
-					// TODO: enumerables
-					result = await precondition.CheckAsync(context, value).ConfigureAwait(false);
-					ppCache[key] = result;
-				}
+				// TODO: enumerables
+				var result = await cache.GetResultAsync(info, precondition, value).ConfigureAwait(false);
 				if (!result.IsSuccess)
 				{
 					return result;
@@ -245,18 +258,12 @@ namespace YACCS.Commands
 
 		public async Task<IResult> ProcessPreconditionsAsync(
 			PreconditionCache cache,
-			IContext context,
-			IImmutableCommand candidate)
+			IImmutableCommand command)
 		{
-			var pCache = cache.Preconditions;
-			foreach (var precondition in candidate.Preconditions)
+			var info = new CommandInfo(command, null);
+			foreach (var precondition in command.Preconditions)
 			{
-				var key = precondition;
-				if (!pCache.TryGetValue(key, out var result))
-				{
-					result = await precondition.CheckAsync(context, candidate).ConfigureAwait(false);
-					pCache[key] = result;
-				}
+				var result = await cache.GetResultAsync(info, precondition).ConfigureAwait(false);
 				if (!result.IsSuccess)
 				{
 					return result;
@@ -267,27 +274,22 @@ namespace YACCS.Commands
 
 		public async Task<ITypeReaderResult> ProcessTypeReadersAsync(
 			PreconditionCache cache,
-			IContext context,
 			IImmutableParameter parameter,
 			IReadOnlyList<string> input,
 			int startIndex)
 		{
-			var (isEnumerable, reader) = GetReader(parameter);
-			var length = Math.Min(input.Count, Math.Max(parameter.Length, 1));
+			// Iterate at least once even for arguments with zero length, i.e. IContext
+			// Use length if we're dealing with something we need to make an array out of
+			// Otherwise mainly ignore it
+
+			var (makeArray, reader) = GetReader(parameter);
+			var pLength = makeArray ? parameter.Length : 1;
+			var length = Math.Min(input.Count - startIndex, pLength);
 			var results = new List<ITypeReaderResult>(length);
 
-			var tCache = cache.TypeReaders;
-			// Iterate at least once even for arguments with zero length
-			// in cases of IContext, etc
-			var endIndex = startIndex + length;
-			for (var i = startIndex; i < endIndex; ++i)
+			for (var i = startIndex; i < startIndex + length; ++i)
 			{
-				var key = (input[i], parameter.ParameterType);
-				if (!tCache.TryGetValue(key, out var result))
-				{
-					result = await reader.ReadAsync(context, input[i]).ConfigureAwait(false);
-					tCache[key] = result;
-				}
+				var result = await cache.GetResultAsync(reader, input[i]).ConfigureAwait(false);
 				if (!result.IsSuccess)
 				{
 					return result;
@@ -295,8 +297,18 @@ namespace YACCS.Commands
 				results.Add(result);
 			}
 
-			// Length being 1 and not enumerable so return without dealing with the array
-			if (parameter.Length == 1 && !isEnumerable)
+			if (parameter.Length == 0 && results.Count == 0)
+			{
+				var result = await cache.GetResultAsync(reader, "").ConfigureAwait(false);
+				if (!result.IsSuccess)
+				{
+					return result;
+				}
+				results.Add(result);
+			}
+
+			// Return without dealing with the array
+			if (!makeArray)
 			{
 				return results[0];
 			}
@@ -336,29 +348,34 @@ namespace YACCS.Commands
 			return (min, max);
 		}
 
-		private static IReadOnlyList<CommandScore> GetSortedCommandScores(List<CommandScore> matches)
+		private static void SortMatches(List<CommandScore> matches)
 		{
-			if (matches.Count == 0)
-			{
-				return NotFound;
-			}
-
 			if (matches.Count > 1)
 			{
 				// CompareTo backwards since we want the higher values in front
 				matches.Sort((x, y) => y.CompareTo(x));
 			}
-			return matches;
 		}
 
-		private (bool IsEnumerable, ITypeReader Reader) GetReader(IImmutableParameter parameter)
+		private (bool, ITypeReader) GetReader(IImmutableParameter parameter)
 		{
-			if (_Readers.TryGetReader(parameter.ParameterType, out var reader))
+			// TypeReader is overridden, we /shouldn't/ need to deal with converting
+			// to an enumerable for the dev
+			if (parameter.OverriddenTypeReader != null)
+			{
+				return (false, parameter.OverriddenTypeReader);
+			}
+			// Parameter type is directly in the TypeReader collection, use that
+			var pType = parameter.ParameterType;
+			if (_Readers.TryGetReader(pType, out var reader))
 			{
 				return (false, reader);
 			}
-			if (parameter.EnumerableType != null
-				&& _Readers.TryGetReader(parameter.EnumerableType, out reader))
+			// Parameter type is not, but the parameter is an enumerable and its enumerable
+			// type is in the TypeReader collection.
+			// Let's read each value for the enumerable separately
+			var eType = parameter.EnumerableType;
+			if (eType != null && _Readers.TryGetReader(eType, out reader))
 			{
 				return (true, reader);
 			}

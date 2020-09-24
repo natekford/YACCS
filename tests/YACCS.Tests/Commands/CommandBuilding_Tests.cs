@@ -102,7 +102,7 @@ namespace YACCS.Tests.Commands
 		public const string _9 = "9";
 		public const string _CommandOneId = "id_1";
 		public const string _CommandTwoId = "id_2";
-		public const string _ParamId = "param_id";
+		public const string _PositionId = "position_id";
 
 		[Command(_4, _5, _6)]
 		public sealed class Help : CommandGroup<IContext>
@@ -122,7 +122,7 @@ namespace YACCS.Tests.Commands
 			}
 
 			[Command]
-			public Task<IResult> CommandThree([Id(_ParamId)] int position, string arg)
+			public Task<IResult> CommandThree([Id(_PositionId)] int position, string arg)
 			{
 				return SuccessResult.InstanceTask;
 			}
@@ -135,11 +135,12 @@ namespace YACCS.Tests.Commands
 
 			public override Task OnCommandBuildingAsync(IList<ICommand> commands)
 			{
-				var allParameters = commands.SelectMany(x => x.Parameters);
+				var parameters = commands.SelectMany(x => x.Parameters);
 
-				var pos = allParameters
-					.GetParameterById<int>(_ParamId)
-					.AddParameterPrecondition(new NotNegative());
+				foreach (var position in parameters.GetParametersById<int>(_PositionId))
+				{
+					position.AddParameterPrecondition(new NotNegative());
+				}
 
 				return Task.CompletedTask;
 			}
@@ -148,7 +149,10 @@ namespace YACCS.Tests.Commands
 
 	public sealed class NotNegative : ParameterPrecondition<FakeContext, int>
 	{
-		public override Task<IResult> CheckAsync(FakeContext context, [MaybeNull] int value)
+		public override Task<IResult> CheckAsync(
+			CommandInfo info,
+			FakeContext context,
+			[MaybeNull] int value)
 		{
 			if (value >= 0)
 			{

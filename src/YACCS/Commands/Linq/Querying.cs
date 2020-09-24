@@ -15,13 +15,16 @@ namespace YACCS.Commands.Linq
 			Func<TAttribute, bool> predicate)
 			where TEntity : IQueryableEntity
 		{
-			foreach (var command in entities)
+			foreach (var entity in entities)
 			{
-				foreach (var attribute in command.Attributes)
+				foreach (var attribute in entity.Attributes)
 				{
 					if (attribute is TAttribute t && predicate(t))
 					{
-						yield return command;
+						yield return entity;
+						// Break after returning once
+						// Otherwise if attributes get modified we get an exception
+						break;
 					}
 				}
 			}
