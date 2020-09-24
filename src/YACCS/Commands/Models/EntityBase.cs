@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-
-using YACCS.Commands.Attributes;
 
 namespace YACCS.Commands.Models
 {
@@ -12,11 +9,18 @@ namespace YACCS.Commands.Models
 	public abstract class EntityBase : IEntityBase
 	{
 		public IList<object> Attributes { get; set; } = new List<object>();
-		public string Id { get; set; }
 		IEnumerable<object> IQueryableEntity.Attributes => Attributes;
-		private string DebuggerDisplay => $"Id = {Id}, Attribute Count = {Attributes.Count}";
+		private string DebuggerDisplay => $"Attribute Count = {Attributes.Count}";
 
 		protected EntityBase(ICustomAttributeProvider? provider)
+		{
+			AddAttributes(provider);
+		}
+
+		public IEnumerable<T> Get<T>()
+			=> Attributes.OfType<T>();
+
+		protected void AddAttributes(ICustomAttributeProvider? provider)
 		{
 			if (provider != null)
 			{
@@ -25,11 +29,6 @@ namespace YACCS.Commands.Models
 					Attributes.Add(attribute);
 				}
 			}
-
-			Id = Get<IIdAttribute>().SingleOrDefault()?.Id ?? Guid.NewGuid().ToString();
 		}
-
-		public IEnumerable<T> Get<T>()
-			=> Attributes.OfType<T>();
 	}
 }

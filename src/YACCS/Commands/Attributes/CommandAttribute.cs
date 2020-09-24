@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace YACCS.Commands.Attributes
 {
-	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
 	public class CommandAttribute : Attribute, ICommandAttribute
 	{
 		public bool AllowInheritance { get; set; }

@@ -75,26 +75,28 @@ namespace YACCS.Commands
 				return MultiMatchHandlingErrorResult.Instance;
 			}
 
-			_ = Task.Run(async () =>
-			{
-				var command = highestScore.Command!;
-				var args = highestScore.Args!;
-
-				try
-				{
-					var result = await command.GetResultAsync(context, args).ConfigureAwait(false);
-					var e = new CommandExecutedEventArgs(command, context, result);
-					await _CommandExecuted.InvokeAsync(e).ConfigureAwait(false);
-				}
-				catch (Exception ex)
-				{
-					var result = new ExceptionResult(ex);
-					var e = new CommandExecutedEventArgs(command, context, result)
-						.WithExceptions(ex);
-					await _CommandExecuted.Exception.InvokeAsync(e).ConfigureAwait(false);
-				}
-			});
+			_ = ExecuteCommand(highestScore, context);
 			return SuccessResult.Instance;
+		}
+
+		public async Task ExecuteCommand(CommandScore score, IContext context)
+		{
+			var command = score.Command!;
+			var args = score.Args!;
+
+			try
+			{
+				var result = await command.GetResultAsync(context, args).ConfigureAwait(false);
+				var e = new CommandExecutedEventArgs(command, context, result);
+				await _CommandExecuted.InvokeAsync(e).ConfigureAwait(false);
+			}
+			catch (Exception ex)
+			{
+				var result = new ExceptionResult(ex);
+				var e = new CommandExecutedEventArgs(command, context, result)
+					.WithExceptions(ex);
+				await _CommandExecuted.Exception.InvokeAsync(e).ConfigureAwait(false);
+			}
 		}
 
 		public IReadOnlyList<CommandScore> GetCommands(

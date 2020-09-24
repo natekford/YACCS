@@ -38,8 +38,7 @@ namespace YACCS.Commands.Linq
 
 		public static IParameter<TValue> AsType<TValue>(this IParameter parameter)
 		{
-			// I think this is the correct order?
-			if (!parameter.ParameterType.IsAssignableFrom(typeof(TValue)))
+			if (!typeof(TValue).IsAssignableFrom(parameter.ParameterType))
 			{
 				throw new ArgumentException($"Is not and does not inherit or implement {parameter.ParameterType.Name}..", nameof(parameter));
 			}
@@ -63,6 +62,18 @@ namespace YACCS.Commands.Linq
 			return parameters
 				.ById(id)
 				.Select(AsType<TValue>);
+		}
+
+		public static IEnumerable<IParameter<TValue>> GetParametersByType<TValue>(
+			this IEnumerable<IParameter> parameters)
+		{
+			foreach (var parameter in parameters)
+			{
+				if (parameter.ParameterType.IsAssignableFrom(typeof(TValue)))
+				{
+					yield return new Parameter<TValue>(parameter);
+				}
+			}
 		}
 
 		public static IParameter<TValue> RemoveDefaultValue<TValue>(this IParameter<TValue> parameter)
@@ -102,11 +113,6 @@ namespace YACCS.Commands.Linq
 		{
 			get => _Actual.DefaultValue;
 			set => _Actual.DefaultValue = value;
-		}
-		public string Id
-		{
-			get => _Actual.Id;
-			set => _Actual.Id = value;
 		}
 		public ITypeReader<TValue>? OverridenTypeReader
 		{

@@ -14,11 +14,10 @@ namespace YACCS.Commands.Models
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public sealed class Parameter : EntityBase, IParameter
 	{
-		public object? DefaultValue { get; set; }
+		public object? DefaultValue { get; set; } = DBNull.Value;
 		public ITypeReader? OverriddenTypeReader { get; set; }
 		public string ParameterName { get; set; }
 		public Type ParameterType { get; set; }
-		public IList<IParameterPrecondition> Preconditions { get; set; } = new List<IParameterPrecondition>();
 		private string DebuggerDisplay => $"Name = {ParameterName}, Type = {ParameterType}";
 
 		public Parameter() : base(null)
@@ -58,26 +57,31 @@ namespace YACCS.Commands.Models
 			public IReadOnlyList<object> Attributes { get; }
 			public object? DefaultValue { get; }
 			public Type? EnumerableType { get; }
-			public string Id { get; }
 			public int Length { get; }
 			public ITypeReader? OverriddenTypeReader { get; }
 			public string ParameterName { get; }
 			public Type ParameterType { get; }
 			public IReadOnlyList<IParameterPrecondition> Preconditions { get; }
+			public string PrimaryId { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 			private string DebuggerDisplay => $"Name = {ParameterName}, Type = {ParameterType}";
 
 			public ImmutableParameter(Parameter mutable)
 			{
+				if (mutable.ParameterType == typeof(void))
+				{
+					throw new ArgumentException("Cannot have a parameter type of void.", nameof(mutable));
+				}
+
 				Attributes = mutable.Attributes.ToImmutableArray();
 				DefaultValue = mutable.DefaultValue;
-				Id = mutable.Id;
+				EnumerableType = GetEnumerableType(mutable.ParameterType);
 				Length = mutable.Get<ILengthAttribute>().SingleOrDefault()?.Length ?? 1;
 				OverriddenTypeReader = mutable.OverriddenTypeReader;
 				ParameterName = mutable.ParameterName;
 				ParameterType = mutable.ParameterType;
 				Preconditions = mutable.Get<IParameterPrecondition>().ToImmutableArray();
-				EnumerableType = GetEnumerableType(mutable.ParameterType);
+				PrimaryId = mutable.Get<IIdAttribute>().FirstOrDefault()?.Id ?? Guid.NewGuid().ToString();
 			}
 
 			private static Type? GetEnumerableType(Type type)

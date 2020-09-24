@@ -21,36 +21,38 @@ namespace YACCS.Commands.Models
 			GroupType = group;
 			Method = method;
 
-			foreach (var name in GetFullNames(group, GetDirectCommandNames(method, extraNames)))
+			foreach (var name in GetFullNames(group, method, extraNames))
 			{
 				Names.Add(name);
 			}
+			AddAllParentsAttributes(group);
+
 			Attributes.Add(new MethodInfoCommandAttribute(Method));
 		}
 
 		public override IImmutableCommand ToCommand()
 			=> new ImmutableReflectionCommand(this);
 
-		private static IEnumerable<string> GetDirectCommandNames(ICustomAttributeProvider method, IEnumerable<string>? extraNames)
+		private static IList<IName> GetFullNames(
+			Type group,
+			MethodInfo method,
+			IEnumerable<string>? extraNames)
 		{
+			var names = Enumerable.Empty<string>();
 			var methodNames = method
 				.GetCustomAttributes(true)
 				.OfType<ICommandAttribute>()
 				.SingleOrDefault()
 				?.Names;
-			if (methodNames is null)
+			if (methodNames != null)
 			{
-				return extraNames ?? Enumerable.Empty<string>();
+				names = names.Concat(methodNames);
 			}
-			if (extraNames is null)
+			if (extraNames != null)
 			{
-				return methodNames ?? Enumerable.Empty<string>();
+				names = names.Concat(extraNames);
 			}
-			return methodNames.Concat(extraNames);
-		}
 
-		private static IList<IName> GetFullNames(Type group, IEnumerable<string> names)
-		{
 			var output = new List<IEnumerable<string>>(names.Select(x => new[] { x }));
 			if (output.Count == 0)
 			{
@@ -80,6 +82,15 @@ namespace YACCS.Commands.Models
 			}
 
 			return output.Select(x => new Name(x)).ToList<IName>();
+		}
+
+		private void AddAllParentsAttributes(Type type)
+		{
+			while (type != null)
+			{
+				AddAttributes(type);
+				type = type.DeclaringType;
+			}
 		}
 
 		private sealed class ImmutableReflectionCommand : ImmutableCommand

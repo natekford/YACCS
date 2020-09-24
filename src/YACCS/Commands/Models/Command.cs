@@ -37,10 +37,10 @@ namespace YACCS.Commands.Models
 			private readonly Lazy<Func<Task, object>> _TaskResultDelegate;
 
 			public IReadOnlyList<object> Attributes { get; }
-			public string Id { get; }
 			public IReadOnlyList<IName> Names { get; }
 			public IReadOnlyList<IImmutableParameter> Parameters { get; }
 			public IReadOnlyList<IPrecondition> Preconditions { get; }
+			public string PrimaryId { get; }
 			public int Priority { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 			IEnumerable<IName> IQueryableCommand.Names => Names;
@@ -69,10 +69,10 @@ namespace YACCS.Commands.Models
 				});
 
 				Attributes = mutable.Attributes.ToImmutableArray();
-				Id = mutable.Id;
 				Names = mutable.Names.ToImmutableArray();
 				Parameters = mutable.Parameters.Select(x => x.ToParameter()).ToImmutableArray();
 				Preconditions = mutable.Get<IPrecondition>().ToImmutableArray();
+				PrimaryId = mutable.Get<IIdAttribute>().FirstOrDefault()?.Id ?? Guid.NewGuid().ToString();
 				Priority = mutable.Get<IPriorityAttribute>().SingleOrDefault()?.Priority ?? 0;
 			}
 

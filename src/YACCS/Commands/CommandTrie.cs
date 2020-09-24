@@ -21,7 +21,7 @@ namespace YACCS.Commands
 
 		public int Add(IImmutableCommand command)
 		{
-			if (!_Commands.TryAdd(command.Id, command))
+			if (!_Commands.TryAdd(command.PrimaryId, command))
 			{
 				return 0;
 			}
@@ -58,7 +58,7 @@ namespace YACCS.Commands
 			var array = ImmutableArray.CreateBuilder<IImmutableCommand>();
 			foreach (var command in GetCommandsEnumerable(node))
 			{
-				if (!set.Add(command.Id))
+				if (!set.Add(command.PrimaryId))
 				{
 					continue;
 				}
@@ -69,7 +69,7 @@ namespace YACCS.Commands
 
 		public int Remove(IImmutableCommand command)
 		{
-			if (!_Commands.Remove(command.Id))
+			if (!_Commands.Remove(command.PrimaryId))
 			{
 				return 0;
 			}
