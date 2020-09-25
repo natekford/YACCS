@@ -40,36 +40,30 @@ namespace YACCS.Tests.Commands.Linq
 		private const string PARENT_ID = "parent_id";
 		private readonly List<IParameter> _Parameters = new List<IParameter>
 		{
-			new Parameter
+			new Parameter(typeof(Test_Child), "")
 			{
-				ParameterType = typeof(Test_Child),
 				Attributes = new List<object>
 				{
 					new IdAttribute(DUPE_ID),
 					new IdAttribute(CHILD_ID),
 				},
 			},
-			new Parameter
+			new Parameter(typeof(Test_Parent), "")
 			{
-				ParameterType = typeof(Test_Parent),
 				Attributes = new List<object>
 				{
 					new IdAttribute(DUPE_ID),
 					new IdAttribute(PARENT_ID),
 				},
 			},
-			new Parameter
+			new Parameter(typeof(int), "")
 			{
-				ParameterType = typeof(int),
 				Attributes = new List<object>
 				{
 					new IdAttribute(NORM_ID),
 				},
 			},
-			new Parameter
-			{
-				ParameterType = typeof(int),
-			},
+			new Parameter(typeof(int), ""),
 		};
 
 		[TestMethod]
@@ -190,6 +184,10 @@ namespace YACCS.Tests.Commands.Linq
 
 			parameter.RemoveDefaultValue();
 			Assert.IsFalse(parameter.HasDefaultValue);
+
+			parameter.SetDefaultValue(2);
+			Assert.IsTrue(parameter.HasDefaultValue);
+			Assert.AreEqual(2, parameter.DefaultValue);
 		}
 
 		[TestMethod]
@@ -198,10 +196,10 @@ namespace YACCS.Tests.Commands.Linq
 			var parameter = _Parameters.GetParameterById<int>(NORM_ID);
 			Assert.IsNull(parameter.OverriddenTypeReader);
 
-			parameter.SetOverridenTypeReader(new NumberTypeReader<int>(int.TryParse));
+			parameter.SetOverriddenTypeReader(new NumberTypeReader<int>(int.TryParse));
 			Assert.IsNotNull(parameter.OverriddenTypeReader);
 
-			parameter.SetOverridenTypeReader(null);
+			parameter.RemoveOverriddenTypeReader();
 			Assert.IsNull(parameter.OverriddenTypeReader);
 		}
 	}

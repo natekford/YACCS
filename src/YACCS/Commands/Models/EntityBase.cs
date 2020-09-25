@@ -17,9 +17,6 @@ namespace YACCS.Commands.Models
 			AddAttributes(provider);
 		}
 
-		public IEnumerable<T> Get<T>()
-			=> Attributes.OfType<T>();
-
 		protected void AddAttributes(ICustomAttributeProvider? provider)
 		{
 			if (provider != null)

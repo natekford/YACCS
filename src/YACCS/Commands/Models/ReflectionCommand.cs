@@ -12,6 +12,7 @@ namespace YACCS.Commands.Models
 {
 	public sealed class ReflectionCommand : Command
 	{
+		public override Type? ContextType { get; }
 		public Type GroupType { get; }
 		public MethodInfo Method { get; }
 
@@ -28,6 +29,10 @@ namespace YACCS.Commands.Models
 				throw new ArgumentException("Missing a public parameterless constructor.", nameof(group));
 			}
 
+			ContextType = group.GetInterfaces().SingleOrDefault(x =>
+			{
+				return x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICommandGroup);
+			});
 			GroupType = group;
 			Method = method;
 
@@ -106,7 +111,7 @@ namespace YACCS.Commands.Models
 		private sealed class ImmutableReflectionCommand : ImmutableCommand
 		{
 			private readonly Lazy<Func<ICommandGroup>> _ConstructorDelegate;
-			private readonly Lazy<ICommandGroup> _DO_NOT_USE_THIS_FOR_EXECUTION;
+			private readonly Type? _ContextType;
 			private readonly Type _GroupType;
 			private readonly Lazy<Action<ICommandGroup, IServiceProvider>> _InjectionDelegate;
 			private readonly Lazy<Func<ICommandGroup, object?[], object>> _InvokeDelegate;
@@ -115,16 +120,13 @@ namespace YACCS.Commands.Models
 			public ImmutableReflectionCommand(ReflectionCommand mutable)
 				: base(mutable, mutable.Method.ReturnType)
 			{
-				_Method = mutable.Method;
+				_ContextType = mutable.ContextType;
 				_GroupType = mutable.GroupType;
+				_Method = mutable.Method;
 
 				_ConstructorDelegate = CreateDelegate(CreateConstructorDelegate, "constructor delegate");
 				_InjectionDelegate = CreateDelegate(CreateInjectionDelegate, "injection delegate");
 				_InvokeDelegate = CreateDelegate(CreateInvokeDelegate, "invoke delegate");
-				_DO_NOT_USE_THIS_FOR_EXECUTION = new Lazy<ICommandGroup>(() =>
-				{
-					return _ConstructorDelegate.Value.Invoke();
-				});
 			}
 
 			public override async Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args)
@@ -142,9 +144,6 @@ namespace YACCS.Commands.Models
 				await group.AfterExecutionAsync(this, context).ConfigureAwait(false);
 				return result;
 			}
-
-			public override bool IsValidContext(IContext context)
-				=> _DO_NOT_USE_THIS_FOR_EXECUTION.Value.IsValidContext(context);
 
 			private Func<ICommandGroup> CreateConstructorDelegate()
 			{

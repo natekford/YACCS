@@ -21,10 +21,8 @@ namespace YACCS.Tests.Commands
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
 			var cache = new PreconditionCache(context);
-			var parameter = new Parameter
+			var parameter = new Parameter(type, "Test")
 			{
-				ParameterName = "Test",
-				ParameterType = type,
 				Attributes = new List<object>
 				{
 					new LengthAttribute(4),
@@ -58,10 +56,8 @@ namespace YACCS.Tests.Commands
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
 			var cache = new PreconditionCache(context);
-			var parameter = new Parameter
+			var parameter = new Parameter(type, "Test")
 			{
-				ParameterName = "Test",
-				ParameterType = type,
 				Attributes = new List<object>
 				{
 					new LengthAttribute(4),
@@ -95,10 +91,8 @@ namespace YACCS.Tests.Commands
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
 			var cache = new PreconditionCache(context);
-			var parameter = new Parameter
+			var parameter = new Parameter(type, "Test")
 			{
-				ParameterName = "Test",
-				ParameterType = type,
 				Attributes = new List<object>
 				{
 					new LengthAttribute(500),
@@ -129,10 +123,8 @@ namespace YACCS.Tests.Commands
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
 			var cache = new PreconditionCache(context);
-			var parameter = new Parameter
+			var parameter = new Parameter(typeof(char), "Test")
 			{
-				ParameterName = "Test",
-				ParameterType = typeof(char),
 				Attributes = new List<object>
 				{
 					new LengthAttribute(1),
@@ -159,10 +151,8 @@ namespace YACCS.Tests.Commands
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
 			var cache = new PreconditionCache(context);
-			var parameter = new Parameter
+			var parameter = new Parameter(type, "Test")
 			{
-				ParameterName = "Test",
-				ParameterType = type,
 				Attributes = new List<object>
 				{
 					new LengthAttribute(1),
@@ -191,10 +181,8 @@ namespace YACCS.Tests.Commands
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
 			var cache = new PreconditionCache(context);
-			var parameter = new Parameter
+			var parameter = new Parameter(type, "Test")
 			{
-				ParameterName = "Test",
-				ParameterType = type,
 				Attributes = new List<object>
 				{
 					new LengthAttribute(1),
@@ -223,10 +211,8 @@ namespace YACCS.Tests.Commands
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
 			var cache = new PreconditionCache(context);
-			var parameter = new Parameter
+			var parameter = new Parameter(type, "Test")
 			{
-				ParameterName = "Test",
-				ParameterType = type,
 				Attributes = new List<object>
 				{
 					new LengthAttribute(1),
@@ -244,6 +230,31 @@ namespace YACCS.Tests.Commands
 			Assert.IsTrue(result.IsSuccess);
 			Assert.IsInstanceOfType(result.Arg, type);
 			Assert.AreEqual(value, result.Arg);
+		}
+
+		[TestMethod]
+		public async Task ProcessTypeReaderZeroLength_Test()
+		{
+			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
+			var context = new FakeContext();
+			var cache = new PreconditionCache(context);
+			var parameter = new Parameter(typeof(IContext), "Test")
+			{
+				Attributes = new List<object>
+				{
+					new ContextAttribute(),
+				},
+			}.ToParameter();
+			const int startIndex = 0;
+
+			var result = await commandService.ProcessTypeReadersAsync(
+				cache,
+				parameter,
+				new[] { "doesn't matter" },
+				startIndex
+			).ConfigureAwait(false);
+			Assert.IsTrue(result.IsSuccess);
+			Assert.IsInstanceOfType(result.Arg, typeof(IContext));
 		}
 	}
 }

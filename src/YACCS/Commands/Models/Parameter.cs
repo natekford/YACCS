@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Linq;
 using YACCS.ParameterPreconditions;
 using YACCS.TypeReaders;
 
@@ -29,14 +30,20 @@ namespace YACCS.Commands.Models
 			}
 		}
 		public ITypeReader? OverriddenTypeReader { get; set; }
-		public string ParameterName { get; set; }
-		public Type ParameterType { get; set; }
+		public string ParameterName { get; }
+		public Type ParameterType { get; }
 		private string DebuggerDisplay => $"Name = {ParameterName}, Type = {ParameterType}";
 
 		public Parameter() : base(null)
 		{
 			ParameterName = "";
 			ParameterType = typeof(void);
+		}
+
+		public Parameter(Type type, string name) : base(null)
+		{
+			ParameterName = name;
+			ParameterType = type;
 		}
 
 		public Parameter(ParameterInfo parameter) : base(parameter)

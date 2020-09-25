@@ -26,7 +26,7 @@ namespace YACCS.Tests.Commands.Models
 		public string? WontBeInjectedBecauseNoSetter { get; }
 		public Guid? WontBeInjectedBecauseNotRegistered { get; set; }
 
-		public override Task AfterExecutionAsync(IImmutableCommand command, IContext context)
+		public override Task AfterExecutionAsync(IImmutableCommand command, FakeContext context)
 		{
 			Assert.AreEqual(INJECTED_VALUE, InjectMeField);
 			Assert.AreEqual(INJECTED_VALUE, InjectMeProperty);

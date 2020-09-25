@@ -6,15 +6,13 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Models
 {
-	public interface IImmutableParameter : IImmutableEntityBase
+	public interface IImmutableParameter : IImmutableEntityBase, IQueryableParameter
 	{
 		object? DefaultValue { get; }
 		Type? EnumerableType { get; }
 		bool HasDefaultValue { get; }
 		int Length { get; }
 		ITypeReader? OverriddenTypeReader { get; }
-		string ParameterName { get; }
-		Type ParameterType { get; }
 		IReadOnlyList<IParameterPrecondition> Preconditions { get; }
 	}
 }

@@ -6,15 +6,15 @@ using YACCS.Commands.Models;
 
 namespace YACCS.Commands
 {
-	public abstract class CommandGroup<T> : ICommandGroup where T : IContext
+	public abstract class CommandGroup<TContext> : ICommandGroup<TContext> where TContext : IContext
 	{
 		public IImmutableCommand Command { get; private set; } = default!;
-		public T Context { get; private set; } = default!;
+		public TContext Context { get; private set; } = default!;
 
-		public virtual Task AfterExecutionAsync(IImmutableCommand command, IContext context)
+		public virtual Task AfterExecutionAsync(IImmutableCommand command, TContext context)
 			=> Task.CompletedTask;
 
-		public virtual Task BeforeExecutionAsync(IImmutableCommand command, IContext context)
+		public virtual Task BeforeExecutionAsync(IImmutableCommand command, TContext context)
 		{
 			if (command is null)
 			{
@@ -24,9 +24,9 @@ namespace YACCS.Commands
 			{
 				throw new ArgumentNullException(nameof(context));
 			}
-			if (!(context is T castedContext))
+			if (!(context is TContext castedContext))
 			{
-				var msg = $"Invalid context; expected {typeof(T).Name}, received {context.GetType().Name}.";
+				var msg = $"Invalid context; expected {typeof(TContext).Name}, received {context.GetType().Name}.";
 				throw new ArgumentException(msg, nameof(context));
 			}
 
@@ -35,10 +35,13 @@ namespace YACCS.Commands
 			return Task.CompletedTask;
 		}
 
-		public virtual bool IsValidContext(IContext context)
-			=> context is T;
-
 		public virtual Task OnCommandBuildingAsync(IList<ICommand> commands)
 			=> Task.CompletedTask;
+
+		Task ICommandGroup.AfterExecutionAsync(IImmutableCommand command, IContext context)
+			=> AfterExecutionAsync(command, (TContext)context);
+
+		Task ICommandGroup.BeforeExecutionAsync(IImmutableCommand command, IContext context)
+			=> BeforeExecutionAsync(command, (TContext)context);
 	}
 }

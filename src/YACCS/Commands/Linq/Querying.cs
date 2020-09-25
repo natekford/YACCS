@@ -69,5 +69,16 @@ namespace YACCS.Commands.Linq
 			var name = new Name(parts);
 			return commands.Where(x => x.Names.Any(n => name == n));
 		}
+
+		public static IEnumerable<T> Get<T>(this IQueryableEntity entity)
+		{
+			foreach (var attribute in entity.Attributes)
+			{
+				if (attribute is T t)
+				{
+					yield return t;
+				}
+			}
+		}
 	}
 }

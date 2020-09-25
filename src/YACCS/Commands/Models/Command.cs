@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Linq;
 using YACCS.Preconditions;
 using YACCS.Results;
 
@@ -16,6 +17,7 @@ namespace YACCS.Commands.Models
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public abstract class Command : EntityBase, ICommand
 	{
+		public abstract Type? ContextType { get; }
 		public IList<IName> Names { get; set; }
 		public IList<IParameter> Parameters { get; set; }
 		IEnumerable<IName> IQueryableCommand.Names => Names;
@@ -29,6 +31,21 @@ namespace YACCS.Commands.Models
 
 		public abstract IImmutableCommand ToCommand();
 
+		protected static Lazy<T> CreateDelegate<T>(Func<T> createDelegateDelegate, string name)
+		{
+			return new Lazy<T>(() =>
+			{
+				try
+				{
+					return createDelegateDelegate();
+				}
+				catch (Exception e)
+				{
+					throw new ArgumentException($"Unable to create {name}.", e);
+				}
+			});
+		}
+
 		[DebuggerDisplay("{DebuggerDisplay,nq}")]
 		protected abstract class ImmutableCommand : IImmutableCommand
 		{
@@ -38,6 +55,7 @@ namespace YACCS.Commands.Models
 			private readonly Lazy<Func<Task, object>> _TaskResultDelegate;
 
 			public IReadOnlyList<object> Attributes { get; }
+			public Type? ContextType { get; }
 			public IReadOnlyList<IName> Names { get; }
 			public IReadOnlyList<IImmutableParameter> Parameters { get; }
 			public IReadOnlyList<IPrecondition> Preconditions { get; }
@@ -55,6 +73,7 @@ namespace YACCS.Commands.Models
 				_TaskResultDelegate = CreateDelegate(CreateTaskResultDelegate, "task result delegate");
 
 				Attributes = mutable.Attributes.ToImmutableArray();
+				ContextType = mutable.ContextType;
 				Names = mutable.Names.ToImmutableArray();
 				Parameters = mutable.Parameters.Select(x => x.ToParameter()).ToImmutableArray();
 				Preconditions = mutable.Get<IPrecondition>().ToImmutableArray();
@@ -63,8 +82,6 @@ namespace YACCS.Commands.Models
 			}
 
 			public abstract Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args);
-
-			public abstract bool IsValidContext(IContext context);
 
 			protected async Task<ExecutionResult> ConvertValueAsync(IContext context, object? value)
 			{
@@ -109,21 +126,6 @@ namespace YACCS.Commands.Models
 				}
 
 				return ConvertValue(this, context, value);
-			}
-
-			protected Lazy<T> CreateDelegate<T>(Func<T> createDelegateDelegate, string name)
-			{
-				return new Lazy<T>(() =>
-				{
-					try
-					{
-						return createDelegateDelegate();
-					}
-					catch (Exception e)
-					{
-						throw new ArgumentException($"Unable to create {name}.", e);
-					}
-				});
 			}
 
 			private Func<Task, object> CreateTaskResultDelegate()

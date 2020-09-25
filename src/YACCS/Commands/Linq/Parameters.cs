@@ -14,10 +14,10 @@ namespace YACCS.Commands.Linq
 
 	public static class Parameters
 	{
-		public static IParameter<TValue> AddParameterPrecondition<TValue, TPrecon>(
-			this IParameter<TValue> parameter,
-			TPrecon precondition)
-			where TPrecon : IParameterPrecondition<TValue>
+		public static TParameter AddParameterPrecondition<TValue, TParameter>(
+			this TParameter parameter,
+			IParameterPrecondition<TValue> precondition)
+			where TParameter : IParameter<TValue>
 		{
 			parameter.Attributes.Add(precondition);
 			return parameter;
@@ -76,23 +76,34 @@ namespace YACCS.Commands.Linq
 			}
 		}
 
-		public static IParameter<TValue> RemoveDefaultValue<TValue>(this IParameter<TValue> parameter)
+		public static TParameter RemoveDefaultValue<TParameter>(this TParameter parameter)
+			where TParameter : IParameter
 		{
 			parameter.HasDefaultValue = false;
 			return parameter;
 		}
 
-		public static IParameter<TValue> SetDefaultValue<TValue>(
-			this IParameter<TValue> parameter,
+		public static TParameter RemoveOverriddenTypeReader<TParameter>(
+			this TParameter parameter)
+			where TParameter : IParameter
+		{
+			parameter.OverriddenTypeReader = null;
+			return parameter;
+		}
+
+		public static TParameter SetDefaultValue<TValue, TParameter>(
+			this TParameter parameter,
 			TValue value)
+			where TParameter : IParameter<TValue>
 		{
 			parameter.DefaultValue = value;
 			return parameter;
 		}
 
-		public static IParameter<TValue> SetOverridenTypeReader<TValue>(
-			this IParameter<TValue> parameter,
+		public static TParameter SetOverriddenTypeReader<TValue, TParameter>(
+			this TParameter parameter,
 			ITypeReader<TValue>? typeReader)
+			where TParameter : IParameter<TValue>
 		{
 			parameter.OverriddenTypeReader = typeReader;
 			return parameter;
@@ -123,22 +134,14 @@ namespace YACCS.Commands.Linq
 			get => _Actual.OverriddenTypeReader as ITypeReader<TValue>;
 			set => _Actual.OverriddenTypeReader = value;
 		}
-		public string ParameterName
-		{
-			get => _Actual.ParameterName;
-			set => _Actual.ParameterName = value;
-		}
-		public Type ParameterType
-		{
-			get => _Actual.ParameterType;
-			set => _Actual.ParameterType = value;
-		}
 		IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 		ITypeReader? IParameter.OverriddenTypeReader
 		{
 			get => OverridenTypeReader;
 			set => OverridenTypeReader = value as ITypeReader<TValue>;
 		}
+		public string ParameterName => _Actual.ParameterName;
+		public Type ParameterType => _Actual.ParameterType;
 
 		public Parameter(IParameter actual)
 		{

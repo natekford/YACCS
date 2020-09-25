@@ -11,6 +11,8 @@ namespace YACCS.Commands.Models
 {
 	public sealed class DelegateCommand : Command
 	{
+		// Delegate commands don't use contexts
+		public override Type? ContextType => null;
 		public Delegate Delegate { get; }
 
 		public DelegateCommand(Delegate @delegate, IEnumerable<IName> names)
@@ -52,10 +54,6 @@ namespace YACCS.Commands.Models
 					return new ExecutionResult(this, context, new ExceptionResult(e));
 				}
 			}
-
-			// Always returns true because delegate commands are not context based
-			public override bool IsValidContext(IContext context)
-				=> true;
 
 			private Func<object?[], object> CreateInvokeDelegate()
 			{

@@ -132,13 +132,14 @@ namespace YACCS.Commands
 				return Array.Empty<CommandScore>();
 			}
 
+			var contextType = context.GetType();
 			var node = _CommandTrie.Root;
 			var matches = new List<CommandScore>();
 			for (var i = 0; i < count; ++i)
 			{
 				foreach (var command in node.Values)
 				{
-					if (!command.IsValidContext(context))
+					if (!command.IsValidContext(contextType))
 					{
 						matches.Add(CommandScore.FromInvalidContext(command, context, i));
 					}
@@ -237,6 +238,7 @@ namespace YACCS.Commands
 			IContext context,
 			IReadOnlyList<string> input)
 		{
+			var contextType = context.GetType();
 			var cache = new PreconditionCache(context);
 			var matches = new List<CommandScore>();
 			for (var i = 0; i < candidates.Count; ++i)
@@ -245,7 +247,7 @@ namespace YACCS.Commands
 				// Only allow newly found commands with CorrectArgCount
 				// Invalid args counts or any failures means don't check
 				if (candidate.Stage != CommandStage.CorrectArgCount
-					|| candidate.Command?.IsValidContext(context) != true)
+					|| candidate.Command?.IsValidContext(contextType) != true)
 				{
 					continue;
 				}

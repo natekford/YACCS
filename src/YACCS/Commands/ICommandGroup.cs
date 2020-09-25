@@ -5,7 +5,7 @@ using YACCS.Commands.Models;
 
 namespace YACCS.Commands
 {
-	public interface ICommandGroup : IContextValidator
+	public interface ICommandGroup
 	{
 		Task AfterExecutionAsync(IImmutableCommand command, IContext context);
 

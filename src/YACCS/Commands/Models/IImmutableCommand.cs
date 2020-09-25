@@ -6,7 +6,7 @@ using YACCS.Results;
 
 namespace YACCS.Commands.Models
 {
-	public interface IImmutableCommand : IImmutableEntityBase, IQueryableCommand, IContextValidator
+	public interface IImmutableCommand : IImmutableEntityBase, IQueryableCommand
 	{
 		new IReadOnlyList<IName> Names { get; }
 		IReadOnlyList<IImmutableParameter> Parameters { get; }
