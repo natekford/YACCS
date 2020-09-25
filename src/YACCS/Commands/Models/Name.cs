@@ -99,6 +99,6 @@ namespace YACCS.Commands.Models
 		}
 
 		public override string ToString()
-					=> string.Join(' ', Parts);
+			=> string.Join(' ', Parts);
 	}
 }

@@ -324,16 +324,6 @@ namespace YACCS.Commands
 				results.Add(result);
 			}
 
-			if (parameter.Length == 0 && results.Count == 0)
-			{
-				var result = await cache.GetResultAsync(reader, "").ConfigureAwait(false);
-				if (!result.IsSuccess)
-				{
-					return result;
-				}
-				results.Add(result);
-			}
-
 			// Return without dealing with the array
 			if (!makeArray)
 			{

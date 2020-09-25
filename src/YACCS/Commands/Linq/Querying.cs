@@ -30,19 +30,15 @@ namespace YACCS.Commands.Linq
 			}
 		}
 
-		public static IEnumerable<T> ByDelegate<T>(this IEnumerable<T> commands, Delegate @delegate)
-			where T : IQueryableCommand
-			=> commands.ByDelegate(@delegate, false);
-
-		public static IEnumerable<T> ByDelegate<T>(this IEnumerable<T> commands, Delegate @delegate, bool includeMethod)
+		public static IEnumerable<T> ByDelegate<T>(this IEnumerable<T> commands, Delegate @delegate, bool includeMethod = false)
 			where T : IQueryableCommand
 		{
-			var d = commands.ByAttribute((DelegateCommandAttribute d) => d.Delegate == @delegate);
+			var delegates = commands.ByAttribute((DelegateCommandAttribute d) => d.Delegate == @delegate);
 			if (!includeMethod)
 			{
-				return d;
+				return delegates;
 			}
-			return d.Union(commands.ByMethod(@delegate.Method));
+			return delegates.Union(commands.ByMethod(@delegate.Method));
 		}
 
 		public static IEnumerable<T> ById<T>(this IEnumerable<T> commands, string id)

@@ -1,11 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using YACCS.Results;
+using YACCS.TypeReaders;
 
 namespace YACCS.Tests.Commands
 {
@@ -115,6 +119,59 @@ namespace YACCS.Tests.Commands
 			{
 				Assert.AreEqual(value[i], cast[i]);
 			}
+		}
+
+		[TestMethod]
+		public async Task ProcessTypeReaderNotRegistered_Test()
+		{
+			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
+			var context = new FakeContext();
+			var cache = new PreconditionCache(context);
+			var parameter = new Parameter(typeof(IDictionary<GroupChild, IDictionary<string, char>>), "Test")
+			{
+				Attributes = new List<object>
+				{
+					new LengthAttribute(1),
+				},
+			}.ToParameter();
+			var input = new[] { "joeba" };
+			const int startIndex = 0;
+
+			await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
+			{
+				var result = await commandService.ProcessTypeReadersAsync(
+					cache,
+					parameter,
+					input,
+					startIndex
+				).ConfigureAwait(false);
+			}).ConfigureAwait(false);
+		}
+
+		[TestMethod]
+		public async Task ProcessTypeReaderOverridden_Test()
+		{
+			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
+			var context = new FakeContext();
+			var cache = new PreconditionCache(context);
+			var parameter = new Parameter(typeof(char), "Test")
+			{
+				Attributes = new List<object>
+				{
+					new LengthAttribute(1),
+				},
+				OverriddenTypeReader = new CoolCharTypeReader(),
+			}.ToParameter();
+			var input = new[] { "joeba" };
+			const int startIndex = 0;
+
+			var result = await commandService.ProcessTypeReadersAsync(
+				cache,
+				parameter,
+				input,
+				startIndex
+			).ConfigureAwait(false);
+			Assert.IsTrue(result.IsSuccess);
 		}
 
 		[TestMethod]
@@ -256,5 +313,11 @@ namespace YACCS.Tests.Commands
 			Assert.IsTrue(result.IsSuccess);
 			Assert.IsInstanceOfType(result.Arg, typeof(IContext));
 		}
+	}
+
+	public class CoolCharTypeReader : TypeReader<char>
+	{
+		public override Task<ITypeReaderResult<char>> ReadAsync(IContext context, string input)
+			=> TypeReaderResult<char>.FromSuccess('z').AsTask();
 	}
 }
