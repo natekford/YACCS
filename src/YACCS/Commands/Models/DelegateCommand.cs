@@ -37,32 +37,7 @@ namespace YACCS.Commands.Models
 				: base(mutable, mutable.Delegate.Method.ReturnType)
 			{
 				_Delegate = mutable.Delegate;
-				_InvokeDelegate = new Lazy<Func<object?[], object>>(() =>
-				{
-					/*
-					 *	(object?[] Args) =>
-					 *	{
-					 *		return ((DelegateType)Delegate).Invoke((ParamType)Args[0], (ParamType)Args[1], ...);
-					 *	}
-					 */
-
-					var method = _Delegate.Method;
-					var target = _Delegate.Target;
-
-					var argsExpr = Expression.Parameter(typeof(object?[]), "Args");
-
-					var targetExpr = Expression.Constant(target);
-					var argsCastExpr = method.GetParameters().Select((x, i) =>
-					{
-						var indexExpr = Expression.Constant(i);
-						var accessExpr = Expression.ArrayAccess(argsExpr, indexExpr);
-						return Expression.Convert(accessExpr, x.ParameterType);
-					});
-					var invokeExpr = Expression.Call(targetExpr, method, argsCastExpr);
-
-					var lambda = Expression.Lambda<Func<object?[], object>>(invokeExpr, argsExpr);
-					return lambda.Compile();
-				});
+				_InvokeDelegate = CreateDelegate(CreateInvokeDelegate, "invoke delegate");
 			}
 
 			public override async Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args)
@@ -78,9 +53,36 @@ namespace YACCS.Commands.Models
 				}
 			}
 
-			// TODO: should this always return true?
+			// Always returns true because delegate commands are not context based
 			public override bool IsValidContext(IContext context)
 				=> true;
+
+			private Func<object?[], object> CreateInvokeDelegate()
+			{
+				/*
+				 *	(object?[] Args) =>
+				 *	{
+				 *		return ((DelegateType)Delegate).Invoke((ParamType)Args[0], (ParamType)Args[1], ...);
+				 *	}
+				 */
+
+				var method = _Delegate.Method;
+				var target = _Delegate.Target;
+
+				var argsExpr = Expression.Parameter(typeof(object?[]), "Args");
+
+				var targetExpr = Expression.Constant(target);
+				var argsCastExpr = method.GetParameters().Select((x, i) =>
+				{
+					var indexExpr = Expression.Constant(i);
+					var accessExpr = Expression.ArrayAccess(argsExpr, indexExpr);
+					return Expression.Convert(accessExpr, x.ParameterType);
+				});
+				var invokeExpr = Expression.Call(targetExpr, method, argsCastExpr);
+
+				var lambda = Expression.Lambda<Func<object?[], object>>(invokeExpr, argsExpr);
+				return lambda.Compile();
+			}
 		}
 	}
 }

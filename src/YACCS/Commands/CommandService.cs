@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Parsing;
 using YACCS.Results;
@@ -93,27 +94,7 @@ namespace YACCS.Commands
 			return SuccessResult.Instance;
 		}
 
-		public async Task ExecuteCommand(CommandScore score, IContext context)
-		{
-			var command = score.Command!;
-			var args = score.Args!;
-
-			try
-			{
-				var result = await command.ExecuteAsync(context, args).ConfigureAwait(false);
-				var e = new CommandExecutedEventArgs(command, context, result);
-				await _CommandExecuted.InvokeAsync(e).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				var result = new ExceptionResult(ex);
-				var e = new CommandExecutedEventArgs(command, context, result)
-					.WithExceptions(ex);
-				await _CommandExecuted.Exception.InvokeAsync(e).ConfigureAwait(false);
-			}
-		}
-
-		public ImmutableArray<IImmutableCommand> Find(string input)
+		public IReadOnlyList<IImmutableCommand> Find(string input)
 		{
 			if (!ParseArgs.TryParse(
 				input,
@@ -122,7 +103,7 @@ namespace YACCS.Commands
 				_Config.Separators,
 				out var parseArgs))
 			{
-				return ImmutableArray<IImmutableCommand>.Empty;
+				return Array.Empty<IImmutableCommand>();
 			}
 
 			var args = parseArgs.Arguments;
@@ -138,7 +119,7 @@ namespace YACCS.Commands
 					return node.Values.ToImmutableArray();
 				}
 			}
-			return ImmutableArray<IImmutableCommand>.Empty;
+			return Array.Empty<IImmutableCommand>();
 		}
 
 		public IReadOnlyList<CommandScore> GetCommands(
@@ -230,7 +211,7 @@ namespace YACCS.Commands
 				}
 				// We don't have any more args to parse.
 				// If the parameter isn't optional it's a failure
-				else if (!parameter.IsOptional())
+				else if (!parameter.HasDefaultValue)
 				{
 					return CommandScore.FromFailedOptionalArgs(command, context, i);
 				}
@@ -369,9 +350,6 @@ namespace YACCS.Commands
 		public void Remove(IImmutableCommand command)
 			=> _CommandTrie.Remove(command);
 
-		IReadOnlyList<IImmutableCommand> ICommandService.Find(string input)
-			=> Find(input);
-
 		private static (int Min, int Max) GetMinAndMaxArgs(IImmutableCommand command)
 		{
 			var @base = command.Names[0].Parts.Count;
@@ -386,7 +364,7 @@ namespace YACCS.Commands
 					max = int.MaxValue;
 					break;
 				}
-				if (!parameter.IsOptional())
+				if (!parameter.HasDefaultValue)
 				{
 					min += parameter.Length;
 				}
@@ -401,6 +379,26 @@ namespace YACCS.Commands
 			{
 				// CompareTo backwards since we want the higher values in front
 				matches.Sort((x, y) => y.CompareTo(x));
+			}
+		}
+
+		private async Task ExecuteCommand(CommandScore score, IContext context)
+		{
+			var command = score.Command!;
+			var args = score.Args!;
+
+			try
+			{
+				var result = await command.ExecuteAsync(context, args).ConfigureAwait(false);
+				var e = new CommandExecutedEventArgs(command, context, result);
+				await _CommandExecuted.InvokeAsync(e).ConfigureAwait(false);
+			}
+			catch (Exception ex)
+			{
+				var result = new ExceptionResult(ex);
+				var e = new CommandExecutedEventArgs(command, context, result)
+					.WithExceptions(ex);
+				await _CommandExecuted.Exception.InvokeAsync(e).ConfigureAwait(false);
 			}
 		}
 

@@ -14,7 +14,20 @@ namespace YACCS.Commands.Models
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public sealed class Parameter : EntityBase, IParameter
 	{
-		public object? DefaultValue { get; set; } = DBNull.Value;
+		private static readonly object NoDefaultValue = new object();
+
+		public object? DefaultValue { get; set; } = NoDefaultValue;
+		public bool HasDefaultValue
+		{
+			get => DefaultValue != NoDefaultValue;
+			set
+			{
+				if (!value)
+				{
+					DefaultValue = NoDefaultValue;
+				}
+			}
+		}
 		public ITypeReader? OverriddenTypeReader { get; set; }
 		public string ParameterName { get; set; }
 		public Type ParameterType { get; set; }
@@ -41,12 +54,12 @@ namespace YACCS.Commands.Models
 			// Not optional and has no default value
 			if (parameter.DefaultValue == DBNull.Value)
 			{
-				return DBNull.Value;
+				return NoDefaultValue;
 			}
 			// Optional but has no default value
 			if (parameter.DefaultValue == Type.Missing)
 			{
-				return DBNull.Value;
+				return NoDefaultValue;
 			}
 			return parameter.DefaultValue;
 		}
@@ -57,6 +70,7 @@ namespace YACCS.Commands.Models
 			public IReadOnlyList<object> Attributes { get; }
 			public object? DefaultValue { get; }
 			public Type? EnumerableType { get; }
+			public bool HasDefaultValue { get; }
 			public int Length { get; }
 			public ITypeReader? OverriddenTypeReader { get; }
 			public string ParameterName { get; }
@@ -76,6 +90,7 @@ namespace YACCS.Commands.Models
 				Attributes = mutable.Attributes.ToImmutableArray();
 				DefaultValue = mutable.DefaultValue;
 				EnumerableType = GetEnumerableType(mutable.ParameterType);
+				HasDefaultValue = mutable.HasDefaultValue;
 				Length = mutable.Get<ILengthAttribute>().SingleOrDefault()?.Length ?? 1;
 				OverriddenTypeReader = mutable.OverriddenTypeReader;
 				ParameterName = mutable.ParameterName;

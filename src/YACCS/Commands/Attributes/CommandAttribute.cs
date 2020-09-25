@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace YACCS.Commands.Attributes
 {
@@ -11,7 +12,16 @@ namespace YACCS.Commands.Attributes
 
 		public CommandAttribute(params string[] names)
 		{
-			Names = names;
+			var builder = ImmutableArray.CreateBuilder<string>(names.Length);
+			foreach (var name in names)
+			{
+				if (name.Contains(' '))
+				{
+					throw new ArgumentException("Command names cannot contain spaces.", nameof(names));
+				}
+				builder.Add(name);
+			}
+			Names = builder.MoveToImmutable();
 		}
 
 		public CommandAttribute() : this(Array.Empty<string>())

@@ -119,6 +119,10 @@ namespace YACCS.Commands
 			}
 		}
 
+		public static IAsyncEnumerable<IImmutableCommand> GetCommandsAsync<T>()
+			where T : ICommandGroup, new()
+			=> typeof(T).GetCommandsAsync();
+
 		public static IEnumerable<TypeReaderInfo> GetTypeReaders(
 			this IEnumerable<Assembly> assemblies)
 		{

@@ -34,6 +34,7 @@ namespace YACCS.Commands.Models
 		{
 			private readonly bool _IsGeneric;
 			private readonly bool _IsVoid;
+			private readonly Type _ReturnType;
 			private readonly Lazy<Func<Task, object>> _TaskResultDelegate;
 
 			public IReadOnlyList<object> Attributes { get; }
@@ -44,29 +45,14 @@ namespace YACCS.Commands.Models
 			public int Priority { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 			IEnumerable<IName> IQueryableCommand.Names => Names;
-			private string DebuggerDisplay => $"Name = {Names[0]}, Parameter Count = {Parameters.Count}";
+			private string DebuggerDisplay => $"Name = {Names?.FirstOrDefault()?.ToString() ?? PrimaryId}, Parameter Count = {Parameters.Count}";
 
 			protected ImmutableCommand(Command mutable, Type returnType)
 			{
 				_IsVoid = returnType == typeof(void);
 				_IsGeneric = returnType.IsGenericType;
-				_TaskResultDelegate = new Lazy<Func<Task, object>>(() =>
-				{
-					/*
-					 *	(Task Task) =>
-					 *	{
-					 *		return ((Task<T>)Task).Result;
-					 *	}
-					 */
-
-					var instanceExpr = Expression.Parameter(typeof(Task), "Task");
-					var instanceCastExpr = Expression.Convert(instanceExpr, returnType);
-					var propertyExpr = Expression.Property(instanceCastExpr, nameof(Task<object>.Result));
-					var propertyCastExpr = Expression.Convert(propertyExpr, typeof(object));
-
-					var lambda = Expression.Lambda<Func<Task, object>>(propertyCastExpr, instanceExpr);
-					return lambda.Compile();
-				});
+				_ReturnType = returnType;
+				_TaskResultDelegate = CreateDelegate(CreateTaskResultDelegate, "task result delegate");
 
 				Attributes = mutable.Attributes.ToImmutableArray();
 				Names = mutable.Names.ToImmutableArray();
@@ -123,6 +109,39 @@ namespace YACCS.Commands.Models
 				}
 
 				return ConvertValue(this, context, value);
+			}
+
+			protected Lazy<T> CreateDelegate<T>(Func<T> createDelegateDelegate, string name)
+			{
+				return new Lazy<T>(() =>
+				{
+					try
+					{
+						return createDelegateDelegate();
+					}
+					catch (Exception e)
+					{
+						throw new ArgumentException($"Unable to create {name}.", e);
+					}
+				});
+			}
+
+			private Func<Task, object> CreateTaskResultDelegate()
+			{
+				/*
+				 *	(Task Task) =>
+				 *	{
+				 *		return ((Task<T>)Task).Result;
+				 *	}
+				 */
+
+				var instanceExpr = Expression.Parameter(typeof(Task), "Task");
+				var instanceCastExpr = Expression.Convert(instanceExpr, _ReturnType);
+				var propertyExpr = Expression.Property(instanceCastExpr, nameof(Task<object>.Result));
+				var propertyCastExpr = Expression.Convert(propertyExpr, typeof(object));
+
+				var lambda = Expression.Lambda<Func<Task, object>>(propertyCastExpr, instanceExpr);
+				return lambda.Compile();
 			}
 		}
 	}

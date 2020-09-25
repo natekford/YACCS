@@ -118,18 +118,9 @@ namespace YACCS.Commands.Models
 				_Method = mutable.Method;
 				_GroupType = mutable.GroupType;
 
-				_ConstructorDelegate = new Lazy<Func<ICommandGroup>>(() =>
-				{
-					return CreateDelegate(CreateConstructorDelegate, "constructor delegate");
-				});
-				_InjectionDelegate = new Lazy<Action<ICommandGroup, IServiceProvider>>(() =>
-				{
-					return CreateDelegate(CreateInjectionDelegate, "injection delegate");
-				});
-				_InvokeDelegate = new Lazy<Func<ICommandGroup, object?[], object>>(() =>
-				{
-					return CreateDelegate(CreateInvokeDelegate, "invoke delegate");
-				});
+				_ConstructorDelegate = CreateDelegate(CreateConstructorDelegate, "constructor delegate");
+				_InjectionDelegate = CreateDelegate(CreateInjectionDelegate, "injection delegate");
+				_InvokeDelegate = CreateDelegate(CreateInvokeDelegate, "invoke delegate");
 				_DO_NOT_USE_THIS_FOR_EXECUTION = new Lazy<ICommandGroup>(() =>
 				{
 					return _ConstructorDelegate.Value.Invoke();
@@ -161,18 +152,6 @@ namespace YACCS.Commands.Models
 				var ctorExpr = Expression.New(ctor);
 				var lambda = Expression.Lambda<Func<ICommandGroup>>(ctorExpr);
 				return lambda.Compile();
-			}
-
-			private T CreateDelegate<T>(Func<T> createDelegateDelegate, string name)
-			{
-				try
-				{
-					return createDelegateDelegate();
-				}
-				catch (Exception e)
-				{
-					throw new ArgumentException($"Unable to create {name} for {_GroupType.FullName}", e);
-				}
 			}
 
 			private Action<ICommandGroup, IServiceProvider> CreateInjectionDelegate()

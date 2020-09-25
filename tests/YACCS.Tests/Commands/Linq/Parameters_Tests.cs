@@ -12,6 +12,7 @@ using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.ParameterPreconditions;
 using YACCS.Results;
+using YACCS.TypeReaders;
 
 namespace YACCS.Tests.Commands.Linq
 {
@@ -115,6 +116,93 @@ namespace YACCS.Tests.Commands.Linq
 			});
 			var child_child = child.AsType<Test_Child>();
 			Assert.IsInstanceOfType(parent_child, typeof(IParameter<Test_Child>));
+		}
+
+		[TestMethod]
+		public void GetParameterById_Test()
+		{
+			var parameter = _Parameters.GetParameterById<int>(NORM_ID);
+			Assert.IsNotNull(parameter);
+
+			Assert.ThrowsException<InvalidOperationException>(() =>
+			{
+				_Parameters.GetParameterById<int>("doesn't exist");
+			});
+
+			Assert.ThrowsException<InvalidOperationException>(() =>
+			{
+				_Parameters.GetParameterById<Test_Parent>(DUPE_ID);
+			});
+		}
+
+		[TestMethod]
+		public void GetParametersById_Test()
+		{
+			{
+				var parameters = _Parameters.GetParametersById<Test_Parent>(DUPE_ID);
+				Assert.AreEqual(2, parameters.Count());
+			}
+
+			{
+				var parameters = _Parameters.GetParametersById<int>(NORM_ID);
+				Assert.AreEqual(1, parameters.Count());
+			}
+
+			{
+				var parameters = _Parameters.GetParametersById<int>("doesn't exist");
+				Assert.AreEqual(0, parameters.Count());
+			}
+		}
+
+		[TestMethod]
+		public void GetParametersByType_Test()
+		{
+			{
+				var parameters = _Parameters.GetParametersByType<Test_Parent>();
+				Assert.AreEqual(2, parameters.Count());
+			}
+
+			{
+				var parameters = _Parameters.GetParametersByType<Test_Child>();
+				Assert.AreEqual(1, parameters.Count());
+			}
+
+			{
+				var parameters = _Parameters.GetParametersByType<int>();
+				Assert.AreEqual(2, parameters.Count());
+			}
+
+			{
+				var parameters = _Parameters.GetParametersByType<string>();
+				Assert.AreEqual(0, parameters.Count());
+			}
+		}
+
+		[TestMethod]
+		public void ModifyDefaultValue_Test()
+		{
+			var parameter = _Parameters.GetParameterById<int>(NORM_ID);
+			Assert.IsFalse(parameter.HasDefaultValue);
+
+			parameter.SetDefaultValue(1);
+			Assert.IsTrue(parameter.HasDefaultValue);
+			Assert.AreEqual(1, parameter.DefaultValue);
+
+			parameter.RemoveDefaultValue();
+			Assert.IsFalse(parameter.HasDefaultValue);
+		}
+
+		[TestMethod]
+		public void SetOverridenTypeReader_Test()
+		{
+			var parameter = _Parameters.GetParameterById<int>(NORM_ID);
+			Assert.IsNull(parameter.OverriddenTypeReader);
+
+			parameter.SetOverridenTypeReader(new NumberTypeReader<int>(int.TryParse));
+			Assert.IsNotNull(parameter.OverriddenTypeReader);
+
+			parameter.SetOverridenTypeReader(null);
+			Assert.IsNull(parameter.OverriddenTypeReader);
 		}
 	}
 

@@ -69,7 +69,7 @@ namespace YACCS.Commands.Linq
 		{
 			foreach (var parameter in parameters)
 			{
-				if (parameter.ParameterType.IsAssignableFrom(typeof(TValue)))
+				if (typeof(TValue).IsAssignableFrom(parameter.ParameterType))
 				{
 					yield return new Parameter<TValue>(parameter);
 				}
@@ -78,8 +78,7 @@ namespace YACCS.Commands.Linq
 
 		public static IParameter<TValue> RemoveDefaultValue<TValue>(this IParameter<TValue> parameter)
 		{
-			// Where there is no default value, ParameterInfo.DefaultValue is a DBNull instance
-			parameter.DefaultValue = DBNull.Value;
+			parameter.HasDefaultValue = false;
 			return parameter;
 		}
 
@@ -93,7 +92,7 @@ namespace YACCS.Commands.Linq
 
 		public static IParameter<TValue> SetOverridenTypeReader<TValue>(
 			this IParameter<TValue> parameter,
-			ITypeReader<TValue> typeReader)
+			ITypeReader<TValue>? typeReader)
 		{
 			parameter.OverriddenTypeReader = typeReader;
 			return parameter;
@@ -113,6 +112,11 @@ namespace YACCS.Commands.Linq
 		{
 			get => _Actual.DefaultValue;
 			set => _Actual.DefaultValue = value;
+		}
+		public bool HasDefaultValue
+		{
+			get => _Actual.HasDefaultValue;
+			set => _Actual.HasDefaultValue = value;
 		}
 		public ITypeReader<TValue>? OverridenTypeReader
 		{

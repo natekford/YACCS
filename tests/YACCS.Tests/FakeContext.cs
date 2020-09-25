@@ -2,7 +2,7 @@
 
 using YACCS.Commands;
 
-namespace YACCS.Tests.Commands
+namespace YACCS.Tests
 {
 	public sealed class FakeContext : IContext
 	{
