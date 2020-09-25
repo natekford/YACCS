@@ -24,6 +24,7 @@ namespace YACCS.Commands.Models
 			{
 				Names.Add(name);
 			}
+
 			Attributes.Add(new DelegateCommandAttribute(@delegate));
 		}
 

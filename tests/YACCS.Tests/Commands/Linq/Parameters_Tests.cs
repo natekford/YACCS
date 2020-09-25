@@ -99,17 +99,17 @@ namespace YACCS.Tests.Commands.Linq
 			var parent = _Parameters.ById(PARENT_ID).Single();
 			var child = _Parameters.ById(CHILD_ID).Single();
 
-			var parent_parent = parent.AsType<Test_Parent>();
-			Assert.IsInstanceOfType(parent_parent, typeof(IParameter<Test_Parent>));
-			var parent_child = child.AsType<Test_Parent>();
-			Assert.IsInstanceOfType(parent_child, typeof(IParameter<Test_Parent>));
+			var child_parent = parent.AsType<Test_Child>();
+			Assert.IsInstanceOfType(child_parent, typeof(IParameter<Test_Child>));
+			var child_child = child.AsType<Test_Child>();
+			Assert.IsInstanceOfType(child_child, typeof(IParameter<Test_Child>));
 
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				var child_parent = parent.AsType<Test_Child>();
+				var parent_child = child.AsType<Test_Parent>();
 			});
-			var child_child = child.AsType<Test_Child>();
-			Assert.IsInstanceOfType(parent_child, typeof(IParameter<Test_Child>));
+			var parent_parent = parent.AsType<Test_Parent>();
+			Assert.IsInstanceOfType(parent_parent, typeof(IParameter<Test_Parent>));
 		}
 
 		[TestMethod]
@@ -133,7 +133,7 @@ namespace YACCS.Tests.Commands.Linq
 		public void GetParametersById_Test()
 		{
 			{
-				var parameters = _Parameters.GetParametersById<Test_Parent>(DUPE_ID);
+				var parameters = _Parameters.GetParametersById<Test_Child>(DUPE_ID);
 				Assert.AreEqual(2, parameters.Count());
 			}
 
@@ -153,12 +153,12 @@ namespace YACCS.Tests.Commands.Linq
 		{
 			{
 				var parameters = _Parameters.GetParametersByType<Test_Parent>();
-				Assert.AreEqual(2, parameters.Count());
+				Assert.AreEqual(1, parameters.Count());
 			}
 
 			{
 				var parameters = _Parameters.GetParametersByType<Test_Child>();
-				Assert.AreEqual(1, parameters.Count());
+				Assert.AreEqual(2, parameters.Count());
 			}
 
 			{

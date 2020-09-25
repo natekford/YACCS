@@ -31,8 +31,8 @@ namespace YACCS.Commands.Models
 
 			ContextType = group.GetInterfaces().SingleOrDefault(x =>
 			{
-				return x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICommandGroup);
-			});
+				return x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICommandGroup<>);
+			})?.GetGenericArguments()?.Single();
 			GroupType = group;
 			Method = method;
 

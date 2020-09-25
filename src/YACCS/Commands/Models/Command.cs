@@ -31,21 +31,6 @@ namespace YACCS.Commands.Models
 
 		public abstract IImmutableCommand ToCommand();
 
-		protected static Lazy<T> CreateDelegate<T>(Func<T> createDelegateDelegate, string name)
-		{
-			return new Lazy<T>(() =>
-			{
-				try
-				{
-					return createDelegateDelegate();
-				}
-				catch (Exception e)
-				{
-					throw new ArgumentException($"Unable to create {name}.", e);
-				}
-			});
-		}
-
 		[DebuggerDisplay("{DebuggerDisplay,nq}")]
 		protected abstract class ImmutableCommand : IImmutableCommand
 		{
@@ -82,6 +67,21 @@ namespace YACCS.Commands.Models
 			}
 
 			public abstract Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args);
+
+			protected static Lazy<T> CreateDelegate<T>(Func<T> createDelegateDelegate, string name)
+			{
+				return new Lazy<T>(() =>
+				{
+					try
+					{
+						return createDelegateDelegate();
+					}
+					catch (Exception e)
+					{
+						throw new ArgumentException($"Unable to create {name}.", e);
+					}
+				});
+			}
 
 			protected async Task<ExecutionResult> ConvertValueAsync(IContext context, object? value)
 			{

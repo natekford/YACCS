@@ -38,9 +38,9 @@ namespace YACCS.Commands.Linq
 
 		public static IParameter<TValue> AsType<TValue>(this IParameter parameter)
 		{
-			if (!typeof(TValue).IsAssignableFrom(parameter.ParameterType))
+			if (!parameter.IsValidParameter(typeof(TValue)))
 			{
-				throw new ArgumentException($"Is not and does not inherit or implement {parameter.ParameterType.Name}..", nameof(parameter));
+				throw new ArgumentException($"Is not and does not inherit or implement {parameter.ParameterType.Name}.", nameof(parameter));
 			}
 			return new Parameter<TValue>(parameter);
 		}
@@ -69,12 +69,15 @@ namespace YACCS.Commands.Linq
 		{
 			foreach (var parameter in parameters)
 			{
-				if (typeof(TValue).IsAssignableFrom(parameter.ParameterType))
+				if (parameter.IsValidParameter(typeof(TValue)))
 				{
 					yield return new Parameter<TValue>(parameter);
 				}
 			}
 		}
+
+		public static bool IsValidParameter(this IQueryableParameter parameter, Type type)
+			=> parameter.ParameterType.IsAssignableFrom(type);
 
 		public static TParameter RemoveDefaultValue<TParameter>(this TParameter parameter)
 			where TParameter : IParameter

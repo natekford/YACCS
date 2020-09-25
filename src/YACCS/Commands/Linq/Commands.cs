@@ -43,6 +43,16 @@ namespace YACCS.Commands.Linq
 			return command;
 		}
 
+		public static ICommand<TContext> AsContext<TContext>(this ICommand command)
+			where TContext : IContext
+		{
+			if (!command.IsValidContext(typeof(TContext)))
+			{
+				throw new ArgumentException($"Is not and does not inherit or implement {command.ContextType!.Name}.", nameof(command));
+			}
+			return new Command<TContext>(command);
+		}
+
 		public static ICommand<TContext> GetCommandById<TContext>(
 			this IEnumerable<ICommand> commands,
 			string id)
@@ -51,7 +61,7 @@ namespace YACCS.Commands.Linq
 			return commands
 				.ById(id)
 				.Single()
-				.UsesContext<TContext>();
+				.AsContext<TContext>();
 		}
 
 		public static IEnumerable<ICommand<TContext>> GetCommandsById<TContext>(
@@ -61,7 +71,7 @@ namespace YACCS.Commands.Linq
 		{
 			return commands
 				.ById(id)
-				.Select(UsesContext<TContext>);
+				.Select(AsContext<TContext>);
 		}
 
 		public static IEnumerable<ICommand<TContext>> GetCommandsByType<TContext>(
@@ -79,16 +89,6 @@ namespace YACCS.Commands.Linq
 
 		public static bool IsValidContext(this IQueryableCommand command, Type type)
 			=> command.ContextType?.IsAssignableFrom(type) ?? true;
-
-		public static ICommand<TContext> UsesContext<TContext>(this ICommand command)
-			where TContext : IContext
-		{
-			if (!command.IsValidContext(typeof(TContext)))
-			{
-				throw new ArgumentException($"Is not and does not inherit or implement {command.ContextType!.Name}..", nameof(command));
-			}
-			return new Command<TContext>(command);
-		}
 	}
 
 	public sealed class Command<TContext> : ICommand<TContext> where TContext : IContext
