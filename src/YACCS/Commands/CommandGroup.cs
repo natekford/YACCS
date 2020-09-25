@@ -24,14 +24,9 @@ namespace YACCS.Commands
 			{
 				throw new ArgumentNullException(nameof(context));
 			}
-			if (!(context is TContext castedContext))
-			{
-				var msg = $"Invalid context; expected {typeof(TContext).Name}, received {context.GetType().Name}.";
-				throw new ArgumentException(msg, nameof(context));
-			}
 
 			Command = command;
-			Context = castedContext;
+			Context = context;
 			return Task.CompletedTask;
 		}
 
@@ -39,9 +34,31 @@ namespace YACCS.Commands
 			=> Task.CompletedTask;
 
 		Task ICommandGroup.AfterExecutionAsync(IImmutableCommand command, IContext context)
-			=> AfterExecutionAsync(command, (TContext)context);
+		{
+			if (context is null)
+			{
+				return AfterExecutionAsync(command, default!);
+			}
+			if (!(context is TContext castedContext))
+			{
+				var msg = $"Invalid context; expected {typeof(TContext).Name}, received {context.GetType().Name}.";
+				throw new ArgumentException(msg, nameof(context));
+			}
+			return AfterExecutionAsync(command, castedContext);
+		}
 
 		Task ICommandGroup.BeforeExecutionAsync(IImmutableCommand command, IContext context)
-			=> BeforeExecutionAsync(command, (TContext)context);
+		{
+			if (context is null)
+			{
+				return BeforeExecutionAsync(command, default!);
+			}
+			if (!(context is TContext castedContext))
+			{
+				var msg = $"Invalid context; expected {typeof(TContext).Name}, received {context.GetType().Name}.";
+				throw new ArgumentException(msg, nameof(context));
+			}
+			return BeforeExecutionAsync(command, castedContext);
+		}
 	}
 }
