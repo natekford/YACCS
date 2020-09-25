@@ -193,7 +193,7 @@ namespace YACCS.Parsing
 			var maxEnd = endIndices[endIndices.Count - 1];
 			if (minStart == 0 && maxEnd == span.Length - 1)
 			{
-				Add(args, span, minStart + 1, maxEnd);
+				Add(args, span[(minStart + 1)..maxEnd]);
 				result = new ParseArgs(args.ToImmutableArray(), startQuotes, endQuotes);
 				return true;
 			}
@@ -207,7 +207,7 @@ namespace YACCS.Parsing
 			// Just pair them off from the outside in
 			if (PairedOffOutsideToIn(startIndices, endIndices))
 			{
-				Add(args, span, startIndices[0] + 1, endIndices[endIndices.Count - 1]);
+				Add(args, span[(startIndices[0] + 1)..endIndices[endIndices.Count - 1]]);
 			}
 			else
 			{
@@ -234,7 +234,7 @@ namespace YACCS.Parsing
 					}
 
 					previousEnd = endIndices[i];
-					Add(args, input, start + 1, previousEnd);
+					Add(args, input[(start + 1)..previousEnd]);
 				}
 			}
 
@@ -255,9 +255,6 @@ namespace YACCS.Parsing
 				col.Add(trimmed.ToString());
 			}
 		}
-
-		private static void Add(ICollection<string> col, ReadOnlySpan<char> input, int sIdx, int eIdx)
-			=> Add(col, input[sIdx..eIdx]);
 
 		private static void AddRange(ICollection<string> col, ReadOnlySpan<char> input, IImmutableSet<char> splitChars)
 		{

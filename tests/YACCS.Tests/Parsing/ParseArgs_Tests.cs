@@ -1,8 +1,4 @@
-﻿#pragma warning disable RCS1163 // Unused parameter.
-#pragma warning disable IDE0060 // Remove unused parameter
-#pragma warning disable IDE0022 // Use expression body for methods
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Parsing;
 

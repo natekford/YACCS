@@ -1,8 +1,4 @@
-﻿#pragma warning disable RCS1163 // Unused parameter.
-#pragma warning disable IDE0060 // Remove unused parameter
-#pragma warning disable IDE0022 // Use expression body for methods
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -34,20 +30,12 @@ namespace YACCS.Tests.Commands.Linq
 		}
 	}
 
-	public class Test_Child : Test_Parent
-	{
-	}
-
-	public class Test_Parent
-	{
-	}
-
 	[TestClass]
-	public class Parameters
+	public class Parameters_Tests
 	{
+		private const string CHILD_ID = "child_id";
 		private const string DUPE_ID = "dupe_id";
 		private const string NORM_ID = "normal_id";
-		private const string CHILD_ID = "child_id";
 		private const string PARENT_ID = "parent_id";
 		private readonly List<IParameter> _Parameters = new List<IParameter>
 		{
@@ -97,7 +85,7 @@ namespace YACCS.Tests.Commands.Linq
 		{
 			Assert.ThrowsException<ArgumentNullException>(() =>
 			{
-				var parameter = default(IQueryableEntity).AsParameter();
+				var parameter = default(IQueryableEntity)!.AsParameter();
 			});
 
 			Assert.ThrowsException<ArgumentException>(() =>
@@ -128,5 +116,13 @@ namespace YACCS.Tests.Commands.Linq
 			var child_child = child.AsType<Test_Child>();
 			Assert.IsInstanceOfType(parent_child, typeof(IParameter<Test_Child>));
 		}
+	}
+
+	public class Test_Child : Test_Parent
+	{
+	}
+
+	public class Test_Parent
+	{
 	}
 }

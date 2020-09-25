@@ -43,27 +43,12 @@ namespace YACCS.Commands
 				}
 
 				list ??= new List<ICommand>();
-				list.Add(new ReflectionCommand(type, method));
+				list.Add(new ReflectionCommand(method));
 			}
 
 			if (list != null)
 			{
-				object instance;
-				try
-				{
-					instance = Activator.CreateInstance(type);
-				}
-				catch (Exception e)
-				{
-					throw new InvalidCommandTypeException(
-						$"Unable to create an instance of {type.Name}. Is it missing a public parameterless constructor?", e);
-				}
-				if (!(instance is ICommandGroup group))
-				{
-					throw new InvalidCommandTypeException(
-						$"{type.Name} does not implement {nameof(ICommandGroup)}.");
-				}
-
+				var group = CreateInstance<ICommandGroup>(type);
 				await group.OnCommandBuildingAsync(list).ConfigureAwait(false);
 
 				// Commands have been modified by whoever implemented them
@@ -71,6 +56,26 @@ namespace YACCS.Commands
 				return list.Select(x => x.ToCommand()).ToArray();
 			}
 			return Array.Empty<IImmutableCommand>();
+		}
+
+		public static T CreateInstance<T>(Type type)
+		{
+			object instance;
+			try
+			{
+				instance = Activator.CreateInstance(type);
+			}
+			catch (Exception e)
+			{
+				throw new ArgumentException(
+					$"Unable to create an instance of {type.Name}. Is it missing a public parameterless constructor?", nameof(type), e);
+			}
+			if (instance is T t)
+			{
+				return t;
+			}
+			throw new ArgumentException(
+				$"{type.Name} does not implement {typeof(T).FullName}.", nameof(type));
 		}
 
 		public static async IAsyncEnumerable<IImmutableCommand> GetCommandsAsync(
@@ -137,21 +142,7 @@ namespace YACCS.Commands
 					continue;
 				}
 
-				object instance;
-				try
-				{
-					instance = Activator.CreateInstance(type);
-				}
-				catch (Exception e)
-				{
-					throw new InvalidCommandTypeException(
-						$"Unable to create an instance of {type.Name}. Is it missing a public parameterless constructor?", e);
-				}
-				if (!(instance is ITypeReader typeReader))
-				{
-					throw new InvalidCommandTypeException(
-						$"{type.Name} does not implement {nameof(ITypeReader)}.");
-				}
+				var typeReader = CreateInstance<ITypeReader>(type);
 				yield return new TypeReaderInfo(attr.TargetTypes, typeReader);
 			}
 		}

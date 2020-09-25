@@ -1,8 +1,5 @@
-#pragma warning disable RCS1163 // Unused parameter.
-#pragma warning disable IDE0060 // Remove unused parameter
-#pragma warning disable IDE0022 // Use expression body for methods
-
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -11,6 +8,8 @@ using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 using YACCS.Results;
+using YACCS.Commands.Linq;
+using System.Linq;
 
 namespace YACCS.Tests.Commands
 {
@@ -31,7 +30,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsInstanceOfType(command.Attributes[0], typeof(DelegateCommandAttribute));
 
 			var args = new object[] { new FakeContext() };
-			var result = await immutable.ExecuteAsync(null, args).ConfigureAwait(false);
+			var result = await immutable.ExecuteAsync(null!, args).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
 			Assert.IsInstanceOfType(result.Result, typeof(ValueResult));
 			Assert.IsTrue(result.TryGetValue(out bool value));
@@ -41,6 +40,53 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task CommandMethodInfoBuilding_Test()
 		{
+			var commands = new List<IImmutableCommand>();
+			await foreach (var command in typeof(GroupBase).GetCommandsAsync())
+			{
+				commands.Add(command);
+			}
+			Assert.AreEqual(2, commands.Count);
+
+			var command1 = commands.ById(GroupBase.ID_1).SingleOrDefault();
+			Assert.IsNotNull(command1);
+
+			var command2 = commands.ById(GroupBase.ID_2).SingleOrDefault();
+			Assert.IsNotNull(command2);
 		}
+
+		[TestMethod]
+		public async Task CommandMethodInfoBuildingWithInheritanceInvolved_Test()
+		{
+			var commands = new List<IImmutableCommand>();
+			await foreach (var command in typeof(GroupChild).GetCommandsAsync())
+			{
+				commands.Add(command);
+			}
+			Assert.AreEqual(1, commands.Count);
+
+			var command1 = commands.ById(GroupBase.ID_1).SingleOrDefault();
+			Assert.IsNotNull(command1);
+
+			var command2 = commands.ById(GroupBase.ID_2).SingleOrDefault();
+			Assert.IsNull(command2);
+		}
+	}
+
+	public class GroupBase : CommandGroup<FakeContext>
+	{
+		public const string ID_1 = "id_1";
+		public const string ID_2 = "id_2";
+
+		[Command("joeba", AllowInheritance = true)]
+		[Id(ID_1)]
+		public Task<IResult> CommandAsync() => SuccessResult.InstanceTask;
+
+		[Command("joeba2", AllowInheritance = false)]
+		[Id(ID_2)]
+		public Task<IResult> CommandAsync2() => SuccessResult.InstanceTask;
+	}
+
+	public class GroupChild : GroupBase
+	{
 	}
 }

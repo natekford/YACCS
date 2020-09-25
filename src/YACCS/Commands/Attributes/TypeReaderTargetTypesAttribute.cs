@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 namespace YACCS.Commands.Attributes
 {
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-	public class TypeReaderTargetTypesAttribute : Attribute, ITypeReaderTargetTypeAttribute
+	public class TypeReaderTargetTypesAttribute : Attribute
 	{
 		public IReadOnlyList<Type> TargetTypes { get; }
 

@@ -15,9 +15,19 @@ namespace YACCS.Commands.Models
 		public Type GroupType { get; }
 		public MethodInfo Method { get; }
 
-		public ReflectionCommand(Type group, MethodInfo method, IEnumerable<string>? extraNames = null)
+		public ReflectionCommand(MethodInfo method, IEnumerable<string>? extraNames = null)
 			: base(method)
 		{
+			var group = method.ReflectedType;
+			if (!typeof(ICommandGroup).IsAssignableFrom(group))
+			{
+				throw new ArgumentException($"Must implement {typeof(ICommandGroup).FullName}.", nameof(group));
+			}
+			if (group.GetConstructor(Type.EmptyTypes) == null)
+			{
+				throw new ArgumentException("Missing a public parameterless constructor.", nameof(group));
+			}
+
 			GroupType = group;
 			Method = method;
 
@@ -95,83 +105,176 @@ namespace YACCS.Commands.Models
 
 		private sealed class ImmutableReflectionCommand : ImmutableCommand
 		{
-			private readonly Lazy<Func<ICommandGroup>> _CreateDelegate;
-			private readonly ICommandGroup _DO_NOT_USE_THIS_FOR_EXECUTION;
+			private readonly Lazy<Func<ICommandGroup>> _ConstructorDelegate;
+			private readonly Lazy<ICommandGroup> _DO_NOT_USE_THIS_FOR_EXECUTION;
 			private readonly Type _GroupType;
+			private readonly Lazy<Action<ICommandGroup, IServiceProvider>> _InjectionDelegate;
 			private readonly Lazy<Func<ICommandGroup, object?[], object>> _InvokeDelegate;
 			private readonly MethodInfo _Method;
 
 			public ImmutableReflectionCommand(ReflectionCommand mutable)
 				: base(mutable, mutable.Method.ReturnType)
 			{
-				_CreateDelegate = new Lazy<Func<ICommandGroup>>(() =>
+				_Method = mutable.Method;
+				_GroupType = mutable.GroupType;
+
+				_ConstructorDelegate = new Lazy<Func<ICommandGroup>>(() =>
 				{
-					var ctor = _GroupType.GetConstructor(Type.EmptyTypes);
-					var ctorExpr = Expression.New(ctor);
-					var lambda = Expression.Lambda<Func<ICommandGroup>>(ctorExpr);
-					return lambda.Compile();
+					return CreateDelegate(CreateConstructorDelegate, "constructor delegate");
+				});
+				_InjectionDelegate = new Lazy<Action<ICommandGroup, IServiceProvider>>(() =>
+				{
+					return CreateDelegate(CreateInjectionDelegate, "injection delegate");
 				});
 				_InvokeDelegate = new Lazy<Func<ICommandGroup, object?[], object>>(() =>
 				{
-					/*
-					 *	(ICommandGroup Group, object?[] Args) =>
-					 *	{
-					 *		return ((GroupType)Group).Method((ParamType)Args[0], (ParamType)Args[1], ...);
-					 *	}
-					 */
-
-					var instanceExpr = Expression.Parameter(typeof(ICommandGroup), "Group");
-					var argsExpr = Expression.Parameter(typeof(object?[]), "Args");
-
-					var instanceCastExpr = Expression.Convert(instanceExpr, _GroupType);
-					var argsCastExpr = _Method.GetParameters().Select((x, i) =>
-					{
-						var indexExpr = Expression.Constant(i);
-						var accessExpr = Expression.ArrayAccess(argsExpr, indexExpr);
-						return Expression.Convert(accessExpr, x.ParameterType);
-					});
-					var invokeExpr = Expression.Call(instanceCastExpr, _Method, argsCastExpr);
-
-					var lambda = Expression.Lambda<Func<ICommandGroup, object?[], object>>(invokeExpr, instanceExpr, argsExpr);
-					return lambda.Compile();
+					return CreateDelegate(CreateInvokeDelegate, "invoke delegate");
 				});
-
-				_Method = mutable.Method;
-				_GroupType = mutable.GroupType;
-				_DO_NOT_USE_THIS_FOR_EXECUTION = CreateGroup();
+				_DO_NOT_USE_THIS_FOR_EXECUTION = new Lazy<ICommandGroup>(() =>
+				{
+					return _ConstructorDelegate.Value.Invoke();
+				});
 			}
 
 			public override async Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args)
 			{
-				try
-				{
-					var group = CreateGroup();
-					// TODO: inject services
-					await group.BeforeExecutionAsync(this, context).ConfigureAwait(false);
+				// Don't catch exceptions in here, it's easier for the command handler to
+				// catch them itself + this makes testing easier
 
-					var value = _InvokeDelegate.Value.Invoke(group, args);
-					var result = await ConvertValueAsync(context, value).ConfigureAwait(false);
+				var group = _ConstructorDelegate.Value.Invoke();
+				_InjectionDelegate.Value.Invoke(group, context.Services);
+				await group.BeforeExecutionAsync(this, context).ConfigureAwait(false);
 
-					await group.AfterExecutionAsync(this, context).ConfigureAwait(false);
-					return result;
-				}
-				catch (Exception e)
-				{
-					return new ExecutionResult(this, context, new ExceptionResult(e));
-				}
+				var value = _InvokeDelegate.Value.Invoke(group, args);
+				var result = await ConvertValueAsync(context, value).ConfigureAwait(false);
+
+				await group.AfterExecutionAsync(this, context).ConfigureAwait(false);
+				return result;
 			}
 
 			public override bool IsValidContext(IContext context)
-				=> _DO_NOT_USE_THIS_FOR_EXECUTION.IsValidContext(context);
+				=> _DO_NOT_USE_THIS_FOR_EXECUTION.Value.IsValidContext(context);
 
-			private ICommandGroup CreateGroup()
+			private Func<ICommandGroup> CreateConstructorDelegate()
 			{
-				var instance = _CreateDelegate.Value.Invoke();
-				if (!(instance is ICommandGroup group))
+				var ctor = _GroupType.GetConstructor(Type.EmptyTypes);
+				var ctorExpr = Expression.New(ctor);
+				var lambda = Expression.Lambda<Func<ICommandGroup>>(ctorExpr);
+				return lambda.Compile();
+			}
+
+			private T CreateDelegate<T>(Func<T> createDelegateDelegate, string name)
+			{
+				try
 				{
-					throw new InvalidOperationException("Invalid group.");
+					return createDelegateDelegate();
 				}
-				return group;
+				catch (Exception e)
+				{
+					throw new ArgumentException($"Unable to create {name} for {_GroupType.FullName}", e);
+				}
+			}
+
+			private Action<ICommandGroup, IServiceProvider> CreateInjectionDelegate()
+			{
+				/*
+				 *	(ICommandGroup Group, IServiceProvider Provider) =>
+				 *	{
+				 *		object? serviceA = Provider.GetService(typeof(ServiceA));
+				 *		if (serviceA != null)
+				 *		{
+				 *			((GroupType)Group).ServiceA = (ServiceA)serviceA;
+				 *		}
+				 *		object? serviceB = Provider.GetService(typeof(ServiceB));
+				 *		if (serviceB != null)
+				 *		{
+				 *			((GroupType)Group).ServiceB = (ServiceB)serviceA;
+				 *		}
+				 *	}
+				 */
+
+				const BindingFlags FLAGS = BindingFlags.Public | BindingFlags.Instance;
+				var properties = _GroupType
+					.GetProperties(FLAGS)
+					.Where(x => x.CanWrite && x.SetMethod?.IsPublic == true);
+				var fields = _GroupType
+					.GetFields(FLAGS)
+					.Where(x => !x.IsInitOnly);
+				var getService =
+					typeof(IServiceProvider)
+					.GetMethod(nameof(IServiceProvider.GetService));
+
+				var instanceExpr = Expression.Parameter(typeof(ICommandGroup), "Group");
+				var providerExpr = Expression.Parameter(typeof(IServiceProvider), "Provider");
+				var instanceCastExpr = Expression.Convert(instanceExpr, _GroupType);
+				var nullExpr = Expression.Constant(null);
+
+				ConditionalExpression CreateExpression(
+					Type type,
+					Func<UnaryExpression?, MemberExpression> memberGetter)
+				{
+					var typeExpr = Expression.Constant(type);
+					var serviceExpr = Expression.Call(providerExpr, getService, typeExpr);
+					var serviceCastExpr = Expression.Convert(serviceExpr, type);
+
+					var memberExpr = memberGetter(instanceCastExpr);
+					var assignExpr = Expression.Assign(memberExpr, serviceCastExpr);
+
+					var notNullExpr = Expression.NotEqual(nullExpr, serviceCastExpr);
+					return Expression.IfThen(notNullExpr, assignExpr);
+				}
+
+				var propertyExprs = properties.Select(x =>
+				{
+					return CreateExpression(x.PropertyType, u =>
+					{
+						return Expression.Property(u, x.SetMethod);
+					});
+				});
+				var fieldExprs = fields.Select(x =>
+				{
+					return CreateExpression(x.FieldType, u =>
+					{
+						return Expression.Field(u, x);
+					});
+				});
+				var allAssignExpr = Expression.Block(propertyExprs.Concat(fieldExprs));
+
+				var lambda = Expression.Lambda<Action<ICommandGroup, IServiceProvider>>(
+					allAssignExpr,
+					instanceExpr,
+					providerExpr
+				);
+				return lambda.Compile();
+			}
+
+			private Func<ICommandGroup, object?[], object> CreateInvokeDelegate()
+			{
+				/*
+				 *	(ICommandGroup Group, object?[] Args) =>
+				 *	{
+				 *		return ((GroupType)Group).Method((ParamType)Args[0], (ParamType)Args[1], ...);
+				 *	}
+				 */
+
+				var instanceExpr = Expression.Parameter(typeof(ICommandGroup), "Group");
+				var argsExpr = Expression.Parameter(typeof(object?[]), "Args");
+
+				var instanceCastExpr = Expression.Convert(instanceExpr, _GroupType);
+				var argsCastExpr = _Method.GetParameters().Select((x, i) =>
+				{
+					var indexExpr = Expression.Constant(i);
+					var accessExpr = Expression.ArrayAccess(argsExpr, indexExpr);
+					return Expression.Convert(accessExpr, x.ParameterType);
+				});
+				var invokeExpr = Expression.Call(instanceCastExpr, _Method, argsCastExpr);
+
+				var lambda = Expression.Lambda<Func<ICommandGroup, object?[], object>>(
+					invokeExpr,
+					instanceExpr,
+					argsExpr
+				);
+				return lambda.Compile();
 			}
 		}
 	}
