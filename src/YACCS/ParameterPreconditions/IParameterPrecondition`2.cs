@@ -10,6 +10,6 @@ namespace YACCS.ParameterPreconditions
 		: IParameterPrecondition<TValue>
 		where TContext : IContext
 	{
-		Task<IResult> CheckAsync(CommandInfo info, TContext context, [MaybeNull] TValue value);
+		Task<IResult> CheckAsync(ParameterInfo parameter, TContext context, [MaybeNull] TValue value);
 	}
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
@@ -46,7 +45,7 @@ namespace YACCS.Commands.Models
 			ParameterType = type;
 		}
 
-		public Parameter(ParameterInfo parameter) : base(parameter)
+		public Parameter(System.Reflection.ParameterInfo parameter) : base(parameter)
 		{
 			DefaultValue = GetDefaultValue(parameter);
 			ParameterName = parameter.Name;
@@ -56,7 +55,7 @@ namespace YACCS.Commands.Models
 		public IImmutableParameter ToParameter()
 			=> new ImmutableParameter(this);
 
-		private static object? GetDefaultValue(ParameterInfo parameter)
+		private static object? GetDefaultValue(System.Reflection.ParameterInfo parameter)
 		{
 			// Not optional and has no default value
 			if (parameter.DefaultValue == DBNull.Value)

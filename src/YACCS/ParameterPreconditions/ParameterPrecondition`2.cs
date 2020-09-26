@@ -9,24 +9,12 @@ namespace YACCS.ParameterPreconditions
 	public abstract class ParameterPrecondition<TContext, TValue>
 		: IParameterPrecondition<TContext, TValue> where TContext : IContext
 	{
-		public abstract Task<IResult> CheckAsync(CommandInfo info, TContext context, [MaybeNull] TValue value);
+		public abstract Task<IResult> CheckAsync(ParameterInfo parameter, TContext context, [MaybeNull] TValue value);
 
-		public Task<IResult> CheckAsync(CommandInfo info, IContext context, object? value)
-		{
-			if (!(value is TValue castedValue))
-			{
-				return InvalidParameterResult.InstanceTask;
-			}
-			return CheckAsync(info, context, castedValue);
-		}
+		public Task<IResult> CheckAsync(ParameterInfo parameter, IContext context, object? value)
+			=> this.CheckAsync<TContext, TValue>(parameter, context, value, CheckAsync);
 
-		public Task<IResult> CheckAsync(CommandInfo info, IContext context, [MaybeNull] TValue value)
-		{
-			if (!(context is TContext castedContext))
-			{
-				return InvalidContextResult.InstanceTask;
-			}
-			return CheckAsync(info, castedContext, value);
-		}
+		public Task<IResult> CheckAsync(ParameterInfo parameter, IContext context, [MaybeNull] TValue value)
+			=> this.CheckAsync<TContext, TValue>(parameter, context, value, CheckAsync);
 	}
 }

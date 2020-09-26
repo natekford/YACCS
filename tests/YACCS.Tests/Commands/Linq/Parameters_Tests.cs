@@ -19,7 +19,7 @@ namespace YACCS.Tests.Commands.Linq
 	public sealed class NotNegative : ParameterPrecondition<FakeContext, int>
 	{
 		public override Task<IResult> CheckAsync(
-			CommandInfo info,
+			ParameterInfo info,
 			FakeContext context,
 			[MaybeNull] int value)
 		{

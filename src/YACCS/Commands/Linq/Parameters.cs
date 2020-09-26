@@ -111,47 +111,47 @@ namespace YACCS.Commands.Linq
 			parameter.OverriddenTypeReader = typeReader;
 			return parameter;
 		}
-	}
 
-	public sealed class Parameter<TValue> : IParameter<TValue>
-	{
-		private readonly IParameter _Actual;
+		private sealed class Parameter<TValue> : IParameter<TValue>
+		{
+			private readonly IParameter _Actual;
 
-		public IList<object> Attributes
-		{
-			get => _Actual.Attributes;
-			set => _Actual.Attributes = value;
-		}
-		public object? DefaultValue
-		{
-			get => _Actual.DefaultValue;
-			set => _Actual.DefaultValue = value;
-		}
-		public bool HasDefaultValue
-		{
-			get => _Actual.HasDefaultValue;
-			set => _Actual.HasDefaultValue = value;
-		}
-		public ITypeReader<TValue>? OverridenTypeReader
-		{
-			get => _Actual.OverriddenTypeReader as ITypeReader<TValue>;
-			set => _Actual.OverriddenTypeReader = value;
-		}
-		IEnumerable<object> IQueryableEntity.Attributes => Attributes;
-		ITypeReader? IParameter.OverriddenTypeReader
-		{
-			get => OverridenTypeReader;
-			set => OverridenTypeReader = value as ITypeReader<TValue>;
-		}
-		public string ParameterName => _Actual.ParameterName;
-		public Type ParameterType => _Actual.ParameterType;
+			public IList<object> Attributes
+			{
+				get => _Actual.Attributes;
+				set => _Actual.Attributes = value;
+			}
+			public object? DefaultValue
+			{
+				get => _Actual.DefaultValue;
+				set => _Actual.DefaultValue = value;
+			}
+			public bool HasDefaultValue
+			{
+				get => _Actual.HasDefaultValue;
+				set => _Actual.HasDefaultValue = value;
+			}
+			public ITypeReader<TValue>? OverridenTypeReader
+			{
+				get => _Actual.OverriddenTypeReader as ITypeReader<TValue>;
+				set => _Actual.OverriddenTypeReader = value;
+			}
+			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
+			ITypeReader? IParameter.OverriddenTypeReader
+			{
+				get => OverridenTypeReader;
+				set => OverridenTypeReader = value as ITypeReader<TValue>;
+			}
+			public string ParameterName => _Actual.ParameterName;
+			public Type ParameterType => _Actual.ParameterType;
 
-		public Parameter(IParameter actual)
-		{
-			_Actual = actual;
-		}
+			public Parameter(IParameter actual)
+			{
+				_Actual = actual;
+			}
 
-		public IImmutableParameter ToParameter()
-			=> _Actual.ToParameter();
+			public IImmutableParameter ToParameter()
+				=> _Actual.ToParameter();
+		}
 	}
 }

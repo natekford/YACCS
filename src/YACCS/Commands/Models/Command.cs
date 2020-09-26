@@ -72,9 +72,9 @@ namespace YACCS.Commands.Models
 					{
 						return createDelegateDelegate();
 					}
-					catch (Exception e)
+					catch (Exception ex)
 					{
-						throw new ArgumentException($"Unable to create {name}.", e);
+						throw new ArgumentException($"Unable to create {name}.", ex);
 					}
 				});
 			}

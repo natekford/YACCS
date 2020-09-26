@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using YACCS.Commands.Models;
 using YACCS.ParameterPreconditions;
 using YACCS.Preconditions;
 using YACCS.Results;
@@ -24,7 +25,7 @@ namespace YACCS.Commands
 		}
 
 		public async Task<IResult> GetResultAsync(
-			CommandInfo info,
+			ParameterInfo parameter,
 			IParameterPrecondition precondition,
 			object? value)
 		{
@@ -32,7 +33,7 @@ namespace YACCS.Commands
 			if (!_ParameterPreconditions.TryGetValue(key, out var result))
 			{
 				result = await precondition.CheckAsync(
-					info,
+					parameter,
 					_Context,
 					value
 				).ConfigureAwait(false);
@@ -41,12 +42,12 @@ namespace YACCS.Commands
 			return result;
 		}
 
-		public async Task<IResult> GetResultAsync(CommandInfo info, IPrecondition precondition)
+		public async Task<IResult> GetResultAsync(IImmutableCommand command, IPrecondition precondition)
 		{
 			var key = precondition;
 			if (!_Preconditions.TryGetValue(key, out var result))
 			{
-				result = await precondition.CheckAsync(info, _Context).ConfigureAwait(false);
+				result = await precondition.CheckAsync(command, _Context).ConfigureAwait(false);
 				_Preconditions[key] = result;
 			}
 			return result;

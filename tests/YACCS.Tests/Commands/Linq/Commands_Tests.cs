@@ -199,7 +199,7 @@ namespace YACCS.Tests.Commands.Linq
 
 	public sealed class NotSevenPM : Precondition<FakeContext>
 	{
-		public override Task<IResult> CheckAsync(CommandInfo info, FakeContext context)
+		public override Task<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
 		{
 			if (DateTime.UtcNow.Hour != 19)
 			{

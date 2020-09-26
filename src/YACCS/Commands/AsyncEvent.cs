@@ -41,7 +41,7 @@ namespace YACCS.Commands
 				return;
 			}
 
-			List<Exception>? exceptions = null;
+			var exceptions = new List<Exception>();
 			foreach (var handler in handlers)
 			{
 				try
@@ -57,14 +57,13 @@ namespace YACCS.Commands
 						break;
 					}
 				}
-				catch (Exception exception)
+				catch (Exception ex)
 				{
-					exceptions ??= new List<Exception>();
-					exceptions.Add(exception);
+					exceptions.Add(ex);
 				}
 			}
 
-			if (exceptions != null)
+			if (exceptions.Count > 0)
 			{
 				var args = new ExceptionEventArgs<T>(exceptions, e);
 				await Exception.InvokeAsync(args).ConfigureAwait(false);

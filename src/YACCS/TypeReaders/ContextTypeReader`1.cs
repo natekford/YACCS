@@ -9,11 +9,11 @@ namespace YACCS.TypeReaders
 	{
 		public Task<ITypeReaderResult<T>> ReadAsync(IContext context, string input)
 		{
-			if (!(context is T castedContext))
+			if (!(context is T tContext))
 			{
 				return TypeReaderResult<T>.FailureTask;
 			}
-			return TypeReaderResult<T>.FromSuccess(castedContext).AsTask();
+			return TypeReaderResult<T>.FromSuccess(tContext).AsTask();
 		}
 
 		async Task<ITypeReaderResult> ITypeReader.ReadAsync(IContext context, string input)

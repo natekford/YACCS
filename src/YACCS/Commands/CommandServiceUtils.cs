@@ -30,7 +30,7 @@ namespace YACCS.Commands
 				| BindingFlags.Instance
 				| BindingFlags.FlattenHierarchy;
 
-			List<ICommand>? list = null;
+			var commands = new List<ICommand>();
 			foreach (var method in type.GetMethods(FLAGS))
 			{
 				var command = method
@@ -42,18 +42,18 @@ namespace YACCS.Commands
 					continue;
 				}
 
-				list ??= new List<ICommand>();
-				list.Add(new ReflectionCommand(method));
+				commands ??= new List<ICommand>();
+				commands.Add(new ReflectionCommand(method));
 			}
 
-			if (list != null)
+			if (commands.Count > 0)
 			{
 				var group = CreateInstance<ICommandGroup>(type);
-				await group.OnCommandBuildingAsync(list).ConfigureAwait(false);
+				await group.OnCommandBuildingAsync(commands).ConfigureAwait(false);
 
 				// Commands have been modified by whoever implemented them
 				// We can now return them in an immutable state
-				return list.Select(x => x.ToCommand()).ToArray();
+				return commands.Select(x => x.ToCommand()).ToArray();
 			}
 			return Array.Empty<IImmutableCommand>();
 		}
@@ -65,10 +65,10 @@ namespace YACCS.Commands
 			{
 				instance = Activator.CreateInstance(type);
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
 				throw new ArgumentException(
-					$"Unable to create an instance of {type.Name}. Is it missing a public parameterless constructor?", nameof(type), e);
+					$"Unable to create an instance of {type.Name}. Is it missing a public parameterless constructor?", nameof(type), ex);
 			}
 			if (instance is T t)
 			{

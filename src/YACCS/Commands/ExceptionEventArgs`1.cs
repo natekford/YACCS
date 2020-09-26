@@ -10,23 +10,27 @@ namespace YACCS.Commands
 		public static ExceptionEventArgs<T> WithExceptions<T>(this T e, params Exception[] exs)
 			where T : HandledEventArgs
 			=> new ExceptionEventArgs<T>(exs, e);
+
+		public static ExceptionEventArgs<T> WithExceptions<T>(this T e, IReadOnlyList<Exception> exs)
+			where T : HandledEventArgs
+			=> new ExceptionEventArgs<T>(exs, e);
 	}
 
 	public class ExceptionEventArgs<T> : HandledEventArgs where T : HandledEventArgs
 	{
+		public T EventArgs { get; }
 		public IReadOnlyList<Exception> Exceptions { get; }
-		public T OriginalEventArgs { get; }
 
-		public ExceptionEventArgs(IReadOnlyList<Exception> exceptions, T originalEventArgs)
+		public ExceptionEventArgs(IReadOnlyList<Exception> exceptions, T eventArgs)
 		{
 			Exceptions = exceptions;
-			OriginalEventArgs = originalEventArgs;
+			EventArgs = eventArgs;
 		}
 
 		public ExceptionEventArgs(Exception exception, T originalEventArgs)
 		{
 			Exceptions = new[] { exception }.ToArray();
-			OriginalEventArgs = originalEventArgs;
+			EventArgs = originalEventArgs;
 		}
 	}
 }

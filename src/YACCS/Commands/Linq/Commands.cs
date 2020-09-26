@@ -89,37 +89,37 @@ namespace YACCS.Commands.Linq
 
 		public static bool IsValidContext(this IQueryableCommand command, Type type)
 			=> command.ContextType?.IsAssignableFrom(type) ?? true;
-	}
 
-	public sealed class Command<TContext> : ICommand<TContext> where TContext : IContext
-	{
-		private readonly ICommand _Actual;
+		private sealed class Command<TContext> : ICommand<TContext> where TContext : IContext
+		{
+			private readonly ICommand _Actual;
 
-		public IList<object> Attributes
-		{
-			get => _Actual.Attributes;
-			set => _Actual.Attributes = value;
-		}
-		public IList<IName> Names
-		{
-			get => _Actual.Names;
-			set => _Actual.Names = value;
-		}
-		public IList<IParameter> Parameters
-		{
-			get => _Actual.Parameters;
-			set => _Actual.Parameters = value;
-		}
-		IEnumerable<object> IQueryableEntity.Attributes => Attributes;
-		public Type? ContextType => _Actual.ContextType;
-		IEnumerable<IName> IQueryableCommand.Names => Names;
+			public IList<object> Attributes
+			{
+				get => _Actual.Attributes;
+				set => _Actual.Attributes = value;
+			}
+			public IList<IName> Names
+			{
+				get => _Actual.Names;
+				set => _Actual.Names = value;
+			}
+			public IList<IParameter> Parameters
+			{
+				get => _Actual.Parameters;
+				set => _Actual.Parameters = value;
+			}
+			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
+			public Type? ContextType => _Actual.ContextType;
+			IEnumerable<IName> IQueryableCommand.Names => Names;
 
-		public Command(ICommand actual)
-		{
-			_Actual = actual;
-		}
+			public Command(ICommand actual)
+			{
+				_Actual = actual;
+			}
 
-		public IImmutableCommand ToCommand()
-			=> _Actual.ToCommand();
+			public IImmutableCommand ToCommand()
+				=> _Actual.ToCommand();
+		}
 	}
 }

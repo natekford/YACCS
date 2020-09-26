@@ -7,6 +7,7 @@ using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Parsing;
+using YACCS.Preconditions;
 using YACCS.Results;
 using YACCS.TypeReaders;
 
@@ -270,7 +271,7 @@ namespace YACCS.Commands
 			IImmutableParameter parameter,
 			object? value)
 		{
-			var info = new CommandInfo(command, parameter);
+			var info = new ParameterInfo(command, parameter);
 			foreach (var precondition in parameter.Preconditions)
 			{
 				// TODO: enumerables
@@ -287,10 +288,9 @@ namespace YACCS.Commands
 			PreconditionCache cache,
 			IImmutableCommand command)
 		{
-			var info = new CommandInfo(command, null);
 			foreach (var precondition in command.Preconditions)
 			{
-				var result = await cache.GetResultAsync(info, precondition).ConfigureAwait(false);
+				var result = await cache.GetResultAsync(command, precondition).ConfigureAwait(false);
 				if (!result.IsSuccess)
 				{
 					return result;
@@ -377,19 +377,42 @@ namespace YACCS.Commands
 		private async Task ExecuteCommand(CommandScore score, IContext context)
 		{
 			var command = score.Command!;
-			var args = score.Args!;
 
+			var exceptions = new List<Exception>();
+			var exceptionResult = default(IResult);
 			try
 			{
+				var args = score.Args!;
 				var result = await command.ExecuteAsync(context, args).ConfigureAwait(false);
 				var e = new CommandExecutedEventArgs(command, context, result);
 				await _CommandExecuted.InvokeAsync(e).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
-				var result = new ExceptionResult(ex);
-				var e = new CommandExecutedEventArgs(command, context, result)
-					.WithExceptions(ex);
+				exceptionResult ??= ExceptionDuringCommandResult.Instance;
+				exceptions.Add(ex);
+			}
+			finally
+			{
+				// Execute each postcondition, like adding in a user to a ratelimit database
+				foreach (var precondition in command.Get<IPrecondition>())
+				{
+					try
+					{
+						await precondition.AfterExecutionAsync(command, context).ConfigureAwait(false);
+					}
+					catch (Exception ex)
+					{
+						exceptionResult ??= ExceptionAfterCommandResult.Instance;
+						exceptions.Add(ex);
+					}
+				}
+			}
+
+			if (exceptions.Count > 0 && exceptionResult != null)
+			{
+				var e = new CommandExecutedEventArgs(command, context, exceptionResult)
+					.WithExceptions(exceptions);
 				await _CommandExecuted.Exception.InvokeAsync(e).ConfigureAwait(false);
 			}
 		}
