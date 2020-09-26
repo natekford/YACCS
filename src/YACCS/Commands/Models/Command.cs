@@ -34,9 +34,6 @@ namespace YACCS.Commands.Models
 		[DebuggerDisplay("{DebuggerDisplay,nq}")]
 		protected abstract class ImmutableCommand : IImmutableCommand
 		{
-			private readonly bool _IsGeneric;
-			private readonly bool _IsVoid;
-			private readonly Type _ReturnType;
 			private readonly Lazy<Func<Task, object>> _TaskResultDelegate;
 
 			public IReadOnlyList<object> Attributes { get; }
@@ -48,13 +45,12 @@ namespace YACCS.Commands.Models
 			public int Priority { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 			IEnumerable<IName> IQueryableCommand.Names => Names;
+			protected Type ReturnType { get; }
 			private string DebuggerDisplay => $"Name = {Names?.FirstOrDefault()?.ToString() ?? PrimaryId}, Parameter Count = {Parameters.Count}";
 
 			protected ImmutableCommand(Command mutable, Type returnType)
 			{
-				_IsVoid = returnType == typeof(void);
-				_IsGeneric = returnType.IsGenericType;
-				_ReturnType = returnType;
+				ReturnType = returnType;
 				_TaskResultDelegate = CreateDelegate(CreateTaskResultDelegate, "task result delegate");
 
 				Attributes = mutable.Attributes.ToImmutableArray();
@@ -85,25 +81,8 @@ namespace YACCS.Commands.Models
 
 			protected async Task<ExecutionResult> ConvertValueAsync(IContext context, object? value)
 			{
-				static ExecutionResult ConvertValue(
-					IImmutableCommand command,
-					IContext context,
-					object? value)
-				{
-					// We're given a non task result, we can just return that
-					if (value is IResult result)
-					{
-						return new ExecutionResult(command, context, result);
-					}
-					// What do I do with random values?
-					else
-					{
-						return new ExecutionResult(command, context, new ValueResult(value));
-					}
-				}
-
 				// Void method. No value to return, we're done
-				if (_IsVoid)
+				if (ReturnType == typeof(void))
 				{
 					return new ExecutionResult(this, context, SuccessResult.Instance);
 				}
@@ -115,17 +94,23 @@ namespace YACCS.Commands.Models
 					await task.ConfigureAwait(false);
 
 					// Not generic? No value to return, we're done
-					if (!_IsGeneric)
+					if (!ReturnType.IsGenericType)
 					{
 						return new ExecutionResult(this, context, SuccessResult.Instance);
 					}
 
 					// It has a value? Ok, let's get it
-					var result = _TaskResultDelegate.Value.Invoke(task);
-					return ConvertValue(this, context, result);
+					value = _TaskResultDelegate.Value.Invoke(task);
 				}
 
-				return ConvertValue(this, context, value);
+				// We're given a result, we can just return that
+				if (value is IResult result)
+				{
+					return new ExecutionResult(this, context, result);
+				}
+
+				// What do I do with random values?
+				return new ExecutionResult(this, context, new ValueResult(value));
 			}
 
 			private Func<Task, object> CreateTaskResultDelegate()
@@ -138,7 +123,7 @@ namespace YACCS.Commands.Models
 				 */
 
 				var instanceExpr = Expression.Parameter(typeof(Task), "Task");
-				var instanceCastExpr = Expression.Convert(instanceExpr, _ReturnType);
+				var instanceCastExpr = Expression.Convert(instanceExpr, ReturnType);
 				var propertyExpr = Expression.Property(instanceCastExpr, nameof(Task<object>.Result));
 				var propertyCastExpr = Expression.Convert(propertyExpr, typeof(object));
 

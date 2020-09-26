@@ -7,14 +7,14 @@ namespace YACCS.Results
 	{
 		public IImmutableCommand Command { get; }
 		public IContext Context { get; }
-		public IResult Result { get; }
+		public IResult InnerResult { get; }
 
 		public ExecutionResult(IImmutableCommand command, IContext context, IResult result)
 			: base(result.IsSuccess, result.Response)
 		{
 			Command = command;
 			Context = context;
-			Result = result;
+			InnerResult = result;
 		}
 	}
 }

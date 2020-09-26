@@ -24,9 +24,14 @@ namespace YACCS.Tests.Commands.Linq
 			var t = new Querying_TestsGroup.Help();
 			var @delegate = (Func<IReadOnlyList<string>, Task<IResult>>)t.CommandFour;
 
-			var result = commands.ByDelegate(@delegate, includeMethod: true).ToArray();
-			Assert.AreEqual(1, result.Length,
-				"Received wrong count of commands when searching by delegate (including method).");
+			var result = commands.ByDelegate(@delegate, includeMethod: false).ToArray();
+			Assert.AreEqual(0, result.Length);
+
+			var command = new DelegateCommand(@delegate, new[] { new Name(new[] { "joe" }) });
+			commands.Add(command.ToCommand());
+
+			var result2 = commands.ByDelegate(@delegate, includeMethod: false).ToArray();
+			Assert.AreEqual(1, result2.Length);
 		}
 
 		[TestMethod]
@@ -37,9 +42,8 @@ namespace YACCS.Tests.Commands.Linq
 			var t = new Querying_TestsGroup.Help();
 			var @delegate = (Func<IReadOnlyList<string>, Task<IResult>>)t.CommandFour;
 
-			var result = commands.ByDelegate(@delegate, includeMethod: false).ToArray();
-			Assert.AreEqual(0, result.Length,
-				"Received wrong count of commands when searching by delegate.");
+			var result = commands.ByDelegate(@delegate, includeMethod: true).ToArray();
+			Assert.AreEqual(1, result.Length);
 		}
 
 		[TestMethod]
@@ -48,8 +52,7 @@ namespace YACCS.Tests.Commands.Linq
 			var commands = await CreateCommandsAsync().ConfigureAwait(false);
 
 			var result = commands.ById(Querying_TestsGroup._CommandTwoId).ToArray();
-			Assert.AreEqual(1, result.Length,
-				"Received wrong count of commands when searching by id.");
+			Assert.AreEqual(1, result.Length);
 		}
 
 		[TestMethod]
@@ -58,8 +61,7 @@ namespace YACCS.Tests.Commands.Linq
 			var commands = await CreateCommandsAsync().ConfigureAwait(false);
 
 			var result = commands.ByLastPartOfName(Querying_TestsGroup._7).ToArray();
-			Assert.AreEqual(1, result.Length,
-				"Received wrong count of commands when searching by last part of name.");
+			Assert.AreEqual(1, result.Length);
 		}
 
 		[TestMethod]
@@ -70,8 +72,7 @@ namespace YACCS.Tests.Commands.Linq
 			var method = typeof(Querying_TestsGroup.Help)
 				.GetMethod(nameof(Querying_TestsGroup.Help.CommandFour));
 			var result = commands.ByMethod(method!).ToArray();
-			Assert.AreEqual(1, result.Length,
-				"Received wrong count of commands when searching by method.");
+			Assert.AreEqual(1, result.Length);
 		}
 
 		[TestMethod]
@@ -84,11 +85,10 @@ namespace YACCS.Tests.Commands.Linq
 				Querying_TestsGroup._1,
 				Querying_TestsGroup._4
 			}).ToArray();
-			Assert.AreEqual(3, result.Length,
-				"Received wrong count of commands when searching by name.");
+			Assert.AreEqual(3, result.Length);
 		}
 
-		private async Task<IReadOnlyList<IImmutableCommand>> CreateCommandsAsync()
+		private async Task<List<IImmutableCommand>> CreateCommandsAsync()
 		{
 			var commands = new List<IImmutableCommand>();
 			await foreach (var command in typeof(Querying_TestsGroup).GetCommandsAsync())

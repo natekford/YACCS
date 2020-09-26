@@ -16,7 +16,7 @@ namespace YACCS.Results
 
 		public static IResult GetMostNestedResult(this INestedResult result)
 		{
-			var actual = result.Result;
+			var actual = result.InnerResult;
 			if (actual is INestedResult nested)
 			{
 				return nested.GetMostNestedResult();
@@ -28,7 +28,7 @@ namespace YACCS.Results
 			this ExecutionResult result,
 			[NotNullWhen(true)] out T value)
 		{
-			if (result.Result is ValueResult vResult && vResult.Value is T t)
+			if (result.InnerResult is ValueResult vResult && vResult.Value is T t)
 			{
 				value = t;
 				return true;

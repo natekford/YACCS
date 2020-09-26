@@ -79,12 +79,12 @@ namespace YACCS.Commands
 			var scores = await ProcessAllPreconditionsAsync(commands, context, args).ConfigureAwait(false);
 
 			var highestScore = scores[0];
-			if (!highestScore.Result.IsSuccess)
+			if (!highestScore.InnerResult.IsSuccess)
 			{
-				return highestScore.Result;
+				return highestScore.InnerResult;
 			}
 			if (scores.Count > 1
-				&& scores[1].Result.IsSuccess
+				&& scores[1].InnerResult.IsSuccess
 				&& _Config.MultiMatchHandling == MultiMatchHandling.Error)
 			{
 				return MultiMatchHandlingErrorResult.Instance;

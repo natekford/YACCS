@@ -32,7 +32,7 @@ namespace YACCS.Tests.Commands
 			var args = new object[] { new FakeContext() };
 			var result = await immutable.ExecuteAsync(null!, args).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsInstanceOfType(result.Result, typeof(ValueResult));
+			Assert.IsInstanceOfType(result.InnerResult, typeof(ValueResult));
 			Assert.IsTrue(result.TryGetValue(out bool value));
 			Assert.AreEqual(true, value);
 		}

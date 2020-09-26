@@ -13,10 +13,10 @@ namespace YACCS.Commands
 		public IImmutableCommand? Command { get; }
 		public IContext Context { get; }
 		public int Priority { get; }
-		public IResult Result { get; }
+		public IResult InnerResult { get; }
 		public int Score { get; }
 		public CommandStage Stage { get; }
-		private string DebuggerDisplay => $"Stage = {Stage}, Score = {Score}, Success = {Result.IsSuccess}";
+		private string DebuggerDisplay => $"Stage = {Stage}, Score = {Score}, Success = {InnerResult.IsSuccess}";
 
 		protected CommandScore(
 			IImmutableCommand? command,
@@ -30,7 +30,7 @@ namespace YACCS.Commands
 			Command = command;
 			Context = context;
 			Priority = command?.Priority ?? 0;
-			Result = result;
+			InnerResult = result;
 			Score = score;
 			Stage = stage;
 		}
@@ -160,7 +160,7 @@ namespace YACCS.Commands
 				return stage;
 			}
 
-			var success = Result.IsSuccess.CompareTo(other.Result.IsSuccess);
+			var success = InnerResult.IsSuccess.CompareTo(other.InnerResult.IsSuccess);
 			if (success != 0)
 			{
 				return success;

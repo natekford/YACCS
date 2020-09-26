@@ -1,4 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Linq;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Parsing;
 
@@ -13,6 +16,25 @@ namespace YACCS.Tests.Parsing
 		public const string INPUT_2 = "H \"" + INPUT_1 + "\" I J";
 		//K "L M" N "H "A "B "C \"D E\"" F G"" I J" O "H "A "B "C \"D E\"" F G"" I J" P Q
 		public const string INPUT_3 = "K \"L M\" N \"" + INPUT_2 + "\" O \"" + INPUT_2 + "\" P Q";
+
+		[TestMethod]
+		public void Empty_Test()
+		{
+			const string INPUT = "";
+			var parsed = ParseArgs.Parse(INPUT).Arguments;
+
+			Assert.AreEqual(0, parsed.Count);
+		}
+
+		[TestMethod]
+		public void Mismatch_Test()
+		{
+			Assert.ThrowsException<ArgumentException>(() =>
+			{
+				const string INPUT = "\"an end quote is missing";
+				var parsed = ParseArgs.Parse(INPUT);
+			});
+		}
 
 		[TestMethod]
 		public void NestedQuotes1_Test()
@@ -53,6 +75,14 @@ namespace YACCS.Tests.Parsing
 			Assert.AreEqual("H \"A \"B \"C \\\"D E\\\"\" F G\"\" I J", parsed[5]);
 			Assert.AreEqual("P", parsed[6]);
 			Assert.AreEqual("Q", parsed[7]);
+		}
+
+		[TestMethod]
+		public void NoQuotes_Test()
+		{
+			const string INPUT = "these are some arguments";
+			var parsed = ParseArgs.Parse(INPUT).Arguments;
+			Assert.AreEqual(INPUT.Split(' ').Length, parsed.Count);
 		}
 
 		[TestMethod]

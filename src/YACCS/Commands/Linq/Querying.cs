@@ -33,7 +33,7 @@ namespace YACCS.Commands.Linq
 		public static IEnumerable<T> ByDelegate<T>(this IEnumerable<T> commands, Delegate @delegate, bool includeMethod = false)
 			where T : IQueryableCommand
 		{
-			var delegates = commands.ByAttribute((DelegateCommandAttribute d) => d.Delegate == @delegate);
+			var delegates = commands.ByAttribute((DelegateCommandAttribute x) => x.Delegate == @delegate);
 			if (!includeMethod)
 			{
 				return delegates;

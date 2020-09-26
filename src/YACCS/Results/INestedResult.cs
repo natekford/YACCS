@@ -2,6 +2,6 @@
 {
 	public interface INestedResult
 	{
-		IResult Result { get; }
+		IResult InnerResult { get; }
 	}
 }

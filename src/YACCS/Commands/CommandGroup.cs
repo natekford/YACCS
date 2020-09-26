@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
+using YACCS.Postconditions;
 
 namespace YACCS.Commands
 {
@@ -11,8 +13,36 @@ namespace YACCS.Commands
 		public IImmutableCommand Command { get; private set; } = default!;
 		public TContext Context { get; private set; } = default!;
 
-		public virtual Task AfterExecutionAsync(IImmutableCommand command, TContext context)
-			=> Task.CompletedTask;
+		public virtual async Task AfterExecutionAsync(IImmutableCommand command, TContext context)
+		{
+			if (command is null)
+			{
+				throw new ArgumentNullException(nameof(command));
+			}
+			if (context is null)
+			{
+				throw new ArgumentNullException(nameof(context));
+			}
+
+			List<Exception>? exceptions = null;
+			foreach (var attribute in command.Get<IPostcondition<TContext>>())
+			{
+				try
+				{
+					await attribute.AfterExecutionAsync(command, context).ConfigureAwait(false);
+				}
+				catch (Exception e)
+				{
+					exceptions ??= new List<Exception>();
+					exceptions.Add(e);
+				}
+			}
+
+			if (exceptions != null)
+			{
+				throw new AggregateException("One or more after execution attributes has thrown an exception.", exceptions);
+			}
+		}
 
 		public virtual Task BeforeExecutionAsync(IImmutableCommand command, TContext context)
 		{

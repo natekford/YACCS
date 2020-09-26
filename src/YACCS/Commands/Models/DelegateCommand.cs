@@ -45,15 +45,8 @@ namespace YACCS.Commands.Models
 
 			public override async Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args)
 			{
-				try
-				{
-					var value = _InvokeDelegate.Value(args);
-					return await ConvertValueAsync(context, value).ConfigureAwait(false);
-				}
-				catch (Exception e)
-				{
-					return new ExecutionResult(this, context, new ExceptionResult(e));
-				}
+				var value = _InvokeDelegate.Value(args);
+				return await ConvertValueAsync(context, value).ConfigureAwait(false);
 			}
 
 			private Func<object?[], object> CreateInvokeDelegate()
@@ -79,7 +72,19 @@ namespace YACCS.Commands.Models
 				});
 				var invokeExpr = Expression.Call(targetExpr, method, argsCastExpr);
 
-				var lambda = Expression.Lambda<Func<object?[], object>>(invokeExpr, argsExpr);
+				Expression bodyExpr = invokeExpr;
+				// With a return type of void to keep the Func<object?[], object> declaration
+				// we just need to return a null value at the end
+				if (ReturnType == typeof(void))
+				{
+					var nullExpr = Expression.Constant(null);
+					var returnLabel = Expression.Label(typeof(object));
+					var returnExpr = Expression.Return(returnLabel, nullExpr, typeof(object));
+					var returnLabelExpr = Expression.Label(returnLabel, nullExpr);
+					bodyExpr = Expression.Block(invokeExpr, returnExpr, returnLabelExpr);
+				}
+
+				var lambda = Expression.Lambda<Func<object?[], object>>(bodyExpr, argsExpr);
 				return lambda.Compile();
 			}
 		}
