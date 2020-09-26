@@ -11,12 +11,12 @@ namespace YACCS.Preconditions
 		public virtual Task AfterExecutionAsync(IImmutableCommand command, TContext context)
 			=> Task.CompletedTask;
 
-		public Task AfterExecutionAsync(IImmutableCommand command, IContext context)
-			=> this.AfterExecutionAsync<TContext>(command, context, AfterExecutionAsync);
-
 		public abstract Task<IResult> CheckAsync(IImmutableCommand command, TContext context);
 
-		public Task<IResult> CheckAsync(IImmutableCommand command, IContext context)
+		Task IPrecondition.AfterExecutionAsync(IImmutableCommand command, IContext context)
+			=> this.AfterExecutionAsync<TContext>(command, context, AfterExecutionAsync);
+
+		Task<IResult> IPrecondition.CheckAsync(IImmutableCommand command, IContext context)
 			=> this.CheckAsync<TContext>(command, context, CheckAsync);
 	}
 }

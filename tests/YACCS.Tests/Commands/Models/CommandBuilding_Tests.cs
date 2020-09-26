@@ -1,17 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Results;
-using YACCS.Commands.Linq;
-using System.Linq;
 
-namespace YACCS.Tests.Commands
+namespace YACCS.Tests.Commands.Models
 {
 	[TestClass]
 	public class CommandBuilding_Tests
@@ -70,23 +70,23 @@ namespace YACCS.Tests.Commands
 			var command2 = commands.ById(GroupBase.ID_2).SingleOrDefault();
 			Assert.IsNull(command2);
 		}
-	}
 
-	public class GroupBase : CommandGroup<FakeContext>
-	{
-		public const string ID_1 = "id_1";
-		public const string ID_2 = "id_2";
+		private class GroupBase : CommandGroup<FakeContext>
+		{
+			public const string ID_1 = "id_1";
+			public const string ID_2 = "id_2";
 
-		[Command("joeba", AllowInheritance = true)]
-		[Id(ID_1)]
-		public Task<IResult> CommandAsync() => SuccessResult.InstanceTask;
+			[Command("joeba", AllowInheritance = true)]
+			[Id(ID_1)]
+			public Task<IResult> CommandAsync() => SuccessResult.InstanceTask;
 
-		[Command("joeba2", AllowInheritance = false)]
-		[Id(ID_2)]
-		public Task<IResult> CommandAsync2() => SuccessResult.InstanceTask;
-	}
+			[Command("joeba2", AllowInheritance = false)]
+			[Id(ID_2)]
+			public Task<IResult> CommandAsync2() => SuccessResult.InstanceTask;
+		}
 
-	public class GroupChild : GroupBase
-	{
+		private class GroupChild : GroupBase
+		{
+		}
 	}
 }

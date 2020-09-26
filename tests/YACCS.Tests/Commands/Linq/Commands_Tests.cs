@@ -44,14 +44,14 @@ namespace YACCS.Tests.Commands.Linq
 					new IdAttribute(NORM_ID),
 				},
 			},
-			new ReflectionCommand(typeof(CommandsParent).GetMethod(nameof(CommandsParent.CommandParent))!)
+			new ReflectionCommand(typeof(GroupBase).GetMethod(nameof(GroupBase.CommandParent))!)
 			{
 				Attributes = new List<object>
 				{
 					new IdAttribute(PARENT_ID),
 				},
 			},
-			new ReflectionCommand(typeof(CommandsChild).GetMethod(nameof(CommandsChild.CommandChild))!)
+			new ReflectionCommand(typeof(GroupChild).GetMethod(nameof(GroupChild.CommandChild))!)
 			{
 				Attributes = new List<object>
 				{
@@ -102,10 +102,10 @@ namespace YACCS.Tests.Commands.Linq
 			var parent = _Commands.ById(PARENT_ID).Single();
 			var child = _Commands.ById(CHILD_ID).Single();
 
-			var child_parent = parent.AsContext<CommandsChild.FakeContextChild>();
-			Assert.IsInstanceOfType(child_parent, typeof(ICommand<CommandsChild.FakeContextChild>));
-			var child_child = child.AsContext<CommandsChild.FakeContextChild>();
-			Assert.IsInstanceOfType(child_child, typeof(ICommand<CommandsChild.FakeContextChild>));
+			var child_parent = parent.AsContext<GroupChild.FakeContextChild>();
+			Assert.IsInstanceOfType(child_parent, typeof(ICommand<GroupChild.FakeContextChild>));
+			var child_child = child.AsContext<GroupChild.FakeContextChild>();
+			Assert.IsInstanceOfType(child_child, typeof(ICommand<GroupChild.FakeContextChild>));
 
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
@@ -169,43 +169,43 @@ namespace YACCS.Tests.Commands.Linq
 				Assert.AreEqual(3, parameters.Count());
 			}
 		}
-	}
 
-	public class CommandsChild : CommandGroup<CommandsChild.FakeContextChild>
-	{
-		[Command("joe")]
-		public void CommandChild()
+		private class GroupBase : CommandGroup<FakeContext>
 		{
-		}
-
-		public class FakeContextChild : FakeContext
-		{
-		}
-	}
-
-	public class CommandsParent : CommandGroup<FakeContext>
-	{
-		[Command("joe")]
-		public void CommandParent()
-		{
-		}
-	}
-
-	public class NeverContext : IContext
-	{
-		public Guid Id { get; set; }
-		public IServiceProvider Services { get; set; } = EmptyServiceProvider.Instance;
-	}
-
-	public sealed class NotSevenPM : Precondition<FakeContext>
-	{
-		public override Task<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
-		{
-			if (DateTime.UtcNow.Hour != 19)
+			[Command("joe")]
+			public void CommandParent()
 			{
-				return SuccessResult.InstanceTask;
 			}
-			return Result.FromError("It's seven PM.").AsTask();
+		}
+
+		private class GroupChild : CommandGroup<GroupChild.FakeContextChild>
+		{
+			[Command("joe")]
+			public void CommandChild()
+			{
+			}
+
+			public class FakeContextChild : FakeContext
+			{
+			}
+		}
+
+		private class NeverContext : IContext
+		{
+			public Guid Id { get; set; }
+			public IServiceProvider Services { get; set; } = EmptyServiceProvider.Instance;
+		}
+
+		private sealed class NotSevenPM : Precondition<FakeContext>
+		{
+			public override Task<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
+			{
+				if (DateTime.UtcNow.Hour != 19)
+				{
+					return SuccessResult.InstanceTask;
+				}
+				return Result.FromError("It's seven PM.").AsTask();
+			}
 		}
 	}
 }

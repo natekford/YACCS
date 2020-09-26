@@ -394,7 +394,7 @@ namespace YACCS.Commands
 			}
 			finally
 			{
-				// Execute each postcondition, like adding in a user to a ratelimit database
+				// Execute each postcondition, like adding in a user to a ratelimit precondition
 				foreach (var precondition in command.Get<IPrecondition>())
 				{
 					try

@@ -14,7 +14,7 @@ using YACCS.TypeReaders;
 namespace YACCS.Tests.Commands
 {
 	[TestClass]
-	public class CommandService_Tests
+	public class CommandService_TypeReader_Tests
 	{
 		[TestMethod]
 		public async Task ProcessTypeReaderMultipleButNotAllValues_Test()
@@ -24,7 +24,6 @@ namespace YACCS.Tests.Commands
 
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
-			var cache = new PreconditionCache(context);
 			var parameter = new Parameter(type, "Test")
 			{
 				Attributes = new List<object>
@@ -36,7 +35,7 @@ namespace YACCS.Tests.Commands
 			const int startIndex = 0;
 
 			var result = await commandService.ProcessTypeReadersAsync(
-				cache,
+				new PreconditionCache(context),
 				parameter,
 				input,
 				startIndex
@@ -59,7 +58,6 @@ namespace YACCS.Tests.Commands
 
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
-			var cache = new PreconditionCache(context);
 			var parameter = new Parameter(type, "Test")
 			{
 				Attributes = new List<object>
@@ -71,7 +69,7 @@ namespace YACCS.Tests.Commands
 			const int startIndex = 0;
 
 			var result = await commandService.ProcessTypeReadersAsync(
-				cache,
+				new PreconditionCache(context),
 				parameter,
 				input,
 				startIndex
@@ -94,7 +92,6 @@ namespace YACCS.Tests.Commands
 
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
-			var cache = new PreconditionCache(context);
 			var parameter = new Parameter(type, "Test")
 			{
 				Attributes = new List<object>
@@ -106,7 +103,7 @@ namespace YACCS.Tests.Commands
 			const int startIndex = 0;
 
 			var result = await commandService.ProcessTypeReadersAsync(
-				cache,
+				new PreconditionCache(context),
 				parameter,
 				input,
 				startIndex
@@ -126,8 +123,7 @@ namespace YACCS.Tests.Commands
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
-			var cache = new PreconditionCache(context);
-			var parameter = new Parameter(typeof(IDictionary<GroupChild, IDictionary<string, char>>), "Test")
+			var parameter = new Parameter(typeof(IDictionary<ArgumentNullException, IDictionary<string, char>>), "Test")
 			{
 				Attributes = new List<object>
 				{
@@ -140,7 +136,7 @@ namespace YACCS.Tests.Commands
 			await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
 			{
 				var result = await commandService.ProcessTypeReadersAsync(
-					cache,
+				new PreconditionCache(context),
 					parameter,
 					input,
 					startIndex
@@ -153,7 +149,6 @@ namespace YACCS.Tests.Commands
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
-			var cache = new PreconditionCache(context);
 			var parameter = new Parameter(typeof(char), "Test")
 			{
 				Attributes = new List<object>
@@ -166,7 +161,7 @@ namespace YACCS.Tests.Commands
 			const int startIndex = 0;
 
 			var result = await commandService.ProcessTypeReadersAsync(
-				cache,
+				new PreconditionCache(context),
 				parameter,
 				input,
 				startIndex
@@ -179,7 +174,6 @@ namespace YACCS.Tests.Commands
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
-			var cache = new PreconditionCache(context);
 			var parameter = new Parameter(typeof(char), "Test")
 			{
 				Attributes = new List<object>
@@ -191,7 +185,7 @@ namespace YACCS.Tests.Commands
 			const int startIndex = 0;
 
 			var result = await commandService.ProcessTypeReadersAsync(
-				cache,
+				new PreconditionCache(context),
 				parameter,
 				input,
 				startIndex
@@ -207,7 +201,6 @@ namespace YACCS.Tests.Commands
 
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
-			var cache = new PreconditionCache(context);
 			var parameter = new Parameter(type, "Test")
 			{
 				Attributes = new List<object>
@@ -219,7 +212,7 @@ namespace YACCS.Tests.Commands
 			const int startIndex = 0;
 
 			var result = await commandService.ProcessTypeReadersAsync(
-				cache,
+				new PreconditionCache(context),
 				parameter,
 				input,
 				startIndex
@@ -237,7 +230,6 @@ namespace YACCS.Tests.Commands
 
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
-			var cache = new PreconditionCache(context);
 			var parameter = new Parameter(type, "Test")
 			{
 				Attributes = new List<object>
@@ -249,7 +241,7 @@ namespace YACCS.Tests.Commands
 			const int startIndex = 0;
 
 			var result = await commandService.ProcessTypeReadersAsync(
-				cache,
+				new PreconditionCache(context),
 				parameter,
 				input,
 				startIndex
@@ -267,7 +259,6 @@ namespace YACCS.Tests.Commands
 
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
-			var cache = new PreconditionCache(context);
 			var parameter = new Parameter(type, "Test")
 			{
 				Attributes = new List<object>
@@ -279,7 +270,7 @@ namespace YACCS.Tests.Commands
 			const int startIndex = 0;
 
 			var result = await commandService.ProcessTypeReadersAsync(
-				cache,
+				new PreconditionCache(context),
 				parameter,
 				input,
 				startIndex
@@ -294,7 +285,6 @@ namespace YACCS.Tests.Commands
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
-			var cache = new PreconditionCache(context);
 			var parameter = new Parameter(typeof(IContext), "Test")
 			{
 				Attributes = new List<object>
@@ -305,7 +295,7 @@ namespace YACCS.Tests.Commands
 			const int startIndex = 0;
 
 			var result = await commandService.ProcessTypeReadersAsync(
-				cache,
+				new PreconditionCache(context),
 				parameter,
 				new[] { "doesn't matter" },
 				startIndex
@@ -313,11 +303,11 @@ namespace YACCS.Tests.Commands
 			Assert.IsTrue(result.IsSuccess);
 			Assert.IsInstanceOfType(result.Arg, typeof(IContext));
 		}
-	}
 
-	public class CoolCharTypeReader : TypeReader<char>
-	{
-		public override Task<ITypeReaderResult<char>> ReadAsync(IContext context, string input)
-			=> TypeReaderResult<char>.FromSuccess('z').AsTask();
+		private class CoolCharTypeReader : TypeReader<char>
+		{
+			public override Task<ITypeReaderResult<char>> ReadAsync(IContext context, string input)
+				=> TypeReaderResult<char>.FromSuccess('z').AsTask();
+		}
 	}
 }

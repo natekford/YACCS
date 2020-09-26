@@ -11,10 +11,10 @@ namespace YACCS.ParameterPreconditions
 	{
 		public abstract Task<IResult> CheckAsync(ParameterInfo parameter, TContext context, [MaybeNull] TValue value);
 
-		public Task<IResult> CheckAsync(ParameterInfo parameter, IContext context, object? value)
+		Task<IResult> IParameterPrecondition.CheckAsync(ParameterInfo parameter, IContext context, object? value)
 			=> this.CheckAsync<TContext, TValue>(parameter, context, value, CheckAsync);
 
-		public Task<IResult> CheckAsync(ParameterInfo parameter, IContext context, [MaybeNull] TValue value)
+		Task<IResult> IParameterPrecondition<TValue>.CheckAsync(ParameterInfo parameter, IContext context, [MaybeNull] TValue value)
 			=> this.CheckAsync<TContext, TValue>(parameter, context, value, CheckAsync);
 	}
 }

@@ -11,55 +11,6 @@ using YACCS.Results;
 
 namespace YACCS.Tests.Commands.Models
 {
-	public class GroupBase : CommandGroup<FakeContext>
-	{
-		[Command("joeba")]
-		public Task<IResult> CommandAsync() => SuccessResult.InstanceTask;
-	}
-
-	public class GroupInjection : GroupBase
-	{
-		public const string INJECTED_VALUE = "injected";
-
-		public string? InjectMeField;
-		public string? InjectMeProperty { get; set; }
-		public string? WontBeInjectedBecauseNoSetter { get; }
-		public Guid? WontBeInjectedBecauseNotRegistered { get; set; }
-
-		public override Task AfterExecutionAsync(IImmutableCommand command, FakeContext context)
-		{
-			Assert.AreEqual(INJECTED_VALUE, InjectMeField);
-			Assert.AreEqual(INJECTED_VALUE, InjectMeProperty);
-			Assert.IsNull(WontBeInjectedBecauseNotRegistered);
-			Assert.IsNull(WontBeInjectedBecauseNoSetter);
-
-			return Task.CompletedTask;
-		}
-	}
-
-	public class GroupMissingConstructor : GroupBase
-	{
-		public string Value { get; }
-
-		public GroupMissingConstructor(string value)
-		{
-			Value = value;
-		}
-	}
-
-	public class GroupMissingInterface
-	{
-		public string Value { get; }
-
-		public GroupMissingInterface()
-		{
-			Value = "";
-		}
-
-		[Command("joeba")]
-		public Task<IResult> CommandAsync() => SuccessResult.InstanceTask;
-	}
-
 	[TestClass]
 	public class ReflectionCommand_Tests
 	{
@@ -102,6 +53,55 @@ namespace YACCS.Tests.Commands.Models
 			{
 				var command = new ReflectionCommand(method!);
 			});
+		}
+
+		private class GroupBase : CommandGroup<FakeContext>
+		{
+			[Command("joeba")]
+			public Task<IResult> CommandAsync() => SuccessResult.InstanceTask;
+		}
+
+		private class GroupInjection : GroupBase
+		{
+			public const string INJECTED_VALUE = "injected";
+
+			public string? InjectMeField;
+			public string? InjectMeProperty { get; set; }
+			public string? WontBeInjectedBecauseNoSetter { get; }
+			public Guid? WontBeInjectedBecauseNotRegistered { get; set; }
+
+			public override Task AfterExecutionAsync(IImmutableCommand command, FakeContext context)
+			{
+				Assert.AreEqual(INJECTED_VALUE, InjectMeField);
+				Assert.AreEqual(INJECTED_VALUE, InjectMeProperty);
+				Assert.IsNull(WontBeInjectedBecauseNotRegistered);
+				Assert.IsNull(WontBeInjectedBecauseNoSetter);
+
+				return Task.CompletedTask;
+			}
+		}
+
+		private class GroupMissingConstructor : GroupBase
+		{
+			public string Value { get; }
+
+			public GroupMissingConstructor(string value)
+			{
+				Value = value;
+			}
+		}
+
+		private class GroupMissingInterface
+		{
+			public string Value { get; }
+
+			public GroupMissingInterface()
+			{
+				Value = "";
+			}
+
+			[Command("joeba")]
+			public Task<IResult> CommandAsync() => SuccessResult.InstanceTask;
 		}
 	}
 }

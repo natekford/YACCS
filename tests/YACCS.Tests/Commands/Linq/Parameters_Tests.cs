@@ -16,21 +16,6 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Tests.Commands.Linq
 {
-	public sealed class NotNegative : ParameterPrecondition<FakeContext, int>
-	{
-		public override Task<IResult> CheckAsync(
-			ParameterInfo info,
-			FakeContext context,
-			[MaybeNull] int value)
-		{
-			if (value >= 0)
-			{
-				return SuccessResult.InstanceTask;
-			}
-			return Result.FromError("Is negative.").AsTask();
-		}
-	}
-
 	[TestClass]
 	public class Parameters_Tests
 	{
@@ -40,7 +25,7 @@ namespace YACCS.Tests.Commands.Linq
 		private const string PARENT_ID = "parent_id";
 		private readonly List<IParameter> _Parameters = new List<IParameter>
 		{
-			new Parameter(typeof(Test_Child), "")
+			new Parameter(typeof(Child), "")
 			{
 				Attributes = new List<object>
 				{
@@ -48,7 +33,7 @@ namespace YACCS.Tests.Commands.Linq
 					new IdAttribute(CHILD_ID),
 				},
 			},
-			new Parameter(typeof(Test_Parent), "")
+			new Parameter(typeof(Base), "")
 			{
 				Attributes = new List<object>
 				{
@@ -99,17 +84,17 @@ namespace YACCS.Tests.Commands.Linq
 			var parent = _Parameters.ById(PARENT_ID).Single();
 			var child = _Parameters.ById(CHILD_ID).Single();
 
-			var child_parent = parent.AsType<Test_Child>();
-			Assert.IsInstanceOfType(child_parent, typeof(IParameter<Test_Child>));
-			var child_child = child.AsType<Test_Child>();
-			Assert.IsInstanceOfType(child_child, typeof(IParameter<Test_Child>));
+			var child_parent = parent.AsType<Child>();
+			Assert.IsInstanceOfType(child_parent, typeof(IParameter<Child>));
+			var child_child = child.AsType<Child>();
+			Assert.IsInstanceOfType(child_child, typeof(IParameter<Child>));
 
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				var parent_child = child.AsType<Test_Parent>();
+				var parent_child = child.AsType<Base>();
 			});
-			var parent_parent = parent.AsType<Test_Parent>();
-			Assert.IsInstanceOfType(parent_parent, typeof(IParameter<Test_Parent>));
+			var parent_parent = parent.AsType<Base>();
+			Assert.IsInstanceOfType(parent_parent, typeof(IParameter<Base>));
 		}
 
 		[TestMethod]
@@ -125,7 +110,7 @@ namespace YACCS.Tests.Commands.Linq
 
 			Assert.ThrowsException<InvalidOperationException>(() =>
 			{
-				_Parameters.GetParameterById<Test_Parent>(DUPE_ID);
+				_Parameters.GetParameterById<Base>(DUPE_ID);
 			});
 		}
 
@@ -133,7 +118,7 @@ namespace YACCS.Tests.Commands.Linq
 		public void GetParametersById_Test()
 		{
 			{
-				var parameters = _Parameters.GetParametersById<Test_Child>(DUPE_ID);
+				var parameters = _Parameters.GetParametersById<Child>(DUPE_ID);
 				Assert.AreEqual(2, parameters.Count());
 			}
 
@@ -152,12 +137,12 @@ namespace YACCS.Tests.Commands.Linq
 		public void GetParametersByType_Test()
 		{
 			{
-				var parameters = _Parameters.GetParametersByType<Test_Parent>();
+				var parameters = _Parameters.GetParametersByType<Base>();
 				Assert.AreEqual(1, parameters.Count());
 			}
 
 			{
-				var parameters = _Parameters.GetParametersByType<Test_Child>();
+				var parameters = _Parameters.GetParametersByType<Child>();
 				Assert.AreEqual(2, parameters.Count());
 			}
 
@@ -202,13 +187,28 @@ namespace YACCS.Tests.Commands.Linq
 			parameter.RemoveOverriddenTypeReader();
 			Assert.IsNull(parameter.OverriddenTypeReader);
 		}
-	}
 
-	public class Test_Child : Test_Parent
-	{
-	}
+		private class Base
+		{
+		}
 
-	public class Test_Parent
-	{
+		private class Child : Base
+		{
+		}
+
+		private sealed class NotNegative : ParameterPrecondition<FakeContext, int>
+		{
+			public override Task<IResult> CheckAsync(
+				ParameterInfo info,
+				FakeContext context,
+				[MaybeNull] int value)
+			{
+				if (value >= 0)
+				{
+					return SuccessResult.InstanceTask;
+				}
+				return Result.FromError("Is negative.").AsTask();
+			}
+		}
 	}
 }
