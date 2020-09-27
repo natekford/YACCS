@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
@@ -274,7 +275,6 @@ namespace YACCS.Commands
 			var info = new ParameterInfo(command, parameter);
 			foreach (var precondition in parameter.Preconditions)
 			{
-				// TODO: enumerables
 				var result = await cache.GetResultAsync(info, precondition, value).ConfigureAwait(false);
 				if (!result.IsSuccess)
 				{

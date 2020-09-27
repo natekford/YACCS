@@ -70,7 +70,7 @@ namespace YACCS.Tests.Commands.Linq
 
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				var command = new DelegateCommand((Action)(() => { }), new[] { new Name(new[] { "joe" }) });
+				var command = FakeDelegateCommand.New;
 				var parameter = command.AsParameter();
 			});
 

@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
-using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Preconditions;
 using YACCS.Results;
-using YACCS.TypeReaders;
 
 namespace YACCS.Tests.Commands
 {
@@ -23,7 +19,7 @@ namespace YACCS.Tests.Commands
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
-			var command = new DelegateCommand((Action)(() => { }), Array.Empty<IName>())
+			var command = FakeDelegateCommand.New
 				.AsContext<IContext>()
 				.AddPrecondition(new FakePrecondition(false))
 				.AddPrecondition(new WasIReachedPrecondition())
@@ -42,7 +38,7 @@ namespace YACCS.Tests.Commands
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
-			var command = new DelegateCommand((Action)(() => { }), Array.Empty<IName>())
+			var command = FakeDelegateCommand.New
 				.AsContext<IContext>()
 				.AddPrecondition(new FakePrecondition(true))
 				.AddPrecondition(new WasIReachedPrecondition())

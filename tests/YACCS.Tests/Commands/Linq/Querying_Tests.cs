@@ -27,7 +27,7 @@ namespace YACCS.Tests.Commands.Linq
 			var result = commands.ByDelegate(@delegate, includeMethod: false).ToArray();
 			Assert.AreEqual(0, result.Length);
 
-			var command = new DelegateCommand(@delegate, new[] { new Name(new[] { "joe" }) });
+			var command = new DelegateCommand(@delegate, Array.Empty<IName>());
 			commands.Add(command.ToCommand());
 
 			var result2 = commands.ByDelegate(@delegate, includeMethod: false).ToArray();
