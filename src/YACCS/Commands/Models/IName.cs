@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace YACCS.Commands.Models
 {
-	public interface IName : IComparable, IComparable<IName>, IEquatable<IName>
+	public interface IName
 	{
 		public IReadOnlyList<string> Parts { get; }
 	}

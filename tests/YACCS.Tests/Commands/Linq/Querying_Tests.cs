@@ -80,12 +80,32 @@ namespace YACCS.Tests.Commands.Linq
 		{
 			var commands = await CreateCommandsAsync().ConfigureAwait(false);
 
-			var result = commands.ByName(new[]
 			{
-				Querying_TestsGroup._1,
-				Querying_TestsGroup._4
-			}).ToArray();
-			Assert.AreEqual(3, result.Length);
+				var result = commands.ByName(new[]
+				{
+					Querying_TestsGroup._1,
+					Querying_TestsGroup._4
+				}).ToArray();
+				Assert.AreEqual(3, result.Length);
+			}
+
+			{
+				var result = commands.ByName(new[]
+				{
+					Querying_TestsGroup._1.ToUpper(),
+					Querying_TestsGroup._4
+				}).ToArray();
+				Assert.AreEqual(0, result.Length);
+			}
+
+			{
+				var result = commands.ByName(new[]
+				{
+					Querying_TestsGroup._1.ToUpper(),
+					Querying_TestsGroup._4
+				}, StringComparison.OrdinalIgnoreCase).ToArray();
+				Assert.AreEqual(3, result.Length);
+			}
 		}
 
 		private async Task<List<IImmutableCommand>> CreateCommandsAsync()
@@ -103,15 +123,15 @@ namespace YACCS.Tests.Commands.Linq
 		[Command(_1, _2, _3)]
 		private sealed class Querying_TestsGroup : CommandGroup<IContext>
 		{
-			public const string _1 = "1";
-			public const string _2 = "2";
-			public const string _3 = "3";
-			public const string _4 = "4";
-			public const string _5 = "5";
-			public const string _6 = "6";
-			public const string _7 = "7";
-			public const string _8 = "8";
-			public const string _9 = "9";
+			public const string _1 = "one";
+			public const string _2 = "two";
+			public const string _3 = "three";
+			public const string _4 = "four";
+			public const string _5 = "five";
+			public const string _6 = "six";
+			public const string _7 = "seven";
+			public const string _8 = "eight";
+			public const string _9 = "nine";
 			public const string _CommandOneId = "id_1";
 			public const string _CommandTwoId = "id_2";
 			public const string _PositionId = "position_id";

@@ -22,8 +22,7 @@ namespace YACCS.Commands.Linq
 					if (attribute is TAttribute t && predicate(t))
 					{
 						yield return entity;
-						// Break after returning once
-						// Otherwise if attributes get modified we get an exception
+						// Break after returning once to only return one match for each command
 						break;
 					}
 				}
@@ -59,11 +58,40 @@ namespace YACCS.Commands.Linq
 			where T : IQueryableCommand
 			=> commands.ByAttribute((MethodInfoCommandAttribute x) => x.Method == method);
 
-		public static IEnumerable<T> ByName<T>(this IEnumerable<T> commands, IEnumerable<string> parts)
+		public static IEnumerable<T> ByName<T>(this IEnumerable<T> commands, IReadOnlyList<string> parts)
+			where T : IQueryableCommand
+			=> commands.ByName(parts, StringComparison.CurrentCulture);
+
+		public static IEnumerable<T> ByName<T>(this IEnumerable<T> commands, IReadOnlyList<string> parts, StringComparison comparisonType)
 			where T : IQueryableCommand
 		{
-			var name = new Name(parts);
-			return commands.Where(x => x.Names.Any(n => name == n));
+			foreach (var command in commands)
+			{
+				foreach (var name in command.Names)
+				{
+					if (name.Parts.Count != parts.Count)
+					{
+						break;
+					}
+
+					var isMatch = true;
+					for (var i = 0; i < parts.Count; ++i)
+					{
+						if (!name.Parts[i].Equals(parts[i], comparisonType))
+						{
+							isMatch = false;
+							break;
+						}
+					}
+
+					if (isMatch)
+					{
+						yield return command;
+						// Break after returning once to only return one match for each command
+						break;
+					}
+				}
+			}
 		}
 
 		public static IEnumerable<T> Get<T>(this IQueryableEntity entity)
