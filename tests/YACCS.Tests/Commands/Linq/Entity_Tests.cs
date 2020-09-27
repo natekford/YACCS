@@ -14,7 +14,7 @@ using YACCS.Results;
 namespace YACCS.Tests.Commands.Linq
 {
 	[TestClass]
-	public class Querying_Tests
+	public class Entity_Tests
 	{
 		[TestMethod]
 		public async Task ByDelegate_Test()

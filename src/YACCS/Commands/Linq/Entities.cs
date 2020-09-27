@@ -8,7 +8,7 @@ using YACCS.Commands.Models;
 
 namespace YACCS.Commands.Linq
 {
-	public static class Querying
+	public static class Entities
 	{
 		public static IEnumerable<TEntity> ByAttribute<TEntity, TAttribute>(
 			this IEnumerable<TEntity> entities,
