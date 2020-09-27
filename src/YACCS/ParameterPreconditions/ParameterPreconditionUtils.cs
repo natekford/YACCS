@@ -30,6 +30,8 @@ namespace YACCS.ParameterPreconditions
 			}
 			// If the value isn't the correct type that means it's either null or wrong type
 			// Null values let checkAsync deal with them, wrong type returns an error
+			// Structs don't need any special cases, if they're not nullable they will
+			// never enter this block, if they are they will just get set to default
 			if (!(value is TValue tValue))
 			{
 				if (value != null)

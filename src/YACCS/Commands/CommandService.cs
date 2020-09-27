@@ -246,12 +246,16 @@ namespace YACCS.Commands
 			for (var i = 0; i < candidates.Count; ++i)
 			{
 				var candidate = candidates[i];
+
 				// Only allow newly found commands with CorrectArgCount
 				// Invalid args counts or any failures means don't check
-				if (candidate.Stage != CommandStage.CorrectArgCount
-					|| candidate.Command?.IsValidContext(contextType) != true)
+				if (candidate.Stage != CommandStage.CorrectArgCount)
 				{
-					continue;
+					throw new ArgumentException("Invalid command stage.", nameof(candidates));
+				}
+				if (candidate.Command?.IsValidContext(contextType) != true)
+				{
+					throw new ArgumentException("Invalid context.", nameof(candidates));
 				}
 
 				matches.Add(await ProcessAllPreconditionsAsync(
