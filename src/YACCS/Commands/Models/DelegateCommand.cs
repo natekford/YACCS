@@ -11,13 +11,27 @@ namespace YACCS.Commands.Models
 {
 	public sealed class DelegateCommand : Command
 	{
-		// Delegate commands don't use contexts
-		public override Type? ContextType => null;
+		// Delegate commands don't use contexts so this can/should be null by default
+		public override Type? ContextType { get; }
 		public Delegate Delegate { get; }
 
 		public DelegateCommand(Delegate @delegate, IEnumerable<IName> names)
 			: base(@delegate.Method)
 		{
+			Delegate = @delegate;
+
+			foreach (var name in names)
+			{
+				Names.Add(name);
+			}
+
+			Attributes.Add(new DelegateCommandAttribute(@delegate));
+		}
+
+		public DelegateCommand(Delegate @delegate, Type? contextType, IEnumerable<IName> names)
+			: base(@delegate.Method)
+		{
+			ContextType = contextType;
 			Delegate = @delegate;
 
 			foreach (var name in names)

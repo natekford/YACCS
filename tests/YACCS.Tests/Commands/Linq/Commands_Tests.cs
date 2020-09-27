@@ -23,9 +23,9 @@ namespace YACCS.Tests.Commands.Linq
 		private const string PARENT_ID = "parent_id";
 		private readonly List<ICommand> _Commands = new List<ICommand>
 		{
-			FakeDelegateCommand.New.WithAttribute(new IdAttribute(DUPE_ID)),
-			FakeDelegateCommand.New.WithAttribute(new IdAttribute(DUPE_ID)),
-			FakeDelegateCommand.New.WithAttribute(new IdAttribute(NORM_ID)),
+			FakeDelegateCommand.New().AddAttribute(new IdAttribute(DUPE_ID)),
+			FakeDelegateCommand.New().AddAttribute(new IdAttribute(DUPE_ID)),
+			FakeDelegateCommand.New().AddAttribute(new IdAttribute(NORM_ID)),
 			new ReflectionCommand(typeof(GroupBase).GetMethod(nameof(GroupBase.CommandParent))!)
 			{
 				Attributes = new List<object>

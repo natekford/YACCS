@@ -6,13 +6,10 @@ namespace YACCS.Tests
 {
 	public static class FakeDelegateCommand
 	{
-		public static DelegateCommand New
-			=> new DelegateCommand((Action)(() => { }), Array.Empty<IName>());
-
-		public static DelegateCommand WithAttribute(this DelegateCommand command, object attribute)
+		public static DelegateCommand New(Type? type = null)
 		{
-			command.Attributes.Add(attribute);
-			return command;
+			var @delegate = (Action)(() => { });
+			return new DelegateCommand(@delegate, type, Array.Empty<IName>());
 		}
 	}
 }

@@ -10,6 +10,13 @@ namespace YACCS.Commands.Linq
 {
 	public static class Entities
 	{
+		public static TEntity AddAttribute<TEntity>(this TEntity entity, object attribute)
+			where TEntity : IEntityBase
+		{
+			entity.Attributes.Add(attribute);
+			return entity;
+		}
+
 		public static IEnumerable<TEntity> ByAttribute<TEntity, TAttribute>(
 			this IEnumerable<TEntity> entities,
 			Func<TAttribute, bool> predicate)

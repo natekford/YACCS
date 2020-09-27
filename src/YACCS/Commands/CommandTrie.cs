@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 using YACCS.Commands.Models;
 
 namespace YACCS.Commands
 {
-	public class CommandTrie
+	public sealed class CommandTrie
 	{
 		private readonly Dictionary<string, IImmutableCommand> _Commands;
 		private readonly IEqualityComparer<string> _Comparer;
@@ -16,14 +17,14 @@ namespace YACCS.Commands
 		{
 			_Commands = new Dictionary<string, IImmutableCommand>();
 			_Comparer = comparer;
-			Root = new Node(_Comparer);
+			Root = new Node(null!, null!, _Comparer);
 		}
 
 		public int Add(IImmutableCommand command)
 		{
 			if (!_Commands.TryAdd(command.PrimaryId, command))
 			{
-				return 0;
+				throw new ArgumentException("Duplicate command id.", nameof(command));
 			}
 
 			var added = 0;
@@ -32,15 +33,13 @@ namespace YACCS.Commands
 				var node = Root;
 				for (var i = 0; i < name.Parts.Count; ++i)
 				{
-					var part = name.Parts[i];
-					if (!node.Edges.TryGetValue(part, out var next))
+					var key = name.Parts[i];
+					if (!node.TryGetEdge(key, out var next))
 					{
-						next = new Node(_Comparer);
-						node.MutableEdges.Add(part, next);
+						node[key] = next = new Node(node, key, _Comparer);
 					}
-					if (i == name.Parts.Count - 1 && !next.MutableValues.Contains(command))
+					if (i == name.Parts.Count - 1 && next.Add(command))
 					{
-						next.MutableValues.Add(command);
 						++added;
 					}
 					node = next;
@@ -50,25 +49,14 @@ namespace YACCS.Commands
 		}
 
 		public IReadOnlyList<IImmutableCommand> GetCommands()
-			=> _Commands.Values.ToImmutableArray();
-
-		public IReadOnlyList<IImmutableCommand> GetCommands(Node node)
-		{
-			var set = new HashSet<string>();
-			var array = ImmutableArray.CreateBuilder<IImmutableCommand>();
-			foreach (var command in GetCommandsEnumerable(node))
-			{
-				if (!set.Add(command.PrimaryId))
-				{
-					continue;
-				}
-				array.Add(command);
-			}
-			return array.MoveToImmutable();
-		}
+			=> _Commands.Values.ToList();
 
 		public int Remove(IImmutableCommand command)
 		{
+			if (_Commands.TryGetValue(command.PrimaryId, out var temp) && temp != command)
+			{
+				throw new ArgumentException("Attempted to remove an id which exists, but belongs to a different command.", nameof(command));
+			}
 			if (!_Commands.Remove(command.PrimaryId))
 			{
 				return 0;
@@ -80,47 +68,94 @@ namespace YACCS.Commands
 				var node = Root;
 				for (var i = 0; i < name.Parts.Count; ++i)
 				{
-					var part = name.Parts[i];
-					if (!node.Edges.TryGetValue(part, out var next))
+					var key = name.Parts[i];
+					if (!node.TryGetEdge(key, out node))
 					{
 						break;
 					}
-					if (i == name.Parts.Count - 1 && next.MutableValues.Remove(command))
+					if (i == name.Parts.Count - 1 && node.Remove(command))
 					{
 						++removed;
 					}
-					node = next;
 				}
 			}
 			return removed;
 		}
 
-		private IEnumerable<IImmutableCommand> GetCommandsEnumerable(Node node)
-		{
-			foreach (var command in node.Values)
-			{
-				yield return command;
-			}
-			foreach (var edge in node.Edges.Values)
-			{
-				foreach (var command in GetCommands(edge))
-				{
-					yield return command;
-				}
-			}
-		}
-
 		public sealed class Node
 		{
-			public IReadOnlyDictionary<string, Node> Edges => MutableEdges;
-			public IReadOnlyList<IImmutableCommand> Values => MutableValues;
-			internal Dictionary<string, Node> MutableEdges { get; }
-			internal List<IImmutableCommand> MutableValues { get; }
+			private readonly Dictionary<string, IImmutableCommand> _Commands;
+			private readonly Dictionary<string, Node> _Edges;
+			private readonly string _Key;
+			private readonly Node _Parent;
+			public IReadOnlyCollection<Node> Edges => _Edges.Values;
+			public IReadOnlyCollection<IImmutableCommand> Values => _Commands.Values;
 
-			public Node(IEqualityComparer<string> comparer)
+			public Node this[string key]
 			{
-				MutableEdges = new Dictionary<string, Node>(comparer);
-				MutableValues = new List<IImmutableCommand>();
+				get => _Edges[key];
+				internal set => _Edges[key] = value;
+			}
+
+			public Node(Node parent, string key, IEqualityComparer<string> comparer)
+			{
+				_Parent = parent;
+				_Key = key;
+				_Edges = new Dictionary<string, Node>(comparer);
+				_Commands = new Dictionary<string, IImmutableCommand>();
+			}
+
+			public IReadOnlyCollection<IImmutableCommand> GetCommands()
+			{
+				static IEnumerable<IImmutableCommand> GetCommandsEnumerable(Node node)
+				{
+					foreach (var command in node.Values)
+					{
+						yield return command;
+					}
+					foreach (var edge in node.Edges)
+					{
+						foreach (var command in GetCommandsEnumerable(edge))
+						{
+							yield return command;
+						}
+					}
+				}
+
+				// I should probably figure out how to not have to enumerate all child nodes
+				var dict = new Dictionary<string, IImmutableCommand>();
+				foreach (var command in GetCommandsEnumerable(this))
+				{
+					dict[command.PrimaryId] = command;
+				}
+				return dict.Values;
+			}
+
+			public bool TryGetEdge(string key, out Node node)
+				=> _Edges.TryGetValue(key, out node);
+
+			internal bool Add(IImmutableCommand command)
+				=> _Commands.TryAdd(command.PrimaryId, command);
+
+			internal bool Remove(IImmutableCommand command)
+			{
+				if (!_Commands.Remove(command.PrimaryId))
+				{
+					return false;
+				}
+
+				// Kill all empty nodes
+				var node = this;
+				while (node._Parent != null)
+				{
+					if (node._Commands.Count == 0 && node._Edges.Count == 0)
+					{
+						node._Parent._Edges.Remove(node._Key);
+					}
+					node = node._Parent;
+				}
+
+				return true;
 			}
 		}
 	}

@@ -111,7 +111,7 @@ namespace YACCS.Commands
 			var node = _CommandTrie.Root;
 			for (var i = 0; i < args.Count; ++i)
 			{
-				if (!node.Edges.TryGetValue(args[i], out node))
+				if (!node.TryGetEdge(args[i], out node))
 				{
 					break;
 				}
@@ -161,7 +161,7 @@ namespace YACCS.Commands
 					}
 				}
 
-				if (!node.Edges.TryGetValue(input[i], out node))
+				if (!node.TryGetEdge(input[i], out node))
 				{
 					break;
 				}

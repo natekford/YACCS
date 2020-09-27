@@ -18,13 +18,13 @@ using YACCS.TypeReaders;
 namespace YACCS.Tests.Commands
 {
 	[TestClass]
-	public class CommandService_AllPrecondition_Test
+	public class CommandService_AllPreconditions_Test
 	{
+		private const int DISALLOWED_VALUE = 1;
+
 		[TestMethod]
 		public async Task FailedDefaultValue_Test()
 		{
-			const int DISALLOWED_VALUE = 1;
-
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
@@ -45,8 +45,6 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task FailedParameterPrecondition_Test()
 		{
-			const int DISALLOWED_VALUE = 1;
-
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
@@ -67,8 +65,6 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task FailedPrecondition_Test()
 		{
-			const int DISALLOWED_VALUE = 1;
-
 			var (commandService, context, command, parameter) = Create(false, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
@@ -89,8 +85,6 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task FailedTypeReader_Test()
 		{
-			const int DISALLOWED_VALUE = 1;
-
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
@@ -109,10 +103,90 @@ namespace YACCS.Tests.Commands
 		}
 
 		[TestMethod]
+		public async Task Multiple_Test()
+		{
+			var (commandService, context, _, _) = Create(true, DISALLOWED_VALUE);
+			var commands = await typeof(CommandsGroup).CreateCommandsAsync().ConfigureAwait(false);
+			var scored = commands.Select(x => CommandScore.FromCorrectArgCount(x, context, 0)).ToArray();
+
+			var c1 = commands.ById(CommandsGroup._1).Single();
+			var c2 = commands.ById(CommandsGroup._2).Single();
+			Assert.AreEqual(c1, scored[0].Command);
+			Assert.AreEqual(c2, scored[1].Command);
+
+			var @checked = await commandService.ProcessAllPreconditionsAsync(
+				scored,
+				context,
+				new[] { (DISALLOWED_VALUE + 1).ToString() }
+			).ConfigureAwait(false);
+			Assert.AreEqual(c2, @checked[0].Command);
+			Assert.AreEqual(c1, @checked[1].Command);
+
+			foreach (var result in @checked)
+			{
+				Assert.IsTrue(result.InnerResult.IsSuccess);
+				Assert.AreEqual(CommandStage.CanExecute, result.Stage);
+				Assert.AreEqual(int.MaxValue, result.Score);
+			}
+		}
+
+		[TestMethod]
+		public async Task MultipleInvalidContext_Test()
+		{
+			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
+			await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
+			{
+				var scored = new List<CommandScore>
+				{
+					CommandScore.FromCorrectArgCount(command.ToCommand(), context, 0),
+				};
+				var result = await commandService.ProcessAllPreconditionsAsync(
+					scored,
+					new InvalidContext(),
+					Array.Empty<string>()
+				).ConfigureAwait(false);
+			}).ConfigureAwait(false);
+		}
+
+		[TestMethod]
+		public async Task MultipleInvalidStage_Test()
+		{
+			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
+			await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
+			{
+				var scored = new List<CommandScore>
+				{
+					CommandScore.FromInvalidContext(command.ToCommand(), context, 0),
+				};
+				var result = await commandService.ProcessAllPreconditionsAsync(
+					scored,
+					context,
+					Array.Empty<string>()
+				).ConfigureAwait(false);
+			}).ConfigureAwait(false);
+		}
+
+		[TestMethod]
+		public async Task MultipleNullCommand_Test()
+		{
+			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
+			await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
+			{
+				var scored = new List<CommandScore>
+				{
+					CommandScore.FromInvalidContext(null!, context, 0),
+				};
+				var result = await commandService.ProcessAllPreconditionsAsync(
+					scored,
+					context,
+					Array.Empty<string>()
+				).ConfigureAwait(false);
+			}).ConfigureAwait(false);
+		}
+
+		[TestMethod]
 		public async Task Successful_Test()
 		{
-			const int DISALLOWED_VALUE = 1;
-
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
@@ -135,8 +209,8 @@ namespace YACCS.Tests.Commands
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
 
-			var command = FakeDelegateCommand.New
-				.AsContext<IContext>()
+			var command = FakeDelegateCommand.New(typeof(FakeContext))
+				.AsContext<FakeContext>()
 				.AddPrecondition(new FakePrecondition(success))
 				.AddPrecondition(new WasIReachedPrecondition());
 
@@ -149,7 +223,26 @@ namespace YACCS.Tests.Commands
 			return (commandService, context, command, parameter);
 		}
 
-		private class FakeParameterPrecondition : ParameterPrecondition<IContext, int>
+		private class CommandsGroup : CommandGroup<IContext>
+		{
+			public const string _1 = "c1_id";
+			public const string _2 = "c2_id";
+
+			[Command]
+			[Id(_1)]
+			public void CommandOne()
+			{
+			}
+
+			[Command]
+			[Id(_2)]
+			[YACCS.Commands.Attributes.Priority(1000)]
+			public void CommandTwo()
+			{
+			}
+		}
+
+		private class FakeParameterPrecondition : ParameterPrecondition<FakeContext, int>
 		{
 			public int DisallowedValue { get; }
 
@@ -158,11 +251,11 @@ namespace YACCS.Tests.Commands
 				DisallowedValue = value;
 			}
 
-			public override Task<IResult> CheckAsync(ParameterInfo parameter, IContext context, [MaybeNull] int value)
+			public override Task<IResult> CheckAsync(ParameterInfo parameter, FakeContext context, [MaybeNull] int value)
 				=> value == DisallowedValue ? Result.FromError("lol").AsTask() : SuccessResult.InstanceTask;
 		}
 
-		private class FakePrecondition : Precondition<IContext>
+		private class FakePrecondition : Precondition<FakeContext>
 		{
 			private readonly bool _Success;
 
@@ -171,26 +264,32 @@ namespace YACCS.Tests.Commands
 				_Success = success;
 			}
 
-			public override Task<IResult> CheckAsync(IImmutableCommand command, IContext context)
+			public override Task<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
 				=> _Success ? SuccessResult.InstanceTask : Result.FromError("lol").AsTask();
 		}
 
-		private class WasIReachedParameterPrecondition : ParameterPrecondition<IContext, int>
+		private class InvalidContext : IContext
+		{
+			public Guid Id { get; set; }
+			public IServiceProvider Services { get; set; } = EmptyServiceProvider.Instance;
+		}
+
+		private class WasIReachedParameterPrecondition : ParameterPrecondition<FakeContext, int>
 		{
 			public bool IWasReached { get; private set; }
 
-			public override Task<IResult> CheckAsync(ParameterInfo parameter, IContext context, [MaybeNull] int value)
+			public override Task<IResult> CheckAsync(ParameterInfo parameter, FakeContext context, [MaybeNull] int value)
 			{
 				IWasReached = true;
 				return SuccessResult.InstanceTask;
 			}
 		}
 
-		private class WasIReachedPrecondition : Precondition<IContext>
+		private class WasIReachedPrecondition : Precondition<FakeContext>
 		{
 			public bool IWasReached { get; private set; }
 
-			public override Task<IResult> CheckAsync(IImmutableCommand command, IContext context)
+			public override Task<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
 			{
 				IWasReached = true;
 				return SuccessResult.InstanceTask;
@@ -199,7 +298,7 @@ namespace YACCS.Tests.Commands
 	}
 
 	[TestClass]
-	public class CommandService_ParameterPrecondition_Tests
+	public class CommandService_ParameterPreconditions_Tests
 	{
 		[TestMethod]
 		public async Task EnumerableFailure_Test()
@@ -273,7 +372,7 @@ namespace YACCS.Tests.Commands
 				.AsType<int>()
 				.AddParameterPrecondition(new FakeParameterPrecondition(disallowedValue))
 				.AddParameterPrecondition(new WasIReachedParameterPrecondition());
-			var commandBuilder = FakeDelegateCommand.New;
+			var commandBuilder = FakeDelegateCommand.New();
 			commandBuilder.Parameters.Add(parameterBuilder);
 			var command = commandBuilder.ToCommand();
 			var parameter = parameterBuilder.ToParameter();
@@ -306,7 +405,7 @@ namespace YACCS.Tests.Commands
 	}
 
 	[TestClass]
-	public class CommandService_Precondition_Tests
+	public class CommandService_Preconditions_Tests
 	{
 		[TestMethod]
 		public async Task ProcessPreconditionsFailure_Test()
@@ -336,7 +435,7 @@ namespace YACCS.Tests.Commands
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
-			var command = FakeDelegateCommand.New
+			var command = FakeDelegateCommand.New()
 				.AsContext<IContext>()
 				.AddPrecondition(new FakePrecondition(success))
 				.AddPrecondition(new WasIReachedPrecondition())
@@ -370,7 +469,7 @@ namespace YACCS.Tests.Commands
 	}
 
 	[TestClass]
-	public class CommandService_TypeReader_Tests
+	public class CommandService_TypeReaders_Tests
 	{
 		[TestMethod]
 		public async Task ProcessTypeReaderMultipleButNotAllValues_Test()
@@ -418,7 +517,7 @@ namespace YACCS.Tests.Commands
 		public async Task ProcessTypeReaderMultipleValuesLongerThanArgs_Test()
 		{
 			var value = new[] { 1, 2, 3, 4 };
-			var (commandService, context, parameter) = Create<int[]>(500);
+			var (commandService, context, parameter) = Create<int[]>(null);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
 				parameter.ToParameter(),
@@ -539,7 +638,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsInstanceOfType(result.Arg, typeof(IContext));
 		}
 
-		private (CommandService, FakeContext, IParameter) Create<T>(int length)
+		private (CommandService, FakeContext, IParameter) Create<T>(int? length)
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
