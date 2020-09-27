@@ -209,7 +209,7 @@ namespace YACCS.Commands
 					}
 
 					arg = trResult.Arg;
-					currentIndex += parameter.Length;
+					currentIndex += parameter.Length ?? int.MaxValue;
 				}
 				// We don't have any more args to parse.
 				// If the parameter isn't optional it's a failure
@@ -313,7 +313,7 @@ namespace YACCS.Commands
 			// Otherwise mainly ignore it
 
 			var (makeArray, reader) = GetReader(parameter);
-			var pLength = makeArray ? parameter.Length : 1;
+			var pLength = makeArray ? parameter.Length ?? int.MaxValue : 1;
 			var length = Math.Min(input.Count - startIndex, pLength);
 			var results = new List<ITypeReaderResult>(length);
 
@@ -353,17 +353,16 @@ namespace YACCS.Commands
 			foreach (var parameter in command.Parameters)
 			{
 				// Remainder will always be the last parameter
-				if (parameter.Length == RemainderAttribute.REMAINDER)
+				if (!parameter.Length.HasValue)
 				{
-					++min;
 					max = int.MaxValue;
 					break;
 				}
 				if (!parameter.HasDefaultValue)
 				{
-					min += parameter.Length;
+					min += parameter.Length.Value;
 				}
-				max += parameter.Length;
+				max += parameter.Length.Value;
 			}
 			return (min, max);
 		}

@@ -77,7 +77,7 @@ namespace YACCS.Commands.Models
 			public object? DefaultValue { get; }
 			public Type? EnumerableType { get; }
 			public bool HasDefaultValue { get; }
-			public int Length { get; }
+			public int? Length { get; }
 			public ITypeReader? OverriddenTypeReader { get; }
 			public string ParameterName { get; }
 			public Type ParameterType { get; }
@@ -97,7 +97,8 @@ namespace YACCS.Commands.Models
 				DefaultValue = mutable.DefaultValue;
 				EnumerableType = GetEnumerableType(mutable.ParameterType);
 				HasDefaultValue = mutable.HasDefaultValue;
-				Length = mutable.Get<ILengthAttribute>().SingleOrDefault()?.Length ?? 1;
+				var length = mutable.Get<ILengthAttribute>().SingleOrDefault();
+				Length = length == null ? 1 : length.Length;
 				OverriddenTypeReader = mutable.OverriddenTypeReader;
 				ParameterName = mutable.ParameterName;
 				ParameterType = mutable.ParameterType;

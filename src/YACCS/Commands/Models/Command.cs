@@ -60,6 +60,14 @@ namespace YACCS.Commands.Models
 				Preconditions = mutable.Get<IPrecondition>().ToImmutableArray();
 				PrimaryId = mutable.Get<IIdAttribute>().FirstOrDefault()?.Id ?? Guid.NewGuid().ToString();
 				Priority = mutable.Get<IPriorityAttribute>().SingleOrDefault()?.Priority ?? 0;
+
+				for (var i = 0; i < Parameters.Count; ++i)
+				{
+					if (!Parameters[i].Length.HasValue && i != Parameters.Count - 1)
+					{
+						throw new ArgumentException("Cannot have multiple remainders and/or remainder must be the final parameter.");
+					}
+				}
 			}
 
 			public abstract Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args);

@@ -2,6 +2,6 @@
 {
 	public interface ILengthAttribute
 	{
-		int Length { get; }
+		int? Length { get; }
 	}
 }

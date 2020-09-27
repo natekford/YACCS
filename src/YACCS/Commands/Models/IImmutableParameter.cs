@@ -11,7 +11,7 @@ namespace YACCS.Commands.Models
 		object? DefaultValue { get; }
 		Type? EnumerableType { get; }
 		bool HasDefaultValue { get; }
-		int Length { get; }
+		int? Length { get; }
 		ITypeReader? OverriddenTypeReader { get; }
 		IReadOnlyList<IParameterPrecondition> Preconditions { get; }
 	}

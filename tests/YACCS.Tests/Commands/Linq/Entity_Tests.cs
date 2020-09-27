@@ -24,26 +24,23 @@ namespace YACCS.Tests.Commands.Linq
 			var t = new Querying_TestsGroup.Help();
 			var @delegate = (Func<IReadOnlyList<string>, Task<IResult>>)t.CommandFour;
 
-			var result = commands.ByDelegate(@delegate, includeMethod: false).ToArray();
-			Assert.AreEqual(0, result.Length);
+			{
+				var result = commands.ByDelegate(@delegate, includeMethod: true).ToArray();
+				Assert.AreEqual(1, result.Length);
+			}
 
-			var command = new DelegateCommand(@delegate, Array.Empty<IName>());
-			commands.Add(command.ToCommand());
+			{
+				var result = commands.ByDelegate(@delegate, includeMethod: false).ToArray();
+				Assert.AreEqual(0, result.Length);
+			}
 
-			var result2 = commands.ByDelegate(@delegate, includeMethod: false).ToArray();
-			Assert.AreEqual(1, result2.Length);
-		}
+			{
+				var command = new DelegateCommand(@delegate, Array.Empty<IName>());
+				commands.Add(command.ToCommand());
 
-		[TestMethod]
-		public async Task ByDelegateIncludingMethod_Test()
-		{
-			var commands = await CreateCommandsAsync().ConfigureAwait(false);
-
-			var t = new Querying_TestsGroup.Help();
-			var @delegate = (Func<IReadOnlyList<string>, Task<IResult>>)t.CommandFour;
-
-			var result = commands.ByDelegate(@delegate, includeMethod: true).ToArray();
-			Assert.AreEqual(1, result.Length);
+				var result = commands.ByDelegate(@delegate, includeMethod: false).ToArray();
+				Assert.AreEqual(1, result.Length);
+			}
 		}
 
 		[TestMethod]
