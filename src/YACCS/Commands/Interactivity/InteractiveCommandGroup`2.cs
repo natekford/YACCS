@@ -11,18 +11,17 @@ namespace YACCS.Commands.Interactivity
 	public abstract class InteractiveCommandGroup<TContext, TInput> : CommandGroup<TContext>
 		where TContext : IContext
 	{
+		public virtual TimeSpan DefaultTimeout { get; } = TimeSpan.FromSeconds(5);
 		public ITypeReaderRegistry TypeReaders { get; set; } = null!;
 
-		#region Next Value
+		#region Input
 
-		public virtual NextValue CreateNextValueDelegate(Func<TInput, Task> handler)
-			=> new NextValue(handler);
+		public virtual OnNextValue CreateInputDelegate(Func<TInput, Task> handler)
+			=> new OnNextValue(handler);
 
-		public abstract string GetInputString(TInput input);
-
-		public async Task<IInteractiveResult<TValue>> NextValueAsync<TValue>(NextValueOptions<TValue> options)
+		public async Task<IInteractiveResult<TValue>> GetInputAsync<TValue>(NextValueOptions<TValue> options)
 		{
-			var timeout = options?.Timeout ?? TimeSpan.FromSeconds(3);
+			var timeout = options?.Timeout ?? DefaultTimeout;
 			var criteria = options?.Criteria ?? Array.Empty<ICriterion<TContext, TInput>>();
 			var typeReader = options?.TypeReader ?? TypeReaders.GetReader<TValue>();
 
@@ -52,13 +51,13 @@ namespace YACCS.Commands.Interactivity
 				}
 			}
 
-			var handler = CreateNextValueDelegate(Handler);
-			Subscribe(handler);
+			var handler = CreateInputDelegate(Handler);
+			SubscribeForInput(handler);
 			var @event = eventTrigger.Task;
 			var cancel = cancelTrigger.Task;
 			var delay = Task.Delay(timeout);
 			var task = await Task.WhenAny(@event, delay, cancel).ConfigureAwait(false);
-			Unsubscribe(handler);
+			UnsubscribeForInput(handler);
 
 			if (task == cancel)
 			{
@@ -73,11 +72,28 @@ namespace YACCS.Commands.Interactivity
 			return new InteractiveResult<TValue>(value);
 		}
 
-		public abstract void Subscribe(NextValue onInputReceived);
+		public abstract string GetInputString(TInput input);
 
-		public abstract void Unsubscribe(NextValue onInputReceived);
+		public abstract void SubscribeForInput(OnNextValue onNextValue);
 
-		public delegate Task NextValue(TInput input);
+		public abstract void UnsubscribeForInput(OnNextValue onNextValue);
+
+		#endregion Input
+
+		#region Pagination
+
+		public virtual OnNextValue CreatePaginationDelegate(Func<TInput, Task> handler)
+			=> new OnNextValue(handler);
+
+		// TODO
+
+		public abstract void SubscribeForPagination(OnNextValue onNextValue);
+
+		public abstract void UnsubscribeForPagination(OnNextValue onNextValue);
+
+		#endregion Pagination
+
+		public delegate Task OnNextValue(TInput input);
 
 		public class NextValueOptions<TOutput>
 		{
@@ -86,13 +102,5 @@ namespace YACCS.Commands.Interactivity
 			public CancellationToken? Token { get; set; }
 			public ITypeReader<TOutput>? TypeReader { get; set; }
 		}
-
-		#endregion Next Value
-
-		#region Pagination
-
-		// TODO
-
-		#endregion Pagination
 	}
 }
