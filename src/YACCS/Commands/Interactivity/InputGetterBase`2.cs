@@ -19,12 +19,8 @@ namespace YACCS.Commands.Interactivity
 
 		public async Task<IInteractiveResult<TValue>> GetInputAsync<TValue>(
 			TContext context,
-			IGetInputOptions<TContext, TInput, TValue> options)
+			IGetInputOptions<TContext, TInput, TValue>? options = null)
 		{
-			var timeout = options?.Timeout ?? DefaultTimeout;
-			var criteria = options?.Criteria ?? Array.Empty<ICriterion<TContext, TInput>>();
-			var typeReader = options?.TypeReader ?? TypeReaders.GetReader<TValue>();
-
 			var eventTrigger = new TaskCompletionSource<TValue>();
 			var cancelTrigger = new TaskCompletionSource<bool>();
 			if (options?.Token is CancellationToken token)
@@ -32,30 +28,11 @@ namespace YACCS.Commands.Interactivity
 				token.Register(() => cancelTrigger.SetResult(true));
 			}
 
-			async Task Handler(TInput input)
-			{
-				foreach (var criterion in criteria!)
-				{
-					var result = await criterion.JudgeAsync(context, input).ConfigureAwait(false);
-					if (!result)
-					{
-						return;
-					}
-				}
-
-				var inputString = GetInputString(input);
-				var trResult = await typeReader!.ReadAsync(context, inputString).ConfigureAwait(false);
-				if (trResult.IsSuccess)
-				{
-					eventTrigger!.SetResult(trResult.Arg!);
-				}
-			}
-
-			var handler = CreateInputDelegate(Handler);
+			var handler = CreateOnInputDelegate(context, eventTrigger, options);
 			Subscribe(context, handler);
 			var @event = eventTrigger.Task;
 			var cancel = cancelTrigger.Task;
-			var delay = Task.Delay(timeout);
+			var delay = Task.Delay(options?.Timeout ?? DefaultTimeout);
 			var task = await Task.WhenAny(@event, delay, cancel).ConfigureAwait(false);
 			Unsubscribe(context, handler);
 
@@ -72,15 +49,40 @@ namespace YACCS.Commands.Interactivity
 			return new InteractiveResult<TValue>(value);
 		}
 
-		protected virtual OnNextValue CreateInputDelegate(Func<TInput, Task> handler)
-					=> new OnNextValue(handler);
+		protected virtual OnInput<TValue> CreateOnInputDelegate<TValue>(
+			TContext context,
+			TaskCompletionSource<TValue> eventTrigger,
+			IGetInputOptions<TContext, TInput, TValue>? options = null)
+		{
+			var criteria = options?.Criteria ?? Array.Empty<ICriterion<TContext, TInput>>();
+			var typeReader = options?.TypeReader ?? TypeReaders.GetReader<TValue>();
+
+			return new OnInput<TValue>(async input =>
+			{
+				foreach (var criterion in criteria)
+				{
+					var result = await criterion.JudgeAsync(context, input).ConfigureAwait(false);
+					if (!result)
+					{
+						return;
+					}
+				}
+
+				var inputString = GetInputString(input);
+				var trResult = await typeReader.ReadAsync(context, inputString).ConfigureAwait(false);
+				if (trResult.IsSuccess)
+				{
+					eventTrigger.SetResult(trResult.Arg!);
+				}
+			});
+		}
 
 		protected abstract string GetInputString(TInput input);
 
-		protected abstract void Subscribe(TContext context, OnNextValue onNextValue);
+		protected abstract void Subscribe<TValue>(TContext context, OnInput<TValue> onInput);
 
-		protected abstract void Unsubscribe(TContext context, OnNextValue onNextValue);
+		protected abstract void Unsubscribe<TValue>(TContext context, OnInput<TValue> onInput);
 
-		protected delegate Task OnNextValue(TInput input);
+		protected delegate Task OnInput<TValue>(TInput input);
 	}
 }

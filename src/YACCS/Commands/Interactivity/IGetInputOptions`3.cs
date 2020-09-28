@@ -8,9 +8,9 @@ namespace YACCS.Commands.Interactivity
 {
 	public interface IGetInputOptions<TContext, TInput, TOutput> where TContext : IContext
 	{
-		IEnumerable<ICriterion<TContext, TInput>>? Criteria { get; set; }
-		TimeSpan? Timeout { get; set; }
-		CancellationToken? Token { get; set; }
-		ITypeReader<TOutput>? TypeReader { get; set; }
+		IEnumerable<ICriterion<TContext, TInput>>? Criteria { get; }
+		TimeSpan? Timeout { get; }
+		CancellationToken? Token { get; }
+		ITypeReader<TOutput>? TypeReader { get; }
 	}
 }
