@@ -11,7 +11,7 @@ namespace YACCS.Commands
 	public class TypeReaderRegistry : ITypeReaderRegistry
 	{
 		private static readonly MethodInfo _RegisterMethod =
-			typeof(TypeReaderRegistry)
+			typeof(TypeReaderRegistryUtils)
 			.GetTypeInfo()
 			.DeclaredMethods
 			.Single(x => x.Name == nameof(RegisterWithNullable));
@@ -21,9 +21,9 @@ namespace YACCS.Commands
 
 		public TypeReaderRegistry()
 		{
-			Register(new StringTypeReader());
-			Register(new UriTypeReader());
-			Register(new ContextTypeReader<IContext>());
+			this.Register(new StringTypeReader());
+			this.Register(new UriTypeReader());
+			this.Register(new ContextTypeReader<IContext>());
 			RegisterWithNullable(new TryParseTypeReader<char>(char.TryParse));
 			RegisterWithNullable(new TryParseTypeReader<bool>(bool.TryParse));
 			RegisterWithNullable(new NumberTypeReader<sbyte>(sbyte.TryParse));
@@ -43,27 +43,6 @@ namespace YACCS.Commands
 
 			this.Register(typeof(TypeReaderRegistry).Assembly.GetTypeReaders());
 		}
-
-		public ITypeReader GetReader(Type type)
-		{
-			if (TryGetReader(type, out var reader))
-			{
-				return reader;
-			}
-			throw new ArgumentException($"There is no converter specified for {type.Name}.", nameof(type));
-		}
-
-		public ITypeReader<T> GetReader<T>()
-		{
-			if (GetReader(typeof(T)) is ITypeReader<T> reader)
-			{
-				return reader;
-			}
-			throw new ArgumentException($"Invalid converter registered for {typeof(T).Name}.", nameof(T));
-		}
-
-		public void Register<T>(ITypeReader<T> reader)
-			=> Register(reader, typeof(T));
 
 		public void Register(ITypeReader reader, Type type)
 		{

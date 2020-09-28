@@ -68,8 +68,7 @@ namespace YACCS.Commands
 				var node = Root;
 				for (var i = 0; i < name.Parts.Count; ++i)
 				{
-					var key = name.Parts[i];
-					if (!node.TryGetEdge(key, out node))
+					if (!node.TryGetEdge(name.Parts[i], out node))
 					{
 						break;
 					}

@@ -50,7 +50,7 @@ namespace YACCS.Tests.Commands.Models
 			foreach (var result in results)
 			{
 				Assert.IsTrue(result.IsSuccess);
-				Assert.IsInstanceOfType(result.InnerResult, typeof(SuccessResult));
+				Assert.IsInstanceOfType(result.InnerResult, typeof(Results.SuccessResult));
 			}
 		}
 
@@ -93,7 +93,7 @@ namespace YACCS.Tests.Commands.Models
 			foreach (var result in results)
 			{
 				Assert.IsTrue(result.IsSuccess);
-				Assert.IsInstanceOfType(result.InnerResult, typeof(SuccessResult));
+				Assert.IsInstanceOfType(result.InnerResult, typeof(Results.SuccessResult));
 			}
 		}
 	}

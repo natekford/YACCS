@@ -122,47 +122,6 @@ namespace YACCS.Commands
 		public static IAsyncEnumerable<IImmutableCommand> GetCommandsAsync<T>()
 			where T : ICommandGroup, new()
 			=> typeof(T).GetCommandsAsync();
-
-		public static IEnumerable<TypeReaderInfo> GetTypeReaders(
-			this IEnumerable<Assembly> assemblies)
-		{
-			foreach (var assembly in assemblies)
-			{
-				foreach (var typeReader in assembly.GetTypeReaders())
-				{
-					yield return typeReader;
-				}
-			}
-		}
-
-		public static IEnumerable<TypeReaderInfo> GetTypeReaders(
-			this Assembly assembly)
-		{
-			foreach (var type in assembly.GetExportedTypes())
-			{
-				var attr = type.GetCustomAttribute<TypeReaderTargetTypesAttribute>();
-				if (attr == null)
-				{
-					continue;
-				}
-
-				var typeReader = CreateInstance<ITypeReader>(type);
-				yield return new TypeReaderInfo(attr.TargetTypes, typeReader);
-			}
-		}
-
-		public static void Register(
-			this ITypeReaderRegistry registry,
-			IEnumerable<TypeReaderInfo> typeReaderInfos)
-		{
-			foreach (var typeReaderInfo in typeReaderInfos)
-			{
-				foreach (var type in typeReaderInfo.TargetTypes)
-				{
-					registry.Register(typeReaderInfo.Instance, type);
-				}
-			}
-		}
 	}
 
 	internal static class IServiceProviderUtils
