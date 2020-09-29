@@ -7,29 +7,29 @@ using YACCS.Commands.Models;
 using YACCS.ParameterPreconditions;
 using YACCS.Results;
 
-namespace YACCS.Commands.Interactivity
+namespace YACCS.Commands.Interactivity.Input
 {
-	public abstract class InputGetterBase<TContext, TInput> : IInputGetter<TContext, TInput>
+	public abstract class InputGetter<TContext, TInput>
+		: InteractiveBase<TContext, TInput>, IInputGetter<TContext, TInput>
 		where TContext : IContext
 	{
-		public virtual TimeSpan DefaultTimeout { get; } = TimeSpan.FromSeconds(5);
 		public ITypeReaderRegistry TypeReaders { get; }
 
 		protected static Delegate EmptyDelegate { get; } = (Action)(() => { });
 		protected static IEnumerable<IName> EmptyNames { get; } = new[] { new Name(new[] { "Input" }) };
 
-		protected InputGetterBase(ITypeReaderRegistry typeReaders)
+		protected InputGetter(ITypeReaderRegistry typeReaders)
 		{
 			TypeReaders = typeReaders;
 		}
 
-		public async Task<IInteractiveResult<TValue>> GetInputAsync<TValue>(
+		public virtual async Task<IInteractiveResult<TValue>> GetInputAsync<TValue>(
 			TContext context,
-			IGetInputOptions<TContext, TInput, TValue>? options = null)
+			IInputOptions<TContext, TInput, TValue> options)
 		{
 			var eventTrigger = new TaskCompletionSource<TValue>();
 			var cancelTrigger = new TaskCompletionSource<bool>();
-			if (options?.Token is CancellationToken token)
+			if (options.Token is CancellationToken token)
 			{
 				token.Register(() => cancelTrigger.SetResult(true));
 			}
@@ -42,7 +42,7 @@ namespace YACCS.Commands.Interactivity
 			Subscribe(context, handler, id);
 			var @event = eventTrigger.Task;
 			var cancel = cancelTrigger.Task;
-			var delay = Task.Delay(options?.Timeout ?? DefaultTimeout);
+			var delay = Task.Delay(options.Timeout ?? DefaultTimeout);
 			var task = await Task.WhenAny(@event, delay, cancel).ConfigureAwait(false);
 			Unsubscribe(context, handler, id);
 
@@ -70,17 +70,17 @@ namespace YACCS.Commands.Interactivity
 			return new ParameterInfo(command, parameter);
 		}
 
-		protected virtual OnInput<TValue> CreateOnInputDelegate<TValue>(
+		protected virtual OnInput CreateOnInputDelegate<TValue>(
 			TContext context,
 			TaskCompletionSource<TValue> eventTrigger,
-			IGetInputOptions<TContext, TInput, TValue>? options = null)
+			IInputOptions<TContext, TInput, TValue> options)
 		{
 			var parameter = GenerateInputParameter<TValue>();
-			var criteria = options?.Criteria ?? Array.Empty<ICriterion<TContext, TInput>>();
 			var typeReader = options?.TypeReader ?? TypeReaders.GetReader<TValue>();
+			var criteria = options?.Criteria ?? Array.Empty<ICriterion<TContext, TInput>>();
 			var preconditions = options?.Preconditions ?? Array.Empty<IParameterPrecondition<TContext, TValue>>();
 
-			return new OnInput<TValue>(async input =>
+			return new OnInput(async input =>
 			{
 				foreach (var criterion in criteria)
 				{
@@ -97,11 +97,11 @@ namespace YACCS.Commands.Interactivity
 				{
 					return;
 				}
-				var value = trResult.Arg;
+				var value = trResult.Arg!;
 
 				foreach (var precondition in preconditions)
 				{
-					var result = await precondition.CheckAsync(parameter, context, value!).ConfigureAwait(false);
+					var result = await precondition.CheckAsync(parameter, context, value).ConfigureAwait(false);
 					if (!result.IsSuccess)
 					{
 						return;
@@ -113,11 +113,5 @@ namespace YACCS.Commands.Interactivity
 		}
 
 		protected abstract string GetInputString(TInput input);
-
-		protected abstract void Subscribe<TValue>(TContext context, OnInput<TValue> onInput, Guid id);
-
-		protected abstract void Unsubscribe<TValue>(TContext context, OnInput<TValue> onInput, Guid id);
-
-		protected delegate Task OnInput<TValue>(TInput input);
 	}
 }

@@ -5,9 +5,9 @@ using System.Threading;
 using YACCS.ParameterPreconditions;
 using YACCS.TypeReaders;
 
-namespace YACCS.Commands.Interactivity
+namespace YACCS.Commands.Interactivity.Input
 {
-	public interface IGetInputOptions<TContext, TInput, TValue> where TContext : IContext
+	public interface IInputOptions<TContext, TInput, TValue> where TContext : IContext
 	{
 		IEnumerable<ICriterion<TContext, TInput>>? Criteria { get; }
 		IEnumerable<IParameterPrecondition<TContext, TValue>>? Preconditions { get; }
