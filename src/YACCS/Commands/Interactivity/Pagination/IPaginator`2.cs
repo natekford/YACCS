@@ -6,7 +6,7 @@ namespace YACCS.Commands.Interactivity.Pagination
 	{
 		Task PaginateAsync(
 			TContext context,
-			IPageDisplayer<TContext> displayer,
+			IPageDisplayer<TContext, TInput> displayer,
 			IPageOptions<TContext, TInput> options);
 	}
 }

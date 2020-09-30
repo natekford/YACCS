@@ -6,13 +6,13 @@ using YACCS.Results;
 
 namespace YACCS.Commands.Interactivity.Pagination
 {
-	public abstract class Paginator<TContext, TInput, TDisplay>
+	public abstract class Paginator<TContext, TInput>
 		: InteractiveBase<TContext, TInput>, IPaginator<TContext, TInput>
 		where TContext : IContext
 	{
 		public virtual async Task PaginateAsync(
 			TContext context,
-			IPageDisplayer<TContext> displayer,
+			IPageDisplayer<TContext, TInput> displayer,
 			IPageOptions<TContext, TInput> options)
 		{
 			static int Mod(double a, double b)
@@ -31,7 +31,7 @@ namespace YACCS.Commands.Interactivity.Pagination
 			{
 				await displayer.DisplayAsync(context, page).ConfigureAwait(false);
 
-				var result = await GetPageAsync(context, options).ConfigureAwait(false);
+				var result = await GetPageAsync(context, displayer, options).ConfigureAwait(false);
 				if (!result.InnerResult.IsSuccess || !result.Value.HasValue)
 				{
 					return;
@@ -43,6 +43,7 @@ namespace YACCS.Commands.Interactivity.Pagination
 
 		protected virtual OnInput CreateOnInputDelegate(
 			TContext context,
+			IPageDisplayer<TContext, TInput> displayer,
 			TaskCompletionSource<int?> eventTrigger,
 			IPageOptions<TContext, TInput> options)
 		{
@@ -59,14 +60,13 @@ namespace YACCS.Commands.Interactivity.Pagination
 					}
 				}
 
-				eventTrigger.SetResult(GetInputValue(input));
+				eventTrigger.SetResult(displayer.Convert(input));
 			});
 		}
 
-		protected abstract int? GetInputValue(TInput input);
-
 		protected virtual async Task<IInteractiveResult<int?>> GetPageAsync(
 			TContext context,
+			IPageDisplayer<TContext, TInput> displayer,
 			IPageOptions<TContext, TInput> options)
 		{
 			var eventTrigger = new TaskCompletionSource<int?>();
@@ -76,7 +76,7 @@ namespace YACCS.Commands.Interactivity.Pagination
 				token.Register(() => cancelTrigger.SetResult(true));
 			}
 
-			var handler = CreateOnInputDelegate(context, eventTrigger, options);
+			var handler = CreateOnInputDelegate(context, displayer, eventTrigger, options);
 			// Since delegate equality is kind of wonky, let's just use a guid id in case subscribe
 			// creates a new delegate/closure from the OnInput delegate so the dev can store the new
 			// delegate/closure in a dictionary and retrieve it to unsubscribe with the correct one
