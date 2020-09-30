@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
+﻿using System.Collections.Generic;
 
 using YACCS.ParameterPreconditions;
 using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Interactivity.Input
 {
-	public interface IInputOptions<TContext, TInput, TValue> where TContext : IContext
+	public interface IInputOptions<TContext, TInput, TValue> : IInteractivityOptions<TContext, TInput>
+		where TContext : IContext
 	{
-		IEnumerable<ICriterion<TContext, TInput>>? Criteria { get; }
-		IEnumerable<IParameterPrecondition<TContext, TValue>>? Preconditions { get; }
-		TimeSpan? Timeout { get; }
-		CancellationToken? Token { get; }
+		IEnumerable<IParameterPrecondition<TContext, TValue>> Preconditions { get; }
 		ITypeReader<TValue>? TypeReader { get; }
 	}
 }
