@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Linq;
@@ -45,13 +46,13 @@ namespace YACCS.Commands
 		{
 			foreach (var parameter in command.Parameters)
 			{
-				if (parameter.OverriddenTypeReader != null)
+				if (parameter.OverriddenTypeReader == null
+					&& !_Readers.TryGetReader(parameter.ParameterType, out _)
+					&& (parameter.EnumerableType == null || !_Readers.TryGetReader(parameter.EnumerableType, out _)))
 				{
-					continue;
-				}
-				if (!_Readers.TryGetReader(parameter.ParameterType, out _))
-				{
-					throw new ArgumentException($"{parameter.ParameterType} is missing a type reader.", nameof(command));
+					var param = parameter.ParameterType.Name;
+					var cmd = command.Names?.FirstOrDefault()?.ToString() ?? "NO NAME";
+					throw new ArgumentException($"A type reader for {param} in {cmd} is missing.", nameof(command));
 				}
 			}
 			_CommandTrie.Add(command);
@@ -63,14 +64,14 @@ namespace YACCS.Commands
 				input,
 				_Config.StartQuotes,
 				_Config.EndQuotes,
-				_Config.Separators,
+				_Config.Separator,
 				out var parseArgs))
 			{
 				return QuoteMismatchResult.Instance;
 			}
 
 			var args = parseArgs.Arguments;
-			var commands = GetCommands(context, args);
+			var commands = GetPotentiallyExecutableCommands(context, args);
 			if (commands.Count == 0)
 			{
 				return CommandNotFoundResult.Instance;
@@ -100,8 +101,8 @@ namespace YACCS.Commands
 				input,
 				_Config.StartQuotes,
 				_Config.EndQuotes,
-				_Config.Separators,
-				out var parseArgs))
+				_Config.Separator,
+				out var parseArgs) || parseArgs.Arguments.Count == 0)
 			{
 				return Array.Empty<IImmutableCommand>();
 			}
@@ -116,57 +117,53 @@ namespace YACCS.Commands
 				}
 				if (i == args.Count - 1)
 				{
-					return node.Values.ToImmutableArray();
+					return node.GetCommands().ToImmutableArray();
 				}
 			}
 			return Array.Empty<IImmutableCommand>();
 		}
 
-		public IReadOnlyList<CommandScore> GetCommands(
+		public IReadOnlyList<CommandScore> GetPotentiallyExecutableCommands(
 			IContext context,
 			IReadOnlyList<string> input)
 		{
 			var count = input.Count;
-			if (count == 0)
-			{
-				return Array.Empty<CommandScore>();
-			}
+			var contextType = context?.GetType();
 
-			var contextType = context.GetType();
 			var node = _CommandTrie.Root;
 			var matches = new List<CommandScore>();
 			for (var i = 0; i < count; ++i)
 			{
+				if (!node.TryGetEdge(input[i], out node))
+				{
+					break;
+				}
+
 				foreach (var command in node.Values)
 				{
 					if (!command.IsValidContext(contextType))
 					{
-						matches.Add(CommandScore.FromInvalidContext(command, context, i));
+						matches.Add(CommandScore.FromInvalidContext(command, context!, i));
+						continue;
 					}
 
 					var (min, max) = GetMinAndMaxArgs(command);
 					// Trivial cases, provided input length is not in the possible arg length
 					if (count < min)
 					{
-						matches.Add(CommandScore.FromNotEnoughArgs(command, context, i));
+						matches.Add(CommandScore.FromNotEnoughArgs(command, context!, i));
 					}
 					else if (count > max)
 					{
-						matches.Add(CommandScore.FromTooManyArgs(command, context, i));
+						matches.Add(CommandScore.FromTooManyArgs(command, context!, i));
 					}
 					else
 					{
-						matches.Add(CommandScore.FromCorrectArgCount(command, context, i));
+						matches.Add(CommandScore.FromCorrectArgCount(command, context!, i));
 					}
 				}
-
-				if (!node.TryGetEdge(input[i], out node))
-				{
-					break;
-				}
 			}
-			SortMatches(matches);
-			return matches;
+			return SortMatches(matches);
 		}
 
 		public async Task<CommandScore> ProcessAllPreconditionsAsync(
@@ -264,8 +261,7 @@ namespace YACCS.Commands
 					candidate.Score
 				).ConfigureAwait(false));
 			}
-			SortMatches(matches);
-			return matches;
+			return SortMatches(matches);
 		}
 
 		public async Task<IResult> ProcessParameterPreconditionsAsync(
@@ -307,15 +303,21 @@ namespace YACCS.Commands
 			IReadOnlyList<string> input,
 			int startIndex)
 		{
-			// Iterate at least once even for arguments with zero length, i.e. IContext
-			// Use length if we're dealing with something we need to make an array out of
-			// Otherwise mainly ignore it
-
 			var (makeArray, reader) = GetReader(parameter);
-			var pLength = makeArray ? parameter.Length ?? int.MaxValue : 1;
-			var length = Math.Min(input.Count - startIndex, pLength);
-			var results = new List<ITypeReaderResult>(length);
+			var pLength = parameter.Length ?? int.MaxValue;
+			// Iterate at least once even for arguments with zero length, i.e. IContext
+			var length = Math.Min(input.Count - startIndex, Math.Max(pLength, 1));
 
+			// If not an array, join all the values and treat them as a single string
+			if (!makeArray)
+			{
+				var parts = input.Skip(startIndex).Take(length);
+				var joined = string.Join(_Config.Separator, parts);
+				return await cache.GetResultAsync(reader, joined).ConfigureAwait(false);
+			}
+
+			// If an array, test each value one by one
+			var results = new ITypeReaderResult[length];
 			for (var i = startIndex; i < startIndex + length; ++i)
 			{
 				var result = await cache.GetResultAsync(reader, input[i]).ConfigureAwait(false);
@@ -323,18 +325,12 @@ namespace YACCS.Commands
 				{
 					return result;
 				}
-				results.Add(result);
-			}
-
-			// Return without dealing with the array
-			if (!makeArray)
-			{
-				return results[0];
+				results[i - startIndex] = result;
 			}
 
 			// Copy the values from the type reader result list to an array of the parameter type
-			var output = Array.CreateInstance(parameter.EnumerableType, results.Count);
-			for (var i = 0; i < results.Count; ++i)
+			var output = Array.CreateInstance(parameter.EnumerableType, results.Length);
+			for (var i = 0; i < results.Length; ++i)
 			{
 				output.SetValue(results[i].Arg, i);
 			}
@@ -366,13 +362,11 @@ namespace YACCS.Commands
 			return (min, max);
 		}
 
-		private static void SortMatches(List<CommandScore> matches)
+		private static List<CommandScore> SortMatches(List<CommandScore> matches)
 		{
-			if (matches.Count > 1)
-			{
-				// CompareTo backwards since we want the higher values in front
-				matches.Sort((x, y) => y.CompareTo(x));
-			}
+			// CompareTo backwards since we want the higher values in front
+			matches.Sort((x, y) => y.CompareTo(x));
+			return matches;
 		}
 
 		private async Task ExecuteCommand(CommandScore score, IContext context)

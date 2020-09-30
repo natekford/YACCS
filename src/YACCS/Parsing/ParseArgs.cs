@@ -10,8 +10,7 @@ namespace YACCS.Parsing
 	/// </summary>
 	public readonly struct ParseArgs
 	{
-		private static readonly IImmutableSet<char> _DefaultSplitChars
-			= new[] { ' ' }.ToImmutableHashSet();
+		private const char _DefaultSplitChar = ' ';
 		private static readonly IImmutableSet<char> _DefautQuotes
 			= new[] { '"' }.ToImmutableHashSet();
 
@@ -110,7 +109,7 @@ namespace YACCS.Parsing
 		/// <param name="result"></param>
 		/// <returns></returns>
 		public static bool TryParse(string input, out ParseArgs result)
-			=> TryParse(input, _DefautQuotes, _DefautQuotes, _DefaultSplitChars, out result);
+			=> TryParse(input, _DefautQuotes, _DefautQuotes, _DefaultSplitChar, out result);
 
 		/// <summary>
 		/// Attempts to parse a <see cref="ParseArgs"/> from characters indicating the start of a quote and characters indicating the end of a quote.
@@ -125,7 +124,7 @@ namespace YACCS.Parsing
 			string input,
 			IImmutableSet<char> startQuotes,
 			IImmutableSet<char> endQuotes,
-			IImmutableSet<char> splitChars,
+			char splitChar,
 			out ParseArgs result)
 		{
 			if (string.IsNullOrWhiteSpace(input))
@@ -146,7 +145,7 @@ namespace YACCS.Parsing
 				input,
 				startQuotes,
 				endQuotes,
-				splitChars,
+				splitChar,
 				startIndices,
 				endIndices,
 				out result
@@ -168,7 +167,7 @@ namespace YACCS.Parsing
 			string input,
 			IImmutableSet<char> startQuotes,
 			IImmutableSet<char> endQuotes,
-			IImmutableSet<char> splitChars,
+			char splitChar,
 			IReadOnlyList<int> startIndices,
 			IReadOnlyList<int> endIndices,
 			out ParseArgs result)
@@ -184,7 +183,7 @@ namespace YACCS.Parsing
 			// No quotes means just return splitting on space
 			if (startIndices.Count == 0)
 			{
-				AddRange(args, span, splitChars);
+				AddRange(args, span, splitChar);
 				result = new ParseArgs(args.ToImmutableArray(), startQuotes, endQuotes);
 				return true;
 			}
@@ -200,7 +199,7 @@ namespace YACCS.Parsing
 
 			if (minStart != 0)
 			{
-				AddRange(args, span[0..minStart], splitChars);
+				AddRange(args, span[0..minStart], splitChar);
 			}
 
 			// If all start indices are less than any end index this is fairly easy
@@ -220,7 +219,7 @@ namespace YACCS.Parsing
 					// in between is ignored unless we manually add it + we need to split it
 					if (previousEnd < start)
 					{
-						AddRange(args, span[(previousEnd + 1)..start], splitChars);
+						AddRange(args, span[(previousEnd + 1)..start], splitChar);
 					}
 
 					// No starts before next end means simple quotes
@@ -240,7 +239,7 @@ namespace YACCS.Parsing
 
 			if (maxEnd != input.Length - 1)
 			{
-				AddRange(args, span[(maxEnd + 1)..^0], splitChars);
+				AddRange(args, span[(maxEnd + 1)..^0], splitChar);
 			}
 
 			result = new ParseArgs(args.ToImmutableArray(), startQuotes, endQuotes);
@@ -256,12 +255,12 @@ namespace YACCS.Parsing
 			}
 		}
 
-		private static void AddRange(ICollection<string> col, ReadOnlySpan<char> input, IImmutableSet<char> splitChars)
+		private static void AddRange(ICollection<string> col, ReadOnlySpan<char> input, char splitChar)
 		{
 			var lastStart = 0;
 			for (var i = 0; i < input.Length; ++i)
 			{
-				if (splitChars.Contains(input[i]))
+				if (input[i] == splitChar)
 				{
 					Add(col, input[lastStart..i]);
 					lastStart = i;

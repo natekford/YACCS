@@ -11,7 +11,7 @@ namespace YACCS.Commands
 {
 	public static class CommandServiceUtils
 	{
-		public static async Task Add(
+		public static async Task AddAsync(
 			this ICommandService service,
 			IAsyncEnumerable<IImmutableCommand> commands)
 		{

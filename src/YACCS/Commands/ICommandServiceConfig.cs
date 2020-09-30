@@ -9,7 +9,7 @@ namespace YACCS.Commands
 		IImmutableSet<char> EndQuotes { get; }
 		bool IgnoreExtraArgs { get; }
 		MultiMatchHandling MultiMatchHandling { get; }
-		IImmutableSet<char> Separators { get; }
+		char Separator { get; }
 		IImmutableSet<char> StartQuotes { get; }
 	}
 }

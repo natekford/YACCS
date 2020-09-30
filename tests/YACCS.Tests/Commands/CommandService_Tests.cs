@@ -18,7 +18,7 @@ using YACCS.TypeReaders;
 namespace YACCS.Tests.Commands
 {
 	[TestClass]
-	public class CommandService_AllPreconditions_Test
+	public class CommandService_AllPreconditions_Tests
 	{
 		private const int DISALLOWED_VALUE = 1;
 
@@ -298,6 +298,238 @@ namespace YACCS.Tests.Commands
 	}
 
 	[TestClass]
+	public class CommandService_Commands_Tests
+	{
+		[TestMethod]
+		public void AddAndRemove_Test()
+		{
+			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
+			Assert.AreEqual(0, commandService.Commands.Count);
+
+			var c1 = FakeDelegateCommand.New()
+				.AddName(new Name(new[] { "1" }))
+				.ToCommand();
+			commandService.Add(c1);
+			Assert.AreEqual(1, commandService.Commands.Count);
+
+			var c2 = FakeDelegateCommand.New()
+				.AddName(new Name(new[] { "2" }))
+				.ToCommand();
+			commandService.Add(c2);
+			Assert.AreEqual(2, commandService.Commands.Count);
+
+			commandService.Remove(c1);
+			Assert.AreEqual(1, commandService.Commands.Count);
+
+			commandService.Remove(c2);
+			Assert.AreEqual(0, commandService.Commands.Count);
+		}
+
+		[TestMethod]
+		public void AddWithParameters_Test()
+		{
+			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
+
+			var d1 = (Action<Fake>)(x => { });
+			var c1 = new DelegateCommand(d1, new[] { new Name(new[] { "1" }) });
+			Assert.ThrowsException<ArgumentException>(() =>
+			{
+				commandService.Add(c1.ToCommand());
+			});
+
+			c1.Parameters[0].OverriddenTypeReader = new TryParseTypeReader<Fake>((string input, out Fake output) =>
+			{
+				output = null!;
+				return false;
+			});
+			commandService.Add(c1.ToCommand());
+			Assert.AreEqual(1, commandService.Commands.Count);
+		}
+
+		[TestMethod]
+		public void Find_Test()
+		{
+			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
+
+			var c1 = FakeDelegateCommand.New()
+				.AddName(new Name(new[] { "1" }))
+				.ToCommand();
+			commandService.Add(c1);
+			var c2 = FakeDelegateCommand.New()
+				.AddName(new Name(new[] { "2" }))
+				.AddName(new Name(new[] { "3" }))
+				.ToCommand();
+			commandService.Add(c2);
+			var c3 = FakeDelegateCommand.New()
+				.AddName(new Name(new[] { "4", "1" }))
+				.AddName(new Name(new[] { "4", "2" }))
+				.AddName(new Name(new[] { "4", "3" }))
+				.ToCommand();
+			commandService.Add(c3);
+			var c4 = FakeDelegateCommand.New()
+				.AddName(new Name(new[] { "4", "1" }))
+				.ToCommand();
+			commandService.Add(c4);
+
+			{
+				var found = commandService.Find("");
+				Assert.AreEqual(0, found.Count);
+			}
+
+			{
+				var found = commandService.Find("\"1");
+				Assert.AreEqual(0, found.Count);
+			}
+
+			{
+				var found = commandService.Find("1");
+				Assert.AreEqual(1, found.Count);
+				Assert.AreSame(c1, found[0]);
+			}
+
+			{
+				var found = commandService.Find("2");
+				Assert.AreEqual(1, found.Count);
+				Assert.AreSame(c2, found[0]);
+			}
+
+			{
+				var found = commandService.Find("3");
+				Assert.AreEqual(1, found.Count);
+				Assert.AreSame(c2, found[0]);
+			}
+
+			{
+				var found = commandService.Find("4");
+				Assert.AreEqual(2, found.Count);
+				Assert.AreSame(c3, found[0]);
+				Assert.AreSame(c4, found[1]);
+			}
+
+			{
+				var found = commandService.Find("4 1");
+				Assert.AreEqual(2, found.Count);
+				Assert.AreSame(c3, found[0]);
+				Assert.AreSame(c4, found[1]);
+			}
+
+			{
+				var found = commandService.Find("4 2");
+				Assert.AreEqual(1, found.Count);
+				Assert.AreSame(c3, found[0]);
+			}
+		}
+
+		private class Fake
+		{
+		}
+	}
+
+	[TestClass]
+	public class CommandService_GetPotentiallyExecutableCommands_Tests
+	{
+		[TestMethod]
+		public async Task EmptyInput_Test()
+		{
+			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+			var commands = commandService.GetPotentiallyExecutableCommands(context, Array.Empty<string>());
+			Assert.AreEqual(0, commands.Count);
+		}
+
+		[TestMethod]
+		public async Task InvalidContext_Type()
+		{
+			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+			var input = new[] { CommandGroup._NAME };
+
+			{
+				var commands = commandService.GetPotentiallyExecutableCommands(context, input);
+				Assert.AreEqual(4, commands.Count(x => x.Stage != CommandStage.BadContext));
+			}
+
+			var c1 = FakeDelegateCommand.New(typeof(FakeContext2))
+				.AddName(new Name(new[] { CommandGroup._NAME }))
+				.ToCommand();
+			commandService.Add(c1);
+
+			{
+				var commands = commandService.GetPotentiallyExecutableCommands(new FakeContext2(), input);
+				Assert.AreEqual(5, commands.Count(x => x.Stage != CommandStage.BadContext));
+			}
+
+			{
+				var commands = commandService.GetPotentiallyExecutableCommands(context, input);
+				Assert.AreEqual(4, commands.Count(x => x.Stage != CommandStage.BadContext));
+			}
+		}
+
+		[TestMethod]
+		public async Task Length_Test()
+		{
+			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+
+			{
+				var commands = commandService.GetPotentiallyExecutableCommands(context, new[] { CommandGroup._NAME });
+				Assert.AreEqual(2, commands.Count(x => x.Stage == CommandStage.CorrectArgCount));
+			}
+
+			{
+				var commands = commandService.GetPotentiallyExecutableCommands(context, new[] { CommandGroup._NAME, "a" });
+				Assert.AreEqual(2, commands.Count(x => x.Stage == CommandStage.CorrectArgCount));
+			}
+
+			{
+				var commands = commandService.GetPotentiallyExecutableCommands(context, new[] { CommandGroup._NAME, "a", "b" });
+				Assert.AreEqual(2, commands.Count(x => x.Stage == CommandStage.CorrectArgCount));
+			}
+
+			{
+				var commands = commandService.GetPotentiallyExecutableCommands(context, new[] { CommandGroup._NAME, "a", "b", "c" });
+				Assert.AreEqual(1, commands.Count(x => x.Stage == CommandStage.CorrectArgCount));
+			}
+		}
+
+		private async Task<(CommandService, FakeContext)> CreateAsync()
+		{
+			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
+			await commandService.AddAsync(typeof(CommandGroup).GetCommandsAsync()).ConfigureAwait(false);
+			var context = new FakeContext();
+			return (commandService, context);
+		}
+
+		[Command(_NAME)]
+		private class CommandGroup : CommandGroup<FakeContext>
+		{
+			public const string _NAME = "joe";
+
+			[Command]
+			public void TestCommand()
+			{
+			}
+
+			[Command]
+			public void TestCommand(string input)
+			{
+			}
+
+			[Command]
+			public void TestCommand([Count(2)] IEnumerable<string> input)
+			{
+			}
+
+			[Command]
+			[YACCS.Commands.Attributes.Priority(100)]
+			public void TestCommandWithRemainder([Remainder] string input)
+			{
+			}
+		}
+
+		private class FakeContext2 : FakeContext
+		{
+		}
+	}
+
+	[TestClass]
 	public class CommandService_ParameterPreconditions_Tests
 	{
 		[TestMethod]
@@ -537,7 +769,7 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task ProcessTypeReaderNotRegistered_Test()
 		{
-			var (commandService, context, parameter) = Create<IDictionary<ArgumentNullException, IDictionary<string, char>>>(1);
+			var (commandService, context, parameter) = Create<CommandService_TypeReaders_Tests>(1);
 			await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
 			{
 				var result = await commandService.ProcessTypeReadersAsync(
@@ -646,7 +878,7 @@ namespace YACCS.Tests.Commands
 			{
 				Attributes = new List<object>
 				{
-					new LengthAttribute(length),
+					new CountAttribute(length),
 				},
 			};
 			return (commandService, context, parameter);
@@ -656,6 +888,16 @@ namespace YACCS.Tests.Commands
 		{
 			public override Task<ITypeReaderResult<char>> ReadAsync(IContext context, string input)
 				=> TypeReaderResult<char>.FromSuccess('z').AsTask();
+		}
+
+		private class FailOnQTypeReader : TypeReader<char>
+		{
+			public override Task<ITypeReaderResult<char>> ReadAsync(IContext context, string input)
+			{
+				return input.Equals("q", StringComparison.OrdinalIgnoreCase)
+					? TypeReaderResult<char>.FailureTask
+					: TypeReaderResult<char>.FromSuccess('z').AsTask();
+			}
 		}
 	}
 }

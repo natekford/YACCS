@@ -5,9 +5,9 @@ using YACCS.Results;
 
 namespace YACCS.TypeReaders
 {
-	public class ContextTypeReader<T> : ITypeReader<T> where T : IContext
+	public class ContextTypeReader<T> : TypeReader<T> where T : IContext
 	{
-		public Task<ITypeReaderResult<T>> ReadAsync(IContext context, string input)
+		public override Task<ITypeReaderResult<T>> ReadAsync(IContext context, string input)
 		{
 			if (!(context is T tContext))
 			{
@@ -15,8 +15,5 @@ namespace YACCS.TypeReaders
 			}
 			return TypeReaderResult<T>.FromSuccess(tContext).AsTask();
 		}
-
-		async Task<ITypeReaderResult> ITypeReader.ReadAsync(IContext context, string input)
-			=> await ReadAsync(context, input).ConfigureAwait(false);
 	}
 }

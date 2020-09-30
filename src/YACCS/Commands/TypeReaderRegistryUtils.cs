@@ -15,7 +15,7 @@ namespace YACCS.Commands
 			{
 				return reader;
 			}
-			throw new ArgumentException($"There is no converter specified for {type.Name}.", nameof(type));
+			throw new ArgumentException($"There is no type reader registered for {type.Name}.", nameof(type));
 		}
 
 		public static ITypeReader<T> GetReader<T>(this ITypeReaderRegistry registry)
@@ -24,7 +24,7 @@ namespace YACCS.Commands
 			{
 				return reader;
 			}
-			throw new ArgumentException($"Invalid converter registered for {typeof(T).Name}.", nameof(T));
+			throw new ArgumentException($"Invalid type reader registered for {typeof(T).Name}.", nameof(T));
 		}
 
 		public static IEnumerable<TypeReaderInfo> GetTypeReaders(this IEnumerable<Assembly> assemblies)

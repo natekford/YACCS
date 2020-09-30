@@ -16,6 +16,8 @@ namespace YACCS.Commands.Models
 	{
 		private static readonly object NoDefaultValue = new object();
 
+		private ITypeReader? _OverriddenTypeReader;
+
 		public object? DefaultValue { get; set; } = NoDefaultValue;
 		public bool HasDefaultValue
 		{
@@ -28,7 +30,20 @@ namespace YACCS.Commands.Models
 				}
 			}
 		}
-		public ITypeReader? OverriddenTypeReader { get; set; }
+		public ITypeReader? OverriddenTypeReader
+		{
+			get => _OverriddenTypeReader;
+			set
+			{
+				if (value != null && !ParameterType.IsAssignableFrom(value.OutputType))
+				{
+					throw new ArgumentException(
+						$"A type reader with the output type {value.OutputType.Name} " +
+						$"cannot be used for a parameter with the type {ParameterType.Name}.", nameof(value));
+				}
+				_OverriddenTypeReader = value;
+			}
+		}
 		public string ParameterName { get; }
 		public Type ParameterType { get; }
 		private string DebuggerDisplay => $"Name = {ParameterName}, Type = {ParameterType}";
@@ -73,6 +88,17 @@ namespace YACCS.Commands.Models
 		[DebuggerDisplay("{DebuggerDisplay,nq}")]
 		private sealed class ImmutableParameter : IImmutableParameter
 		{
+			// Some interfaces Array implements
+			// Don't deal with the non generic versions b/c how would we parse 'object'?
+			private static readonly Type[] _SupportedEnumerableTypes = new[]
+			{
+				typeof(IList<>),
+				typeof(ICollection<>),
+				typeof(IEnumerable<>),
+				typeof(IReadOnlyList<>),
+				typeof(IReadOnlyCollection<>),
+			};
+
 			public IReadOnlyList<object> Attributes { get; }
 			public object? DefaultValue { get; }
 			public Type? EnumerableType { get; }
@@ -108,16 +134,19 @@ namespace YACCS.Commands.Models
 
 			private static Type? GetEnumerableType(Type type)
 			{
-				if (type.IsInterface && type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+				if (type.IsArray)
 				{
-					return type.GetGenericArguments()[0];
+					return type.GetElementType();
 				}
-				foreach (var @interface in type.GetInterfaces())
+				if (type.IsInterface && type.IsGenericType)
 				{
-					if (@interface.IsGenericType
-						&& @interface.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+					var typeDefinition = type.GetGenericTypeDefinition();
+					foreach (var supportedType in _SupportedEnumerableTypes)
 					{
-						return @interface.GetGenericArguments()[0];
+						if (typeDefinition == supportedType)
+						{
+							return type.GetGenericArguments()[0];
+						}
 					}
 				}
 				return null;

@@ -15,10 +15,9 @@ namespace YACCS.Commands
 		public bool IgnoreExtraArgs { get; set; }
 		public bool IsCaseSensitive { get; set; }
 		public MultiMatchHandling MultiMatchHandling { get; set; } = MultiMatchHandling.Best;
-		public HashSet<char> Separators { get; set; } = new HashSet<char> { ' ' };
+		public char Separator { get; set; } = ' ';
 		public HashSet<char> StartQuotes { get; set; } = new HashSet<char>();
 		IImmutableSet<char> ICommandServiceConfig.EndQuotes => EndQuotes.ToImmutableHashSet();
-		IImmutableSet<char> ICommandServiceConfig.Separators => Separators.ToImmutableHashSet();
 		IImmutableSet<char> ICommandServiceConfig.StartQuotes => StartQuotes.ToImmutableHashSet();
 
 		private sealed class ImmutableCommandServiceConfig : ICommandServiceConfig
@@ -27,7 +26,7 @@ namespace YACCS.Commands
 			public IImmutableSet<char> EndQuotes { get; }
 			public bool IgnoreExtraArgs { get; }
 			public MultiMatchHandling MultiMatchHandling { get; }
-			public IImmutableSet<char> Separators { get; }
+			public char Separator { get; }
 			public IImmutableSet<char> StartQuotes { get; }
 
 			public ImmutableCommandServiceConfig(ICommandServiceConfig other)
@@ -36,7 +35,7 @@ namespace YACCS.Commands
 				EndQuotes = other.EndQuotes;
 				IgnoreExtraArgs = other.IgnoreExtraArgs;
 				MultiMatchHandling = other.MultiMatchHandling;
-				Separators = other.Separators;
+				Separator = other.Separator;
 				StartQuotes = other.StartQuotes;
 			}
 		}
