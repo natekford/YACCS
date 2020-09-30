@@ -12,34 +12,34 @@ namespace YACCS.Commands.Interactivity.Pagination
 	{
 		public virtual async Task PaginateAsync(
 			TContext context,
+			IPageDisplayer<TContext> displayer,
 			IPageOptions<TContext, TInput> options)
 		{
-			var display = await CreateDisplayAsync(context).ConfigureAwait(false);
+			static int Mod(double a, double b)
+			{
+				if (b == 0)
+				{
+					return 0;
+				}
+				return (int)(a - (b * Math.Floor(a / b)));
+			}
 
 			var page = options.StartingPage ?? 0;
+			var maxPage = options.MaxPage ?? 0;
+
 			while (true)
 			{
-				var result = await GetPageDifferenceAsync(context, options).ConfigureAwait(false);
+				await displayer.DisplayAsync(context, page).ConfigureAwait(false);
+
+				var result = await GetPageAsync(context, options).ConfigureAwait(false);
 				if (!result.InnerResult.IsSuccess || !result.Value.HasValue)
 				{
 					return;
 				}
 
-				page += result.Value.Value;
-				if (page < 0)
-				{
-					page += options.MaxPage ?? 0;
-				}
-				else if (page >= options.MaxPage)
-				{
-					page -= options.MaxPage ?? 0;
-				}
-
-				await UpdateDisplayAsync(context, display, page).ConfigureAwait(false);
+				page = Mod(page + result.Value.Value, maxPage);
 			}
 		}
-
-		protected abstract Task<TDisplay> CreateDisplayAsync(TContext context);
 
 		protected virtual OnInput CreateOnInputDelegate(
 			TContext context,
@@ -65,7 +65,7 @@ namespace YACCS.Commands.Interactivity.Pagination
 
 		protected abstract int? GetInputValue(TInput input);
 
-		protected virtual async Task<IInteractiveResult<int?>> GetPageDifferenceAsync(
+		protected virtual async Task<IInteractiveResult<int?>> GetPageAsync(
 			TContext context,
 			IPageOptions<TContext, TInput> options)
 		{
@@ -100,7 +100,5 @@ namespace YACCS.Commands.Interactivity.Pagination
 			var value = await @event.ConfigureAwait(false);
 			return new InteractiveResult<int?>(value);
 		}
-
-		protected abstract Task UpdateDisplayAsync(TContext context, TDisplay display, int page);
 	}
 }
