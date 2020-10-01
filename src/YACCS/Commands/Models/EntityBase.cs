@@ -18,7 +18,7 @@ namespace YACCS.Commands.Models
 
 		protected void AddAttributes(ICustomAttributeProvider? provider)
 		{
-			if (provider != null)
+			if (provider is not null)
 			{
 				foreach (var attribute in provider.GetCustomAttributes(true))
 				{

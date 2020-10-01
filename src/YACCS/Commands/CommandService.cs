@@ -67,14 +67,14 @@ namespace YACCS.Commands
 				_Config.Separator,
 				out var parseArgs))
 			{
-				return QuoteMismatchResult.Instance;
+				return QuoteMismatchResult.Instance.Sync;
 			}
 
 			var args = parseArgs.Arguments;
 			var commands = GetPotentiallyExecutableCommands(context, args);
 			if (commands.Count == 0)
 			{
-				return CommandNotFoundResult.Instance;
+				return CommandNotFoundResult.Instance.Sync;
 			}
 
 			var scores = await ProcessAllPreconditionsAsync(commands, context, args).ConfigureAwait(false);
@@ -88,11 +88,11 @@ namespace YACCS.Commands
 				&& scores[1].InnerResult.IsSuccess
 				&& _Config.MultiMatchHandling == MultiMatchHandling.Error)
 			{
-				return MultiMatchHandlingErrorResult.Instance;
+				return MultiMatchHandlingErrorResult.Instance.Sync;
 			}
 
 			_ = ExecuteCommand(highestScore, context);
-			return SuccessResult.Instance;
+			return SuccessResult.Instance.Sync;
 		}
 
 		public IReadOnlyList<IImmutableCommand> Find(string input)
@@ -279,7 +279,7 @@ namespace YACCS.Commands
 					return result;
 				}
 			}
-			return SuccessResult.Instance;
+			return SuccessResult.Instance.Sync;
 		}
 
 		public async Task<IResult> ProcessPreconditionsAsync(
@@ -294,7 +294,7 @@ namespace YACCS.Commands
 					return result;
 				}
 			}
-			return SuccessResult.Instance;
+			return SuccessResult.Instance.Sync;
 		}
 
 		public async Task<ITypeReaderResult> ProcessTypeReadersAsync(
@@ -384,7 +384,7 @@ namespace YACCS.Commands
 			}
 			catch (Exception ex)
 			{
-				exceptionResult ??= ExceptionDuringCommandResult.Instance;
+				exceptionResult ??= ExceptionDuringCommandResult.Instance.Sync;
 				exceptions.Add(ex);
 			}
 			finally
@@ -398,13 +398,13 @@ namespace YACCS.Commands
 					}
 					catch (Exception ex)
 					{
-						exceptionResult ??= ExceptionAfterCommandResult.Instance;
+						exceptionResult ??= ExceptionAfterCommandResult.Instance.Sync;
 						exceptions.Add(ex);
 					}
 				}
 			}
 
-			if (exceptions.Count > 0 && exceptionResult != null)
+			if (exceptions.Count > 0 && exceptionResult is not null)
 			{
 				var e = new CommandExecutedEventArgs(command, context, exceptionResult)
 					.WithExceptions(exceptions);
@@ -416,7 +416,7 @@ namespace YACCS.Commands
 		{
 			// TypeReader is overridden, we /shouldn't/ need to deal with converting
 			// to an enumerable for the dev
-			if (parameter.OverriddenTypeReader != null)
+			if (parameter.OverriddenTypeReader is not null)
 			{
 				return (false, parameter.OverriddenTypeReader);
 			}
@@ -430,7 +430,7 @@ namespace YACCS.Commands
 			// type is in the TypeReader collection.
 			// Let's read each value for the enumerable separately
 			var eType = parameter.EnumerableType;
-			if (eType != null && _Readers.TryGetReader(eType, out reader))
+			if (eType is not null && _Readers.TryGetReader(eType, out reader))
 			{
 				return (true, reader);
 			}

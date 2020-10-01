@@ -145,7 +145,7 @@ namespace YACCS.Commands
 
 				// Kill all empty nodes
 				var node = this;
-				while (node._Parent != null)
+				while (node._Parent is not null)
 				{
 					if (node._Commands.Count == 0 && node._Edges.Count == 0)
 					{

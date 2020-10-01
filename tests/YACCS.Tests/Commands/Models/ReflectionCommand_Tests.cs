@@ -58,7 +58,7 @@ namespace YACCS.Tests.Commands.Models
 		private class GroupBase : CommandGroup<FakeContext>
 		{
 			[Command("joeba")]
-			public Task<IResult> CommandAsync() => SuccessResult.InstanceTask;
+			public Task<IResult> CommandAsync() => SuccessResult.Instance.Task;
 		}
 
 		private class GroupInjection : GroupBase
@@ -101,7 +101,7 @@ namespace YACCS.Tests.Commands.Models
 			}
 
 			[Command("joeba")]
-			public Task<IResult> CommandAsync() => SuccessResult.InstanceTask;
+			public Task<IResult> CommandAsync() => SuccessResult.Instance.Task;
 		}
 	}
 }

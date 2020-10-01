@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
@@ -21,7 +20,7 @@ namespace YACCS.ParameterPreconditions
 		{
 			if (!(context is TContext tContext))
 			{
-				return InvalidContextResult.InstanceTask;
+				return InvalidContextResult.Instance.Task;
 			}
 			if (value is TValue tValue)
 			{
@@ -49,7 +48,7 @@ namespace YACCS.ParameterPreconditions
 			{
 				return CheckAsync(parameter, tContext, tUntypedValues, checkAsync);
 			}
-			return InvalidParameterResult.InstanceTask;
+			return InvalidParameterResult.Instance.Task;
 		}
 
 		private static async Task<IResult> CheckAsync<TContext, TValue>(
@@ -66,7 +65,7 @@ namespace YACCS.ParameterPreconditions
 					return result;
 				}
 			}
-			return SuccessResult.Instance;
+			return SuccessResult.Instance.Sync;
 		}
 
 		private static async Task<IResult> CheckAsync<TContext, TValue>(
@@ -77,18 +76,19 @@ namespace YACCS.ParameterPreconditions
 		{
 			foreach (var value in values)
 			{
-				if (!(value is TValue tValue))
+				var tValue = value is TValue temp ? temp : default;
+				if (value is not null && tValue is null)
 				{
-					return InvalidParameterResult.Instance;
+					return InvalidParameterResult.Instance.Sync;
 				}
 
-				var result = await checkAsync(parameter, context, tValue).ConfigureAwait(false);
+				var result = await checkAsync(parameter, context, tValue!).ConfigureAwait(false);
 				if (!result.IsSuccess)
 				{
 					return result;
 				}
 			}
-			return SuccessResult.Instance;
+			return SuccessResult.Instance.Sync;
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+﻿using MorseCode.ITask;
 
 using YACCS.Commands;
 using YACCS.Results;
@@ -16,13 +16,13 @@ namespace YACCS.TypeReaders
 			_Delegate = @delegate;
 		}
 
-		public override Task<ITypeReaderResult<T>> ReadAsync(IContext context, string input)
+		public override ITask<ITypeReaderResult<T>> ReadAsync(IContext context, string input)
 		{
 			if (_Delegate(input, out var result))
 			{
-				return TypeReaderResult<T>.FromSuccess(result).AsTask();
+				return TypeReaderResult<T>.FromSuccess(result).AsITask();
 			}
-			return TypeReaderResult<T>.FailureTask;
+			return TypeReaderResult<T>.Failure.ITask;
 		}
 	}
 }

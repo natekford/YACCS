@@ -138,20 +138,20 @@ namespace YACCS.Tests.Commands.Linq
 			{
 				[Command]
 				public Task<IResult> CommandFour(IReadOnlyList<string> list)
-					=> SuccessResult.InstanceTask;
+					=> SuccessResult.Instance.Task;
 
 				[Command(_7, _8, _9)]
 				[Id(_CommandOneId)]
 				public Task<IResult> CommandOne()
-					=> SuccessResult.InstanceTask;
+					=> SuccessResult.Instance.Task;
 
 				[Command]
 				public Task<IResult> CommandThree([Id(_PositionId)] int position, string arg)
-					=> SuccessResult.InstanceTask;
+					=> SuccessResult.Instance.Task;
 
 				[Command]
 				[Id(_CommandTwoId)]
-				public Task<IResult> CommandTwo(string arg) => SuccessResult.InstanceTask;
+				public Task<IResult> CommandTwo(string arg) => SuccessResult.Instance.Task;
 
 				public override Task OnCommandBuildingAsync(IList<ICommand> commands)
 				{

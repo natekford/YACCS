@@ -205,7 +205,7 @@ namespace YACCS.Tests.Commands.Linq
 			{
 				if (value >= 0)
 				{
-					return SuccessResult.InstanceTask;
+					return SuccessResult.Instance.Task;
 				}
 				return Result.FromError("Is negative.").AsTask();
 			}

@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Threading.Tasks;
+
+using MorseCode.ITask;
 
 using YACCS.Commands;
 using YACCS.Results;
@@ -8,7 +9,7 @@ namespace YACCS.TypeReaders
 {
 	public class UriTypeReader : TypeReader<Uri>
 	{
-		public override Task<ITypeReaderResult<Uri>> ReadAsync(IContext context, string input)
+		public override ITask<ITypeReaderResult<Uri>> ReadAsync(IContext context, string input)
 		{
 			try
 			{
@@ -17,11 +18,11 @@ namespace YACCS.TypeReaders
 					input = input[1..^1];
 				}
 
-				return TypeReaderResult<Uri>.FromSuccess(new Uri(input)).AsTask();
+				return TypeReaderResult<Uri>.FromSuccess(new Uri(input)).AsITask();
 			}
 			catch
 			{
-				return TypeReaderResult<Uri>.FailureTask;
+				return TypeReaderResult<Uri>.Failure.ITask;
 			}
 		}
 	}

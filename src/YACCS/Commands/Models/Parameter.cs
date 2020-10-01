@@ -35,11 +35,9 @@ namespace YACCS.Commands.Models
 			get => _OverriddenTypeReader;
 			set
 			{
-				if (value != null && !ParameterType.IsAssignableFrom(value.OutputType))
+				if (value is not null)
 				{
-					throw new ArgumentException(
-						$"A type reader with the output type {value.OutputType.Name} " +
-						$"cannot be used for a parameter with the type {ParameterType.Name}.", nameof(value));
+					value.ThrowIfInvalidTypeReader(ParameterType);
 				}
 				_OverriddenTypeReader = value;
 			}

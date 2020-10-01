@@ -123,6 +123,12 @@ namespace YACCS.Commands
 			=> typeof(T).GetCommandsAsync();
 	}
 
+	public static class TypeUtils
+	{
+		public static bool IsGenericOf(this Type type, Type definition)
+			=> type.IsGenericType && type.GetGenericTypeDefinition() == definition;
+	}
+
 	internal static class IServiceProviderUtils
 	{
 		public static T GetRequiredService<T>(this IServiceProvider provider)

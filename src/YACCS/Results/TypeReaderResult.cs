@@ -1,11 +1,9 @@
-﻿using System.Threading.Tasks;
-
-namespace YACCS.Results
+﻿namespace YACCS.Results
 {
 	public class TypeReaderResult : Result, ITypeReaderResult
 	{
-		public static ITypeReaderResult Failure { get; } = FromError();
-		public static Task<ITypeReaderResult> FailureTask { get; } = Failure.AsTask();
+		public static TypeReaderResultInstance<TypeReaderResult> Failure { get; }
+			= FromError().AsTypeReaderResultInstance();
 
 		public object? Arg { get; }
 

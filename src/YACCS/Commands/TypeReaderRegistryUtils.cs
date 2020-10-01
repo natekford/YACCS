@@ -27,17 +27,6 @@ namespace YACCS.Commands
 			throw new ArgumentException($"Invalid type reader registered for {typeof(T).Name}.", nameof(T));
 		}
 
-		public static IEnumerable<TypeReaderInfo> GetTypeReaders(this IEnumerable<Assembly> assemblies)
-		{
-			foreach (var assembly in assemblies)
-			{
-				foreach (var typeReader in assembly.GetTypeReaders())
-				{
-					yield return typeReader;
-				}
-			}
-		}
-
 		public static IEnumerable<TypeReaderInfo> GetTypeReaders(this Assembly assembly)
 		{
 			foreach (var type in assembly.GetExportedTypes())
@@ -66,6 +55,16 @@ namespace YACCS.Commands
 				{
 					registry.Register(typeReaderInfo.Instance, type);
 				}
+			}
+		}
+
+		public static void ThrowIfInvalidTypeReader(this ITypeReader reader, Type type)
+		{
+			if (!type.IsAssignableFrom(reader.OutputType))
+			{
+				throw new ArgumentException(
+					$"A type reader with the output type {reader.OutputType.Name} " +
+					$"cannot be used for a the type {type.Name}.", nameof(reader));
 			}
 		}
 	}

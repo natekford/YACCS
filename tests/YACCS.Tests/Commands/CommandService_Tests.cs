@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using MorseCode.ITask;
+
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
@@ -252,7 +254,7 @@ namespace YACCS.Tests.Commands
 			}
 
 			public override Task<IResult> CheckAsync(ParameterInfo parameter, FakeContext context, [MaybeNull] int value)
-				=> value == DisallowedValue ? Result.FromError("lol").AsTask() : SuccessResult.InstanceTask;
+				=> value == DisallowedValue ? Result.FromError("lol").AsTask() : SuccessResult.Instance.Task;
 		}
 
 		private class FakePrecondition : Precondition<FakeContext>
@@ -265,7 +267,7 @@ namespace YACCS.Tests.Commands
 			}
 
 			public override Task<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
-				=> _Success ? SuccessResult.InstanceTask : Result.FromError("lol").AsTask();
+				=> _Success ? SuccessResult.Instance.Task : Result.FromError("lol").AsTask();
 		}
 
 		private class InvalidContext : IContext
@@ -281,7 +283,7 @@ namespace YACCS.Tests.Commands
 			public override Task<IResult> CheckAsync(ParameterInfo parameter, FakeContext context, [MaybeNull] int value)
 			{
 				IWasReached = true;
-				return SuccessResult.InstanceTask;
+				return SuccessResult.Instance.Task;
 			}
 		}
 
@@ -292,7 +294,7 @@ namespace YACCS.Tests.Commands
 			public override Task<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
 			{
 				IWasReached = true;
-				return SuccessResult.InstanceTask;
+				return SuccessResult.Instance.Task;
 			}
 		}
 	}
@@ -621,7 +623,7 @@ namespace YACCS.Tests.Commands
 			}
 
 			public override Task<IResult> CheckAsync(ParameterInfo parameter, IContext context, [MaybeNull] int value)
-				=> value == DisallowedValue ? Result.FromError("lol").AsTask() : SuccessResult.InstanceTask;
+				=> value == DisallowedValue ? Result.FromError("lol").AsTask() : SuccessResult.Instance.Task;
 		}
 
 		private class WasIReachedParameterPrecondition : ParameterPrecondition<IContext, int>
@@ -631,7 +633,7 @@ namespace YACCS.Tests.Commands
 			public override Task<IResult> CheckAsync(ParameterInfo parameter, IContext context, [MaybeNull] int value)
 			{
 				IWasReached = true;
-				return SuccessResult.InstanceTask;
+				return SuccessResult.Instance.Task;
 			}
 		}
 	}
@@ -685,7 +687,7 @@ namespace YACCS.Tests.Commands
 			}
 
 			public override Task<IResult> CheckAsync(IImmutableCommand command, IContext context)
-				=> _Success ? SuccessResult.InstanceTask : Result.FromError("lol").AsTask();
+				=> _Success ? SuccessResult.Instance.Task : Result.FromError("lol").AsTask();
 		}
 
 		private class WasIReachedPrecondition : Precondition<IContext>
@@ -695,7 +697,7 @@ namespace YACCS.Tests.Commands
 			public override Task<IResult> CheckAsync(IImmutableCommand command, IContext context)
 			{
 				IWasReached = true;
-				return SuccessResult.InstanceTask;
+				return SuccessResult.Instance.Task;
 			}
 		}
 	}
@@ -900,8 +902,8 @@ namespace YACCS.Tests.Commands
 
 		private class CoolCharTypeReader : TypeReader<char>
 		{
-			public override Task<ITypeReaderResult<char>> ReadAsync(IContext context, string input)
-				=> TypeReaderResult<char>.FromSuccess('z').AsTask();
+			public override ITask<ITypeReaderResult<char>> ReadAsync(IContext context, string input)
+				=> TypeReaderResult<char>.FromSuccess('z').AsITask();
 		}
 	}
 }

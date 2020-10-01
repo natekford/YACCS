@@ -11,7 +11,7 @@ namespace YACCS.Commands
 	public class TypeReaderRegistry : ITypeReaderRegistry
 	{
 		private static readonly MethodInfo _RegisterMethod =
-			typeof(TypeReaderRegistryUtils)
+			typeof(TypeReaderRegistry)
 			.GetTypeInfo()
 			.DeclaredMethods
 			.Single(x => x.Name == nameof(RegisterWithNullable));
@@ -46,14 +46,15 @@ namespace YACCS.Commands
 
 		public void Register(ITypeReader reader, Type type)
 		{
-			if (type.IsValueType)
+			reader.ThrowIfInvalidTypeReader(type);
+
+			if (type.IsValueType
+				&& reader.GetType().GetInterfaces().Any(x => x.IsGenericOf(typeof(ITypeReader<>))))
 			{
 				_RegisterMethod.MakeGenericMethod(type).Invoke(this, new object[] { reader });
 			}
-			else
-			{
-				_Readers[type] = reader;
-			}
+
+			_Readers[type] = reader;
 		}
 
 		public void RegisterWithNullable<T>(ITypeReader<T> reader) where T : struct

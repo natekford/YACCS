@@ -1,10 +1,24 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
+using MorseCode.ITask;
+
 namespace YACCS.Results
 {
 	public static class ResultUtils
 	{
+		public static ITask<IResult> AsITask(this IResult result)
+			=> Task.FromResult(result).AsITask();
+
+		public static ITask<ITypeReaderResult<T>> AsITask<T>(this ITypeReaderResult<T> result)
+			=> Task.FromResult(result).AsITask();
+
+		public static ITask<ITypeReaderResult> AsITask(this ITypeReaderResult result)
+			=> Task.FromResult(result).AsITask();
+
+		public static ResultInstance<T> AsResultInstance<T>(this T instance) where T : Result
+			=> new ResultInstance<T>(instance);
+
 		public static Task<IResult> AsTask(this IResult result)
 			=> Task.FromResult(result);
 
@@ -13,6 +27,9 @@ namespace YACCS.Results
 
 		public static Task<ITypeReaderResult> AsTask(this ITypeReaderResult result)
 			=> Task.FromResult(result);
+
+		public static TypeReaderResultInstance<T> AsTypeReaderResultInstance<T>(this T instance) where T : TypeReaderResult
+			=> new TypeReaderResultInstance<T>(instance);
 
 		public static IResult GetMostNestedResult(this INestedResult result)
 		{

@@ -2,7 +2,7 @@
 
 namespace YACCS.Results
 {
-	public interface ITypeReaderResult<T> : ITypeReaderResult
+	public interface ITypeReaderResult<out T> : ITypeReaderResult
 	{
 		[MaybeNull]
 		new T Arg { get; }

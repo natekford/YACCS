@@ -36,11 +36,11 @@ namespace YACCS.Commands.Interactivity
 
 			if (task == cancel)
 			{
-				return new InteractiveResult<TValue>(CanceledResult.Instance);
+				return new InteractiveResult<TValue>(CanceledResult.Instance.Sync);
 			}
 			if (task == delay)
 			{
-				return new InteractiveResult<TValue>(TimedOutResult.Instance);
+				return new InteractiveResult<TValue>(TimedOutResult.Instance.Sync);
 			}
 
 			var value = await @event.ConfigureAwait(false);

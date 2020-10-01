@@ -184,7 +184,7 @@ namespace YACCS.Tests.Commands.Linq
 			{
 				if (DateTime.UtcNow.Hour != 19)
 				{
-					return SuccessResult.InstanceTask;
+					return SuccessResult.Instance.Task;
 				}
 				return Result.FromError("It's seven PM.").AsTask();
 			}

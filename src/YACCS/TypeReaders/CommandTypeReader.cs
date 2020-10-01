@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+
+using MorseCode.ITask;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
@@ -18,7 +19,7 @@ namespace YACCS.TypeReaders
 	)]
 	public class CommandsTypeReader : TypeReader<IReadOnlyList<IImmutableCommand>>
 	{
-		public override Task<ITypeReaderResult<IReadOnlyList<IImmutableCommand>>> ReadAsync(
+		public override ITask<ITypeReaderResult<IReadOnlyList<IImmutableCommand>>> ReadAsync(
 			IContext context,
 			string input)
 		{
@@ -26,9 +27,9 @@ namespace YACCS.TypeReaders
 			var found = commands.Find(input);
 			if (found.Count > 0)
 			{
-				return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.FromSuccess(found).AsTask();
+				return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.FromSuccess(found).AsITask();
 			}
-			return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.FailureTask;
+			return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.Failure.ITask;
 		}
 	}
 }

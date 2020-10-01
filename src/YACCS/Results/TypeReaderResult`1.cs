@@ -1,12 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 
 namespace YACCS.Results
 {
 	public class TypeReaderResult<T> : TypeReaderResult, ITypeReaderResult<T>
 	{
-		public new static ITypeReaderResult<T> Failure { get; } = TypeReaderResult<T>.FromError();
-		public new static Task<ITypeReaderResult<T>> FailureTask { get; } = Failure.AsTask();
+		public new static TypeReaderResultInstance<TypeReaderResult<T>> Failure { get; }
+			= FromError().AsTypeReaderResultInstance();
 
 		[MaybeNull]
 		public new T Arg { get; }

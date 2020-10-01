@@ -29,10 +29,11 @@ namespace YACCS.Commands.Models
 				throw new ArgumentException("Missing a public parameterless constructor.", nameof(group));
 			}
 
-			ContextType = group.GetInterfaces().SingleOrDefault(x =>
-			{
-				return x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICommandGroup<>);
-			})?.GetGenericArguments()?.Single();
+			ContextType = group
+				.GetInterfaces()
+				.SingleOrDefault(x => x.IsGenericOf(typeof(ICommandGroup<>)))
+				?.GetGenericArguments()
+				?.Single();
 			GroupType = group;
 			Method = method;
 
@@ -59,11 +60,11 @@ namespace YACCS.Commands.Models
 				.OfType<ICommandAttribute>()
 				.SingleOrDefault()
 				?.Names;
-			if (methodNames != null)
+			if (methodNames is not null)
 			{
 				names = names.Concat(methodNames);
 			}
-			if (extraNames != null)
+			if (extraNames is not null)
 			{
 				names = names.Concat(extraNames);
 			}
@@ -75,13 +76,13 @@ namespace YACCS.Commands.Models
 			}
 
 			var type = group;
-			while (type != null)
+			while (type is not null)
 			{
 				var command = type
 					.GetCustomAttributes()
 					.OfType<ICommandAttribute>()
 					.SingleOrDefault();
-				if (command != null)
+				if (command is not null)
 				{
 					var count = output.Count;
 					for (var i = 0; i < count; ++i)
@@ -101,7 +102,7 @@ namespace YACCS.Commands.Models
 
 		private void AddAllParentsAttributes(Type type)
 		{
-			while (type != null)
+			while (type is not null)
 			{
 				AddAttributes(type);
 				type = type.DeclaringType;

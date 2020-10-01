@@ -17,7 +17,7 @@ namespace YACCS.Preconditions
 		{
 			if (!(context is TContext tContext))
 			{
-				return InvalidContextResult.InstanceTask;
+				return InvalidContextResult.Instance.Task;
 			}
 			return afterExecutionAsync(command, tContext);
 		}
@@ -31,7 +31,7 @@ namespace YACCS.Preconditions
 		{
 			if (!(context is TContext tContext))
 			{
-				return InvalidContextResult.InstanceTask;
+				return InvalidContextResult.Instance.Task;
 			}
 			return checkAsync(command, tContext);
 		}

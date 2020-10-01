@@ -78,11 +78,11 @@ namespace YACCS.Tests.Commands.Models
 
 			[Command("joeba", AllowInheritance = true)]
 			[Id(ID_1)]
-			public Task<IResult> CommandAsync() => SuccessResult.InstanceTask;
+			public Task<IResult> CommandAsync() => SuccessResult.Instance.Task;
 
 			[Command("joeba2", AllowInheritance = false)]
 			[Id(ID_2)]
-			public Task<IResult> CommandAsync2() => SuccessResult.InstanceTask;
+			public Task<IResult> CommandAsync2() => SuccessResult.Instance.Task;
 		}
 
 		private class GroupChild : GroupBase

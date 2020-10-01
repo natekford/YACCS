@@ -47,7 +47,7 @@ namespace YACCS.Commands
 				try
 				{
 					var task = handler.Invoke(e);
-					if (task != null)
+					if (task is not null)
 					{
 						await task.ConfigureAwait(false);
 					}

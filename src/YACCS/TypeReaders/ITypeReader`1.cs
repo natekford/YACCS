@@ -1,12 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using MorseCode.ITask;
 
 using YACCS.Commands;
 using YACCS.Results;
 
 namespace YACCS.TypeReaders
 {
-	public interface ITypeReader<T> : ITypeReader
+	public interface ITypeReader<out T> : ITypeReader
 	{
-		new Task<ITypeReaderResult<T>> ReadAsync(IContext context, string input);
+		new ITask<ITypeReaderResult<T>> ReadAsync(IContext context, string input);
 	}
 }

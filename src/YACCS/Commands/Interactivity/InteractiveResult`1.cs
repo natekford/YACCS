@@ -13,7 +13,7 @@ namespace YACCS.Commands.Interactivity
 		public InteractiveResult(TValue value)
 		{
 			Value = value;
-			InnerResult = SuccessResult.Instance;
+			InnerResult = SuccessResult.Instance.Sync;
 		}
 
 		public InteractiveResult(IResult result)
