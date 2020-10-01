@@ -841,6 +841,20 @@ namespace YACCS.Tests.Commands
 		}
 
 		[TestMethod]
+		public async Task ProcessTypeReadersOneInvalidValue_Test()
+		{
+			var value = new[] { "a", "b", "cee", "d" };
+			var (commandService, context, parameter) = Create<char[]>(4);
+			var result = await commandService.ProcessTypeReadersAsync(
+				new PreconditionCache(context),
+				parameter.ToParameter(),
+				value,
+				0
+			).ConfigureAwait(false);
+			Assert.IsFalse(result.IsSuccess);
+		}
+
+		[TestMethod]
 		public async Task ProcessTypeReadersString_Test()
 		{
 			const string VALUE = "joeba";
@@ -888,16 +902,6 @@ namespace YACCS.Tests.Commands
 		{
 			public override Task<ITypeReaderResult<char>> ReadAsync(IContext context, string input)
 				=> TypeReaderResult<char>.FromSuccess('z').AsTask();
-		}
-
-		private class FailOnQTypeReader : TypeReader<char>
-		{
-			public override Task<ITypeReaderResult<char>> ReadAsync(IContext context, string input)
-			{
-				return input.Equals("q", StringComparison.OrdinalIgnoreCase)
-					? TypeReaderResult<char>.FailureTask
-					: TypeReaderResult<char>.FromSuccess('z').AsTask();
-			}
 		}
 	}
 }
