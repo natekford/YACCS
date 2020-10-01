@@ -71,6 +71,11 @@ namespace YACCS.Commands
 			}
 
 			var args = parseArgs.Arguments;
+			if (args.Count == 0)
+			{
+				return CommandNotFoundResult.Instance.Sync;
+			}
+
 			var commands = GetPotentiallyExecutableCommands(context, args);
 			if (commands.Count == 0)
 			{
@@ -78,7 +83,6 @@ namespace YACCS.Commands
 			}
 
 			var scores = await ProcessAllPreconditionsAsync(commands, context, args).ConfigureAwait(false);
-
 			var highestScore = scores[0];
 			if (!highestScore.InnerResult.IsSuccess)
 			{
@@ -246,11 +250,11 @@ namespace YACCS.Commands
 				// Invalid args counts or any failures means don't check
 				if (candidate.Stage != CommandStage.CorrectArgCount)
 				{
-					throw new ArgumentException("Invalid command stage.", nameof(candidates));
+					continue;
 				}
 				if (candidate.Command?.IsValidContext(contextType) != true)
 				{
-					throw new ArgumentException("Invalid context.", nameof(candidates));
+					continue;
 				}
 
 				matches.Add(await ProcessAllPreconditionsAsync(

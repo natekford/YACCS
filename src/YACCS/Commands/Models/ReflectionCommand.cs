@@ -248,8 +248,20 @@ namespace YACCS.Commands.Models
 				});
 				var invokeExpr = Expression.Call(instanceCastExpr, _Method, argsCastExpr);
 
+				Expression bodyExpr = invokeExpr;
+				// With a return type of void to keep the Func<object?[], object> declaration
+				// we just need to return a null value at the end
+				if (ReturnType == typeof(void))
+				{
+					var nullExpr = Expression.Constant(null);
+					var returnLabel = Expression.Label(typeof(object));
+					var returnExpr = Expression.Return(returnLabel, nullExpr, typeof(object));
+					var returnLabelExpr = Expression.Label(returnLabel, nullExpr);
+					bodyExpr = Expression.Block(invokeExpr, returnExpr, returnLabelExpr);
+				}
+
 				var lambda = Expression.Lambda<Func<ICommandGroup, object?[], object>>(
-					invokeExpr,
+					bodyExpr,
 					instanceExpr,
 					argsExpr
 				);

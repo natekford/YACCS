@@ -129,7 +129,7 @@ namespace YACCS.Parsing
 		{
 			if (string.IsNullOrWhiteSpace(input))
 			{
-				result = new ParseArgs(Enumerable.Empty<string>(), startQuotes, endQuotes);
+				result = new ParseArgs(Array.Empty<string>(), startQuotes, endQuotes);
 				return true;
 			}
 

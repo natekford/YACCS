@@ -86,9 +86,17 @@ namespace YACCS.Tests.ParameterPreconditions
 		[TestMethod]
 		public async Task SingleValueSuccess_Test()
 		{
-			IParameterPrecondition precondition = new IsNullOrNotNegativeParameterPrecondition();
-			var result = await precondition.CheckAsync(default, new FakeContext(), 1).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			{
+				IParameterPrecondition precondition = new IsNullOrNotNegativeParameterPrecondition();
+				var result = await precondition.CheckAsync(default, new FakeContext(), 1).ConfigureAwait(false);
+				Assert.IsTrue(result.IsSuccess);
+			}
+
+			{
+				IParameterPrecondition<int?> precondition = new IsNullOrNotNegativeParameterPrecondition();
+				var result = await precondition.CheckAsync(default, new FakeContext(), 1).ConfigureAwait(false);
+				Assert.IsTrue(result.IsSuccess);
+			}
 		}
 
 		private class InvalidContext : IContext

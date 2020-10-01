@@ -135,55 +135,49 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task MultipleInvalidContext_Test()
 		{
-			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
-			await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
+			var (commandService, context, command, _) = Create(true, DISALLOWED_VALUE);
+			var scored = new List<CommandScore>
 			{
-				var scored = new List<CommandScore>
-				{
-					CommandScore.FromCorrectArgCount(command.ToCommand(), context, 0),
-				};
-				var result = await commandService.ProcessAllPreconditionsAsync(
-					scored,
-					new InvalidContext(),
-					Array.Empty<string>()
-				).ConfigureAwait(false);
-			}).ConfigureAwait(false);
+				CommandScore.FromCorrectArgCount(command.ToCommand(), context, 0),
+			};
+			var result = await commandService.ProcessAllPreconditionsAsync(
+				scored,
+				new InvalidContext(),
+				Array.Empty<string>()
+			).ConfigureAwait(false);
+			Assert.AreEqual(0, result.Count);
 		}
 
 		[TestMethod]
 		public async Task MultipleInvalidStage_Test()
 		{
-			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
-			await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
+			var (commandService, context, command, _) = Create(true, DISALLOWED_VALUE);
+			var scored = new List<CommandScore>
 			{
-				var scored = new List<CommandScore>
-				{
-					CommandScore.FromInvalidContext(command.ToCommand(), context, 0),
-				};
-				var result = await commandService.ProcessAllPreconditionsAsync(
-					scored,
-					context,
-					Array.Empty<string>()
-				).ConfigureAwait(false);
-			}).ConfigureAwait(false);
+				CommandScore.FromInvalidContext(command.ToCommand(), context, 0),
+			};
+			var result = await commandService.ProcessAllPreconditionsAsync(
+				scored,
+				context,
+				Array.Empty<string>()
+			).ConfigureAwait(false);
+			Assert.AreEqual(0, result.Count);
 		}
 
 		[TestMethod]
 		public async Task MultipleNullCommand_Test()
 		{
-			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
-			await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
+			var (commandService, context, _, _) = Create(true, DISALLOWED_VALUE);
+			var scored = new List<CommandScore>
 			{
-				var scored = new List<CommandScore>
-				{
-					CommandScore.FromInvalidContext(null!, context, 0),
-				};
-				var result = await commandService.ProcessAllPreconditionsAsync(
-					scored,
-					context,
-					Array.Empty<string>()
-				).ConfigureAwait(false);
-			}).ConfigureAwait(false);
+				CommandScore.FromInvalidContext(null!, context, 0),
+			};
+			var result = await commandService.ProcessAllPreconditionsAsync(
+				scored,
+				context,
+				Array.Empty<string>()
+			).ConfigureAwait(false);
+			Assert.AreEqual(0, result.Count);
 		}
 
 		[TestMethod]
@@ -223,79 +217,6 @@ namespace YACCS.Tests.Commands
 			command.Parameters.Add(parameter);
 
 			return (commandService, context, command, parameter);
-		}
-
-		private class CommandsGroup : CommandGroup<IContext>
-		{
-			public const string _1 = "c1_id";
-			public const string _2 = "c2_id";
-
-			[Command]
-			[Id(_1)]
-			public void CommandOne()
-			{
-			}
-
-			[Command]
-			[Id(_2)]
-			[YACCS.Commands.Attributes.Priority(1000)]
-			public void CommandTwo()
-			{
-			}
-		}
-
-		private class FakeParameterPrecondition : ParameterPrecondition<FakeContext, int>
-		{
-			public int DisallowedValue { get; }
-
-			public FakeParameterPrecondition(int value)
-			{
-				DisallowedValue = value;
-			}
-
-			public override Task<IResult> CheckAsync(ParameterInfo parameter, FakeContext context, [MaybeNull] int value)
-				=> value == DisallowedValue ? Result.FromError("lol").AsTask() : SuccessResult.Instance.Task;
-		}
-
-		private class FakePrecondition : Precondition<FakeContext>
-		{
-			private readonly bool _Success;
-
-			public FakePrecondition(bool success)
-			{
-				_Success = success;
-			}
-
-			public override Task<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
-				=> _Success ? SuccessResult.Instance.Task : Result.FromError("lol").AsTask();
-		}
-
-		private class InvalidContext : IContext
-		{
-			public Guid Id { get; set; }
-			public IServiceProvider Services { get; set; } = EmptyServiceProvider.Instance;
-		}
-
-		private class WasIReachedParameterPrecondition : ParameterPrecondition<FakeContext, int>
-		{
-			public bool IWasReached { get; private set; }
-
-			public override Task<IResult> CheckAsync(ParameterInfo parameter, FakeContext context, [MaybeNull] int value)
-			{
-				IWasReached = true;
-				return SuccessResult.Instance.Task;
-			}
-		}
-
-		private class WasIReachedPrecondition : Precondition<FakeContext>
-		{
-			public bool IWasReached { get; private set; }
-
-			public override Task<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
-			{
-				IWasReached = true;
-				return SuccessResult.Instance.Task;
-			}
 		}
 	}
 
@@ -420,10 +341,157 @@ namespace YACCS.Tests.Commands
 				Assert.AreEqual(1, found.Count);
 				Assert.AreSame(c3, found[0]);
 			}
+
+			{
+				var found = commandService.Find("asdf not a command");
+				Assert.AreEqual(0, found.Count);
+			}
 		}
 
 		private class Fake
 		{
+		}
+	}
+
+	[TestClass]
+	public class CommandService_ExecuteAsync_Tests
+	{
+		[TestMethod]
+		public async Task BestMatchIsDisabled_Test()
+		{
+			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+			var input = $"{CommandsGroup3._Name2} {CommandsGroup3._Disabled}";
+			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+			Assert.IsFalse(result.IsSuccess);
+			Assert.AreEqual(DisabledPrecondition._DisabledMessage, result.Response);
+		}
+
+		[TestMethod]
+		public async Task EmptyInput_Test()
+		{
+			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+			var result = await commandService.ExecuteAsync(context, "").ConfigureAwait(false);
+			Assert.IsFalse(result.IsSuccess);
+			Assert.IsInstanceOfType(result, typeof(CommandNotFoundResult));
+		}
+
+		[TestMethod]
+		public async Task ExecutionDelay_Test()
+		{
+			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+			var tcs = new TaskCompletionSource<CommandExecutedEventArgs>();
+			commandService.CommandExecuted += (e) =>
+			{
+				tcs.SetResult(e);
+				return Task.CompletedTask;
+			};
+
+			var input = $"{CommandsGroup3._Name2} {CommandsGroup3._Delay}";
+			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+			Assert.IsTrue(result.IsSuccess);
+
+			var eArgs = await tcs.Task.ConfigureAwait(false);
+			var eResult = eArgs.Result;
+			Assert.IsFalse(eResult.IsSuccess);
+			Assert.AreEqual(CommandsGroup3._DelayedMessage, eResult.Response);
+		}
+
+		[TestMethod]
+		public async Task ExecutionExceptionAfter_Test()
+		{
+			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+			var tcs1 = new TaskCompletionSource<CommandExecutedEventArgs>();
+			commandService.CommandExecuted += (e) =>
+			{
+				tcs1.SetResult(e);
+				return Task.CompletedTask;
+			};
+			var tcs2 = new TaskCompletionSource<ExceptionEventArgs<CommandExecutedEventArgs>>();
+			commandService.CommandExecutedException += (e) =>
+			{
+				tcs2.SetResult(e);
+				return Task.CompletedTask;
+			};
+
+			var input = $"{CommandsGroup3._Name2} {CommandsGroup3._ThrowsAfter}";
+			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+			Assert.IsTrue(result.IsSuccess);
+
+			var eArgs1 = await tcs1.Task.ConfigureAwait(false);
+			var eResult1 = eArgs1.Result;
+			Assert.IsTrue(eResult1.IsSuccess);
+
+			var eArgs2 = await tcs2.Task.ConfigureAwait(false);
+			var eResult2 = eArgs2.EventArgs.Result;
+			Assert.IsFalse(eResult2.IsSuccess);
+			Assert.IsInstanceOfType(eResult2, typeof(ExceptionAfterCommandResult));
+			Assert.IsInstanceOfType(eArgs2.Exceptions[0], typeof(InvalidOperationException));
+		}
+
+		[TestMethod]
+		public async Task ExecutionExceptionDuring_Test()
+		{
+			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+			var tcs = new TaskCompletionSource<ExceptionEventArgs<CommandExecutedEventArgs>>();
+			commandService.CommandExecutedException += (e) =>
+			{
+				tcs.SetResult(e);
+				return Task.CompletedTask;
+			};
+
+			var input = $"{CommandsGroup3._Name2} {CommandsGroup3._Throws}";
+			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+			Assert.IsTrue(result.IsSuccess);
+
+			var eArgs = await tcs.Task.ConfigureAwait(false);
+			var eResult = eArgs.EventArgs.Result;
+			Assert.IsFalse(eResult.IsSuccess);
+			Assert.IsInstanceOfType(eResult, typeof(ExceptionDuringCommandResult));
+			Assert.IsInstanceOfType(eArgs.Exceptions[0], typeof(InvalidOperationException));
+		}
+
+		[TestMethod]
+		public async Task Multimatch_Test()
+		{
+			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+			var input = $"{CommandsGroup2._NAME} asdf";
+			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+
+			Assert.IsFalse(result.IsSuccess);
+			Assert.IsInstanceOfType(result, typeof(MultiMatchHandlingErrorResult));
+		}
+
+		[TestMethod]
+		public async Task NoCommandsFound_Test()
+		{
+			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+			var result = await commandService.ExecuteAsync(context, "asdf").ConfigureAwait(false);
+			Assert.IsFalse(result.IsSuccess);
+			Assert.IsInstanceOfType(result, typeof(CommandNotFoundResult));
+		}
+
+		[TestMethod]
+		public async Task QuoteMismatch_Test()
+		{
+			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+			var result = await commandService.ExecuteAsync(context, "\"an end quote is missing").ConfigureAwait(false);
+			Assert.IsFalse(result.IsSuccess);
+			Assert.IsInstanceOfType(result, typeof(QuoteMismatchResult));
+		}
+
+		private async Task<(CommandService, FakeContext)> CreateAsync()
+		{
+			var commandService = new CommandService(new CommandServiceConfig
+			{
+				MultiMatchHandling = MultiMatchHandling.Error,
+			}, new TypeReaderRegistry());
+			var context = new FakeContext();
+
+			await commandService.AddAsync(typeof(CommandsGroup).GetCommandsAsync()).ConfigureAwait(false);
+			await commandService.AddAsync(typeof(CommandsGroup2).GetCommandsAsync()).ConfigureAwait(false);
+			await commandService.AddAsync(typeof(CommandsGroup3).GetCommandsAsync()).ConfigureAwait(false);
+
+			return (commandService, context);
 		}
 	}
 
@@ -442,7 +510,7 @@ namespace YACCS.Tests.Commands
 		public async Task InvalidContext_Type()
 		{
 			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-			var input = new[] { CommandGroup._NAME };
+			var input = new[] { CommandsGroup2._NAME };
 
 			{
 				var commands = commandService.GetPotentiallyExecutableCommands(context, input);
@@ -450,7 +518,7 @@ namespace YACCS.Tests.Commands
 			}
 
 			var c1 = FakeDelegateCommand.New(typeof(FakeContext2))
-				.AddName(new Name(new[] { CommandGroup._NAME }))
+				.AddName(new Name(new[] { CommandsGroup2._NAME }))
 				.ToCommand();
 			commandService.Add(c1);
 
@@ -471,22 +539,22 @@ namespace YACCS.Tests.Commands
 			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
 
 			{
-				var commands = commandService.GetPotentiallyExecutableCommands(context, new[] { CommandGroup._NAME });
+				var commands = commandService.GetPotentiallyExecutableCommands(context, new[] { CommandsGroup2._NAME });
 				Assert.AreEqual(2, commands.Count(x => x.Stage == CommandStage.CorrectArgCount));
 			}
 
 			{
-				var commands = commandService.GetPotentiallyExecutableCommands(context, new[] { CommandGroup._NAME, "a" });
+				var commands = commandService.GetPotentiallyExecutableCommands(context, new[] { CommandsGroup2._NAME, "a" });
 				Assert.AreEqual(2, commands.Count(x => x.Stage == CommandStage.CorrectArgCount));
 			}
 
 			{
-				var commands = commandService.GetPotentiallyExecutableCommands(context, new[] { CommandGroup._NAME, "a", "b" });
+				var commands = commandService.GetPotentiallyExecutableCommands(context, new[] { CommandsGroup2._NAME, "a", "b" });
 				Assert.AreEqual(2, commands.Count(x => x.Stage == CommandStage.CorrectArgCount));
 			}
 
 			{
-				var commands = commandService.GetPotentiallyExecutableCommands(context, new[] { CommandGroup._NAME, "a", "b", "c" });
+				var commands = commandService.GetPotentiallyExecutableCommands(context, new[] { CommandsGroup2._NAME, "a", "b", "c" });
 				Assert.AreEqual(1, commands.Count(x => x.Stage == CommandStage.CorrectArgCount));
 			}
 		}
@@ -494,40 +562,9 @@ namespace YACCS.Tests.Commands
 		private async Task<(CommandService, FakeContext)> CreateAsync()
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
-			await commandService.AddAsync(typeof(CommandGroup).GetCommandsAsync()).ConfigureAwait(false);
+			await commandService.AddAsync(typeof(CommandsGroup2).GetCommandsAsync()).ConfigureAwait(false);
 			var context = new FakeContext();
 			return (commandService, context);
-		}
-
-		[Command(_NAME)]
-		private class CommandGroup : CommandGroup<FakeContext>
-		{
-			public const string _NAME = "joe";
-
-			[Command]
-			public void TestCommand()
-			{
-			}
-
-			[Command]
-			public void TestCommand(string input)
-			{
-			}
-
-			[Command]
-			public void TestCommand([Count(2)] IEnumerable<string> input)
-			{
-			}
-
-			[Command]
-			[YACCS.Commands.Attributes.Priority(100)]
-			public void TestCommandWithRemainder([Remainder] string input)
-			{
-			}
-		}
-
-		private class FakeContext2 : FakeContext
-		{
 		}
 	}
 
@@ -612,30 +649,6 @@ namespace YACCS.Tests.Commands
 			var parameter = parameterBuilder.ToParameter();
 			return (commandService, context, command, parameter);
 		}
-
-		private class FakeParameterPrecondition : ParameterPrecondition<IContext, int>
-		{
-			public int DisallowedValue { get; }
-
-			public FakeParameterPrecondition(int value)
-			{
-				DisallowedValue = value;
-			}
-
-			public override Task<IResult> CheckAsync(ParameterInfo parameter, IContext context, [MaybeNull] int value)
-				=> value == DisallowedValue ? Result.FromError("lol").AsTask() : SuccessResult.Instance.Task;
-		}
-
-		private class WasIReachedParameterPrecondition : ParameterPrecondition<IContext, int>
-		{
-			public bool IWasReached { get; private set; }
-
-			public override Task<IResult> CheckAsync(ParameterInfo parameter, IContext context, [MaybeNull] int value)
-			{
-				IWasReached = true;
-				return SuccessResult.Instance.Task;
-			}
-		}
 	}
 
 	[TestClass]
@@ -675,30 +688,6 @@ namespace YACCS.Tests.Commands
 				.AddPrecondition(new WasIReachedPrecondition())
 				.ToCommand();
 			return (commandService, context, command);
-		}
-
-		private class FakePrecondition : Precondition<IContext>
-		{
-			private readonly bool _Success;
-
-			public FakePrecondition(bool success)
-			{
-				_Success = success;
-			}
-
-			public override Task<IResult> CheckAsync(IImmutableCommand command, IContext context)
-				=> _Success ? SuccessResult.Instance.Task : Result.FromError("lol").AsTask();
-		}
-
-		private class WasIReachedPrecondition : Precondition<IContext>
-		{
-			public bool IWasReached { get; private set; }
-
-			public override Task<IResult> CheckAsync(IImmutableCommand command, IContext context)
-			{
-				IWasReached = true;
-				return SuccessResult.Instance.Task;
-			}
 		}
 	}
 
@@ -904,6 +893,161 @@ namespace YACCS.Tests.Commands
 		{
 			public override ITask<ITypeReaderResult<char>> ReadAsync(IContext context, string input)
 				=> TypeReaderResult<char>.FromSuccess('z').AsITask();
+		}
+	}
+
+	public class CommandsGroup : CommandGroup<IContext>
+	{
+		public const string _1 = "c1_id";
+		public const string _2 = "c2_id";
+
+		[Command]
+		[Id(_1)]
+		public void CommandOne()
+		{
+		}
+
+		[Command]
+		[Id(_2)]
+		[YACCS.Commands.Attributes.Priority(1000)]
+		public void CommandTwo()
+		{
+		}
+	}
+
+	[Command(_NAME)]
+	public class CommandsGroup2 : CommandGroup<FakeContext>
+	{
+		public const string _NAME = "joe";
+
+		[Command]
+		public void TestCommand()
+		{
+		}
+
+		[Command]
+		public void TestCommand(string input)
+		{
+		}
+
+		[Command]
+		public void TestCommand([Count(2)] IEnumerable<string> input)
+		{
+		}
+
+		[Command]
+		[YACCS.Commands.Attributes.Priority(100)]
+		public void TestCommandWithRemainder([Remainder] string input)
+		{
+		}
+	}
+
+	[Command(_Name2)]
+	public class CommandsGroup3 : CommandGroup<FakeContext>
+	{
+		public const string _Delay = "delay";
+		public const string _DelayedMessage = "delayed message";
+		public const string _Disabled = "disabled";
+		public const string _Name2 = "joeba";
+		public const string _Throws = "throws";
+		public const string _ThrowsAfter = "throwsafter";
+
+		[Command(_Delay)]
+		public async Task<IResult> Delay()
+		{
+			await Task.Delay(150).ConfigureAwait(false);
+			return Result.FromError(_DelayedMessage);
+		}
+
+		[Command(_Disabled)]
+		[DisabledPrecondition]
+		public void Disabled()
+		{
+		}
+
+		[Command(_Throws)]
+		public void Throws()
+			=> throw new InvalidOperationException();
+
+		[Command(_ThrowsAfter)]
+		[FakePreconditionWhichThrowsAfter]
+		public void ThrowsAfter()
+		{
+		}
+	}
+
+	public class DisabledPrecondition : PreconditionAttribute
+	{
+		public const string _DisabledMessage = "lol disabled";
+
+		public override Task<IResult> CheckAsync(IImmutableCommand command, IContext context)
+			=> Result.FromError(_DisabledMessage).AsTask();
+	}
+
+	public class FakeContext2 : FakeContext
+	{
+	}
+
+	public class FakeParameterPrecondition : ParameterPrecondition<FakeContext, int>
+	{
+		public int DisallowedValue { get; }
+
+		public FakeParameterPrecondition(int value)
+		{
+			DisallowedValue = value;
+		}
+
+		public override Task<IResult> CheckAsync(ParameterInfo parameter, FakeContext context, [MaybeNull] int value)
+			=> value == DisallowedValue ? Result.FromError("lol").AsTask() : SuccessResult.Instance.Task;
+	}
+
+	public class FakePrecondition : Precondition<FakeContext>
+	{
+		private readonly bool _Success;
+
+		public FakePrecondition(bool success)
+		{
+			_Success = success;
+		}
+
+		public override Task<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
+			=> _Success ? SuccessResult.Instance.Task : Result.FromError("lol").AsTask();
+	}
+
+	public class FakePreconditionWhichThrowsAfter : PreconditionAttribute
+	{
+		public override Task AfterExecutionAsync(IImmutableCommand command, IContext context)
+			=> throw new InvalidOperationException();
+
+		public override Task<IResult> CheckAsync(IImmutableCommand command, IContext context)
+			=> SuccessResult.Instance.Task;
+	}
+
+	public class InvalidContext : IContext
+	{
+		public Guid Id { get; set; }
+		public IServiceProvider Services { get; set; } = EmptyServiceProvider.Instance;
+	}
+
+	public class WasIReachedParameterPrecondition : ParameterPrecondition<FakeContext, int>
+	{
+		public bool IWasReached { get; private set; }
+
+		public override Task<IResult> CheckAsync(ParameterInfo parameter, FakeContext context, [MaybeNull] int value)
+		{
+			IWasReached = true;
+			return SuccessResult.Instance.Task;
+		}
+	}
+
+	public class WasIReachedPrecondition : Precondition<FakeContext>
+	{
+		public bool IWasReached { get; private set; }
+
+		public override Task<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
+		{
+			IWasReached = true;
+			return SuccessResult.Instance.Task;
 		}
 	}
 }

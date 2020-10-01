@@ -115,20 +115,6 @@ namespace YACCS.Commands
 			return new CommandScore(command, context, result, STAGE, score, null);
 		}
 
-		public static CommandScore FromNotFound()
-		{
-			var result = CommandNotFoundResult.Instance.Sync;
-			const CommandStage STAGE = CommandStage.BadArgCount;
-			return new CommandScore(null, null!, result, STAGE, int.MinValue, null);
-		}
-
-		public static CommandScore FromQuoteMismatch()
-		{
-			var result = QuoteMismatchResult.Instance.Sync;
-			const CommandStage STAGE = CommandStage.QuoteMismatch;
-			return new CommandScore(null, null!, result, STAGE, int.MinValue, null);
-		}
-
 		public static CommandScore FromTooManyArgs(
 			IImmutableCommand command,
 			IContext context,

@@ -7,7 +7,6 @@ using YACCS.Results;
 
 namespace YACCS.Preconditions
 {
-
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
 	public abstract class PreconditionAttribute : Attribute, IPrecondition
 	{

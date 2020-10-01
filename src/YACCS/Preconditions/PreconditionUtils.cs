@@ -17,6 +17,9 @@ namespace YACCS.Preconditions
 		{
 			if (!(context is TContext tContext))
 			{
+				// We don't need to throw an exception here because CheckAsync should
+				// return a result indicating an invalid context type and this should not
+				// be called before CheckAsync
 				return InvalidContextResult.Instance.Task;
 			}
 			return afterExecutionAsync(command, tContext);

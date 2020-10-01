@@ -11,12 +11,12 @@ namespace YACCS.Commands
 
 		public IEqualityComparer<string> CommandNameComparer
 			=> IsCaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
-		public HashSet<char> EndQuotes { get; set; } = new HashSet<char>();
+		public HashSet<char> EndQuotes { get; set; } = new HashSet<char> { '"' };
 		public bool IgnoreExtraArgs { get; set; }
 		public bool IsCaseSensitive { get; set; }
 		public MultiMatchHandling MultiMatchHandling { get; set; } = MultiMatchHandling.Best;
 		public char Separator { get; set; } = ' ';
-		public HashSet<char> StartQuotes { get; set; } = new HashSet<char>();
+		public HashSet<char> StartQuotes { get; set; } = new HashSet<char> { '"' };
 		IImmutableSet<char> ICommandServiceConfig.EndQuotes => EndQuotes.ToImmutableHashSet();
 		IImmutableSet<char> ICommandServiceConfig.StartQuotes => StartQuotes.ToImmutableHashSet();
 
