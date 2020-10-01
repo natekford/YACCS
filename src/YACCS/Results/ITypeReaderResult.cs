@@ -2,6 +2,6 @@
 {
 	public interface ITypeReaderResult : IResult
 	{
-		object? Arg { get; }
+		object? Value { get; }
 	}
 }

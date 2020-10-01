@@ -28,7 +28,7 @@ namespace YACCS.TypeReaders
 			var result = await _Reader.ReadAsync(context, input).ConfigureAwait(false);
 			if (result.IsSuccess)
 			{
-				return TypeReaderResult<T?>.FromSuccess(result.Arg);
+				return TypeReaderResult<T?>.FromSuccess(result.Value);
 			}
 			return TypeReaderResult<T?>.Failure.Sync;
 		}

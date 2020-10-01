@@ -42,7 +42,7 @@ namespace YACCS.Commands.Interactivity.Input
 					return;
 				}
 
-				var value = trResult.Arg!;
+				var value = trResult.Value!;
 				var parameter = GenerateInputParameter<TValue>();
 				foreach (var precondition in options.Preconditions)
 				{
@@ -53,7 +53,7 @@ namespace YACCS.Commands.Interactivity.Input
 					}
 				}
 
-				e.SetResult(trResult.Arg!);
+				e.SetResult(trResult.Value!);
 			}));
 		}
 

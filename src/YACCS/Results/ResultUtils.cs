@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 
 using MorseCode.ITask;
 
+using static YACCS.Results.Result;
+using static YACCS.Results.TypeReaderResult;
+
 namespace YACCS.Results
 {
 	public static class ResultUtils

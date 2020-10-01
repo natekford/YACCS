@@ -204,7 +204,7 @@ namespace YACCS.Commands
 						return CommandScore.FromFailedTypeReader(command, context, trResult, i);
 					}
 
-					arg = trResult.Arg;
+					arg = trResult.Value;
 					currentIndex += parameter.Length ?? int.MaxValue;
 				}
 				// We don't have any more args to parse.
@@ -332,7 +332,7 @@ namespace YACCS.Commands
 			var output = Array.CreateInstance(parameter.EnumerableType, results.Length);
 			for (var i = 0; i < results.Length; ++i)
 			{
-				output.SetValue(results[i].Arg, i);
+				output.SetValue(results[i].Value, i);
 			}
 			return TypeReaderResult.FromSuccess(output);
 		}

@@ -717,9 +717,9 @@ namespace YACCS.Tests.Commands
 				0
 			).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsInstanceOfType(result.Arg, value.GetType());
+			Assert.IsInstanceOfType(result.Value, value.GetType());
 
-			var cast = (int[])result.Arg!;
+			var cast = (int[])result.Value!;
 			for (var i = 0; i < value.Length; ++i)
 			{
 				Assert.AreEqual(value[i], cast[i]);
@@ -738,9 +738,9 @@ namespace YACCS.Tests.Commands
 				0
 			).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsInstanceOfType(result.Arg, value.GetType());
+			Assert.IsInstanceOfType(result.Value, value.GetType());
 
-			var cast = (int[])result.Arg!;
+			var cast = (int[])result.Value!;
 			for (var i = 0; i < value.Length; ++i)
 			{
 				Assert.AreEqual(value[i], cast[i]);
@@ -759,9 +759,9 @@ namespace YACCS.Tests.Commands
 				0
 			).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsInstanceOfType(result.Arg, value.GetType());
+			Assert.IsInstanceOfType(result.Value, value.GetType());
 
-			var cast = (int[])result.Arg!;
+			var cast = (int[])result.Value!;
 			for (var i = 0; i < value.Length; ++i)
 			{
 				Assert.AreEqual(value[i], cast[i]);
@@ -822,8 +822,8 @@ namespace YACCS.Tests.Commands
 				0
 			).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsInstanceOfType(result.Arg, VALUE.GetType());
-			Assert.AreEqual(VALUE, result.Arg);
+			Assert.IsInstanceOfType(result.Value, VALUE.GetType());
+			Assert.AreEqual(VALUE, result.Value);
 		}
 
 		[TestMethod]
@@ -838,8 +838,8 @@ namespace YACCS.Tests.Commands
 				0
 			).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsInstanceOfType(result.Arg, VALUE.GetType());
-			Assert.AreEqual(VALUE, result.Arg);
+			Assert.IsInstanceOfType(result.Value, VALUE.GetType());
+			Assert.AreEqual(VALUE, result.Value);
 		}
 
 		[TestMethod]
@@ -868,8 +868,8 @@ namespace YACCS.Tests.Commands
 				0
 			).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsInstanceOfType(result.Arg, VALUE.GetType());
-			Assert.AreEqual(VALUE, result.Arg);
+			Assert.IsInstanceOfType(result.Value, VALUE.GetType());
+			Assert.AreEqual(VALUE, result.Value);
 		}
 
 		[TestMethod]
@@ -883,7 +883,7 @@ namespace YACCS.Tests.Commands
 				0
 			).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsInstanceOfType(result.Arg, typeof(IContext));
+			Assert.IsInstanceOfType(result.Value, typeof(IContext));
 		}
 
 		private (CommandService, FakeContext, IParameter) Create<T>(int? length)
