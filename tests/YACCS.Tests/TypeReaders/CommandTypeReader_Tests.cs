@@ -24,7 +24,7 @@ namespace YACCS.Tests.TypeReaders
 			Context = new FakeContext
 			{
 				Services = new ServiceCollection()
-					.AddSingleton<ICommandFinder>(service)
+					.AddSingleton<ICommandService>(service)
 					.BuildServiceProvider(),
 			};
 			foreach (var command in typeof(FakeCommandGroup).GetDirectCommandsMutable())
