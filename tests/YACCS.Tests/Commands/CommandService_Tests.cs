@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -387,8 +388,15 @@ namespace YACCS.Tests.Commands
 			};
 
 			var input = $"{CommandsGroup3._Name2} {CommandsGroup3._Delay}";
+			var sw = new Stopwatch();
+			sw.Start();
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+			sw.Stop();
 			Assert.IsTrue(result.IsSuccess);
+			if (sw.ElapsedMilliseconds >= CommandsGroup3.DELAY - 50)
+			{
+				Assert.Fail("ExecuteAsync did not run in the background.");
+			}
 
 			var eArgs = await tcs.Task.ConfigureAwait(false);
 			var eResult = eArgs.Result;
@@ -951,11 +959,12 @@ namespace YACCS.Tests.Commands
 		public const string _Name2 = "joeba";
 		public const string _Throws = "throws";
 		public const string _ThrowsAfter = "throwsafter";
+		public const int DELAY = 250;
 
 		[Command(_Delay)]
 		public async Task<IResult> Delay()
 		{
-			await Task.Delay(150).ConfigureAwait(false);
+			await Task.Delay(DELAY).ConfigureAwait(false);
 			return Result.FromError(_DelayedMessage);
 		}
 
