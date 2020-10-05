@@ -21,7 +21,7 @@ namespace YACCS.Commands
 		private readonly ICommandServiceConfig _Config;
 		private readonly ITypeReaderRegistry _Readers;
 
-		public IReadOnlyCollection<IImmutableCommand> Commands => _CommandTrie.GetCommands();
+		public IReadOnlyCollection<IImmutableCommand> Commands => _CommandTrie.ToList();
 
 		public event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted
 		{

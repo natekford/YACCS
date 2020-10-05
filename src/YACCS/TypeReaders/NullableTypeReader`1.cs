@@ -20,6 +20,7 @@ namespace YACCS.TypeReaders
 
 		public override async ITask<ITypeReaderResult<T?>> ReadAsync(IContext context, string input)
 		{
+			// TODO: provide ways to supply additional values indicating null
 			if (input?.Equals("null", StringComparison.OrdinalIgnoreCase) != false)
 			{
 				return NullResult;

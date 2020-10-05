@@ -109,7 +109,7 @@ namespace YACCS.Tests.Commands
 		public async Task Multiple_Test()
 		{
 			var (commandService, context, _, _) = Create(true, DISALLOWED_VALUE);
-			var commands = await typeof(CommandsGroup).CreateCommandsAsync().ConfigureAwait(false);
+			var commands = await typeof(CommandsGroup).GetDirectCommandsAsync().ConfigureAwait(false);
 			var scored = commands.Select(x => CommandScore.FromCorrectArgCount(x, context, 0)).ToArray();
 
 			var c1 = commands.ById(CommandsGroup._1).Single();
@@ -495,9 +495,17 @@ namespace YACCS.Tests.Commands
 			}, new TypeReaderRegistry());
 			var context = new FakeContext();
 
-			await commandService.AddAsync(typeof(CommandsGroup).GetCommandsAsync()).ConfigureAwait(false);
-			await commandService.AddAsync(typeof(CommandsGroup2).GetCommandsAsync()).ConfigureAwait(false);
-			await commandService.AddAsync(typeof(CommandsGroup3).GetCommandsAsync()).ConfigureAwait(false);
+			static async Task AddAsync(CommandService service, Type type)
+			{
+				await foreach (var command in type.GetAllCommandsAsync())
+				{
+					service.Add(command);
+				}
+			}
+
+			await AddAsync(commandService, typeof(CommandsGroup)).ConfigureAwait(false);
+			await AddAsync(commandService, typeof(CommandsGroup2)).ConfigureAwait(false);
+			await AddAsync(commandService, typeof(CommandsGroup3)).ConfigureAwait(false);
 
 			return (commandService, context);
 		}
@@ -570,7 +578,10 @@ namespace YACCS.Tests.Commands
 		private async Task<(CommandService, FakeContext)> CreateAsync()
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
-			await commandService.AddAsync(typeof(CommandsGroup2).GetCommandsAsync()).ConfigureAwait(false);
+			await foreach (var value in typeof(CommandsGroup2).GetAllCommandsAsync())
+			{
+				commandService.Add(value);
+			}
 			var context = new FakeContext();
 			return (commandService, context);
 		}

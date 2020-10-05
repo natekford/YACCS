@@ -8,18 +8,12 @@ namespace YACCS.Commands
 {
 	public interface ICommandService
 	{
-		IReadOnlyCollection<IImmutableCommand> Commands { get; }
-
 		event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted;
 
 		event AsyncEventHandler<ExceptionEventArgs<CommandExecutedEventArgs>> CommandExecutedException;
 
-		void Add(IImmutableCommand command);
-
 		Task<IResult> ExecuteAsync(IContext context, string input);
 
 		IReadOnlyList<IImmutableCommand> Find(string input);
-
-		void Remove(IImmutableCommand command);
 	}
 }

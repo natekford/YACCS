@@ -41,7 +41,7 @@ namespace YACCS.Tests.Commands.Models
 		public async Task CommandMethodInfoBuilding_Test()
 		{
 			var commands = new List<IImmutableCommand>();
-			await foreach (var command in typeof(GroupBase).GetCommandsAsync())
+			await foreach (var command in typeof(GroupBase).GetAllCommandsAsync())
 			{
 				commands.Add(command);
 			}
@@ -58,7 +58,7 @@ namespace YACCS.Tests.Commands.Models
 		public async Task CommandMethodInfoBuildingWithInheritanceInvolved_Test()
 		{
 			var commands = new List<IImmutableCommand>();
-			await foreach (var command in typeof(GroupChild).GetCommandsAsync())
+			await foreach (var command in typeof(GroupChild).GetAllCommandsAsync())
 			{
 				commands.Add(command);
 			}

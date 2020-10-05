@@ -11,52 +11,6 @@ namespace YACCS.Commands
 {
 	public static class CommandServiceUtils
 	{
-		public static async Task AddAsync(
-			this ICommandService service,
-			IAsyncEnumerable<IImmutableCommand> commands)
-		{
-			await foreach (var command in commands)
-			{
-				service.Add(command);
-			}
-		}
-
-		public static async Task<IReadOnlyList<IImmutableCommand>> CreateCommandsAsync(
-			this Type type)
-		{
-			const BindingFlags FLAGS = 0
-				| BindingFlags.Public
-				| BindingFlags.Instance
-				| BindingFlags.FlattenHierarchy;
-
-			var commands = new List<ICommand>();
-			foreach (var method in type.GetMethods(FLAGS))
-			{
-				var command = method
-					.GetCustomAttributes()
-					.OfType<ICommandAttribute>()
-					.SingleOrDefault();
-				if (command is null || (!command.AllowInheritance && type != method.DeclaringType))
-				{
-					continue;
-				}
-
-				commands ??= new List<ICommand>();
-				commands.Add(new ReflectionCommand(method));
-			}
-
-			if (commands.Count > 0)
-			{
-				var group = CreateInstance<ICommandGroup>(type);
-				await group.OnCommandBuildingAsync(commands).ConfigureAwait(false);
-
-				// Commands have been modified by whoever implemented them
-				// We can now return them in an immutable state
-				return commands.Select(x => x.ToCommand()).ToArray();
-			}
-			return Array.Empty<IImmutableCommand>();
-		}
-
 		public static T CreateInstance<T>(Type type)
 		{
 			object instance;
@@ -77,50 +31,93 @@ namespace YACCS.Commands
 				$"{type.Name} does not implement {typeof(T).FullName}.", nameof(type));
 		}
 
-		public static async IAsyncEnumerable<IImmutableCommand> GetCommandsAsync(
-			this IEnumerable<Assembly> assemblies)
-		{
-			foreach (var assembly in assemblies)
-			{
-				await foreach (var command in assembly.GetCommandsAsync())
-				{
-					yield return command;
-				}
-			}
-		}
-
-		public static async IAsyncEnumerable<IImmutableCommand> GetCommandsAsync(
-			this Assembly assembly)
-		{
-			foreach (var type in assembly.GetExportedTypes())
-			{
-				await foreach (var command in type.GetCommandsAsync())
-				{
-					yield return command;
-				}
-			}
-		}
-
-		public static async IAsyncEnumerable<IImmutableCommand> GetCommandsAsync(
+		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
 			this Type type)
 		{
-			var commands = await type.CreateCommandsAsync().ConfigureAwait(false);
+			var commands = await type.GetDirectCommandsAsync().ConfigureAwait(false);
 			foreach (var command in commands)
 			{
 				yield return command;
 			}
 			foreach (var t in type.GetNestedTypes())
 			{
-				await foreach (var command in GetCommandsAsync(t))
+				await foreach (var command in GetAllCommandsAsync(t))
 				{
 					yield return command;
 				}
 			}
 		}
 
-		public static IAsyncEnumerable<IImmutableCommand> GetCommandsAsync<T>()
+		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
+			this IEnumerable<Assembly> assemblies)
+		{
+			foreach (var assembly in assemblies)
+			{
+				await foreach (var command in assembly.GetAllCommandsAsync())
+				{
+					yield return command;
+				}
+			}
+		}
+
+		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
+			this Assembly assembly)
+		{
+			foreach (var type in assembly.GetExportedTypes())
+			{
+				await foreach (var command in type.GetAllCommandsAsync())
+				{
+					yield return command;
+				}
+			}
+		}
+
+		public static IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync<T>()
 			where T : ICommandGroup, new()
-			=> typeof(T).GetCommandsAsync();
+			=> typeof(T).GetAllCommandsAsync();
+
+		public static async Task<IReadOnlyList<IImmutableCommand>> GetDirectCommandsAsync(
+			this Type type)
+		{
+			var commands = type.CreateMutableCommands();
+			if (commands.Count > 0)
+			{
+				var group = CreateInstance<ICommandGroup>(type);
+				await group.OnCommandBuildingAsync(commands).ConfigureAwait(false);
+
+				// Commands have been modified by whoever implemented them
+				// We can now return them in an immutable state
+				return commands.Select(x => x.ToCommand()).ToArray();
+			}
+			return Array.Empty<IImmutableCommand>();
+		}
+
+		public static IReadOnlyList<ICommand> GetDirectCommandsMutable(this Type type)
+					=> type.CreateMutableCommands();
+
+		internal static List<ICommand> CreateMutableCommands(this Type type)
+		{
+			const BindingFlags FLAGS = 0
+				| BindingFlags.Public
+				| BindingFlags.Instance
+				| BindingFlags.FlattenHierarchy;
+
+			var commands = new List<ICommand>();
+			foreach (var method in type.GetMethods(FLAGS))
+			{
+				var command = method
+					.GetCustomAttributes()
+					.OfType<ICommandAttribute>()
+					.SingleOrDefault();
+				if (command is null || (!command.AllowInheritance && type != method.DeclaringType))
+				{
+					continue;
+				}
+				commands.Add(new ReflectionCommand(method));
+			}
+
+			return commands;
+		}
 	}
 
 	public static class TypeUtils

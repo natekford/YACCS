@@ -30,8 +30,4 @@
     <ProjectReference Include="..\..\src\YACCS\YACCS.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="TypeReaders\" />
-  </ItemGroup>
-
 </Project>

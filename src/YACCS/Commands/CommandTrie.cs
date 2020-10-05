@@ -1,17 +1,20 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 using YACCS.Commands.Models;
 
 namespace YACCS.Commands
 {
-	public sealed class CommandTrie
+	public sealed class CommandTrie : ICollection<IImmutableCommand>
 	{
 		private readonly Dictionary<string, IImmutableCommand> _Commands;
 		private readonly IEqualityComparer<string> _Comparer;
 
-		public Node Root { get; }
+		public bool IsReadOnly => false;
+		public Node Root { get; private set; }
+
+		public int Count => _Commands.Count;
 
 		public CommandTrie(IEqualityComparer<string> comparer)
 		{
@@ -20,15 +23,15 @@ namespace YACCS.Commands
 			Root = new Node(null!, null!, _Comparer);
 		}
 
-		public int Add(IImmutableCommand command)
+		public int Add(IImmutableCommand item)
 		{
-			if (!_Commands.TryAdd(command.PrimaryId, command))
+			if (!_Commands.TryAdd(item.PrimaryId, item))
 			{
-				throw new ArgumentException("Duplicate command id.", nameof(command));
+				throw new ArgumentException("Duplicate command id.", nameof(item));
 			}
 
 			var added = 0;
-			foreach (var name in command.Names)
+			foreach (var name in item.Names)
 			{
 				var node = Root;
 				for (var i = 0; i < name.Parts.Count; ++i)
@@ -38,7 +41,7 @@ namespace YACCS.Commands
 					{
 						node[key] = next = new Node(node, key, _Comparer);
 					}
-					if (i == name.Parts.Count - 1 && next.Add(command))
+					if (i == name.Parts.Count - 1 && next.Add(item))
 					{
 						++added;
 					}
@@ -48,22 +51,34 @@ namespace YACCS.Commands
 			return added;
 		}
 
-		public IReadOnlyList<IImmutableCommand> GetCommands()
-			=> _Commands.Values.ToList();
-
-		public int Remove(IImmutableCommand command)
+		public void Clear()
 		{
-			if (_Commands.TryGetValue(command.PrimaryId, out var temp) && temp != command)
+			_Commands.Clear();
+			Root = new Node(null!, null!, _Comparer);
+		}
+
+		public bool Contains(IImmutableCommand item)
+			=> _Commands.ContainsKey(item.PrimaryId);
+
+		public void CopyTo(IImmutableCommand[] array, int arrayIndex)
+			=> _Commands.Values.CopyTo(array, arrayIndex);
+
+		public IEnumerator<IImmutableCommand> GetEnumerator()
+			=> _Commands.Values.GetEnumerator();
+
+		public int Remove(IImmutableCommand item)
+		{
+			if (_Commands.TryGetValue(item.PrimaryId, out var temp) && temp != item)
 			{
-				throw new ArgumentException("Attempted to remove an id which exists, but belongs to a different command.", nameof(command));
+				throw new ArgumentException("Attempted to remove an id which exists, but belongs to a different command.", nameof(item));
 			}
-			if (!_Commands.Remove(command.PrimaryId))
+			if (!_Commands.Remove(item.PrimaryId))
 			{
 				return 0;
 			}
 
 			var removed = 0;
-			foreach (var name in command.Names)
+			foreach (var name in item.Names)
 			{
 				var node = Root;
 				for (var i = 0; i < name.Parts.Count; ++i)
@@ -72,7 +87,7 @@ namespace YACCS.Commands
 					{
 						break;
 					}
-					if (i == name.Parts.Count - 1 && node.Remove(command))
+					if (i == name.Parts.Count - 1 && node.Remove(item))
 					{
 						++removed;
 					}
@@ -80,6 +95,15 @@ namespace YACCS.Commands
 			}
 			return removed;
 		}
+
+		void ICollection<IImmutableCommand>.Add(IImmutableCommand item)
+			=> Add(item);
+
+		IEnumerator IEnumerable.GetEnumerator()
+			=> GetEnumerator();
+
+		bool ICollection<IImmutableCommand>.Remove(IImmutableCommand item)
+			=> Remove(item) > 0;
 
 		public sealed class Node
 		{

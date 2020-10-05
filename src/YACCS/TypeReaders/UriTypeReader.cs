@@ -11,6 +11,11 @@ namespace YACCS.TypeReaders
 	{
 		public override ITask<ITypeReaderResult<Uri>> ReadAsync(IContext context, string input)
 		{
+			if (string.IsNullOrWhiteSpace(input))
+			{
+				return TypeReaderResult<Uri>.Failure.ITask;
+			}
+
 			try
 			{
 				if (input.StartsWith('<') && input.EndsWith('>'))
