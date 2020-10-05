@@ -23,7 +23,7 @@ namespace YACCS.TypeReaders
 			IContext context,
 			string input)
 		{
-			var commands = context.Services.GetRequiredService<ICommandService>();
+			var commands = context.Services.GetRequiredService<ICommandFinder>();
 			var found = commands.Find(input);
 			if (found.Count > 0)
 			{

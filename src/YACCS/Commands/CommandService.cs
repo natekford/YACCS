@@ -13,7 +13,7 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Commands
 {
-	public class CommandService : ICommandService
+	public class CommandService : ICommandService, ICommandFinder
 	{
 		private readonly AsyncEvent<CommandExecutedEventArgs> _CommandExecuted
 			= new AsyncEvent<CommandExecutedEventArgs>();
