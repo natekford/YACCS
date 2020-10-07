@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Threading.Tasks;
+
+using MorseCode.ITask;
 
 using YACCS.Commands;
 using YACCS.Results;
@@ -10,6 +11,6 @@ namespace YACCS.TypeReaders
 	{
 		Type OutputType { get; }
 
-		Task<ITypeReaderResult> ReadAsync(IContext context, string input);
+		ITask<ITypeReaderResult> ReadAsync(IContext context, string input);
 	}
 }

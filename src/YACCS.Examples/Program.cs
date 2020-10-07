@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 using YACCS.Commands;
+using YACCS.Commands.Attributes;
+using YACCS.Commands.Linq;
+using YACCS.Commands.Models;
 
 namespace YACCS.Examples
 {
@@ -74,6 +77,21 @@ namespace YACCS.Examples
 			}
 			Console.WriteLine($"Successfully registered {_CommandService.Commands.Count} commands.");
 			Console.WriteLine();
+
+#if false
+			static void DelegateCommand(int i, double d, string s)
+				=> Console.WriteLine($"i am the delegate command: {i} {d} {s}");
+
+			var @delegate = (Action<int, double, string>)DelegateCommand;
+			var names = new[] { new Name(new[] { "delegate" }) };
+			for (var i = 0; i < 1000; ++i)
+			{
+				var command = new DelegateCommand(@delegate, names)
+					.AddAttribute(new PriorityAttribute(i))
+					.ToCommand();
+				_CommandService.Add(command);
+			}
+#endif
 		}
 
 		private async Task RunAsync()

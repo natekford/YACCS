@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -69,6 +70,30 @@ namespace YACCS.Tests.Commands.Models
 
 			var command2 = commands.ById(GroupBase.ID_2).SingleOrDefault();
 			Assert.IsNull(command2);
+		}
+
+		[TestMethod]
+		public async Task StaticCommandDelegateBuilding_Test()
+		{
+			static Task<bool> Method(IContext arg) => Task.FromResult(true);
+
+			var @delegate = (Func<IContext, Task<bool>>)Method;
+			var names = new[] { new Name(new[] { "Joe" }) };
+			var command = new DelegateCommand(@delegate, names);
+			var immutable = command.ToCommand();
+			Assert.AreEqual(names.Length, command.Names.Count);
+			Assert.AreEqual(names[0], command.Names[0]);
+			Assert.AreEqual(1, command.Parameters.Count);
+			Assert.AreEqual(2, command.Attributes.Count);
+			Assert.IsInstanceOfType(command.Attributes[0], typeof(CompilerGeneratedAttribute));
+			Assert.IsInstanceOfType(command.Attributes[1], typeof(DelegateCommandAttribute));
+
+			var args = new object[] { new FakeContext() };
+			var result = await immutable.ExecuteAsync(null!, args).ConfigureAwait(false);
+			Assert.IsTrue(result.IsSuccess);
+			Assert.IsInstanceOfType(result.InnerResult, typeof(ValueResult));
+			Assert.IsTrue(result.TryGetValue(out bool value));
+			Assert.AreEqual(true, value);
 		}
 
 		private class GroupBase : CommandGroup<FakeContext>

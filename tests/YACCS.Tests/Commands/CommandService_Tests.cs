@@ -117,20 +117,13 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(c1, scored[0].Command);
 			Assert.AreEqual(c2, scored[1].Command);
 
-			var @checked = await commandService.ProcessAllPreconditionsAsync(
+			var (result, best) = await commandService.GetBestMatchAsync(
 				scored,
 				context,
 				new[] { (DISALLOWED_VALUE + 1).ToString() }
 			).ConfigureAwait(false);
-			Assert.AreEqual(c2, @checked[0].Command);
-			Assert.AreEqual(c1, @checked[1].Command);
-
-			foreach (var result in @checked)
-			{
-				Assert.IsTrue(result.InnerResult.IsSuccess);
-				Assert.AreEqual(CommandStage.CanExecute, result.Stage);
-				Assert.AreEqual(int.MaxValue, result.Score);
-			}
+			Assert.IsFalse(result.IsSuccess);
+			Assert.IsNull(best);
 		}
 
 		[TestMethod]
@@ -141,12 +134,13 @@ namespace YACCS.Tests.Commands
 			{
 				CommandScore.FromCorrectArgCount(command.ToCommand(), context, 0),
 			};
-			var result = await commandService.ProcessAllPreconditionsAsync(
+			var (result, best) = await commandService.GetBestMatchAsync(
 				scored,
 				new InvalidContext(),
 				Array.Empty<string>()
 			).ConfigureAwait(false);
-			Assert.AreEqual(0, result.Count);
+			Assert.IsFalse(result.IsSuccess);
+			Assert.IsNull(best);
 		}
 
 		[TestMethod]
@@ -157,12 +151,13 @@ namespace YACCS.Tests.Commands
 			{
 				CommandScore.FromInvalidContext(command.ToCommand(), context, 0),
 			};
-			var result = await commandService.ProcessAllPreconditionsAsync(
+			var (result, best) = await commandService.GetBestMatchAsync(
 				scored,
 				context,
 				Array.Empty<string>()
 			).ConfigureAwait(false);
-			Assert.AreEqual(0, result.Count);
+			Assert.IsFalse(result.IsSuccess);
+			Assert.IsNull(best);
 		}
 
 		[TestMethod]
@@ -173,12 +168,13 @@ namespace YACCS.Tests.Commands
 			{
 				CommandScore.FromInvalidContext(null!, context, 0),
 			};
-			var result = await commandService.ProcessAllPreconditionsAsync(
+			var (result, best) = await commandService.GetBestMatchAsync(
 				scored,
 				context,
 				Array.Empty<string>()
 			).ConfigureAwait(false);
-			Assert.AreEqual(0, result.Count);
+			Assert.IsFalse(result.IsSuccess);
+			Assert.IsNull(best);
 		}
 
 		[TestMethod]

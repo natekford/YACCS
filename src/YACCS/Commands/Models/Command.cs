@@ -38,6 +38,8 @@ namespace YACCS.Commands.Models
 
 			public IReadOnlyList<object> Attributes { get; }
 			public Type? ContextType { get; }
+			public int MaxLength { get; }
+			public int MinLength { get; }
 			public IReadOnlyList<IName> Names { get; }
 			public IReadOnlyList<IImmutableParameter> Parameters { get; }
 			public IReadOnlyList<IPrecondition> Preconditions { get; }
@@ -61,13 +63,32 @@ namespace YACCS.Commands.Models
 				PrimaryId = mutable.Get<IIdAttribute>().FirstOrDefault()?.Id ?? Guid.NewGuid().ToString();
 				Priority = mutable.Get<IPriorityAttribute>().SingleOrDefault()?.Priority ?? 0;
 
+				var @base = Names.FirstOrDefault()?.Parts?.Count ?? 0;
+				var min = @base;
+				var max = @base;
 				for (var i = 0; i < Parameters.Count; ++i)
 				{
-					if (!Parameters[i].Length.HasValue && i != Parameters.Count - 1)
+					var parameter = Parameters[i];
+
+					// Remainder will always be the last parameter
+					if (!parameter.Length.HasValue)
 					{
-						throw new ArgumentException("Cannot have multiple remainders and/or remainder must be the final parameter.");
+						if (i != Parameters.Count - 1)
+						{
+							throw new ArgumentException("Cannot have multiple remainders and/or remainder must be the final parameter.");
+						}
+
+						max = int.MaxValue;
+						break;
 					}
+					if (!parameter.HasDefaultValue)
+					{
+						min += parameter.Length.Value;
+					}
+					max += parameter.Length.Value;
 				}
+				MinLength = min;
+				MaxLength = max;
 			}
 
 			public abstract Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args);

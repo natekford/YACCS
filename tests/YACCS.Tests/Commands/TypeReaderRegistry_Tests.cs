@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Reflection;
-using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using MorseCode.ITask;
 
 using YACCS.Commands;
 using YACCS.Results;
@@ -104,7 +105,7 @@ namespace YACCS.Tests.Commands
 		{
 			public Type OutputType => typeof(string);
 
-			public Task<ITypeReaderResult> ReadAsync(IContext context, string input)
+			public ITask<ITypeReaderResult> ReadAsync(IContext context, string input)
 				=> throw new NotImplementedException();
 		}
 

@@ -16,7 +16,7 @@ namespace YACCS.TypeReaders
 			return (string input, out T result) =>
 			{
 				var provider = CultureInfo.InvariantCulture;
-				const NumberStyles STYLE = NumberStyles.Integer;
+				const NumberStyles STYLE = NumberStyles.Number;
 				return @delegate(input, STYLE, provider, out result);
 			};
 		}

@@ -77,7 +77,7 @@ namespace YACCS.Commands.Models
 
 				var argsExpr = Expression.Parameter(typeof(object?[]), "Args");
 
-				var targetExpr = Expression.Constant(target);
+				var targetExpr = target is null ? null : Expression.Constant(target);
 				var argsCastExpr = method.GetParameters().Select((x, i) =>
 				{
 					var indexExpr = Expression.Constant(i);

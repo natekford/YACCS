@@ -8,6 +8,8 @@ namespace YACCS.Commands.Models
 {
 	public interface IImmutableCommand : IImmutableEntityBase, IQueryableCommand
 	{
+		int MaxLength { get; }
+		int MinLength { get; }
 		new IReadOnlyList<IName> Names { get; }
 		IReadOnlyList<IImmutableParameter> Parameters { get; }
 		IReadOnlyList<IPrecondition> Preconditions { get; }

@@ -14,3 +14,6 @@ dotnet_diagnostic.CS0649.severity = none
 
 # RCS1079: Throwing of new NotImplementedException.
 dotnet_diagnostic.RCS1079.severity = none
+
+# RCS1047: Non-asynchronous method name should not end with 'Async'.
+dotnet_diagnostic.RCS1047.severity = none
