@@ -1,23 +1,27 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace YACCS.Results
 {
-	public class TypeReaderResult<T> : TypeReaderResult, ITypeReaderResult<T>
+	[DebuggerDisplay("{DebuggerDisplay,nq}")]
+	public class TypeReaderResult<T> : Result, ITypeReaderResult<T>
 	{
-		public new static TypeReaderResultInstance<TypeReaderResult<T>> Failure { get; }
+		public static ResultInstance<TypeReaderResult<T>, ITypeReaderResult> Failure { get; }
 			= FromError().AsTypeReaderResultInstance();
 
 		[MaybeNull]
-		public new T Value { get; }
+		public T Value { get; }
+		object? ITypeReaderResult.Value => Value;
+		private string DebuggerDisplay => $"IsSuccess = {IsSuccess}, Response = {Response}, Value = {Value}";
 
 		public TypeReaderResult(bool isSuccess, string response, [MaybeNull] T value)
-			: base(isSuccess, response, value)
+			: base(isSuccess, response)
 		{
 			Value = value;
 		}
 
-		public new static TypeReaderResult<T> FromError()
-			=> new TypeReaderResult<T>(false, "", default!);
+		public static TypeReaderResult<T> FromError()
+			=> new TypeReaderResult<T>(false, $"Failed to parse {typeof(T).Name}.", default!);
 
 		public static TypeReaderResult<T> FromSuccess(T value)
 			=> new TypeReaderResult<T>(true, "", value);

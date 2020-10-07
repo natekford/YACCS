@@ -24,17 +24,17 @@ namespace YACCS.Results
 		public static IResult FromSuccess()
 			=> new Result(true, "");
 
-		public class ResultInstance<T> where T : Result
+		public class ResultInstance<T, TBase> where T : IResult, TBase
 		{
 			public Task<T> GenericTask { get; }
 			public ITask<T> ITask { get; }
 			public T Sync { get; }
-			public Task<IResult> Task { get; }
+			public Task<TBase> Task { get; }
 
 			public ResultInstance(T instance)
 			{
 				Sync = instance;
-				Task = instance.AsTask();
+				Task = System.Threading.Tasks.Task.FromResult<TBase>(instance);
 				GenericTask = System.Threading.Tasks.Task.FromResult(instance);
 				ITask = GenericTask.AsITask();
 			}

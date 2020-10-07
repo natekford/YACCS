@@ -64,7 +64,12 @@ namespace YACCS.Examples
 
 			var input = Console.ReadLine();
 			var context = new ConsoleContext(_Services, input);
-			await _CommandService.ExecuteAsync(context, input).ConfigureAwait(false);
+
+			var result = await _CommandService.ExecuteAsync(context, input).ConfigureAwait(false);
+			if (!string.IsNullOrWhiteSpace(result.Response))
+			{
+				WriteLine(result.Response, result.IsSuccess ? ConsoleColor.Green : ConsoleColor.Red);
+			}
 
 			Console.WriteLine();
 		}

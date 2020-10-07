@@ -22,6 +22,7 @@ namespace YACCS.Commands
 		private readonly CommandTrie _CommandTrie;
 		private readonly ICommandServiceConfig _Config;
 		private readonly ITypeReaderRegistry _Readers;
+
 		public IReadOnlyCollection<IImmutableCommand> Commands => _CommandTrie.ToArray();
 
 		public event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted
@@ -368,7 +369,7 @@ namespace YACCS.Commands
 				{
 					output.SetValue(results[i].Value, i);
 				}
-				return TypeReaderResult.FromSuccess(output);
+				return TypeReaderResult<object>.FromSuccess(output);
 			}
 
 			return new ValueTask<ITypeReaderResult>(ProcessTypeReadersAsync(
