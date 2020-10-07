@@ -21,203 +21,6 @@ using YACCS.TypeReaders;
 namespace YACCS.Tests.Commands
 {
 	[TestClass]
-	public class CommandService_AllPreconditions_Tests
-	{
-		private const int DISALLOWED_VALUE = 1;
-
-		[TestMethod]
-		public async Task FailedDefaultValue_Test()
-		{
-			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
-			var result = await commandService.ProcessAllPreconditionsAsync(
-				new PreconditionCache(context),
-				command.ToCommand(),
-				context,
-				new[] { DISALLOWED_VALUE.ToString() },
-				1
-			).ConfigureAwait(false);
-
-			Assert.IsFalse(result.InnerResult.IsSuccess);
-			Assert.AreEqual(CommandStage.FailedTypeReader, result.Stage);
-			Assert.AreEqual(0, result.Score);
-
-			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
-			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
-		}
-
-		[TestMethod]
-		public async Task FailedParameterPrecondition_Test()
-		{
-			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
-			var result = await commandService.ProcessAllPreconditionsAsync(
-				new PreconditionCache(context),
-				command.ToCommand(),
-				context,
-				new[] { DISALLOWED_VALUE.ToString() },
-				0
-			).ConfigureAwait(false);
-
-			Assert.IsFalse(result.InnerResult.IsSuccess);
-			Assert.AreEqual(CommandStage.FailedParameterPrecondition, result.Stage);
-			Assert.AreEqual(0, result.Score);
-
-			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
-			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
-		}
-
-		[TestMethod]
-		public async Task FailedPrecondition_Test()
-		{
-			var (commandService, context, command, parameter) = Create(false, DISALLOWED_VALUE);
-			var result = await commandService.ProcessAllPreconditionsAsync(
-				new PreconditionCache(context),
-				command.ToCommand(),
-				context,
-				new[] { (DISALLOWED_VALUE + 1).ToString() },
-				0
-			).ConfigureAwait(false);
-
-			Assert.IsFalse(result.InnerResult.IsSuccess);
-			Assert.AreEqual(CommandStage.FailedPrecondition, result.Stage);
-			Assert.AreEqual(0, result.Score);
-
-			Assert.IsFalse(command.Get<WasIReachedPrecondition>().Single().IWasReached);
-			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
-		}
-
-		[TestMethod]
-		public async Task FailedTypeReader_Test()
-		{
-			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
-			var result = await commandService.ProcessAllPreconditionsAsync(
-				new PreconditionCache(context),
-				command.ToCommand(),
-				context,
-				new[] { "joeba" },
-				0
-			).ConfigureAwait(false);
-
-			Assert.IsFalse(result.InnerResult.IsSuccess);
-			Assert.AreEqual(CommandStage.FailedTypeReader, result.Stage);
-			Assert.AreEqual(0, result.Score);
-
-			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
-			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
-		}
-
-		[TestMethod]
-		public async Task Multiple_Test()
-		{
-			var (commandService, context, _, _) = Create(true, DISALLOWED_VALUE);
-			var commands = await typeof(CommandsGroup).GetDirectCommandsAsync().ConfigureAwait(false);
-			var scored = commands.Select(x => CommandScore.FromCorrectArgCount(x, context, 0)).ToArray();
-
-			var c1 = commands.ById(CommandsGroup._1).Single();
-			var c2 = commands.ById(CommandsGroup._2).Single();
-			Assert.AreEqual(c1, scored[0].Command);
-			Assert.AreEqual(c2, scored[1].Command);
-
-			var (result, best) = await commandService.GetBestMatchAsync(
-				scored,
-				context,
-				new[] { (DISALLOWED_VALUE + 1).ToString() }
-			).ConfigureAwait(false);
-			Assert.IsFalse(result.IsSuccess);
-			Assert.IsNull(best);
-		}
-
-		[TestMethod]
-		public async Task MultipleInvalidContext_Test()
-		{
-			var (commandService, context, command, _) = Create(true, DISALLOWED_VALUE);
-			var scored = new List<CommandScore>
-			{
-				CommandScore.FromCorrectArgCount(command.ToCommand(), context, 0),
-			};
-			var (result, best) = await commandService.GetBestMatchAsync(
-				scored,
-				new InvalidContext(),
-				Array.Empty<string>()
-			).ConfigureAwait(false);
-			Assert.IsFalse(result.IsSuccess);
-			Assert.IsNull(best);
-		}
-
-		[TestMethod]
-		public async Task MultipleInvalidStage_Test()
-		{
-			var (commandService, context, command, _) = Create(true, DISALLOWED_VALUE);
-			var scored = new List<CommandScore>
-			{
-				CommandScore.FromInvalidContext(command.ToCommand(), context, 0),
-			};
-			var (result, best) = await commandService.GetBestMatchAsync(
-				scored,
-				context,
-				Array.Empty<string>()
-			).ConfigureAwait(false);
-			Assert.IsFalse(result.IsSuccess);
-			Assert.IsNull(best);
-		}
-
-		[TestMethod]
-		public async Task MultipleNullCommand_Test()
-		{
-			var (commandService, context, _, _) = Create(true, DISALLOWED_VALUE);
-			var scored = new List<CommandScore>
-			{
-				CommandScore.FromInvalidContext(null!, context, 0),
-			};
-			var (result, best) = await commandService.GetBestMatchAsync(
-				scored,
-				context,
-				Array.Empty<string>()
-			).ConfigureAwait(false);
-			Assert.IsFalse(result.IsSuccess);
-			Assert.IsNull(best);
-		}
-
-		[TestMethod]
-		public async Task Successful_Test()
-		{
-			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
-			var result = await commandService.ProcessAllPreconditionsAsync(
-				new PreconditionCache(context),
-				command.ToCommand(),
-				context,
-				new[] { (DISALLOWED_VALUE + 1).ToString() },
-				0
-			).ConfigureAwait(false);
-
-			Assert.IsTrue(result.InnerResult.IsSuccess);
-			Assert.AreEqual(CommandStage.CanExecute, result.Stage);
-			Assert.AreEqual(int.MaxValue, result.Score);
-
-			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
-			Assert.IsTrue(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
-		}
-
-		private (CommandService, FakeContext, ICommand, IParameter) Create(bool success, int disallowedValue)
-		{
-			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
-			var context = new FakeContext();
-
-			var command = FakeDelegateCommand.New(typeof(FakeContext))
-				.AsContext<FakeContext>()
-				.AddPrecondition(new FakePrecondition(success))
-				.AddPrecondition(new WasIReachedPrecondition());
-
-			var parameter = new Parameter(typeof(int), "")
-				.AsType<int>()
-				.AddParameterPrecondition(new FakeParameterPrecondition(disallowedValue))
-				.AddParameterPrecondition(new WasIReachedParameterPrecondition());
-			command.Parameters.Add(parameter);
-
-			return (commandService, context, command, parameter);
-		}
-	}
-
-	[TestClass]
 	public class CommandService_Commands_Tests
 	{
 		[TestMethod]
@@ -508,78 +311,196 @@ namespace YACCS.Tests.Commands
 	}
 
 	[TestClass]
-	public class CommandService_GetPotentiallyExecutableCommands_Tests
+	public class CommandService_GetBestMatchAsync_Tests
 	{
+		private const int DISALLOWED_VALUE = 1;
+
 		[TestMethod]
-		public async Task EmptyInput_Test()
+		public async Task FailedDefaultValue_Test()
 		{
-			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-			var commands = commandService.GetPotentiallyExecutableCommands(context, Array.Empty<string>());
-			Assert.AreEqual(0, commands.Count);
+			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
+			var result = await commandService.ProcessAllPreconditionsAsync(
+				new PreconditionCache(context),
+				command.ToCommand(),
+				context,
+				new[] { DISALLOWED_VALUE.ToString() },
+				1
+			).ConfigureAwait(false);
+
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.AreEqual(CommandStage.FailedTypeReader, result.Stage);
+			Assert.AreEqual(0, result.Score);
+
+			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
-		public async Task InvalidContext_Type()
+		public async Task FailedParameterPrecondition_Test()
 		{
-			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-			var input = new[] { CommandsGroup2._NAME };
+			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
+			var result = await commandService.ProcessAllPreconditionsAsync(
+				new PreconditionCache(context),
+				command.ToCommand(),
+				context,
+				new[] { DISALLOWED_VALUE.ToString() },
+				0
+			).ConfigureAwait(false);
 
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.AreEqual(CommandStage.FailedParameterPrecondition, result.Stage);
+			Assert.AreEqual(0, result.Score);
+
+			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+		}
+
+		[TestMethod]
+		public async Task FailedPrecondition_Test()
+		{
+			var (commandService, context, command, parameter) = Create(false, DISALLOWED_VALUE);
+			var result = await commandService.ProcessAllPreconditionsAsync(
+				new PreconditionCache(context),
+				command.ToCommand(),
+				context,
+				new[] { (DISALLOWED_VALUE + 1).ToString() },
+				0
+			).ConfigureAwait(false);
+
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.AreEqual(CommandStage.FailedPrecondition, result.Stage);
+			Assert.AreEqual(0, result.Score);
+
+			Assert.IsFalse(command.Get<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+		}
+
+		[TestMethod]
+		public async Task FailedTypeReader_Test()
+		{
+			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
+			var result = await commandService.ProcessAllPreconditionsAsync(
+				new PreconditionCache(context),
+				command.ToCommand(),
+				context,
+				new[] { "joeba" },
+				0
+			).ConfigureAwait(false);
+
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.AreEqual(CommandStage.FailedTypeReader, result.Stage);
+			Assert.AreEqual(0, result.Score);
+
+			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+		}
+
+		[TestMethod]
+		public async Task InvalidContext_Test()
+		{
+			var (commandService, context, command, _) = Create(true, DISALLOWED_VALUE);
+			var score = await commandService.GetCommandScoreAsync(
+				new PreconditionCache(context),
+				new InvalidContext(),
+				command.ToCommand(),
+				Array.Empty<string>(),
+				0
+			).ConfigureAwait(false);
+			Assert.IsFalse(score.InnerResult.IsSuccess);
+			Assert.AreEqual(CommandStage.BadContext, score.Stage);
+		}
+
+		[TestMethod]
+		public async Task InvalidLength_Test()
+		{
+			var (commandService, context, command, _) = Create(true, DISALLOWED_VALUE);
+
+			// Not enough
 			{
-				var commands = commandService.GetPotentiallyExecutableCommands(context, input);
-				Assert.AreEqual(4, commands.Count(x => x.Stage != CommandStage.BadContext));
+				var score = await commandService.GetCommandScoreAsync(
+					new PreconditionCache(context),
+					context,
+					command.ToCommand(),
+					Array.Empty<string>(),
+					0
+				).ConfigureAwait(false);
+				Assert.IsFalse(score.InnerResult.IsSuccess);
+				Assert.AreEqual(CommandStage.BadArgCount, score.Stage);
+				Assert.IsInstanceOfType(score.InnerResult, typeof(NotEnoughArgsResult));
 			}
 
-			var c1 = FakeDelegateCommand.New(typeof(FakeContext2))
-				.AddName(new Name(new[] { CommandsGroup2._NAME }))
-				.ToCommand();
-			commandService.Add(c1);
-
+			// Too many
 			{
-				var commands = commandService.GetPotentiallyExecutableCommands(new FakeContext2(), input);
-				Assert.AreEqual(5, commands.Count(x => x.Stage != CommandStage.BadContext));
-			}
-
-			{
-				var commands = commandService.GetPotentiallyExecutableCommands(context, input);
-				Assert.AreEqual(4, commands.Count(x => x.Stage != CommandStage.BadContext));
+				var score = await commandService.GetCommandScoreAsync(
+					new PreconditionCache(context),
+					context,
+					command.ToCommand(),
+					new[] { "a", "b", "c", "d", "e", "f" },
+					0
+				).ConfigureAwait(false);
+				Assert.IsFalse(score.InnerResult.IsSuccess);
+				Assert.AreEqual(CommandStage.BadArgCount, score.Stage);
+				Assert.IsInstanceOfType(score.InnerResult, typeof(TooManyArgsResult));
 			}
 		}
 
 		[TestMethod]
-		public async Task Length_Test()
+		public async Task Multiple_Test()
 		{
-			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+			var (commandService, context, _, _) = Create(true, DISALLOWED_VALUE);
+			var commands = await typeof(CommandsGroup).GetDirectCommandsAsync().ConfigureAwait(false);
+			var scored = commands.Select(x => CommandScore.FromCorrectArgCount(x, context, 0)).ToArray();
 
-			{
-				var commands = commandService.GetPotentiallyExecutableCommands(context, new[] { CommandsGroup2._NAME });
-				Assert.AreEqual(2, commands.Count(x => x.Stage == CommandStage.CorrectArgCount));
-			}
+			var c1 = commands.ById(CommandsGroup._1).Single();
+			var c2 = commands.ById(CommandsGroup._2).Single();
+			Assert.AreEqual(c1, scored[0].Command);
+			Assert.AreEqual(c2, scored[1].Command);
 
-			{
-				var commands = commandService.GetPotentiallyExecutableCommands(context, new[] { CommandsGroup2._NAME, "a" });
-				Assert.AreEqual(2, commands.Count(x => x.Stage == CommandStage.CorrectArgCount));
-			}
-
-			{
-				var commands = commandService.GetPotentiallyExecutableCommands(context, new[] { CommandsGroup2._NAME, "a", "b" });
-				Assert.AreEqual(2, commands.Count(x => x.Stage == CommandStage.CorrectArgCount));
-			}
-
-			{
-				var commands = commandService.GetPotentiallyExecutableCommands(context, new[] { CommandsGroup2._NAME, "a", "b", "c" });
-				Assert.AreEqual(1, commands.Count(x => x.Stage == CommandStage.CorrectArgCount));
-			}
+			var (result, best) = await commandService.GetBestMatchAsync(
+				context,
+				new[] { (DISALLOWED_VALUE + 1).ToString() }
+			).ConfigureAwait(false);
+			Assert.IsFalse(result.IsSuccess);
+			Assert.IsNull(best);
 		}
 
-		private async Task<(CommandService, FakeContext)> CreateAsync()
+		[TestMethod]
+		public async Task Successful_Test()
+		{
+			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
+			var result = await commandService.ProcessAllPreconditionsAsync(
+				new PreconditionCache(context),
+				command.ToCommand(),
+				context,
+				new[] { (DISALLOWED_VALUE + 1).ToString() },
+				0
+			).ConfigureAwait(false);
+
+			Assert.IsTrue(result.InnerResult.IsSuccess);
+			Assert.AreEqual(CommandStage.CanExecute, result.Stage);
+			Assert.AreEqual(int.MaxValue, result.Score);
+
+			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsTrue(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+		}
+
+		private (CommandService, FakeContext, ICommand, IParameter) Create(bool success, int disallowedValue)
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
-			await foreach (var value in typeof(CommandsGroup2).GetAllCommandsAsync())
-			{
-				commandService.Add(value);
-			}
 			var context = new FakeContext();
-			return (commandService, context);
+
+			var command = FakeDelegateCommand.New(typeof(FakeContext))
+				.AsContext<FakeContext>()
+				.AddPrecondition(new FakePrecondition(success))
+				.AddPrecondition(new WasIReachedPrecondition());
+
+			var parameter = new Parameter(typeof(int), "")
+				.AsType<int>()
+				.AddParameterPrecondition(new FakeParameterPrecondition(disallowedValue))
+				.AddParameterPrecondition(new WasIReachedParameterPrecondition());
+			command.Parameters.Add(parameter);
+
+			return (commandService, context, command, parameter);
 		}
 	}
 

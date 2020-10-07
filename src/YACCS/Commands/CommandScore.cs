@@ -35,6 +35,43 @@ namespace YACCS.Commands
 			Stage = stage;
 		}
 
+		public static int CompareTo(CommandScore? a, CommandScore? b)
+		{
+			if (a is null)
+			{
+				if (b is null)
+				{
+					return 0;
+				}
+
+				return -1;
+			}
+			if (b is null)
+			{
+				return 1;
+			}
+
+			var stage = a.Stage.CompareTo(b.Stage);
+			if (stage != 0)
+			{
+				return stage;
+			}
+
+			var success = a.InnerResult.IsSuccess.CompareTo(b.InnerResult.IsSuccess);
+			if (success != 0)
+			{
+				return success;
+			}
+
+			var priority = a.Priority.CompareTo(b.Priority);
+			if (priority != 0)
+			{
+				return priority;
+			}
+
+			return a.Score.CompareTo(b.Score);
+		}
+
 		public static CommandScore FromCanExecute(
 			IImmutableCommand command,
 			IContext context,
@@ -125,6 +162,27 @@ namespace YACCS.Commands
 			return new CommandScore(command, context, result, STAGE, score, null);
 		}
 
+		public static CommandScore? Max(CommandScore? a, CommandScore? b)
+			=> a > b ? a : b;
+
+		public static bool operator !=(CommandScore? a, CommandScore? b)
+			=> !(a == b);
+
+		public static bool operator <(CommandScore? a, CommandScore? b)
+			=> CompareTo(a, b) < 0;
+
+		public static bool operator <=(CommandScore? a, CommandScore? b)
+			=> !(a > b);
+
+		public static bool operator ==(CommandScore? a, CommandScore? b)
+			=> CompareTo(a, b) == 0;
+
+		public static bool operator >(CommandScore? a, CommandScore? b)
+			=> CompareTo(a, b) > 0;
+
+		public static bool operator >=(CommandScore? a, CommandScore? b)
+			=> !(a < b);
+
 		public int CompareTo(object obj)
 		{
 			if (obj is null)
@@ -139,26 +197,12 @@ namespace YACCS.Commands
 		}
 
 		public int CompareTo(CommandScore other)
-		{
-			var stage = Stage.CompareTo(other.Stage);
-			if (stage != 0)
-			{
-				return stage;
-			}
+			=> CompareTo(this, other);
 
-			var success = InnerResult.IsSuccess.CompareTo(other.InnerResult.IsSuccess);
-			if (success != 0)
-			{
-				return success;
-			}
+		public override bool Equals(object obj)
+			=> obj is CommandScore other && CompareTo(other) == 0;
 
-			var priority = Priority.CompareTo(other.Priority);
-			if (priority != 0)
-			{
-				return priority;
-			}
-
-			return Score.CompareTo(other.Score);
-		}
+		public override int GetHashCode()
+			=> HashCode.Combine(Stage, InnerResult.IsSuccess, Priority, Score);
 	}
 }

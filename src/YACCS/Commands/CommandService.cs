@@ -76,13 +76,7 @@ namespace YACCS.Commands
 				return CommandNotFoundResult.Instance.Sync;
 			}
 
-			var commands = GetPotentiallyExecutableCommands(context, args);
-			if (commands.Count == 0)
-			{
-				return CommandNotFoundResult.Instance.Sync;
-			}
-
-			var (result, best) = await GetBestMatchAsync(commands, context, args).ConfigureAwait(false);
+			var (result, best) = await GetBestMatchAsync(context, args).ConfigureAwait(false);
 			if (!result.IsSuccess)
 			{
 				return result;
@@ -121,62 +115,13 @@ namespace YACCS.Commands
 		}
 
 		public async Task<(IResult, CommandScore?)> GetBestMatchAsync(
-			IReadOnlyList<CommandScore> candidates,
 			IContext context,
 			IReadOnlyList<string> input)
 		{
-			var contextType = context.GetType();
-
+			var node = _CommandTrie.Root;
 			var best = default(CommandScore);
 			var cache = new PreconditionCache(context);
-			for (var i = 0; i < candidates.Count; ++i)
-			{
-				var candidate = candidates[i];
-
-				// Only allow newly found commands with CorrectArgCount
-				// Invalid args counts or any failures means don't check
-				if (candidate.Stage != CommandStage.CorrectArgCount)
-				{
-					continue;
-				}
-				if (candidate.Command?.IsValidContext(contextType) != true)
-				{
-					continue;
-				}
-
-				var processed = await ProcessAllPreconditionsAsync(
-					cache,
-					candidate.Command!,
-					context,
-					input,
-					candidate.Score
-				).ConfigureAwait(false);
-				if (_Config.MultiMatchHandling == MultiMatchHandling.Error
-					&& best?.InnerResult?.IsSuccess == true
-					&& processed.InnerResult.IsSuccess)
-				{
-					return (MultiMatchHandlingErrorResult.Instance.Sync, null);
-				}
-				if (best is null || processed.CompareTo(best) > 0)
-				{
-					best = processed;
-				}
-			}
-
-			var result = best?.InnerResult ?? CommandNotFoundResult.Instance.Sync;
-			return (result, best);
-		}
-
-		public IReadOnlyList<CommandScore> GetPotentiallyExecutableCommands(
-			IContext context,
-			IReadOnlyList<string> input)
-		{
-			var count = input.Count;
-			var contextType = context?.GetType();
-
-			var node = _CommandTrie.Root;
-			var matches = new List<CommandScore>();
-			for (var i = 0; i < count; ++i)
+			for (var i = 0; i < input.Count; ++i)
 			{
 				if (!node.TryGetEdge(input[i], out node))
 				{
@@ -185,28 +130,53 @@ namespace YACCS.Commands
 
 				foreach (var command in node.Values)
 				{
-					if (!command.IsValidContext(contextType))
+					// Add 1 to i to account for how we're in a node
+					var score = await GetCommandScoreAsync(cache, context, command, input, i + 1).ConfigureAwait(false);
+					if (_Config.MultiMatchHandling == MultiMatchHandling.Error
+						&& best?.InnerResult.IsSuccess == true
+						&& score.InnerResult.IsSuccess)
 					{
-						matches.Add(CommandScore.FromInvalidContext(command, context!, i + 1));
-						continue;
+						return (MultiMatchHandlingErrorResult.Instance.Sync, null);
 					}
-
-					// Trivial cases, provided input length is not in the possible arg length
-					if (count < command.MinLength)
-					{
-						matches.Add(CommandScore.FromNotEnoughArgs(command, context!, i + 1));
-					}
-					else if (count > command.MaxLength)
-					{
-						matches.Add(CommandScore.FromTooManyArgs(command, context!, i + 1));
-					}
-					else
-					{
-						matches.Add(CommandScore.FromCorrectArgCount(command, context!, i + 1));
-					}
+					best = CommandScore.Max(best, score);
 				}
 			}
-			return matches;
+
+			var result = best?.InnerResult ?? CommandNotFoundResult.Instance.Sync;
+			return (result, best);
+		}
+
+		public Task<CommandScore> GetCommandScoreAsync(
+			PreconditionCache cache,
+			IContext context,
+			IImmutableCommand command,
+			IReadOnlyList<string> input,
+			int startIndex)
+		{
+			// Trivial cases, invalid context or arg length
+			if (!command.IsValidContext(context.GetType()))
+			{
+				var score = CommandScore.FromInvalidContext(command, context, startIndex);
+				return Task.FromResult(score);
+			}
+			else if (input.Count < command.MinLength)
+			{
+				var score = CommandScore.FromNotEnoughArgs(command, context, startIndex);
+				return Task.FromResult(score);
+			}
+			else if (input.Count > command.MaxLength)
+			{
+				var score = CommandScore.FromTooManyArgs(command, context, startIndex);
+				return Task.FromResult(score);
+			}
+
+			return ProcessAllPreconditionsAsync(
+				cache,
+				command,
+				context,
+				input,
+				startIndex
+			);
 		}
 
 		public async Task<CommandScore> ProcessAllPreconditionsAsync(
