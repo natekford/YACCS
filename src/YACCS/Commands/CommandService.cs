@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -146,7 +147,7 @@ namespace YACCS.Commands
 			return (result, best);
 		}
 
-		public Task<CommandScore> GetCommandScoreAsync(
+		public ValueTask<CommandScore> GetCommandScoreAsync(
 			PreconditionCache cache,
 			IContext context,
 			IImmutableCommand command,
@@ -157,26 +158,26 @@ namespace YACCS.Commands
 			if (!command.IsValidContext(context.GetType()))
 			{
 				var score = CommandScore.FromInvalidContext(command, context, startIndex);
-				return Task.FromResult(score);
+				return new ValueTask<CommandScore>(score);
 			}
 			else if (input.Count < command.MinLength)
 			{
 				var score = CommandScore.FromNotEnoughArgs(command, context, startIndex);
-				return Task.FromResult(score);
+				return new ValueTask<CommandScore>(score);
 			}
 			else if (input.Count > command.MaxLength)
 			{
 				var score = CommandScore.FromTooManyArgs(command, context, startIndex);
-				return Task.FromResult(score);
+				return new ValueTask<CommandScore>(score);
 			}
 
-			return ProcessAllPreconditionsAsync(
+			return new ValueTask<CommandScore>(ProcessAllPreconditionsAsync(
 				cache,
 				command,
 				context,
 				input,
 				startIndex
-			);
+			));
 		}
 
 		public async Task<CommandScore> ProcessAllPreconditionsAsync(

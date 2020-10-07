@@ -78,13 +78,13 @@ namespace YACCS.Examples
 			Console.WriteLine($"Successfully registered {_CommandService.Commands.Count} commands.");
 			Console.WriteLine();
 
-#if false
+#if true
 			static void DelegateCommand(int i, double d, string s)
 				=> Console.WriteLine($"i am the delegate command: {i} {d} {s}");
 
 			var @delegate = (Action<int, double, string>)DelegateCommand;
 			var names = new[] { new Name(new[] { "delegate" }) };
-			for (var i = 0; i < 1000; ++i)
+			for (var i = 0; i < 100000; ++i)
 			{
 				var command = new DelegateCommand(@delegate, names)
 					.AddAttribute(new PriorityAttribute(i))
