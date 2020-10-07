@@ -65,7 +65,8 @@ namespace YACCS.Commands
 		{
 			foreach (var type in assembly.GetExportedTypes())
 			{
-				await foreach (var command in type.GetAllCommandsAsync())
+				var commands = await type.GetDirectCommandsAsync().ConfigureAwait(false);
+				foreach (var command in commands)
 				{
 					yield return command;
 				}
@@ -93,7 +94,7 @@ namespace YACCS.Commands
 		}
 
 		public static IReadOnlyList<ICommand> GetDirectCommandsMutable(this Type type)
-					=> type.CreateMutableCommands();
+			=> type.CreateMutableCommands();
 
 		internal static List<ICommand> CreateMutableCommands(this Type type)
 		{

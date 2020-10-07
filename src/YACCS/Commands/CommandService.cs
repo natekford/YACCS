@@ -21,7 +21,7 @@ namespace YACCS.Commands
 		private readonly ICommandServiceConfig _Config;
 		private readonly ITypeReaderRegistry _Readers;
 
-		public IReadOnlyCollection<IImmutableCommand> Commands => _CommandTrie.ToList();
+		public IReadOnlyCollection<IImmutableCommand> Commands => _CommandTrie.ToArray();
 
 		public event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted
 		{
@@ -147,7 +147,7 @@ namespace YACCS.Commands
 				{
 					if (!command.IsValidContext(contextType))
 					{
-						matches.Add(CommandScore.FromInvalidContext(command, context!, i));
+						matches.Add(CommandScore.FromInvalidContext(command, context!, i + 1));
 						continue;
 					}
 
@@ -155,15 +155,15 @@ namespace YACCS.Commands
 					// Trivial cases, provided input length is not in the possible arg length
 					if (count < min)
 					{
-						matches.Add(CommandScore.FromNotEnoughArgs(command, context!, i));
+						matches.Add(CommandScore.FromNotEnoughArgs(command, context!, i + 1));
 					}
 					else if (count > max)
 					{
-						matches.Add(CommandScore.FromTooManyArgs(command, context!, i));
+						matches.Add(CommandScore.FromTooManyArgs(command, context!, i + 1));
 					}
 					else
 					{
-						matches.Add(CommandScore.FromCorrectArgCount(command, context!, i));
+						matches.Add(CommandScore.FromCorrectArgCount(command, context!, i + 1));
 					}
 				}
 			}
