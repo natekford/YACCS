@@ -11,6 +11,8 @@ namespace YACCS.Commands
 {
 	public static class CommandServiceUtils
 	{
+		public const char InternallyUsedQuote = '"';
+
 		public static T CreateInstance<T>(Type type)
 		{
 			object instance;

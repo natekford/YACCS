@@ -82,16 +82,6 @@ namespace YACCS.Commands
 			return new CommandScore(command, context, result, STAGE, int.MaxValue, args);
 		}
 
-		public static CommandScore FromCorrectArgCount(
-			IImmutableCommand command,
-			IContext context,
-			int score)
-		{
-			var result = SuccessResult.Instance.Sync;
-			const CommandStage STAGE = CommandStage.CorrectArgCount;
-			return new CommandScore(command, context, result, STAGE, score, null);
-		}
-
 		public static CommandScore FromFailedOptionalArgs(
 			IImmutableCommand command,
 			IContext context,

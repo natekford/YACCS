@@ -116,7 +116,7 @@ namespace YACCS.Parsing
 		/// <param name="input"></param>
 		/// <param name="startQuotes"></param>
 		/// <param name="endQuotes"></param>
-		/// <param name="splitChars"></param>
+		/// <param name="splitChar"></param>
 		/// <param name="result"></param>
 		/// <returns></returns>
 		public static bool TryParse(
@@ -157,7 +157,7 @@ namespace YACCS.Parsing
 		/// <param name="input"></param>
 		/// <param name="startQuotes"></param>
 		/// <param name="endQuotes"></param>
-		/// <param name="splitChars"></param>
+		/// <param name="splitChar"></param>
 		/// <param name="startIndices">Assumed to be in order.</param>
 		/// <param name="endIndices">Assumed to be in order</param>
 		/// <param name="result"></param>
@@ -203,7 +203,7 @@ namespace YACCS.Parsing
 
 			// If all start indices are less than any end index this is fairly easy
 			// Just pair them off from the outside in
-			if (PairedOffOutsideToIn(startIndices, endIndices))
+			if (IsPairedOffOutsideToIn(startIndices, endIndices))
 			{
 				Add(args, span[(startIndices[0] + 1)..endIndices[endIndices.Count - 1]]);
 			}
@@ -232,11 +232,11 @@ namespace YACCS.Parsing
 					}
 
 					previousEnd = endIndices[i];
-					Add(args, input[(start + 1)..previousEnd]);
+					Add(args, span[(start + 1)..previousEnd]);
 				}
 			}
 
-			if (maxEnd != input.Length - 1)
+			if (maxEnd != span.Length - 1)
 			{
 				AddRange(args, span[(maxEnd + 1)..^0], splitChar);
 			}
@@ -271,7 +271,7 @@ namespace YACCS.Parsing
 			}
 		}
 
-		private static bool PairedOffOutsideToIn(IReadOnlyList<int> startIndices, IReadOnlyList<int> endIndices)
+		private static bool IsPairedOffOutsideToIn(IReadOnlyList<int> startIndices, IReadOnlyList<int> endIndices)
 		{
 			for (var s = 0; s < startIndices.Count; ++s)
 			{

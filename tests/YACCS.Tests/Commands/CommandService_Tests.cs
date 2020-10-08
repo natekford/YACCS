@@ -445,26 +445,6 @@ namespace YACCS.Tests.Commands
 		}
 
 		[TestMethod]
-		public async Task Multiple_Test()
-		{
-			var (commandService, context, _, _) = Create(true, DISALLOWED_VALUE);
-			var commands = await typeof(CommandsGroup).GetDirectCommandsAsync().ConfigureAwait(false);
-			var scored = commands.Select(x => CommandScore.FromCorrectArgCount(x, context, 0)).ToArray();
-
-			var c1 = commands.ById(CommandsGroup._1).Single();
-			var c2 = commands.ById(CommandsGroup._2).Single();
-			Assert.AreEqual(c1, scored[0].Command);
-			Assert.AreEqual(c2, scored[1].Command);
-
-			var (result, best) = await commandService.GetBestMatchAsync(
-				context,
-				new[] { (DISALLOWED_VALUE + 1).ToString() }
-			).ConfigureAwait(false);
-			Assert.IsFalse(result.IsSuccess);
-			Assert.IsNull(best);
-		}
-
-		[TestMethod]
 		public async Task Successful_Test()
 		{
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);

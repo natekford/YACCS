@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -22,7 +23,6 @@ namespace YACCS.Commands
 		private readonly CommandTrie _CommandTrie;
 		private readonly ICommandServiceConfig _Config;
 		private readonly ITypeReaderRegistry _Readers;
-
 		public IReadOnlyCollection<IImmutableCommand> Commands => _CommandTrie.ToArray();
 
 		public event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted
@@ -326,21 +326,8 @@ namespace YACCS.Commands
 			// If not an array, join all the values and treat them as a single string
 			if (!makeArray)
 			{
-				if (length == 1)
-				{
-					return cache.GetResultAsync(reader, input[startIndex]);
-				}
-
-				var sb = new StringBuilder();
-				for (var i = startIndex; i < startIndex + length; ++i)
-				{
-					if (sb.Length != 0)
-					{
-						sb.Append(_Config.Separator);
-					}
-					sb.Append(input[i]);
-				}
-				return cache.GetResultAsync(reader, sb.ToString());
+				var str = length == 1 ? input[startIndex] : Join(input, startIndex, length);
+				return cache.GetResultAsync(reader, str);
 			}
 
 			static async Task<ITypeReaderResult> ProcessTypeReadersAsync(
@@ -451,6 +438,30 @@ namespace YACCS.Commands
 				return (true, reader);
 			}
 			throw new ArgumentException($"There is no converter specified for {parameter.ParameterType.Name}.");
+		}
+
+		private string Join(IReadOnlyList<string> input, int startIndex, int length)
+		{
+			var sb = new StringBuilder();
+			for (var i = startIndex; i < startIndex + length; ++i)
+			{
+				if (sb.Length != 0)
+				{
+					sb.Append(_Config.Separator);
+				}
+
+				var item = input[i];
+				if (item.Contains(_Config.Separator))
+				{
+					const char Quote = CommandServiceUtils.InternallyUsedQuote;
+					sb.Append(Quote).Append(item).Append(Quote);
+				}
+				else
+				{
+					sb.Append(item);
+				}
+			}
+			return sb.ToString();
 		}
 	}
 }

@@ -63,7 +63,7 @@ namespace YACCS.Commands
 				}
 			}
 
-			if (exceptions.Count > 0)
+			if (exceptions.Count > 0 && _Exception.IsValueCreated)
 			{
 				var args = new ExceptionEventArgs<T>(exceptions, e);
 				await Exception.InvokeAsync(args).ConfigureAwait(false);

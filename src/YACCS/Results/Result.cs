@@ -18,10 +18,10 @@ namespace YACCS.Results
 			Response = response;
 		}
 
-		public static IResult FromError(string response)
+		public static Result FromError(string response)
 			=> new Result(false, response);
 
-		public static IResult FromSuccess()
+		public static Result FromSuccess()
 			=> new Result(true, "");
 
 		public class ResultInstance<T, TBase> where T : IResult, TBase
