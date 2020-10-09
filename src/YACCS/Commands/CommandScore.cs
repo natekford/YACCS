@@ -51,16 +51,10 @@ namespace YACCS.Commands
 				return 1;
 			}
 
-			var stage = a.Stage.CompareTo(b.Stage);
+			var stage = ((int)a.Stage).CompareTo((int)b.Stage);
 			if (stage != 0)
 			{
 				return stage;
-			}
-
-			var success = a.InnerResult.IsSuccess.CompareTo(b.InnerResult.IsSuccess);
-			if (success != 0)
-			{
-				return success;
 			}
 
 			var priority = a.Priority.CompareTo(b.Priority);

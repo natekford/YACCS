@@ -54,7 +54,8 @@ namespace YACCS.Commands.Models
 				: base(mutable, mutable.Delegate.Method.ReturnType)
 			{
 				_Delegate = mutable.Delegate;
-				_InvokeDelegate = CreateDelegate(CreateInvokeDelegate, "invoke delegate");
+				_InvokeDelegate = ReflectionUtils.CreateDelegate(CreateInvokeDelegate,
+					"invoke delegate");
 			}
 
 			public override async Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args)

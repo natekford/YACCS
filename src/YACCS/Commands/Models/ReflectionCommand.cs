@@ -125,9 +125,12 @@ namespace YACCS.Commands.Models
 				_GroupType = mutable.GroupType;
 				_Method = mutable.Method;
 
-				_ConstructorDelegate = CreateDelegate(CreateConstructorDelegate, "constructor delegate");
-				_InjectionDelegate = CreateDelegate(CreateInjectionDelegate, "injection delegate");
-				_InvokeDelegate = CreateDelegate(CreateInvokeDelegate, "invoke delegate");
+				_ConstructorDelegate = ReflectionUtils.CreateDelegate(CreateConstructorDelegate,
+					"constructor delegate");
+				_InjectionDelegate = ReflectionUtils.CreateDelegate(CreateInjectionDelegate,
+					"injection delegate");
+				_InvokeDelegate = ReflectionUtils.CreateDelegate(CreateInvokeDelegate,
+					"invoke delegate");
 			}
 
 			public override async Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args)
@@ -172,13 +175,7 @@ namespace YACCS.Commands.Models
 				 *	}
 				 */
 
-				const BindingFlags FLAGS = BindingFlags.Public | BindingFlags.Instance;
-				var properties = _GroupType
-					.GetProperties(FLAGS)
-					.Where(x => x.CanWrite && x.SetMethod?.IsPublic == true);
-				var fields = _GroupType
-					.GetFields(FLAGS)
-					.Where(x => !x.IsInitOnly);
+				var (properties, fields) = _GroupType.GetWritableMembers();
 				var getService =
 					typeof(IServiceProvider)
 					.GetMethod(nameof(IServiceProvider.GetService));
@@ -188,7 +185,7 @@ namespace YACCS.Commands.Models
 				var instanceCastExpr = Expression.Convert(instanceExpr, _GroupType);
 				var nullExpr = Expression.Constant(null);
 
-				ConditionalExpression CreateExpression(
+				Expression CreateExpression(
 					Type type,
 					Func<UnaryExpression?, MemberExpression> memberGetter)
 				{

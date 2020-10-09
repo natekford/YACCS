@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -12,6 +13,9 @@ namespace YACCS.Commands
 	public static class CommandServiceUtils
 	{
 		public const char InternallyUsedQuote = '"';
+		public const char InternallyUsedSeparator = ' ';
+		public static readonly IImmutableSet<char> InternallyUsedQuotes
+			= new[] { InternallyUsedQuote }.ToImmutableHashSet();
 
 		public static T CreateInstance<T>(Type type)
 		{
@@ -123,10 +127,37 @@ namespace YACCS.Commands
 		}
 	}
 
-	public static class TypeUtils
+	public static class ReflectionUtils
 	{
+		public static Lazy<T> CreateDelegate<T>(Func<T> createDelegateDelegate, string name)
+		{
+			return new Lazy<T>(() =>
+			{
+				try
+				{
+					return createDelegateDelegate();
+				}
+				catch (Exception ex)
+				{
+					throw new ArgumentException($"Unable to create {name}.", ex);
+				}
+			});
+		}
+
+		public static (IEnumerable<PropertyInfo>, IEnumerable<FieldInfo>) GetWritableMembers(this Type type)
+		{
+			const BindingFlags FLAGS = BindingFlags.Public | BindingFlags.Instance;
+			var properties = type
+				.GetProperties(FLAGS)
+				.Where(x => x.CanWrite && x.SetMethod?.IsPublic == true);
+			var fields = type
+				.GetFields(FLAGS)
+				.Where(x => !x.IsInitOnly);
+			return (properties, fields);
+		}
+
 		public static bool IsGenericOf(this Type type, Type definition)
-			=> type.IsGenericType && type.GetGenericTypeDefinition() == definition;
+							=> type.IsGenericType && type.GetGenericTypeDefinition() == definition;
 	}
 
 	internal static class IServiceProviderUtils

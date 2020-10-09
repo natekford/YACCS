@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
+using YACCS.Commands;
+
 namespace YACCS.Parsing
 {
 	/// <summary>
@@ -9,10 +11,6 @@ namespace YACCS.Parsing
 	/// </summary>
 	public readonly struct ParseArgs
 	{
-		private const char _DefaultSplitChar = ' ';
-		private static readonly IImmutableSet<char> _DefautQuotes
-			= new[] { '"' }.ToImmutableHashSet();
-
 		/// <summary>
 		/// The parsed arguments.
 		/// </summary>
@@ -108,7 +106,15 @@ namespace YACCS.Parsing
 		/// <param name="result"></param>
 		/// <returns></returns>
 		public static bool TryParse(string input, out ParseArgs result)
-			=> TryParse(input, _DefautQuotes, _DefautQuotes, _DefaultSplitChar, out result);
+		{
+			return TryParse(
+				input,
+				CommandServiceUtils.InternallyUsedQuotes,
+				CommandServiceUtils.InternallyUsedQuotes,
+				CommandServiceUtils.InternallyUsedSeparator,
+				out result
+			);
+		}
 
 		/// <summary>
 		/// Attempts to parse a <see cref="ParseArgs"/> from characters indicating the start of a quote and characters indicating the end of a quote.

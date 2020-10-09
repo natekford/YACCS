@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
@@ -58,6 +59,18 @@ namespace YACCS.Commands.Models
 			ParameterType = type;
 		}
 
+		public Parameter(FieldInfo field) : base(field)
+		{
+			ParameterName = field.Name;
+			ParameterType = field.FieldType;
+		}
+
+		public Parameter(PropertyInfo property) : base(property)
+		{
+			ParameterName = property.Name;
+			ParameterType = property.PropertyType;
+		}
+
 		public Parameter(System.Reflection.ParameterInfo parameter) : base(parameter)
 		{
 			DefaultValue = GetDefaultValue(parameter);
@@ -102,6 +115,7 @@ namespace YACCS.Commands.Models
 			public Type? EnumerableType { get; }
 			public bool HasDefaultValue { get; }
 			public int? Length { get; }
+			public string OverriddenParameterName { get; }
 			public ITypeReader? OverriddenTypeReader { get; }
 			public string ParameterName { get; }
 			public Type ParameterType { get; }
@@ -123,6 +137,9 @@ namespace YACCS.Commands.Models
 				HasDefaultValue = mutable.HasDefaultValue;
 				var length = mutable.Get<ILengthAttribute>().SingleOrDefault();
 				Length = length == null ? 1 : length.Length;
+				// TODO: add in override type readers from attribute
+				// TODO: add in override name from attribute
+				OverriddenParameterName = mutable.ParameterName;
 				OverriddenTypeReader = mutable.OverriddenTypeReader;
 				ParameterName = mutable.ParameterName;
 				ParameterType = mutable.ParameterType;

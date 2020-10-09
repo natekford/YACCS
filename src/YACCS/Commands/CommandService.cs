@@ -447,7 +447,8 @@ namespace YACCS.Commands
 			{
 				if (sb.Length != 0)
 				{
-					sb.Append(_Config.Separator);
+					const char Separator = CommandServiceUtils.InternallyUsedQuote;
+					sb.Append(Separator);
 				}
 
 				var item = input[i];

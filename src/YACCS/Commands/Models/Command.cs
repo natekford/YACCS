@@ -53,7 +53,8 @@ namespace YACCS.Commands.Models
 			protected ImmutableCommand(Command mutable, Type returnType)
 			{
 				ReturnType = returnType;
-				_TaskResultDelegate = CreateDelegate(CreateTaskResultDelegate, "task result delegate");
+				_TaskResultDelegate = ReflectionUtils.CreateDelegate(CreateTaskResultDelegate,
+					"task result delegate");
 
 				Attributes = mutable.Attributes.ToImmutableArray();
 				ContextType = mutable.ContextType;
@@ -92,21 +93,6 @@ namespace YACCS.Commands.Models
 			}
 
 			public abstract Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args);
-
-			protected static Lazy<T> CreateDelegate<T>(Func<T> createDelegateDelegate, string name)
-			{
-				return new Lazy<T>(() =>
-				{
-					try
-					{
-						return createDelegateDelegate();
-					}
-					catch (Exception ex)
-					{
-						throw new ArgumentException($"Unable to create {name}.", ex);
-					}
-				});
-			}
 
 			protected async Task<ExecutionResult> ConvertValueAsync(IContext context, object? value)
 			{

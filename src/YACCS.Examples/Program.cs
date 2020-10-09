@@ -89,7 +89,7 @@ namespace YACCS.Examples
 
 			var @delegate = (Action<int, double, string>)DelegateCommand;
 			var names = new[] { new Name(new[] { "delegate" }) };
-			for (var i = 0; i < 100000; ++i)
+			for (var i = 0; i < 1000; ++i)
 			{
 				var command = new DelegateCommand(@delegate, names)
 					.AddAttribute(new PriorityAttribute(i))
