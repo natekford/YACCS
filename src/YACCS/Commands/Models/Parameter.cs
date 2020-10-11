@@ -137,14 +137,15 @@ namespace YACCS.Commands.Models
 				HasDefaultValue = mutable.HasDefaultValue;
 				var length = mutable.Get<ILengthAttribute>().SingleOrDefault();
 				Length = length == null ? 1 : length.Length;
+				OverriddenParameterName = mutable.Get<INameAttribute>().SingleOrDefault()?.Name
+					?? mutable.ParameterName;
 				// TODO: add in override type readers from attribute
-				// TODO: add in override name from attribute
-				OverriddenParameterName = mutable.ParameterName;
 				OverriddenTypeReader = mutable.OverriddenTypeReader;
 				ParameterName = mutable.ParameterName;
 				ParameterType = mutable.ParameterType;
 				Preconditions = mutable.Get<IParameterPrecondition>().ToImmutableArray();
-				PrimaryId = mutable.Get<IIdAttribute>().FirstOrDefault()?.Id ?? Guid.NewGuid().ToString();
+				PrimaryId = mutable.Get<IIdAttribute>().FirstOrDefault()?.Id
+					?? Guid.NewGuid().ToString();
 			}
 
 			private static Type? GetEnumerableType(Type type)

@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Parsing;
@@ -58,6 +57,11 @@ namespace YACCS.Commands
 				}
 			}
 			_CommandTrie.Add(command);
+
+			if (command.Attributes.Any(x => x is GenerateNamedArgumentsAttribute))
+			{
+				_CommandTrie.Add(command.GenerateNamedArgumentVersion());
+			}
 		}
 
 		public async Task<IResult> ExecuteAsync(IContext context, string input)
@@ -447,7 +451,7 @@ namespace YACCS.Commands
 			{
 				if (sb.Length != 0)
 				{
-					const char Separator = CommandServiceUtils.InternallyUsedQuote;
+					const char Separator = CommandServiceUtils.InternallyUsedSeparator;
 					sb.Append(Separator);
 				}
 
