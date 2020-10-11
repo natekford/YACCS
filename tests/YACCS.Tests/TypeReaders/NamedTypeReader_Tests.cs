@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
+using YACCS.NamedArguments;
 using YACCS.Results;
 using YACCS.TypeReaders;
 
@@ -75,8 +76,11 @@ namespace YACCS.Tests.TypeReaders
 		{
 			var typeReaders = new TypeReaderRegistry();
 			var commandService = new CommandService(CommandServiceConfig.Default, typeReaders);
-			var command = typeof(CommandsGroup).GetDirectCommandsMutable().Single().ToCommand();
-			commandService.Add(command);
+			foreach (var command in typeof(CommandsGroup).GetDirectCommandsMutable()
+				.SelectMany(x => x.ToImmutable()))
+			{
+				commandService.Add(command);
+			}
 
 			var setMe = new SetMe();
 			var context = new FakeContext()
@@ -128,7 +132,8 @@ namespace YACCS.Tests.TypeReaders
 	[TestClass]
 	public class NamedTypeReader_Tests : TypeReader_Tests<NamedTypeReader_Tests.NamedClass>
 	{
-		public override TypeReader<NamedClass> Reader { get; } = NamedTypeReaderUtils.Create<NamedClass>();
+		public override TypeReader<NamedClass> Reader { get; }
+			= new NamedArgumentTypeReader<NamedClass>();
 
 		[TestMethod]
 		public async Task ReadAsync_Test()

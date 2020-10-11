@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Linq;
+using YACCS.NamedArguments;
 using YACCS.Results;
 
 namespace YACCS.Commands.Models
@@ -46,8 +48,13 @@ namespace YACCS.Commands.Models
 			Attributes.Add(new MethodInfoCommandAttribute(Method));
 		}
 
-		public override IImmutableCommand ToCommand()
-			=> new ImmutableReflectionCommand(this);
+		public override IEnumerable<IImmutableCommand> ToImmutable()
+		{
+			var immutable = new ImmutableReflectionCommand(this);
+			return this.Get<GenerateNamedArgumentsAttribute>().Any()
+				? new[] { immutable, immutable.GenerateNamedArgumentVersion() }
+				: new[] { immutable };
+		}
 
 		private static IList<IName> GetFullNames(
 			Type group,

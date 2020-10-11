@@ -7,6 +7,6 @@ namespace YACCS.Commands.Models
 		new IList<IName> Names { get; set; }
 		IList<IParameter> Parameters { get; set; }
 
-		IImmutableCommand ToCommand();
+		IEnumerable<IImmutableCommand> ToImmutable();
 	}
 }

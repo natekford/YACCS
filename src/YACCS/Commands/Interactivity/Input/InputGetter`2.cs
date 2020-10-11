@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Models;
@@ -60,10 +61,10 @@ namespace YACCS.Commands.Interactivity.Input
 		protected static ParameterInfo GenerateInputParameter<TValue>()
 		{
 			var commandBuilder = new DelegateCommand(EmptyDelegate, EmptyNames);
-			var parameterBuilder = new Parameter(typeof(TValue), "InputParameter");
+			var parameterBuilder = new Parameter(typeof(TValue), "InputParameter", null);
 			commandBuilder.Parameters.Add(parameterBuilder);
 
-			var command = commandBuilder.ToCommand();
+			var command = commandBuilder.ToImmutable().Single();
 			var parameter = command.Parameters[0];
 			return new ParameterInfo(command, parameter);
 		}

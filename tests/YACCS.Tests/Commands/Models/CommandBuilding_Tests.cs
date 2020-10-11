@@ -23,7 +23,7 @@ namespace YACCS.Tests.Commands.Models
 			var @delegate = (Func<IContext, Task<bool>>)((IContext arg) => Task.FromResult(true));
 			var names = new[] { new Name(new[] { "Joe" }) };
 			var command = new DelegateCommand(@delegate, names);
-			var immutable = command.ToCommand();
+			var immutable = command.ToImmutable().Single();
 			Assert.AreEqual(names.Length, command.Names.Count);
 			Assert.AreEqual(names[0], command.Names[0]);
 			Assert.AreEqual(1, command.Parameters.Count);
@@ -80,7 +80,7 @@ namespace YACCS.Tests.Commands.Models
 			var @delegate = (Func<IContext, Task<bool>>)Method;
 			var names = new[] { new Name(new[] { "Joe" }) };
 			var command = new DelegateCommand(@delegate, names);
-			var immutable = command.ToCommand();
+			var immutable = command.ToImmutable().Single();
 			Assert.AreEqual(names.Length, command.Names.Count);
 			Assert.AreEqual(names[0], command.Names[0]);
 			Assert.AreEqual(1, command.Parameters.Count);

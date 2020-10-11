@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
+using YACCS.NamedArguments;
 using YACCS.TypeReaders;
 
 namespace YACCS.Commands
@@ -69,16 +70,26 @@ namespace YACCS.Commands
 			{
 				return true;
 			}
+
+			Type readerType;
 			if (type.IsEnum)
 			{
-				var readerType = typeof(EnumTypeReader<>).MakeGenericType(type);
-				var enumReader = (ITypeReader)Activator.CreateInstance(readerType);
-				Register(enumReader, type);
-				result = enumReader;
-				return true;
+				readerType = typeof(EnumTypeReader<>).MakeGenericType(type);
 			}
-			result = null;
-			return false;
+			else if (type.IsGenericOf(typeof(NamedArgumentTypeReader<>)))
+			{
+				readerType = typeof(NamedArgumentTypeReader<>).MakeGenericType(type);
+			}
+			else
+			{
+				result = null;
+				return false;
+			}
+
+			var reader = (ITypeReader)Activator.CreateInstance(readerType);
+			Register(reader, type);
+			result = reader;
+			return true;
 		}
 	}
 }

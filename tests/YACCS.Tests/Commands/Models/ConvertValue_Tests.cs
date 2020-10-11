@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,7 +17,7 @@ namespace YACCS.Tests.Commands.Models
 		{
 			var value = 0;
 			var @delegate = (Func<IResult>)(() => { ++value; return new ValueResult(value); });
-			var command = new DelegateCommand(@delegate, Array.Empty<IName>()).ToCommand();
+			var command = new DelegateCommand(@delegate, Array.Empty<IName>()).ToImmutable().Single();
 			var results = new[]
 			{
 				await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
@@ -39,7 +40,7 @@ namespace YACCS.Tests.Commands.Models
 		{
 			var value = 0;
 			var @delegate = (Func<Task>)(() => { ++value; return Task.CompletedTask; });
-			var command = new DelegateCommand(@delegate, Array.Empty<IName>()).ToCommand();
+			var command = new DelegateCommand(@delegate, Array.Empty<IName>()).ToImmutable().Single();
 			var results = new[]
 			{
 				await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
@@ -59,7 +60,7 @@ namespace YACCS.Tests.Commands.Models
 		{
 			var value = 0;
 			var @delegate = (Func<Task<int>>)(() => { ++value; return Task.FromResult(value); });
-			var command = new DelegateCommand(@delegate, Array.Empty<IName>()).ToCommand();
+			var command = new DelegateCommand(@delegate, Array.Empty<IName>()).ToImmutable().Single();
 			var results = new[]
 			{
 				await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
@@ -82,7 +83,7 @@ namespace YACCS.Tests.Commands.Models
 		{
 			var value = 0;
 			var @delegate = (Action)(() => ++value);
-			var command = new DelegateCommand(@delegate, Array.Empty<IName>()).ToCommand();
+			var command = new DelegateCommand(@delegate, Array.Empty<IName>()).ToImmutable().Single();
 			var results = new[]
 			{
 				await command.ExecuteAsync(null!, null!).ConfigureAwait(false),

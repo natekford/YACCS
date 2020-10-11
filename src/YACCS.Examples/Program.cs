@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -93,7 +94,8 @@ namespace YACCS.Examples
 			{
 				var command = new DelegateCommand(@delegate, names)
 					.AddAttribute(new PriorityAttribute(i))
-					.ToCommand();
+					.ToImmutable()
+					.Single();
 				_CommandService.Add(command);
 			}
 #endif

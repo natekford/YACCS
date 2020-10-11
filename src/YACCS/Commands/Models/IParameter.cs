@@ -8,6 +8,6 @@ namespace YACCS.Commands.Models
 		bool HasDefaultValue { get; set; }
 		ITypeReader? OverriddenTypeReader { get; set; }
 
-		IImmutableParameter ToParameter();
+		IImmutableParameter ToImmutable();
 	}
 }

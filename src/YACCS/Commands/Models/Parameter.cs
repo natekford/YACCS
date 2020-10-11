@@ -7,11 +7,14 @@ using System.Reflection;
 
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
+using YACCS.NamedArguments;
 using YACCS.ParameterPreconditions;
 using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Models
 {
+	using ParameterInfo = System.Reflection.ParameterInfo;
+
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public sealed class Parameter : EntityBase, IParameter
 	{
@@ -47,41 +50,43 @@ namespace YACCS.Commands.Models
 		public Type ParameterType { get; }
 		private string DebuggerDisplay => $"Name = {ParameterName}, Type = {ParameterType}";
 
-		public Parameter() : base(null)
+		public Parameter() : this(typeof(void), "", null)
 		{
-			ParameterName = "";
-			ParameterType = typeof(void);
 		}
 
-		public Parameter(Type type, string name) : base(null)
+		public Parameter(Type type, string name, ICustomAttributeProvider? provider)
+			: base(provider)
 		{
 			ParameterName = name;
 			ParameterType = type;
+
+			if (this.Get<GeneratedNamedArgumentsAttribute>().Any())
+			{
+				Attributes.Add(new RemainderAttribute());
+				Attributes.Add(new NamedArgumentParameterPrecondition(ParameterType));
+			}
 		}
 
-		public Parameter(FieldInfo field) : base(field)
+		public Parameter(FieldInfo field)
+			: this(field.FieldType, field.Name, field)
 		{
-			ParameterName = field.Name;
-			ParameterType = field.FieldType;
 		}
 
-		public Parameter(PropertyInfo property) : base(property)
+		public Parameter(PropertyInfo property)
+			: this(property.PropertyType, property.Name, property)
 		{
-			ParameterName = property.Name;
-			ParameterType = property.PropertyType;
 		}
 
-		public Parameter(System.Reflection.ParameterInfo parameter) : base(parameter)
+		public Parameter(ParameterInfo parameter)
+			: this(parameter.ParameterType, parameter.Name, parameter)
 		{
 			DefaultValue = GetDefaultValue(parameter);
-			ParameterName = parameter.Name;
-			ParameterType = parameter.ParameterType;
 		}
 
-		public IImmutableParameter ToParameter()
+		public IImmutableParameter ToImmutable()
 			=> new ImmutableParameter(this);
 
-		private static object? GetDefaultValue(System.Reflection.ParameterInfo parameter)
+		private static object? GetDefaultValue(ParameterInfo parameter)
 		{
 			// Not optional and has no default value
 			if (parameter.DefaultValue == DBNull.Value)

@@ -57,11 +57,6 @@ namespace YACCS.Commands
 				}
 			}
 			_CommandTrie.Add(command);
-
-			if (command.Attributes.Any(x => x is GenerateNamedArgumentsAttribute))
-			{
-				_CommandTrie.Add(command.GenerateNamedArgumentVersion());
-			}
 		}
 
 		public async Task<IResult> ExecuteAsync(IContext context, string input)

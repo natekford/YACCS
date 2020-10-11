@@ -2,7 +2,7 @@
 
 namespace YACCS.Commands.Attributes
 {
-	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
 	public class GenerateNamedArgumentsAttribute : Attribute
 	{
 	}

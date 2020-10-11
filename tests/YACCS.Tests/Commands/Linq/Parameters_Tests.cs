@@ -25,7 +25,7 @@ namespace YACCS.Tests.Commands.Linq
 		private const string PARENT_ID = "parent_id";
 		private readonly List<IParameter> _Parameters = new List<IParameter>
 		{
-			new Parameter(typeof(Child), "")
+			new Parameter(typeof(Child), "", null)
 			{
 				Attributes = new List<object>
 				{
@@ -33,7 +33,7 @@ namespace YACCS.Tests.Commands.Linq
 					new IdAttribute(CHILD_ID),
 				},
 			},
-			new Parameter(typeof(Base), "")
+			new Parameter(typeof(Base), "", null)
 			{
 				Attributes = new List<object>
 				{
@@ -41,14 +41,14 @@ namespace YACCS.Tests.Commands.Linq
 					new IdAttribute(PARENT_ID),
 				},
 			},
-			new Parameter(typeof(int), "")
+			new Parameter(typeof(int), "", null)
 			{
 				Attributes = new List<object>
 				{
 					new IdAttribute(NORM_ID),
 				},
 			},
-			new Parameter(typeof(int), ""),
+			new Parameter(typeof(int), "", null),
 		};
 
 		[TestMethod]

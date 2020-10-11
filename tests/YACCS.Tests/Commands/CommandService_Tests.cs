@@ -31,13 +31,15 @@ namespace YACCS.Tests.Commands
 
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new Name(new[] { "1" }))
-				.ToCommand();
+				.ToImmutable()
+				.Single();
 			commandService.Add(c1);
 			Assert.AreEqual(1, commandService.Commands.Count);
 
 			var c2 = FakeDelegateCommand.New()
 				.AddName(new Name(new[] { "2" }))
-				.ToCommand();
+				.ToImmutable()
+				.Single();
 			commandService.Add(c2);
 			Assert.AreEqual(2, commandService.Commands.Count);
 
@@ -57,7 +59,7 @@ namespace YACCS.Tests.Commands
 			var c1 = new DelegateCommand(d1, new[] { new Name(new[] { "1" }) });
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				commandService.Add(c1.ToCommand());
+				commandService.Add(c1.ToImmutable().Single());
 			});
 
 			c1.Parameters[0].OverriddenTypeReader = new TryParseTypeReader<Fake>((string input, out Fake output) =>
@@ -65,7 +67,7 @@ namespace YACCS.Tests.Commands
 				output = null!;
 				return false;
 			});
-			commandService.Add(c1.ToCommand());
+			commandService.Add(c1.ToImmutable().Single());
 			Assert.AreEqual(1, commandService.Commands.Count);
 		}
 
@@ -76,22 +78,26 @@ namespace YACCS.Tests.Commands
 
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new Name(new[] { "1" }))
-				.ToCommand();
+				.ToImmutable()
+				.Single();
 			commandService.Add(c1);
 			var c2 = FakeDelegateCommand.New()
 				.AddName(new Name(new[] { "2" }))
 				.AddName(new Name(new[] { "3" }))
-				.ToCommand();
+				.ToImmutable()
+				.Single();
 			commandService.Add(c2);
 			var c3 = FakeDelegateCommand.New()
 				.AddName(new Name(new[] { "4", "1" }))
 				.AddName(new Name(new[] { "4", "2" }))
 				.AddName(new Name(new[] { "4", "3" }))
-				.ToCommand();
+				.ToImmutable()
+				.Single();
 			commandService.Add(c3);
 			var c4 = FakeDelegateCommand.New()
 				.AddName(new Name(new[] { "4", "1" }))
-				.ToCommand();
+				.ToImmutable()
+				.Single();
 			commandService.Add(c4);
 
 			{
@@ -321,7 +327,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
-				command.ToCommand(),
+				command.ToImmutable().Single(),
 				context,
 				new[] { DISALLOWED_VALUE.ToString() },
 				1
@@ -341,7 +347,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
-				command.ToCommand(),
+				command.ToImmutable().Single(),
 				context,
 				new[] { DISALLOWED_VALUE.ToString() },
 				0
@@ -361,7 +367,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, command, parameter) = Create(false, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
-				command.ToCommand(),
+				command.ToImmutable().Single(),
 				context,
 				new[] { (DISALLOWED_VALUE + 1).ToString() },
 				0
@@ -381,7 +387,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
-				command.ToCommand(),
+				command.ToImmutable().Single(),
 				context,
 				new[] { "joeba" },
 				0
@@ -402,7 +408,7 @@ namespace YACCS.Tests.Commands
 			var score = await commandService.GetCommandScoreAsync(
 				new PreconditionCache(context),
 				new InvalidContext(),
-				command.ToCommand(),
+				command.ToImmutable().Single(),
 				Array.Empty<string>(),
 				0
 			).ConfigureAwait(false);
@@ -420,7 +426,7 @@ namespace YACCS.Tests.Commands
 				var score = await commandService.GetCommandScoreAsync(
 					new PreconditionCache(context),
 					context,
-					command.ToCommand(),
+					command.ToImmutable().Single(),
 					Array.Empty<string>(),
 					0
 				).ConfigureAwait(false);
@@ -434,7 +440,7 @@ namespace YACCS.Tests.Commands
 				var score = await commandService.GetCommandScoreAsync(
 					new PreconditionCache(context),
 					context,
-					command.ToCommand(),
+					command.ToImmutable().Single(),
 					new[] { "a", "b", "c", "d", "e", "f" },
 					0
 				).ConfigureAwait(false);
@@ -450,7 +456,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
-				command.ToCommand(),
+				command.ToImmutable().Single(),
 				context,
 				new[] { (DISALLOWED_VALUE + 1).ToString() },
 				0
@@ -474,7 +480,7 @@ namespace YACCS.Tests.Commands
 				.AddPrecondition(new FakePrecondition(success))
 				.AddPrecondition(new WasIReachedPrecondition());
 
-			var parameter = new Parameter(typeof(int), "")
+			var parameter = new Parameter(typeof(int), "", null)
 				.AsType<int>()
 				.AddParameterPrecondition(new FakeParameterPrecondition(disallowedValue))
 				.AddParameterPrecondition(new WasIReachedParameterPrecondition());
@@ -555,14 +561,14 @@ namespace YACCS.Tests.Commands
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
-			var parameterBuilder = new Parameter(typeof(int), "")
+			var parameterBuilder = new Parameter(typeof(int), "", null)
 				.AsType<int>()
 				.AddParameterPrecondition(new FakeParameterPrecondition(disallowedValue))
 				.AddParameterPrecondition(new WasIReachedParameterPrecondition());
 			var commandBuilder = FakeDelegateCommand.New();
 			commandBuilder.Parameters.Add(parameterBuilder);
-			var command = commandBuilder.ToCommand();
-			var parameter = parameterBuilder.ToParameter();
+			var command = commandBuilder.ToImmutable().Single();
+			var parameter = parameterBuilder.ToImmutable();
 			return (commandService, context, command, parameter);
 		}
 	}
@@ -602,8 +608,8 @@ namespace YACCS.Tests.Commands
 				.AsContext<IContext>()
 				.AddPrecondition(new FakePrecondition(success))
 				.AddPrecondition(new WasIReachedPrecondition())
-				.ToCommand();
-			return (commandService, context, command);
+				.ToImmutable();
+			return (commandService, context, command.Single());
 		}
 	}
 
@@ -617,7 +623,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<int[]>(4);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToParameter(),
+				parameter.ToImmutable(),
 				value.Select(x => x.ToString()).Append("joeba").Append("trash").ToArray(),
 				0
 			).ConfigureAwait(false);
@@ -638,7 +644,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<int[]>(4);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToParameter(),
+				parameter.ToImmutable(),
 				value.Select(x => x.ToString()).ToArray(),
 				0
 			).ConfigureAwait(false);
@@ -659,7 +665,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<int[]>(null);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToParameter(),
+				parameter.ToImmutable(),
 				value.Select(x => x.ToString()).ToArray(),
 				0
 			).ConfigureAwait(false);
@@ -681,7 +687,7 @@ namespace YACCS.Tests.Commands
 			{
 				var result = await commandService.ProcessTypeReadersAsync(
 					new PreconditionCache(context),
-					parameter.ToParameter(),
+					parameter.ToImmutable(),
 					new[] { "joeba" },
 					0
 				).ConfigureAwait(false);
@@ -695,7 +701,7 @@ namespace YACCS.Tests.Commands
 			parameter.OverriddenTypeReader = new CoolCharTypeReader();
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToParameter(),
+				parameter.ToImmutable(),
 				new[] { "joeba" },
 				0
 			).ConfigureAwait(false);
@@ -708,7 +714,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<char>(1);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToParameter(),
+				parameter.ToImmutable(),
 				new[] { "joeba" },
 				0
 			).ConfigureAwait(false);
@@ -722,7 +728,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<int>(1);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToParameter(),
+				parameter.ToImmutable(),
 				new[] { VALUE.ToString() },
 				0
 			).ConfigureAwait(false);
@@ -738,7 +744,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<int>(1);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToParameter(),
+				parameter.ToImmutable(),
 				new[] { VALUE.ToString(), "joeba", "trash" },
 				0
 			).ConfigureAwait(false);
@@ -754,7 +760,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<char[]>(4);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToParameter(),
+				parameter.ToImmutable(),
 				value,
 				0
 			).ConfigureAwait(false);
@@ -768,7 +774,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<string>(1);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToParameter(),
+				parameter.ToImmutable(),
 				new[] { VALUE },
 				0
 			).ConfigureAwait(false);
@@ -783,7 +789,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<IContext>(0);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToParameter(),
+				parameter.ToImmutable(),
 				new[] { "doesn't matter" },
 				0
 			).ConfigureAwait(false);
@@ -795,7 +801,7 @@ namespace YACCS.Tests.Commands
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
-			var parameter = new Parameter(typeof(T), "")
+			var parameter = new Parameter(typeof(T), "", null)
 			{
 				Attributes = new List<object>
 				{

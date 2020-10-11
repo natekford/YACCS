@@ -29,7 +29,7 @@ namespace YACCS.Commands.Models
 			Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IParameter>();
 		}
 
-		public abstract IImmutableCommand ToCommand();
+		public abstract IEnumerable<IImmutableCommand> ToImmutable();
 
 		[DebuggerDisplay("{DebuggerDisplay,nq}")]
 		protected abstract class ImmutableCommand : IImmutableCommand
@@ -59,7 +59,7 @@ namespace YACCS.Commands.Models
 				Attributes = mutable.Attributes.ToImmutableArray();
 				ContextType = mutable.ContextType;
 				Names = mutable.Names.ToImmutableArray();
-				Parameters = mutable.Parameters.Select(x => x.ToParameter()).ToImmutableArray();
+				Parameters = mutable.Parameters.Select(x => x.ToImmutable()).ToImmutableArray();
 				Preconditions = mutable.Get<IPrecondition>().ToImmutableArray();
 				PrimaryId = mutable.Get<IIdAttribute>().FirstOrDefault()?.Id ?? Guid.NewGuid().ToString();
 				Priority = mutable.Get<IPriorityAttribute>().SingleOrDefault()?.Priority ?? 0;

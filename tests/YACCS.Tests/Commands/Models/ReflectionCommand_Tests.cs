@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +20,7 @@ namespace YACCS.Tests.Commands.Models
 		{
 			var method = typeof(GroupInjection)
 				.GetMethod(nameof(GroupInjection.CommandAsync));
-			var command = new ReflectionCommand(method!).ToCommand();
+			var command = new ReflectionCommand(method!).ToImmutable().Single();
 			var context = new FakeContext
 			{
 				Services = new ServiceCollection()

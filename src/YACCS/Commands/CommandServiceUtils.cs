@@ -6,7 +6,9 @@ using System.Reflection;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
+using YACCS.TypeReaders;
 
 namespace YACCS.Commands
 {
@@ -83,20 +85,27 @@ namespace YACCS.Commands
 			where T : ICommandGroup, new()
 			=> typeof(T).GetAllCommandsAsync();
 
-		public static async Task<IReadOnlyList<IImmutableCommand>> GetDirectCommandsAsync(
+		public static Task<IReadOnlyList<IImmutableCommand>> GetDirectCommandsAsync(
 			this Type type)
 		{
 			var commands = type.CreateMutableCommands();
-			if (commands.Count > 0)
+			if (commands.Count == 0)
+			{
+				return Task.FromResult<IReadOnlyList<IImmutableCommand>>(Array.Empty<IImmutableCommand>());
+			}
+
+			static async Task<IReadOnlyList<IImmutableCommand>> GetDirectCommandsAsync(
+				Type type,
+				List<ICommand> commands)
 			{
 				var group = CreateInstance<ICommandGroup>(type);
 				await group.OnCommandBuildingAsync(commands).ConfigureAwait(false);
 
 				// Commands have been modified by whoever implemented them
 				// We can now return them in an immutable state
-				return commands.Select(x => x.ToCommand()).ToArray();
+				return commands.SelectMany(x => x.ToImmutable()).ToArray();
 			}
-			return Array.Empty<IImmutableCommand>();
+			return GetDirectCommandsAsync(type, commands);
 		}
 
 		public static IReadOnlyList<ICommand> GetDirectCommandsMutable(this Type type)
@@ -120,6 +129,7 @@ namespace YACCS.Commands
 				{
 					continue;
 				}
+
 				commands.Add(new ReflectionCommand(method));
 			}
 
@@ -157,7 +167,7 @@ namespace YACCS.Commands
 		}
 
 		public static bool IsGenericOf(this Type type, Type definition)
-							=> type.IsGenericType && type.GetGenericTypeDefinition() == definition;
+			=> type.IsGenericType && type.GetGenericTypeDefinition() == definition;
 	}
 
 	internal static class IServiceProviderUtils

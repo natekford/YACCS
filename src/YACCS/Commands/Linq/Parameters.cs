@@ -150,8 +150,8 @@ namespace YACCS.Commands.Linq
 				_Actual = actual;
 			}
 
-			public IImmutableParameter ToParameter()
-				=> _Actual.ToParameter();
+			public IImmutableParameter ToImmutable()
+				=> _Actual.ToImmutable();
 		}
 	}
 }

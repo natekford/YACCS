@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Linq;
+using YACCS.NamedArguments;
 using YACCS.Results;
 
 namespace YACCS.Commands.Models
@@ -42,8 +44,13 @@ namespace YACCS.Commands.Models
 			Attributes.Add(new DelegateCommandAttribute(@delegate));
 		}
 
-		public override IImmutableCommand ToCommand()
-			=> new ImmutableDelegateCommand(this);
+		public override IEnumerable<IImmutableCommand> ToImmutable()
+		{
+			var immutable = new ImmutableDelegateCommand(this);
+			return this.Get<GenerateNamedArgumentsAttribute>().Any()
+				? new[] { immutable, immutable.GenerateNamedArgumentVersion() }
+				: new[] { immutable };
+		}
 
 		private sealed class ImmutableDelegateCommand : ImmutableCommand
 		{

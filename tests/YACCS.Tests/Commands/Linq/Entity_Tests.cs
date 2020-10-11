@@ -36,7 +36,7 @@ namespace YACCS.Tests.Commands.Linq
 
 			{
 				var command = new DelegateCommand(@delegate, Array.Empty<IName>());
-				commands.Add(command.ToCommand());
+				commands.Add(command.ToImmutable().Single());
 
 				var result = commands.ByDelegate(@delegate, includeMethod: false).ToArray();
 				Assert.AreEqual(1, result.Length);

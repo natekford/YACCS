@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -27,9 +28,10 @@ namespace YACCS.Tests.TypeReaders
 					.AddSingleton<ICommandService>(service)
 					.BuildServiceProvider(),
 			};
-			foreach (var command in typeof(FakeCommandGroup).GetDirectCommandsMutable())
+			foreach (var command in typeof(FakeCommandGroup).GetDirectCommandsMutable()
+				.SelectMany(x => x.ToImmutable()))
 			{
-				service.Add(command.ToCommand());
+				service.Add(command);
 			}
 		}
 

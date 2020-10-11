@@ -3,139 +3,36 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 using MorseCode.ITask;
 
 using YACCS.Commands;
-using YACCS.Commands.Attributes;
-using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Parsing;
 using YACCS.Results;
+using YACCS.TypeReaders;
 
-namespace YACCS.TypeReaders
+namespace YACCS.NamedArguments
 {
-	public static class NamedTypeReaderUtils
-	{
-		public static NamedTypeReader<T> Create<T>() where T : new()
-			=> new NamedTypeReader<T>(() => new T());
-
-		public static IImmutableCommand GenerateNamedArgumentVersion(this IImmutableCommand command)
-		{
-			Task<ExecutionResult> ExecuteAsync(IContext context, IDictionary<string, object?> values)
-			{
-				var args = new object?[command.Parameters.Count];
-				for (var i = 0; i < args.Length; ++i)
-				{
-					var parameter = command.Parameters[i];
-					if (values.TryGetValue(parameter.ParameterName, out var value))
-					{
-						args[i] = value;
-					}
-					else if (parameter.HasDefaultValue)
-					{
-						args[i] = parameter.DefaultValue;
-					}
-					else
-					{
-						throw new InvalidOperationException("Generated named argument commands cannot handle missing values.");
-					}
-				}
-				return command.ExecuteAsync(context, args);
-			}
-
-			var @delegate = (Func<IContext, IDictionary<string, object?>, Task<ExecutionResult>>)ExecuteAsync;
-			var newCommand = new DelegateCommand(@delegate, command.ContextType, command.Names);
-			newCommand.AddAttribute(new GeneratedNamedArgumentsAttribute(command));
-
-			var contextParameter = newCommand
-				.Parameters
-				.Single(x => x.ParameterType == typeof(IContext));
-			contextParameter.AddAttribute(new ContextAttribute());
-
-			var valuesParameter = newCommand
-				.Parameters
-				.Single(x => x.ParameterType == typeof(IDictionary<string, object?>));
-			valuesParameter.AddAttribute(new RemainderAttribute());
-			valuesParameter.OverriddenTypeReader = new GeneratedNamedTypeReader(command);
-
-			return newCommand.ToCommand();
-		}
-
-		public class GeneratedNamedTypeReader : NamedTypeReader<IDictionary<string, object?>>
-		{
-			protected override IImmutableCommand Command { get; }
-			protected override Action<IDictionary<string, object?>, string, object> Setter { get; }
-
-			public GeneratedNamedTypeReader(IImmutableCommand command)
-				: base(() => new Dictionary<string, object?>())
-			{
-				Setter = (dict, key, value) => dict[key] = value;
-				Command = command;
-			}
-
-			protected override bool TryCreateDict(ParseArgs args, [NotNullWhen(true)] out IDictionary<string, string>? dict)
-			{
-				if (!base.TryCreateDict(args, out dict))
-				{
-					return false;
-				}
-
-				foreach (var kvp in Parameters)
-				{
-					if (!dict.ContainsKey(kvp.Key) && !kvp.Value.HasDefaultValue)
-					{
-						return false;
-					}
-				}
-				return true;
-			}
-		}
-	}
-
-	public class NamedTypeReader<T> : TypeReader<T>
+	public class NamedArgumentTypeReader<T> : TypeReader<T> where T : new()
 	{
 		private static readonly char[] _TrimEndChars = new[] { ':' };
 		private static readonly char[] _TrimStartChars = new[] { '/', '-' };
-		private readonly Lazy<IImmutableCommand> _Command;
 		private readonly Lazy<IReadOnlyDictionary<string, IImmutableParameter>> _Parameters;
 		private readonly Lazy<Action<T, string, object>> _Setter;
-		private readonly Func<T> CreateInstance;
 
-		protected virtual IImmutableCommand Command => _Command.Value;
 		protected virtual IReadOnlyDictionary<string, IImmutableParameter> Parameters => _Parameters.Value;
 		protected virtual Action<T, string, object> Setter => _Setter.Value;
 
-		public NamedTypeReader(Func<T> createInstance)
+		public NamedArgumentTypeReader()
 		{
-			CreateInstance = createInstance;
-
 			_Parameters = new Lazy<IReadOnlyDictionary<string, IImmutableParameter>>(() =>
 			{
-				return Command
-					.Parameters
-					.ToDictionary(x => x.OverriddenParameterName, x => x, StringComparer.OrdinalIgnoreCase);
+				return NamedArgumentUtils.CreateParameters<T>()
+					.ToParameterDictionary(x => x.OverriddenParameterName);
 			});
 			_Setter = ReflectionUtils.CreateDelegate(CreateSetterDelegate,
 				"setter delegate");
-			_Command = new Lazy<IImmutableCommand>(() =>
-			{
-				var names = new[] { new Name(new[] { "__NamedTypeReaderSetter" }) };
-				var command = new DelegateCommand(Setter, names);
-				command.Parameters.Clear();
-
-				var (properties, fields) = typeof(T).GetWritableMembers();
-				var parameters = properties
-					.Select(x => new Parameter(x))
-					.Concat(fields.Select(x => new Parameter(x)));
-				foreach (var parameter in parameters)
-				{
-					command.Parameters.Add(parameter);
-				}
-
-				return command.ToCommand();
-			});
 		}
 
 		public override ITask<ITypeReaderResult<T>> ReadAsync(IContext context, string input)
@@ -262,7 +159,7 @@ namespace YACCS.TypeReaders
 			IDictionary<string, string> dict)
 		{
 			var registry = context.Services.GetRequiredService<ITypeReaderRegistry>();
-			var instance = CreateInstance.Invoke();
+			var instance = new T();
 			foreach (var kvp in dict)
 			{
 				var parameter = Parameters[kvp.Key];
@@ -274,20 +171,8 @@ namespace YACCS.TypeReaders
 					// TODO: return a more descriptive error based on the member failed
 					return TypeReaderResult<T>.Failure.Sync;
 				}
-				var value = trResult.Value!;
 
-				var parameterInfo = new ParameterInfo(Command, parameter);
-				foreach (var precondition in parameter.Preconditions)
-				{
-					var pResult = await precondition.CheckAsync(parameterInfo, context, value).ConfigureAwait(false);
-					if (!pResult.IsSuccess)
-					{
-						// TODO: return a more descriptive error based on the failed precondition
-						return TypeReaderResult<T>.Failure.Sync;
-					}
-				}
-
-				Setter.Invoke(instance, parameter.ParameterName, value);
+				Setter.Invoke(instance, parameter.ParameterName, trResult.Value!);
 			}
 			return TypeReaderResult<T>.FromSuccess(instance);
 		}

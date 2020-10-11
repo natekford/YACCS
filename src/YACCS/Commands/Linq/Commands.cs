@@ -118,8 +118,8 @@ namespace YACCS.Commands.Linq
 				_Actual = actual;
 			}
 
-			public IImmutableCommand ToCommand()
-				=> _Actual.ToCommand();
+			public IEnumerable<IImmutableCommand> ToImmutable()
+				=> _Actual.ToImmutable();
 		}
 	}
 }
