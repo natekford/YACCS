@@ -68,7 +68,7 @@ namespace YACCS.Commands.Models
 			if (this.Get<GenerateNamedArgumentsAttribute>().Any()
 				|| type.GetCustomAttribute<GenerateNamedArgumentsAttribute>() != null)
 			{
-				if (!this.Get<ICountAttribute>().Any())
+				if (!this.Get<ILengthAttribute>().Any())
 				{
 					Attributes.Add(new RemainderAttribute());
 				}
@@ -146,8 +146,8 @@ namespace YACCS.Commands.Models
 				DefaultValue = mutable.DefaultValue;
 				ElementType = GetEnumerableType(mutable.ParameterType);
 				HasDefaultValue = mutable.HasDefaultValue;
-				var length = mutable.Get<ICountAttribute>().SingleOrDefault();
-				Length = length == null ? 1 : length.Count;
+				var length = mutable.Get<ILengthAttribute>().SingleOrDefault();
+				Length = length == null ? 1 : length.Length;
 				OverriddenParameterName = mutable.Get<INameAttribute>().SingleOrDefault()?.Name
 					?? mutable.ParameterName;
 				// TODO: add in override type readers from attribute
