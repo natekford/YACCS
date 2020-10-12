@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Parsing;
@@ -49,7 +48,7 @@ namespace YACCS.Commands
 			{
 				if (parameter.OverriddenTypeReader == null
 					&& !_Readers.TryGetReader(parameter.ParameterType, out _)
-					&& (parameter.EnumerableType == null || !_Readers.TryGetReader(parameter.EnumerableType, out _)))
+					&& (parameter.ElementType == null || !_Readers.TryGetReader(parameter.ElementType, out _)))
 				{
 					var param = parameter.ParameterType.Name;
 					var cmd = command.Names?.FirstOrDefault()?.ToString() ?? "NO NAME";
@@ -112,13 +111,21 @@ namespace YACCS.Commands
 					return node.GetCommands().ToImmutableArray();
 				}
 			}
-			return Array.Empty<IImmutableCommand>();
+
+			return _CommandTrie.TryGet(input, out var command)
+				? new[] { command }
+				: Array.Empty<IImmutableCommand>();
 		}
 
 		public async Task<(IResult, CommandScore?)> GetBestMatchAsync(
 			IContext context,
 			IReadOnlyList<string> input)
 		{
+			if (input.Count == 0)
+			{
+				return (CommandNotFoundResult.Instance.Sync, null);
+			}
+
 			var node = _CommandTrie.Root;
 			var best = default(CommandScore);
 			var cache = new PreconditionCache(context);
@@ -141,6 +148,15 @@ namespace YACCS.Commands
 					}
 					best = CommandScore.Max(best, score);
 				}
+			}
+
+			// Allow users to invoke commands directly through their id
+			const string ID = "__id_";
+			if (best is null
+				&& input[0].StartsWith(ID, StringComparison.OrdinalIgnoreCase)
+				&& _CommandTrie.TryGet(input[0].Substring(ID.Length - 1), out var idCommand))
+			{
+				best = await GetCommandScoreAsync(cache, context, idCommand, input, 1).ConfigureAwait(false);
 			}
 
 			var result = best?.InnerResult ?? CommandNotFoundResult.Instance.Sync;
@@ -350,7 +366,7 @@ namespace YACCS.Commands
 				}
 
 				// Copy the values from the type reader result list to an array of the parameter type
-				var output = Array.CreateInstance(parameter.EnumerableType, results.Length);
+				var output = Array.CreateInstance(parameter.ElementType, results.Length);
 				for (var i = 0; i < results.Length; ++i)
 				{
 					output.SetValue(results[i].Value, i);
@@ -431,7 +447,7 @@ namespace YACCS.Commands
 			// Parameter type is not, but the parameter is an enumerable and its enumerable
 			// type is in the TypeReader collection.
 			// Let's read each value for the enumerable separately
-			var eType = parameter.EnumerableType;
+			var eType = parameter.ElementType;
 			if (eType is not null && _Readers.TryGetReader(eType, out reader))
 			{
 				return (true, reader);

@@ -2,7 +2,7 @@
 
 namespace YACCS.Commands.Attributes
 {
-	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
 	public class PriorityAttribute : Attribute, IPriorityAttribute
 	{
 		public int Priority { get; }

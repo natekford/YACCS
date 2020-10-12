@@ -52,6 +52,8 @@ namespace YACCS.NamedArguments
 					}
 					else
 					{
+						// This should never really be reachable due to GeneratedNamedParameterPrecondition
+						// already checking for undefined values
 						throw new InvalidOperationException("Generated named argument commands cannot handle missing values.");
 					}
 				}
@@ -75,7 +77,7 @@ namespace YACCS.NamedArguments
 				.Single()
 				.AsType<IDictionary<string, object?>>();
 			values.AddAttribute(new RemainderAttribute())
-				.AddParameterPrecondition(new GeneratedNamedParameterPrecondition(command, values.ParameterType))
+				.AddParameterPrecondition(new GeneratedNamedParameterPrecondition(command))
 				.SetOverriddenTypeReader(new GeneratedNamedTypeReader(command));
 
 			return newCommand.ToImmutable().Single();
@@ -89,14 +91,33 @@ namespace YACCS.NamedArguments
 				.ToDictionary(keySelector, x => x, StringComparer.OrdinalIgnoreCase);
 		}
 
-		private class GeneratedNamedParameterPrecondition : NamedArgumentParameterPrecondition
+		private class GeneratedNamedParameterPrecondition
+			: NamedArgumentParameterPrecondition<IDictionary<string, object?>>
 		{
+			protected override Func<IDictionary<string, object?>, string, object?> Getter { get; }
 			protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
-			public GeneratedNamedParameterPrecondition(IImmutableCommand command, Type type)
-				: base(type)
+			public GeneratedNamedParameterPrecondition(IImmutableCommand command)
 			{
+				Getter = (dict, key) => dict[key];
 				Parameters = command.Parameters.ToParameterDictionary(x => x.ParameterName);
+			}
+
+			public override Task<IResult> CheckAsync(
+				ParameterInfo parameter,
+				IContext context,
+				[MaybeNull] IDictionary<string, object?> value)
+			{
+				foreach (var kvp in Parameters)
+				{
+					if (!value.ContainsKey(kvp.Key) && !kvp.Value.HasDefaultValue)
+					{
+						// TODO: more descriptive
+						return NotEnoughArgsResult.Instance.Task;
+					}
+				}
+
+				return base.CheckAsync(parameter, context, value);
 			}
 		}
 

@@ -140,10 +140,11 @@ namespace YACCS.NamedArguments
 					return Expression.Field(u, x);
 				});
 			});
-			var expressions = propertyExprs
+			var allAssignExpr = Expression.Block(
+				propertyExprs
 				.Concat(fieldExprs)
-				.Append(Expression.Label(returnLabel));
-			var allAssignExpr = Expression.Block(expressions);
+				.Append(Expression.Label(returnLabel))
+			);
 
 			var lambda = Expression.Lambda<Action<T, string, object>>(
 				allAssignExpr,

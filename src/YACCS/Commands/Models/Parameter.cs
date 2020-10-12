@@ -57,13 +57,24 @@ namespace YACCS.Commands.Models
 		public Parameter(Type type, string name, ICustomAttributeProvider? provider)
 			: base(provider)
 		{
+			if (type == typeof(void))
+			{
+				throw new ArgumentException("Cannot have a parameter type of void.", nameof(type));
+			}
+
 			ParameterName = name;
 			ParameterType = type;
 
-			if (this.Get<GeneratedNamedArgumentsAttribute>().Any())
+			if (this.Get<GenerateNamedArgumentsAttribute>().Any()
+				|| type.GetCustomAttribute<GenerateNamedArgumentsAttribute>() != null)
 			{
-				Attributes.Add(new RemainderAttribute());
-				Attributes.Add(new NamedArgumentParameterPrecondition(ParameterType));
+				if (!this.Get<ICountAttribute>().Any())
+				{
+					Attributes.Add(new RemainderAttribute());
+				}
+
+				var ppType = typeof(NamedArgumentParameterPrecondition<>).MakeGenericType(ParameterType);
+				Attributes.Add(Activator.CreateInstance(ppType));
 			}
 		}
 
@@ -117,7 +128,7 @@ namespace YACCS.Commands.Models
 
 			public IReadOnlyList<object> Attributes { get; }
 			public object? DefaultValue { get; }
-			public Type? EnumerableType { get; }
+			public Type? ElementType { get; }
 			public bool HasDefaultValue { get; }
 			public int? Length { get; }
 			public string OverriddenParameterName { get; }
@@ -131,17 +142,12 @@ namespace YACCS.Commands.Models
 
 			public ImmutableParameter(Parameter mutable)
 			{
-				if (mutable.ParameterType == typeof(void))
-				{
-					throw new ArgumentException("Cannot have a parameter type of void.", nameof(mutable));
-				}
-
 				Attributes = mutable.Attributes.ToImmutableArray();
 				DefaultValue = mutable.DefaultValue;
-				EnumerableType = GetEnumerableType(mutable.ParameterType);
+				ElementType = GetEnumerableType(mutable.ParameterType);
 				HasDefaultValue = mutable.HasDefaultValue;
-				var length = mutable.Get<ILengthAttribute>().SingleOrDefault();
-				Length = length == null ? 1 : length.Length;
+				var length = mutable.Get<ICountAttribute>().SingleOrDefault();
+				Length = length == null ? 1 : length.Count;
 				OverriddenParameterName = mutable.Get<INameAttribute>().SingleOrDefault()?.Name
 					?? mutable.ParameterName;
 				// TODO: add in override type readers from attribute

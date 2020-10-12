@@ -2,24 +2,24 @@
 
 namespace YACCS.Commands.Attributes
 {
-	[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = true)]
-	public class CountAttribute : Attribute, ILengthAttribute
+	[AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
+	public class CountAttribute : Attribute, ICountAttribute
 	{
-		public int? Length { get; }
+		public int? Count { get; }
 
 		public CountAttribute()
 		{
-			Length = null;
+			Count = null;
 		}
 
 		public CountAttribute(int length)
 		{
-			Length = length;
+			Count = length;
 		}
 
 		public CountAttribute(int? length)
 		{
-			Length = length;
+			Count = length;
 		}
 	}
 }

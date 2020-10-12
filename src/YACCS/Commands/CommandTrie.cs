@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using YACCS.Commands.Models;
 
@@ -95,6 +96,9 @@ namespace YACCS.Commands
 			}
 			return removed;
 		}
+
+		public bool TryGet(string id, [NotNullWhen(true)] out IImmutableCommand? value)
+			=> _Commands.TryGetValue(id, out value);
 
 		void ICollection<IImmutableCommand>.Add(IImmutableCommand item)
 			=> Add(item);

@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace YACCS.Commands.Attributes
 {
-	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
 	public class MethodInfoCommandAttribute : Attribute, IMethodInfoCommandAttribute
 	{
 		public MethodInfo Method { get; }

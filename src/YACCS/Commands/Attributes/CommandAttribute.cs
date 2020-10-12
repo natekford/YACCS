@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 
 namespace YACCS.Commands.Attributes
 {
-	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+	[AttributeUsage(AttributeTargets.Class | AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
 	public class CommandAttribute : Attribute, ICommandAttribute
 	{
 		public bool AllowInheritance { get; set; }

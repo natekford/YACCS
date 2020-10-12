@@ -65,10 +65,10 @@ namespace YACCS.Commands.Models
 					"invoke delegate");
 			}
 
-			public override async Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args)
+			public override Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args)
 			{
 				var value = _InvokeDelegate.Value(args);
-				return await ConvertValueAsync(context, value).ConfigureAwait(false);
+				return ConvertValueAsync(context, value);
 			}
 
 			private Func<object?[], object> CreateInvokeDelegate()

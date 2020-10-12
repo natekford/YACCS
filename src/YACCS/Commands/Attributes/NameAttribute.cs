@@ -2,7 +2,7 @@
 
 namespace YACCS.Commands.Attributes
 {
-	[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = true)]
+	[AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
 	public class NameAttribute : Attribute, INameAttribute
 	{
 		public string Name { get; }
