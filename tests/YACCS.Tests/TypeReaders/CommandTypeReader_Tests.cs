@@ -29,10 +29,9 @@ namespace YACCS.Tests.TypeReaders
 					.BuildServiceProvider(),
 			};
 
-			var commands = typeof(FakeCommandGroup).GetDirectCommandsAsync().GetAwaiter().GetResult();
-			foreach (var command in commands)
+			foreach (var command in typeof(FakeCommandGroup).GetDirectCommandsAsync().GetAwaiter().GetResult())
 			{
-				service.Add(command);
+				service.Commands.Add(command);
 			}
 		}
 

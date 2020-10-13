@@ -19,7 +19,7 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public void AddAndRemove_Tests()
 		{
-			var trie = new CommandTrie(StringComparer.OrdinalIgnoreCase);
+			var trie = new CommandTrie(StringComparer.OrdinalIgnoreCase, new TypeReaderRegistry());
 
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new Name(new[] { "1" }))
@@ -110,7 +110,7 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public void Duplicate_Tests()
 		{
-			var trie = new CommandTrie(StringComparer.OrdinalIgnoreCase);
+			var trie = new CommandTrie(StringComparer.OrdinalIgnoreCase, new TypeReaderRegistry());
 
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new Name(new[] { "a" }))

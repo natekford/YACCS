@@ -95,7 +95,7 @@ namespace YACCS.Examples
 					.AddAttribute(new PriorityAttribute(i))
 					.ToImmutable()
 					.Single();
-				_CommandService.Add(command);
+				_CommandService.Commands.Add(command);
 			}
 #endif
 		}

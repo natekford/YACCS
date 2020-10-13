@@ -27,26 +27,27 @@ namespace YACCS.Tests.Commands
 		public void AddAndRemove_Test()
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
-			Assert.AreEqual(0, commandService.Commands.Count);
+			var collection = commandService.Commands;
+			Assert.AreEqual(0, collection.Count);
 
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new Name(new[] { "1" }))
 				.ToImmutable()
 				.Single();
-			commandService.Add(c1);
-			Assert.AreEqual(1, commandService.Commands.Count);
+			collection.Add(c1);
+			Assert.AreEqual(1, collection.Count);
 
 			var c2 = FakeDelegateCommand.New()
 				.AddName(new Name(new[] { "2" }))
 				.ToImmutable()
 				.Single();
-			commandService.Add(c2);
+			collection.Add(c2);
 			Assert.AreEqual(2, commandService.Commands.Count);
 
-			commandService.Remove(c1);
+			collection.Remove(c1);
 			Assert.AreEqual(1, commandService.Commands.Count);
 
-			commandService.Remove(c2);
+			collection.Remove(c2);
 			Assert.AreEqual(0, commandService.Commands.Count);
 		}
 
@@ -54,12 +55,13 @@ namespace YACCS.Tests.Commands
 		public void AddWithParameters_Test()
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
+			var collection = commandService.Commands;
 
 			var d1 = (Action<Fake>)(x => { });
 			var c1 = new DelegateCommand(d1, new[] { new Name(new[] { "1" }) });
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				commandService.Add(c1.ToImmutable().Single());
+				collection.Add(c1.ToImmutable().Single());
 			});
 
 			c1.Parameters[0].TypeReader = new TryParseTypeReader<Fake>((string input, out Fake output) =>
@@ -67,7 +69,7 @@ namespace YACCS.Tests.Commands
 				output = null!;
 				return false;
 			});
-			commandService.Add(c1.ToImmutable().Single());
+			collection.Add(c1.ToImmutable().Single());
 			Assert.AreEqual(1, commandService.Commands.Count);
 		}
 
@@ -75,30 +77,31 @@ namespace YACCS.Tests.Commands
 		public void Find_Test()
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
+			var collection = commandService.Commands;
 
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new Name(new[] { "1" }))
 				.ToImmutable()
 				.Single();
-			commandService.Add(c1);
+			collection.Add(c1);
 			var c2 = FakeDelegateCommand.New()
 				.AddName(new Name(new[] { "2" }))
 				.AddName(new Name(new[] { "3" }))
 				.ToImmutable()
 				.Single();
-			commandService.Add(c2);
+			collection.Add(c2);
 			var c3 = FakeDelegateCommand.New()
 				.AddName(new Name(new[] { "4", "1" }))
 				.AddName(new Name(new[] { "4", "2" }))
 				.AddName(new Name(new[] { "4", "3" }))
 				.ToImmutable()
 				.Single();
-			commandService.Add(c3);
+			collection.Add(c3);
 			var c4 = FakeDelegateCommand.New()
 				.AddName(new Name(new[] { "4", "1" }))
 				.ToImmutable()
 				.Single();
-			commandService.Add(c4);
+			collection.Add(c4);
 
 			{
 				var found = commandService.Find("");

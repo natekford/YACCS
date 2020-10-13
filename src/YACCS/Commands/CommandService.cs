@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,61 +16,38 @@ namespace YACCS.Commands
 {
 	public class CommandService : ICommandService
 	{
-		private readonly AsyncEvent<CommandExecutedEventArgs> _CommandExecuted
+		public ITrie<IImmutableCommand> Commands { get; protected set; }
+		IReadOnlyCollection<IImmutableCommand> ICommandService.Commands => Commands;
+		protected AsyncEvent<CommandExecutedEventArgs> CommandExecutedEvent { get; set; }
 			= new AsyncEvent<CommandExecutedEventArgs>();
-		private readonly CommandTrie _CommandTrie;
-		private readonly ICommandServiceConfig _Config;
-		private readonly ITypeReaderRegistry _Readers;
-		public IReadOnlyCollection<IImmutableCommand> Commands => _CommandTrie.ToArray();
+		protected ICommandServiceConfig Config { get; set; }
+		protected ITypeReaderRegistry Readers { get; set; }
 
 		public event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted
 		{
-			add => _CommandExecuted.Add(value);
-			remove => _CommandExecuted.Remove(value);
+			add => CommandExecutedEvent.Add(value);
+			remove => CommandExecutedEvent.Remove(value);
 		}
 
 		public event AsyncEventHandler<ExceptionEventArgs<CommandExecutedEventArgs>> CommandExecutedException
 		{
-			add => _CommandExecuted.Exception.Add(value);
-			remove => _CommandExecuted.Exception.Remove(value);
+			add => CommandExecutedEvent.Exception.Add(value);
+			remove => CommandExecutedEvent.Exception.Remove(value);
 		}
 
 		public CommandService(ICommandServiceConfig config, ITypeReaderRegistry readers)
 		{
-			_CommandTrie = new CommandTrie(config.CommandNameComparer);
-			_Config = config;
-			_Readers = readers;
-		}
-
-		public void Add(IImmutableCommand command)
-		{
-			foreach (var parameter in command.Parameters)
-			{
-				if (parameter.TypeReader == null
-					&& !_Readers.TryGetReader(parameter.ParameterType, out _)
-					&& (parameter.ElementType == null || !_Readers.TryGetReader(parameter.ElementType, out _)))
-				{
-					var param = parameter.ParameterType.Name;
-					var cmd = command.Names?.FirstOrDefault()?.ToString() ?? "NO NAME";
-					throw new ArgumentException($"A type reader for {param} in {cmd} is missing.", nameof(command));
-				}
-			}
-			_CommandTrie.Add(command);
+			Commands = new CommandTrie(config.CommandNameComparer, readers);
+			Config = config;
+			Readers = readers;
 		}
 
 		public async Task<IResult> ExecuteAsync(IContext context, string input)
 		{
-			if (!ParseArgs.TryParse(
-				input,
-				_Config.StartQuotes,
-				_Config.EndQuotes,
-				_Config.Separator,
-				out var parseArgs))
+			if (!TryGetArgs(input, out var args))
 			{
 				return QuoteMismatchResult.Instance.Sync;
 			}
-
-			var args = parseArgs.Arguments;
 			if (args.Count == 0)
 			{
 				return CommandNotFoundResult.Instance.Sync;
@@ -86,20 +63,14 @@ namespace YACCS.Commands
 			return SuccessResult.Instance.Sync;
 		}
 
-		public IReadOnlyList<IImmutableCommand> Find(string input)
+		public virtual IReadOnlyList<IImmutableCommand> Find(string input)
 		{
-			if (!ParseArgs.TryParse(
-				input,
-				_Config.StartQuotes,
-				_Config.EndQuotes,
-				_Config.Separator,
-				out var parseArgs) || parseArgs.Arguments.Count == 0)
+			if (!TryGetArgs(input, out var args))
 			{
 				return Array.Empty<IImmutableCommand>();
 			}
 
-			var args = parseArgs.Arguments;
-			var node = _CommandTrie.Root;
+			var node = Commands.Root;
 			for (var i = 0; i < args.Count; ++i)
 			{
 				if (!node.TryGetEdge(args[i], out node))
@@ -115,16 +86,11 @@ namespace YACCS.Commands
 			return Array.Empty<IImmutableCommand>();
 		}
 
-		public async Task<(IResult, CommandScore?)> GetBestMatchAsync(
+		public virtual async Task<(IResult, CommandScore?)> GetBestMatchAsync(
 			IContext context,
 			IReadOnlyList<string> input)
 		{
-			if (input.Count == 0)
-			{
-				return (CommandNotFoundResult.Instance.Sync, null);
-			}
-
-			var node = _CommandTrie.Root;
+			var node = Commands.Root;
 			var best = default(CommandScore);
 			var cache = new PreconditionCache(context);
 			for (var i = 0; i < input.Count; ++i)
@@ -138,7 +104,7 @@ namespace YACCS.Commands
 				{
 					// Add 1 to i to account for how we're in a node
 					var score = await GetCommandScoreAsync(cache, context, command, input, i + 1).ConfigureAwait(false);
-					if (_Config.MultiMatchHandling == MultiMatchHandling.Error
+					if (Config.MultiMatchHandling == MultiMatchHandling.Error
 						&& best?.InnerResult.IsSuccess == true
 						&& score.InnerResult.IsSuccess)
 					{
@@ -373,10 +339,7 @@ namespace YACCS.Commands
 			));
 		}
 
-		public void Remove(IImmutableCommand command)
-			=> _CommandTrie.Remove(command);
-
-		private async Task ExecuteCommand(CommandScore score, IContext context)
+		protected virtual async Task ExecuteCommand(CommandScore score, IContext context)
 		{
 			var command = score.Command!;
 
@@ -387,7 +350,7 @@ namespace YACCS.Commands
 				var args = score.Args!;
 				var result = await command.ExecuteAsync(context, args).ConfigureAwait(false);
 				var e = new CommandExecutedEventArgs(command, context, result);
-				await _CommandExecuted.InvokeAsync(e).ConfigureAwait(false);
+				await CommandExecutedEvent.InvokeAsync(e).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
@@ -415,8 +378,24 @@ namespace YACCS.Commands
 			{
 				var e = new CommandExecutedEventArgs(command, context, exceptionResult)
 					.WithExceptions(exceptions);
-				await _CommandExecuted.Exception.InvokeAsync(e).ConfigureAwait(false);
+				await CommandExecutedEvent.Exception.InvokeAsync(e).ConfigureAwait(false);
 			}
+		}
+
+		protected virtual bool TryGetArgs(string input, [NotNullWhen(true)] out IReadOnlyList<string>? args)
+		{
+			if (ParseArgs.TryParse(
+				input,
+				Config.StartQuotes,
+				Config.EndQuotes,
+				Config.Separator,
+				out var parseArgs))
+			{
+				args = parseArgs.Arguments;
+				return true;
+			}
+			args = null;
+			return false;
 		}
 
 		private (bool, ITypeReader) GetReader(IImmutableParameter parameter)
@@ -429,7 +408,7 @@ namespace YACCS.Commands
 			}
 			// Parameter type is directly in the TypeReader collection, use that
 			var pType = parameter.ParameterType;
-			if (_Readers.TryGetReader(pType, out var reader))
+			if (Readers.TryGetReader(pType, out var reader))
 			{
 				return (false, reader);
 			}
@@ -437,7 +416,7 @@ namespace YACCS.Commands
 			// type is in the TypeReader collection.
 			// Let's read each value for the enumerable separately
 			var eType = parameter.ElementType;
-			if (eType is not null && _Readers.TryGetReader(eType, out reader))
+			if (eType is not null && Readers.TryGetReader(eType, out reader))
 			{
 				return (true, reader);
 			}
@@ -456,7 +435,7 @@ namespace YACCS.Commands
 				}
 
 				var item = input[i];
-				if (item.Contains(_Config.Separator))
+				if (item.Contains(Config.Separator))
 				{
 					const char Quote = CommandServiceUtils.InternallyUsedQuote;
 					sb.Append(Quote).Append(item).Append(Quote);

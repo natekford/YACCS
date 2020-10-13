@@ -23,7 +23,7 @@ namespace YACCS.Commands
 		{
 			foreach (var command in enumerable)
 			{
-				commandService.Add(command);
+				commandService.Commands.Add(command);
 			}
 		}
 
@@ -33,7 +33,7 @@ namespace YACCS.Commands
 		{
 			await foreach (var command in enumerable)
 			{
-				commandService.Add(command);
+				commandService.Commands.Add(command);
 			}
 		}
 
@@ -45,9 +45,9 @@ namespace YACCS.Commands
 			{
 				yield return command;
 			}
-			foreach (var t in type.GetNestedTypes())
+			foreach (var nested in type.GetNestedTypes())
 			{
-				await foreach (var command in GetAllCommandsAsync(t))
+				await foreach (var command in nested.GetAllCommandsAsync())
 				{
 					yield return command;
 				}
