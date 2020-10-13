@@ -305,7 +305,7 @@ namespace YACCS.Tests.Commands
 				 typeof(CommandsGroup),
 				 typeof(CommandsGroup2),
 				 typeof(CommandsGroup3),
-			}.GetAllCommandsAsync();
+			}.GetDirectCommandsAsync();
 			await commandService.AddRangeAsync(commands).ConfigureAwait(false);
 
 			return (commandService, context);

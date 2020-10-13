@@ -48,7 +48,7 @@ namespace YACCS.Commands.Models
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 			IEnumerable<IName> IQueryableCommand.Names => Names;
 			protected Type ReturnType { get; }
-			private string DebuggerDisplay => $"Name = {Names?.FirstOrDefault()?.ToString() ?? PrimaryId}, Parameter Count = {Parameters.Count}";
+			private string DebuggerDisplay => $"Name = {Names?.FirstOrDefault()?.ToString() ?? "NULL"}, Parameter Count = {Parameters.Count}";
 
 			protected ImmutableCommand(Command mutable, Type returnType)
 			{

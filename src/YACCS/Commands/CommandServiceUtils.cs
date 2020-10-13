@@ -38,18 +38,6 @@ namespace YACCS.Commands
 		}
 
 		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
-			this IEnumerable<Type> types)
-		{
-			foreach (var type in types)
-			{
-				await foreach (var command in type.GetAllCommandsAsync())
-				{
-					yield return command;
-				}
-			}
-		}
-
-		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
 			this Type type)
 		{
 			var commands = await type.GetDirectCommandsAsync().ConfigureAwait(false);
@@ -80,11 +68,24 @@ namespace YACCS.Commands
 
 		public static IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
 			this Assembly assembly)
-			=> assembly.GetExportedTypes().GetAllCommandsAsync();
+			=> assembly.GetExportedTypes().GetDirectCommandsAsync();
 
 		public static IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync<T>()
 			where T : ICommandGroup, new()
 			=> typeof(T).GetAllCommandsAsync();
+
+		public static async IAsyncEnumerable<IImmutableCommand> GetDirectCommandsAsync(
+			this IEnumerable<Type> types)
+		{
+			foreach (var type in types)
+			{
+				var commands = await type.GetDirectCommandsAsync().ConfigureAwait(false);
+				foreach (var command in commands)
+				{
+					yield return command;
+				}
+			}
+		}
 
 		public static Task<IReadOnlyList<IImmutableCommand>> GetDirectCommandsAsync(
 			this Type type)

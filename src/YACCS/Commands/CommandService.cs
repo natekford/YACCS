@@ -108,13 +108,11 @@ namespace YACCS.Commands
 				}
 				if (i == args.Count - 1)
 				{
-					return node.GetCommands().ToImmutableArray();
+					return node.AllValues.ToImmutableArray();
 				}
 			}
 
-			return _CommandTrie.TryGet(input, out var command)
-				? new[] { command }
-				: Array.Empty<IImmutableCommand>();
+			return Array.Empty<IImmutableCommand>();
 		}
 
 		public async Task<(IResult, CommandScore?)> GetBestMatchAsync(
@@ -136,7 +134,7 @@ namespace YACCS.Commands
 					break;
 				}
 
-				foreach (var command in node.Values)
+				foreach (var command in node.DirectValues)
 				{
 					// Add 1 to i to account for how we're in a node
 					var score = await GetCommandScoreAsync(cache, context, command, input, i + 1).ConfigureAwait(false);
@@ -148,15 +146,6 @@ namespace YACCS.Commands
 					}
 					best = CommandScore.Max(best, score);
 				}
-			}
-
-			// Allow users to invoke commands directly through their id
-			const string ID = "__id_";
-			if (best is null
-				&& input[0].StartsWith(ID, StringComparison.OrdinalIgnoreCase)
-				&& _CommandTrie.TryGet(input[0].Substring(ID.Length - 1), out var idCommand))
-			{
-				best = await GetCommandScoreAsync(cache, context, idCommand, input, 1).ConfigureAwait(false);
 			}
 
 			var result = best?.InnerResult ?? CommandNotFoundResult.Instance.Sync;
