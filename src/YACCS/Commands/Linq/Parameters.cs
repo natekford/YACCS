@@ -86,11 +86,11 @@ namespace YACCS.Commands.Linq
 			return parameter;
 		}
 
-		public static TParameter RemoveOverriddenTypeReader<TParameter>(
+		public static TParameter RemoveTypeReader<TParameter>(
 			this TParameter parameter)
 			where TParameter : IParameter
 		{
-			parameter.OverriddenTypeReader = null;
+			parameter.TypeReader = null;
 			return parameter;
 		}
 
@@ -103,12 +103,12 @@ namespace YACCS.Commands.Linq
 			return parameter;
 		}
 
-		public static TParameter SetOverriddenTypeReader<TValue, TParameter>(
+		public static TParameter SetTypeReader<TValue, TParameter>(
 			this TParameter parameter,
 			ITypeReader<TValue>? typeReader)
 			where TParameter : IParameter<TValue>
 		{
-			parameter.OverriddenTypeReader = typeReader;
+			parameter.TypeReader = typeReader;
 			return parameter;
 		}
 
@@ -133,17 +133,17 @@ namespace YACCS.Commands.Linq
 			}
 			public ITypeReader<TValue>? OverridenTypeReader
 			{
-				get => _Actual.OverriddenTypeReader as ITypeReader<TValue>;
-				set => _Actual.OverriddenTypeReader = value;
+				get => _Actual.TypeReader as ITypeReader<TValue>;
+				set => _Actual.TypeReader = value;
 			}
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
-			ITypeReader? IParameter.OverriddenTypeReader
+			public string ParameterName => _Actual.ParameterName;
+			public Type ParameterType => _Actual.ParameterType;
+			ITypeReader? IParameter.TypeReader
 			{
 				get => OverridenTypeReader;
 				set => OverridenTypeReader = value as ITypeReader<TValue>;
 			}
-			public string ParameterName => _Actual.ParameterName;
-			public Type ParameterType => _Actual.ParameterType;
 
 			public Parameter(IParameter actual)
 			{

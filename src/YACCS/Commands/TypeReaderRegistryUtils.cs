@@ -37,7 +37,7 @@ namespace YACCS.Commands
 					continue;
 				}
 
-				var typeReader = CommandServiceUtils.CreateInstance<ITypeReader>(type);
+				var typeReader = ReflectionUtils.CreateInstance<ITypeReader>(type);
 				yield return new TypeReaderInfo(attr.TargetTypes, typeReader);
 			}
 		}

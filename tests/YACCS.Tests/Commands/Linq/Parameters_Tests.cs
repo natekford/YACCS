@@ -179,13 +179,13 @@ namespace YACCS.Tests.Commands.Linq
 		public void SetOverridenTypeReader_Test()
 		{
 			var parameter = _Parameters.GetParameterById<int>(NORM_ID);
-			Assert.IsNull(parameter.OverriddenTypeReader);
+			Assert.IsNull(parameter.TypeReader);
 
-			parameter.SetOverriddenTypeReader(new NumberTypeReader<int>(int.TryParse));
-			Assert.IsNotNull(parameter.OverriddenTypeReader);
+			parameter.SetTypeReader(new NumberTypeReader<int>(int.TryParse));
+			Assert.IsNotNull(parameter.TypeReader);
 
-			parameter.RemoveOverriddenTypeReader();
-			Assert.IsNull(parameter.OverriddenTypeReader);
+			parameter.RemoveTypeReader();
+			Assert.IsNull(parameter.TypeReader);
 		}
 
 		private class Base

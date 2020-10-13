@@ -77,10 +77,8 @@ namespace YACCS.Examples
 
 		private async Task RegisterCommandsAsync()
 		{
-			await foreach (var command in Assembly.GetExecutingAssembly().GetAllCommandsAsync())
-			{
-				_CommandService.Add(command);
-			}
+			var commands = Assembly.GetExecutingAssembly().GetAllCommandsAsync();
+			await _CommandService.AddRangeAsync(commands).ConfigureAwait(false);
 			Console.WriteLine($"Successfully registered {_CommandService.Commands.Count} commands.");
 			Console.WriteLine();
 

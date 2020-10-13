@@ -28,8 +28,9 @@ namespace YACCS.Tests.TypeReaders
 					.AddSingleton<ICommandService>(service)
 					.BuildServiceProvider(),
 			};
-			foreach (var command in typeof(FakeCommandGroup).GetDirectCommandsMutable()
-				.SelectMany(x => x.ToImmutable()))
+
+			var commands = typeof(FakeCommandGroup).GetDirectCommandsAsync().GetAwaiter().GetResult();
+			foreach (var command in commands)
 			{
 				service.Add(command);
 			}

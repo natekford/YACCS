@@ -46,7 +46,7 @@ namespace YACCS.Commands
 		{
 			foreach (var parameter in command.Parameters)
 			{
-				if (parameter.OverriddenTypeReader == null
+				if (parameter.TypeReader == null
 					&& !_Readers.TryGetReader(parameter.ParameterType, out _)
 					&& (parameter.ElementType == null || !_Readers.TryGetReader(parameter.ElementType, out _)))
 				{
@@ -176,12 +176,12 @@ namespace YACCS.Commands
 				var score = CommandScore.FromInvalidContext(command, context, startIndex);
 				return new ValueTask<CommandScore>(score);
 			}
-			else if (input.Count < command.MinLength)
+			else if (input.Count - startIndex < command.MinLength)
 			{
 				var score = CommandScore.FromNotEnoughArgs(command, context, startIndex);
 				return new ValueTask<CommandScore>(score);
 			}
-			else if (input.Count > command.MaxLength)
+			else if (input.Count - startIndex > command.MaxLength)
 			{
 				var score = CommandScore.FromTooManyArgs(command, context, startIndex);
 				return new ValueTask<CommandScore>(score);
@@ -434,9 +434,9 @@ namespace YACCS.Commands
 		{
 			// TypeReader is overridden, we /shouldn't/ need to deal with converting
 			// to an enumerable for the dev
-			if (parameter.OverriddenTypeReader is not null)
+			if (parameter.TypeReader is not null)
 			{
-				return (false, parameter.OverriddenTypeReader);
+				return (false, parameter.TypeReader);
 			}
 			// Parameter type is directly in the TypeReader collection, use that
 			var pType = parameter.ParameterType;

@@ -62,7 +62,7 @@ namespace YACCS.Tests.Commands
 				commandService.Add(c1.ToImmutable().Single());
 			});
 
-			c1.Parameters[0].OverriddenTypeReader = new TryParseTypeReader<Fake>((string input, out Fake output) =>
+			c1.Parameters[0].TypeReader = new TryParseTypeReader<Fake>((string input, out Fake output) =>
 			{
 				output = null!;
 				return false;
@@ -300,17 +300,13 @@ namespace YACCS.Tests.Commands
 			}, new TypeReaderRegistry());
 			var context = new FakeContext();
 
-			static async Task AddAsync(CommandService service, Type type)
+			var commands = new[]
 			{
-				await foreach (var command in type.GetAllCommandsAsync())
-				{
-					service.Add(command);
-				}
-			}
-
-			await AddAsync(commandService, typeof(CommandsGroup)).ConfigureAwait(false);
-			await AddAsync(commandService, typeof(CommandsGroup2)).ConfigureAwait(false);
-			await AddAsync(commandService, typeof(CommandsGroup3)).ConfigureAwait(false);
+				 typeof(CommandsGroup),
+				 typeof(CommandsGroup2),
+				 typeof(CommandsGroup3),
+			}.GetAllCommandsAsync();
+			await commandService.AddRangeAsync(commands).ConfigureAwait(false);
 
 			return (commandService, context);
 		}
@@ -698,7 +694,7 @@ namespace YACCS.Tests.Commands
 		public async Task ProcessTypeReaderOverridden_Test()
 		{
 			var (commandService, context, parameter) = Create<char>(1);
-			parameter.OverriddenTypeReader = new CoolCharTypeReader();
+			parameter.TypeReader = new CoolCharTypeReader();
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
 				parameter.ToImmutable(),
@@ -805,7 +801,7 @@ namespace YACCS.Tests.Commands
 			{
 				Attributes = new List<object>
 				{
-					new CountAttribute(length),
+					new LengthAttribute(length),
 				},
 			};
 			return (commandService, context, parameter);
@@ -853,7 +849,7 @@ namespace YACCS.Tests.Commands
 		}
 
 		[Command]
-		public void TestCommand([Count(2)] IEnumerable<string> input)
+		public void TestCommand([Length(2)] IEnumerable<string> input)
 		{
 		}
 

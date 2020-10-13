@@ -78,7 +78,7 @@ namespace YACCS.NamedArguments
 				.AsType<IDictionary<string, object?>>();
 			values.AddAttribute(new RemainderAttribute())
 				.AddParameterPrecondition(new GeneratedNamedParameterPrecondition(command))
-				.SetOverriddenTypeReader(new GeneratedNamedTypeReader(command));
+				.SetTypeReader(new GeneratedNamedTypeReader(command));
 
 			return newCommand.ToImmutable().Single();
 		}

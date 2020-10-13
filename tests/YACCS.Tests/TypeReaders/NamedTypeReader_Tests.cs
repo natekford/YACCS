@@ -24,7 +24,7 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task Class_Test()
 		{
-			var (commandService, setMe, context) = Create();
+			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
 			var input = nameof(CommandsGroup.Test2) +
 				$" {CommandsGroup.I}: {I}" +
@@ -41,7 +41,7 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task ClassInvalidValue_Test()
 		{
-			var (commandService, setMe, context) = Create();
+			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
 			var input = nameof(CommandsGroup.Test2) +
 				$" {CommandsGroup.I}: -1" +
@@ -55,7 +55,7 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task ClassUnparsableValue_Test()
 		{
-			var (commandService, setMe, context) = Create();
+			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
 			var input = nameof(CommandsGroup.Test2) +
 				$" {CommandsGroup.I}: asdf" +
@@ -69,7 +69,7 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task ParameterAllArgs_Test()
 		{
-			var (commandService, setMe, context) = Create();
+			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
 			var tcs = new TaskCompletionSource();
 			commandService.CommandExecuted += (e) =>
@@ -95,7 +95,7 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task ParameterMissingOneArg_Test()
 		{
-			var (commandService, setMe, context) = Create();
+			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
 			var tcs = new TaskCompletionSource();
 			commandService.CommandExecuted += (e) =>
@@ -120,7 +120,7 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task ParameterWithoutDefaultValue_Test()
 		{
-			var (commandService, setMe, context) = Create();
+			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
 			const string INPUT = nameof(CommandsGroup.Test3);
 			var result = await commandService.ExecuteAsync(context, INPUT).ConfigureAwait(false);
@@ -128,15 +128,12 @@ namespace YACCS.Tests.TypeReaders
 			Assert.IsInstanceOfType(result, typeof(NotEnoughArgsResult));
 		}
 
-		private (CommandService, SetMe, FakeContext) Create()
+		private async Task<(CommandService, SetMe, FakeContext)> CreateAsync()
 		{
 			var typeReaders = new TypeReaderRegistry();
 			var commandService = new CommandService(CommandServiceConfig.Default, typeReaders);
-			foreach (var command in typeof(CommandsGroup).GetDirectCommandsMutable()
-				.SelectMany(x => x.ToImmutable()))
-			{
-				commandService.Add(command);
-			}
+			var commands = typeof(CommandsGroup).GetAllCommandsAsync();
+			await commandService.AddRangeAsync(commands).ConfigureAwait(false);
 
 			var setMe = new SetMe();
 			var context = new FakeContext()

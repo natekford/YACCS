@@ -3,21 +3,21 @@
 namespace YACCS.Commands.Attributes
 {
 	[AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
-	public class CountAttribute : Attribute, ILengthAttribute
+	public class LengthAttribute : Attribute, ILengthAttribute
 	{
 		public int? Length { get; }
 
-		public CountAttribute()
+		public LengthAttribute()
 		{
 			Length = null;
 		}
 
-		public CountAttribute(int length)
+		public LengthAttribute(int length)
 		{
 			Length = length;
 		}
 
-		public CountAttribute(int? length)
+		public LengthAttribute(int? length)
 		{
 			Length = length;
 		}

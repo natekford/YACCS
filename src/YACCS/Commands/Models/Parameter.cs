@@ -20,6 +20,7 @@ namespace YACCS.Commands.Models
 	{
 		private static readonly object NoDefaultValue = new object();
 
+		private readonly bool? _HasLengthAttribute;
 		private ITypeReader? _OverriddenTypeReader;
 
 		public object? DefaultValue { get; set; } = NoDefaultValue;
@@ -34,7 +35,9 @@ namespace YACCS.Commands.Models
 				}
 			}
 		}
-		public ITypeReader? OverriddenTypeReader
+		public string ParameterName { get; }
+		public Type ParameterType { get; }
+		public ITypeReader? TypeReader
 		{
 			get => _OverriddenTypeReader;
 			set
@@ -46,8 +49,6 @@ namespace YACCS.Commands.Models
 				_OverriddenTypeReader = value;
 			}
 		}
-		public string ParameterName { get; }
-		public Type ParameterType { get; }
 		private string DebuggerDisplay => $"Name = {ParameterName}, Type = {ParameterType}";
 
 		public Parameter() : this(typeof(void), "", null)
@@ -68,13 +69,9 @@ namespace YACCS.Commands.Models
 			if (this.Get<GenerateNamedArgumentsAttribute>().Any()
 				|| type.GetCustomAttribute<GenerateNamedArgumentsAttribute>() != null)
 			{
-				if (!this.Get<ILengthAttribute>().Any())
-				{
-					Attributes.Add(new RemainderAttribute());
-				}
-
 				var ppType = typeof(NamedArgumentParameterPrecondition<>).MakeGenericType(ParameterType);
 				Attributes.Add(Activator.CreateInstance(ppType));
+				AddRemainderAttribute(ref _HasLengthAttribute);
 			}
 		}
 
@@ -92,6 +89,11 @@ namespace YACCS.Commands.Models
 			: this(parameter.ParameterType, parameter.Name, parameter)
 		{
 			DefaultValue = GetDefaultValue(parameter);
+
+			if (this.Get<ParamArrayAttribute>().Any())
+			{
+				AddRemainderAttribute(ref _HasLengthAttribute);
+			}
 		}
 
 		public IImmutableParameter ToImmutable()
@@ -112,6 +114,17 @@ namespace YACCS.Commands.Models
 			return parameter.DefaultValue;
 		}
 
+		private void AddRemainderAttribute(ref bool? flag)
+		{
+			if (flag == true || this.Get<ILengthAttribute>().Any())
+			{
+				return;
+			}
+
+			flag = true;
+			Attributes.Add(new RemainderAttribute());
+		}
+
 		[DebuggerDisplay("{DebuggerDisplay,nq}")]
 		private sealed class ImmutableParameter : IImmutableParameter
 		{
@@ -130,33 +143,58 @@ namespace YACCS.Commands.Models
 			public object? DefaultValue { get; }
 			public Type? ElementType { get; }
 			public bool HasDefaultValue { get; }
-			public int? Length { get; }
+			public int? Length { get; } = 1;
 			public string OverriddenParameterName { get; }
-			public ITypeReader? OverriddenTypeReader { get; }
 			public string ParameterName { get; }
 			public Type ParameterType { get; }
 			public IReadOnlyList<IParameterPrecondition> Preconditions { get; }
 			public string PrimaryId { get; }
+			public ITypeReader? TypeReader { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 			private string DebuggerDisplay => $"Name = {ParameterName}, Type = {ParameterType}";
 
 			public ImmutableParameter(Parameter mutable)
 			{
-				Attributes = mutable.Attributes.ToImmutableArray();
 				DefaultValue = mutable.DefaultValue;
 				ElementType = GetEnumerableType(mutable.ParameterType);
 				HasDefaultValue = mutable.HasDefaultValue;
-				var length = mutable.Get<ILengthAttribute>().SingleOrDefault();
-				Length = length == null ? 1 : length.Length;
-				OverriddenParameterName = mutable.Get<INameAttribute>().SingleOrDefault()?.Name
-					?? mutable.ParameterName;
-				// TODO: add in override type readers from attribute
-				OverriddenTypeReader = mutable.OverriddenTypeReader;
 				ParameterName = mutable.ParameterName;
 				ParameterType = mutable.ParameterType;
-				Preconditions = mutable.Get<IParameterPrecondition>().ToImmutableArray();
-				PrimaryId = mutable.Get<IIdAttribute>().FirstOrDefault()?.Id
-					?? Guid.NewGuid().ToString();
+				// TODO: add in type readers from attribute
+				TypeReader = mutable.TypeReader;
+
+				{
+					var attributes = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);
+					var preconditions = new List<IParameterPrecondition>();
+					int l = 0, n = 0;
+					foreach (var attribute in mutable.Attributes)
+					{
+						attributes.Add(attribute);
+						switch (attribute)
+						{
+							case IParameterPrecondition precondition:
+								preconditions.Add(precondition);
+								break;
+
+							case ILengthAttribute length:
+								Length = length.ThrowIfDuplicate(x => x.Length, ref l);
+								break;
+
+							case INameAttribute name:
+								OverriddenParameterName = name.ThrowIfDuplicate(x => x.Name, ref n);
+								break;
+
+							case IIdAttribute id:
+								PrimaryId ??= id.Id;
+								break;
+						}
+					}
+					Attributes = attributes.MoveToImmutable();
+					Preconditions = preconditions.ToImmutableArray();
+				}
+
+				OverriddenParameterName ??= mutable.ParameterName;
+				PrimaryId ??= Guid.NewGuid().ToString();
 			}
 
 			private static Type? GetEnumerableType(Type type)

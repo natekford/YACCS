@@ -17,24 +17,36 @@ namespace YACCS.Commands
 		public static readonly IImmutableSet<char> InternallyUsedQuotes
 			= new[] { InternallyUsedQuote }.ToImmutableHashSet();
 
-		public static T CreateInstance<T>(Type type)
+		public static void AddRange(
+			this CommandService commandService,
+			IEnumerable<IImmutableCommand> enumerable)
 		{
-			object instance;
-			try
+			foreach (var command in enumerable)
 			{
-				instance = Activator.CreateInstance(type);
+				commandService.Add(command);
 			}
-			catch (Exception ex)
+		}
+
+		public static async Task AddRangeAsync(
+			this CommandService commandService,
+			IAsyncEnumerable<IImmutableCommand> enumerable)
+		{
+			await foreach (var command in enumerable)
 			{
-				throw new ArgumentException(
-					$"Unable to create an instance of {type.Name}. Is it missing a public parameterless constructor?", nameof(type), ex);
+				commandService.Add(command);
 			}
-			if (instance is T t)
+		}
+
+		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
+			this IEnumerable<Type> types)
+		{
+			foreach (var type in types)
 			{
-				return t;
+				await foreach (var command in type.GetAllCommandsAsync())
+				{
+					yield return command;
+				}
 			}
-			throw new ArgumentException(
-				$"{type.Name} does not implement {typeof(T).FullName}.", nameof(type));
 		}
 
 		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
@@ -66,18 +78,9 @@ namespace YACCS.Commands
 			}
 		}
 
-		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
+		public static IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
 			this Assembly assembly)
-		{
-			foreach (var type in assembly.GetExportedTypes())
-			{
-				var commands = await type.GetDirectCommandsAsync().ConfigureAwait(false);
-				foreach (var command in commands)
-				{
-					yield return command;
-				}
-			}
-		}
+			=> assembly.GetExportedTypes().GetAllCommandsAsync();
 
 		public static IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync<T>()
 			where T : ICommandGroup, new()
@@ -96,7 +99,7 @@ namespace YACCS.Commands
 				Type type,
 				List<ICommand> commands)
 			{
-				var group = CreateInstance<ICommandGroup>(type);
+				var group = ReflectionUtils.CreateInstance<ICommandGroup>(type);
 				await group.OnCommandBuildingAsync(commands).ConfigureAwait(false);
 
 				// Commands have been modified by whoever implemented them
@@ -105,9 +108,6 @@ namespace YACCS.Commands
 			}
 			return GetDirectCommandsAsync(type, commands);
 		}
-
-		public static IReadOnlyList<ICommand> GetDirectCommandsMutable(this Type type)
-			=> type.CreateMutableCommands();
 
 		internal static List<ICommand> CreateMutableCommands(this Type type)
 		{
@@ -150,6 +150,26 @@ namespace YACCS.Commands
 					throw new ArgumentException($"Unable to create {name}.", ex);
 				}
 			});
+		}
+
+		public static T CreateInstance<T>(Type type)
+		{
+			object instance;
+			try
+			{
+				instance = Activator.CreateInstance(type);
+			}
+			catch (Exception ex)
+			{
+				throw new ArgumentException(
+					$"Unable to create an instance of {type.Name}. Is it missing a public parameterless constructor?", nameof(type), ex);
+			}
+			if (instance is T t)
+			{
+				return t;
+			}
+			throw new ArgumentException(
+				$"{type.Name} does not implement {typeof(T).FullName}.", nameof(type));
 		}
 
 		public static (IEnumerable<PropertyInfo>, IEnumerable<FieldInfo>) GetWritableMembers(this Type type)

@@ -3,10 +3,7 @@
 namespace YACCS.Commands.Attributes
 {
 	[AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
-	public class RemainderAttribute : CountAttribute
+	public class RemainderAttribute : LengthAttribute
 	{
-		public RemainderAttribute() : base(null)
-		{
-		}
 	}
 }

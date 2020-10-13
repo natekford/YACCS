@@ -56,40 +56,63 @@ namespace YACCS.Commands.Models
 				_TaskResultDelegate = ReflectionUtils.CreateDelegate(CreateTaskResultDelegate,
 					"task result delegate");
 
-				Attributes = mutable.Attributes.ToImmutableArray();
 				ContextType = mutable.ContextType;
 				Names = mutable.Names.ToImmutableArray();
-				Parameters = mutable.Parameters.Select(x => x.ToImmutable()).ToImmutableArray();
-				Preconditions = mutable.Get<IPrecondition>().ToImmutableArray();
-				PrimaryId = mutable.Get<IIdAttribute>().FirstOrDefault()?.Id ?? Guid.NewGuid().ToString();
-				Priority = mutable.Get<IPriorityAttribute>().SingleOrDefault()?.Priority ?? 0;
 
-				var @base = Names.FirstOrDefault()?.Parts?.Count ?? 0;
-				var min = @base;
-				var max = @base;
-				for (var i = 0; i < Parameters.Count; ++i)
 				{
-					var parameter = Parameters[i];
-
-					// Remainder will always be the last parameter
-					if (!parameter.Length.HasValue)
+					var builder = ImmutableArray.CreateBuilder<IImmutableParameter>(mutable.Parameters.Count);
+					for (var i = 0; i < mutable.Parameters.Count; ++i)
 					{
-						if (i != Parameters.Count - 1)
+						var immutable = mutable.Parameters[i].ToImmutable();
+						builder.Add(immutable);
+
+						// Remainder will always be the last parameter
+						if (!immutable.Length.HasValue)
 						{
-							throw new ArgumentException("Cannot have multiple remainders and/or remainder must be the final parameter.");
-						}
+							if (i != mutable.Parameters.Count - 1)
+							{
+								throw new ArgumentException("Cannot have multiple remainders and/or remainder must be the final parameter.");
+							}
 
-						max = int.MaxValue;
-						break;
+							MaxLength = int.MaxValue;
+							break;
+						}
+						if (!immutable.HasDefaultValue)
+						{
+							MinLength += immutable.Length.Value;
+						}
+						MaxLength += immutable.Length.Value;
 					}
-					if (!parameter.HasDefaultValue)
-					{
-						min += parameter.Length.Value;
-					}
-					max += parameter.Length.Value;
+					Parameters = builder.MoveToImmutable();
 				}
-				MinLength = min;
-				MaxLength = max;
+
+				{
+					var attributes = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);
+					var preconditions = new List<IPrecondition>();
+					var p = 0;
+					foreach (var attribute in mutable.Attributes)
+					{
+						attributes.Add(attribute);
+						switch (attribute)
+						{
+							case IPrecondition precondition:
+								preconditions.Add(precondition);
+								break;
+
+							case IPriorityAttribute priority:
+								Priority = priority.ThrowIfDuplicate(x => x.Priority, ref p);
+								break;
+
+							case IIdAttribute id:
+								PrimaryId ??= id.Id;
+								break;
+						}
+					}
+					Attributes = attributes.MoveToImmutable();
+					Preconditions = preconditions.ToImmutableArray();
+				}
+
+				PrimaryId ??= Guid.NewGuid().ToString();
 			}
 
 			public abstract Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args);
