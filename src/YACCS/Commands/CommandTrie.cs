@@ -6,22 +6,23 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 using YACCS.Commands.Models;
+using YACCS.TypeReaders;
 
 namespace YACCS.Commands
 {
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public sealed class CommandTrie : ITrie<IImmutableCommand>
 	{
-		private readonly ITypeReaderRegistry _Readers;
+		private readonly ITypeRegistry<ITypeReader> _Readers;
 		private readonly IEqualityComparer<string> _StringComparer;
 		private Node _Root;
 
 		public bool IsReadOnly => false;
 		public INode<IImmutableCommand> Root => _Root;
-		public int Count => Root.AllValues.Count;
+		public int Count => _Root.AllValues.Count;
 		private string DebuggerDisplay => $"Count = {Count}";
 
-		public CommandTrie(IEqualityComparer<string> stringComparer, ITypeReaderRegistry readers)
+		public CommandTrie(IEqualityComparer<string> stringComparer, ITypeRegistry<ITypeReader> readers)
 		{
 			_StringComparer = stringComparer;
 			_Readers = readers;
@@ -33,8 +34,8 @@ namespace YACCS.Commands
 			foreach (var parameter in item.Parameters)
 			{
 				if (parameter.TypeReader == null
-					&& !_Readers.TryGetReader(parameter.ParameterType, out _)
-					&& (parameter.ElementType == null || !_Readers.TryGetReader(parameter.ElementType, out _)))
+					&& !_Readers.TryGet(parameter.ParameterType, out _)
+					&& (parameter.ElementType == null || !_Readers.TryGet(parameter.ElementType, out _)))
 				{
 					var param = parameter.ParameterType.Name;
 					var cmd = item.Names?.FirstOrDefault()?.ToString() ?? "NO NAME";
@@ -68,6 +69,16 @@ namespace YACCS.Commands
 
 		public bool Contains(IImmutableCommand item)
 		{
+			// Since commands with no names can't get added, they will never be in the trie
+			if (item.Names.Count == 0)
+			{
+				return false;
+			}
+			if (item.Names.Count >= _Root.AllValues.Count)
+			{
+				return _Root.AllValues.Contains(item);
+			}
+
 			foreach (var name in item.Names)
 			{
 				var node = _Root;
@@ -88,14 +99,14 @@ namespace YACCS.Commands
 
 		public void CopyTo(IImmutableCommand[] array, int arrayIndex)
 		{
-			foreach (var command in Root.AllValues)
+			foreach (var command in this)
 			{
 				array[arrayIndex++] = command;
 			}
 		}
 
 		public IEnumerator<IImmutableCommand> GetEnumerator()
-			=> Root.AllValues.GetEnumerator();
+			=> _Root.AllValues.GetEnumerator();
 
 		public int Remove(IImmutableCommand item)
 		{
@@ -148,6 +159,10 @@ namespace YACCS.Commands
 					for (var node = this; node is not null; node = node._Parent)
 					{
 						path = node._Key + " " + path;
+					}
+					if (string.IsNullOrWhiteSpace(path))
+					{
+						path = "ROOT";
 					}
 					return $"Path = {path}, Count = {AllValues.Count}";
 				}

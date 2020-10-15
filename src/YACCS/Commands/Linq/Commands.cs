@@ -36,7 +36,7 @@ namespace YACCS.Commands.Linq
 			{
 				throw new ArgumentNullException(nameof(entity));
 			}
-			if (!(entity is ICommand command))
+			if (entity is not ICommand command)
 			{
 				throw new ArgumentException("Not a command.", nameof(entity));
 			}

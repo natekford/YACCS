@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -139,7 +138,7 @@ namespace YACCS.Tests.TypeReaders
 			var context = new FakeContext()
 			{
 				Services = new ServiceCollection()
-					.AddSingleton<ITypeReaderRegistry>(typeReaders)
+					.AddSingleton<ITypeRegistry<ITypeReader>>(typeReaders)
 					.AddSingleton(setMe)
 					.BuildServiceProvider(),
 			};
@@ -287,7 +286,7 @@ namespace YACCS.Tests.TypeReaders
 			return new FakeContext()
 			{
 				Services = new ServiceCollection()
-					.AddSingleton<ITypeReaderRegistry, TypeReaderRegistry>()
+					.AddSingleton<ITypeRegistry<ITypeReader>, TypeReaderRegistry>()
 					.BuildServiceProvider(),
 			};
 		}

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -10,6 +9,7 @@ using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
+using YACCS.TypeReaders;
 
 namespace YACCS.Examples
 {
@@ -24,7 +24,7 @@ namespace YACCS.Examples
 			_TypeReaders = new TypeReaderRegistry();
 			_CommandService = new CommandService(CommandServiceConfig.Default, _TypeReaders);
 			_Services = new ServiceCollection()
-				.AddSingleton<ITypeReaderRegistry>(_TypeReaders)
+				.AddSingleton<ITypeRegistry<ITypeReader>>(_TypeReaders)
 				.AddSingleton<ICommandService>(_CommandService)
 				.BuildServiceProvider();
 		}

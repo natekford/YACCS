@@ -15,7 +15,7 @@ namespace YACCS.Preconditions
 			IContext context,
 			Func<IImmutableCommand, TContext, Task> afterExecutionAsync)
 		{
-			if (!(context is TContext tContext))
+			if (context is not TContext tContext)
 			{
 				// We don't need to throw an exception here because CheckAsync should
 				// return a result indicating an invalid context type and this should not
@@ -32,7 +32,7 @@ namespace YACCS.Preconditions
 			Func<IImmutableCommand, TContext, Task<IResult>> checkAsync)
 			where TContext : IContext
 		{
-			if (!(context is TContext tContext))
+			if (context is not TContext tContext)
 			{
 				return InvalidContextResult.Instance.Task;
 			}

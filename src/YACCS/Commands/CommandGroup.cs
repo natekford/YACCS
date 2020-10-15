@@ -39,7 +39,7 @@ namespace YACCS.Commands
 			{
 				return AfterExecutionAsync(command, default!);
 			}
-			if (!(context is TContext tContext))
+			if (context is not TContext tContext)
 			{
 				var msg = $"Invalid context; expected {typeof(TContext).Name}, received {context.GetType().Name}.";
 				throw new ArgumentException(msg, nameof(context));
@@ -53,7 +53,7 @@ namespace YACCS.Commands
 			{
 				return BeforeExecutionAsync(command, default!);
 			}
-			if (!(context is TContext tContext))
+			if (context is not TContext tContext)
 			{
 				var msg = $"Invalid context; expected {typeof(TContext).Name}, received {context.GetType().Name}.";
 				throw new ArgumentException(msg, nameof(context));

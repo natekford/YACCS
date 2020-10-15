@@ -9,16 +9,16 @@ namespace YACCS.Commands
 {
 	public static class TypeReaderRegistryUtils
 	{
-		public static ITypeReader GetReader(this ITypeReaderRegistry registry, Type type)
+		public static ITypeReader GetReader(this ITypeRegistry<ITypeReader> registry, Type type)
 		{
-			if (registry.TryGetReader(type, out var reader))
+			if (registry.TryGet(type, out var reader))
 			{
 				return reader;
 			}
 			throw new ArgumentException($"There is no type reader registered for {type.Name}.", nameof(type));
 		}
 
-		public static ITypeReader<T> GetReader<T>(this ITypeReaderRegistry registry)
+		public static ITypeReader<T> GetReader<T>(this ITypeRegistry<ITypeReader> registry)
 		{
 			if (registry.GetReader(typeof(T)) is ITypeReader<T> reader)
 			{
@@ -42,18 +42,20 @@ namespace YACCS.Commands
 			}
 		}
 
-		public static void Register<T>(this ITypeReaderRegistry registry, ITypeReader<T> reader)
-			=> registry.Register(reader, typeof(T));
+		public static void Register<T>(
+			this ITypeRegistry<ITypeReader> registry,
+			ITypeReader<T> reader)
+			=> registry.Register(typeof(T), reader);
 
 		public static void Register(
-			this ITypeReaderRegistry registry,
+			this ITypeRegistry<ITypeReader> registry,
 			IEnumerable<TypeReaderInfo> typeReaderInfos)
 		{
 			foreach (var typeReaderInfo in typeReaderInfos)
 			{
 				foreach (var type in typeReaderInfo.TargetTypes)
 				{
-					registry.Register(typeReaderInfo.Instance, type);
+					registry.Register(type, typeReaderInfo.Instance);
 				}
 			}
 		}

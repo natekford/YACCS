@@ -10,7 +10,7 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Commands
 {
-	public class TypeReaderRegistry : ITypeReaderRegistry
+	public class TypeReaderRegistry : ITypeRegistry<ITypeReader>
 	{
 		private static readonly MethodInfo _RegisterMethod =
 			typeof(TypeReaderRegistry)
@@ -46,28 +46,28 @@ namespace YACCS.Commands
 			this.Register(typeof(TypeReaderRegistry).Assembly.GetTypeReaders());
 		}
 
-		public void Register(ITypeReader reader, Type type)
+		public void Register(Type type, ITypeReader item)
 		{
-			reader.ThrowIfInvalidTypeReader(type);
+			item.ThrowIfInvalidTypeReader(type);
 
 			if (type.IsValueType
-				&& reader.GetType().GetInterfaces().Any(x => x.IsGenericOf(typeof(ITypeReader<>))))
+				&& item.GetType().GetInterfaces().Any(x => x.IsGenericOf(typeof(ITypeReader<>))))
 			{
-				_RegisterMethod.MakeGenericMethod(type).Invoke(this, new object[] { reader });
+				_RegisterMethod.MakeGenericMethod(type).Invoke(this, new object[] { item });
 			}
 
-			_Readers[type] = reader;
+			_Readers[type] = item;
 		}
 
-		public void RegisterWithNullable<T>(ITypeReader<T> reader) where T : struct
+		public void RegisterWithNullable<T>(ITypeReader<T> item) where T : struct
 		{
-			_Readers[typeof(T)] = reader;
-			_Readers[typeof(T?)] = new NullableTypeReader<T>(reader);
+			_Readers[typeof(T)] = item;
+			_Readers[typeof(T?)] = new NullableTypeReader<T>(item);
 		}
 
-		public bool TryGetReader(Type type, [NotNullWhen(true)] out ITypeReader? result)
+		public bool TryGet(Type type, [NotNullWhen(true)] out ITypeReader? item)
 		{
-			if (_Readers.TryGetValue(type, out result))
+			if (_Readers.TryGetValue(type, out item))
 			{
 				return true;
 			}
@@ -83,12 +83,12 @@ namespace YACCS.Commands
 			}
 			else
 			{
-				result = null;
+				item = null;
 				return false;
 			}
 
-			result = (ITypeReader)Activator.CreateInstance(readerType);
-			Register(result, type);
+			item = (ITypeReader)Activator.CreateInstance(readerType);
+			Register(type, item);
 			return true;
 		}
 	}

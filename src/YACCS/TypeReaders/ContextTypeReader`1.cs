@@ -9,7 +9,7 @@ namespace YACCS.TypeReaders
 	{
 		public override ITask<ITypeReaderResult<T>> ReadAsync(IContext context, string input)
 		{
-			if (!(context is T tContext))
+			if (context is not T tContext)
 			{
 				return TypeReaderResult<T>.Failure.ITask;
 			}

@@ -29,7 +29,7 @@ namespace YACCS.Commands.Linq
 			{
 				throw new ArgumentNullException(nameof(entity));
 			}
-			if (!(entity is IParameter parameter))
+			if (entity is not IParameter parameter)
 			{
 				throw new ArgumentException("Not a parameter.", nameof(entity));
 			}

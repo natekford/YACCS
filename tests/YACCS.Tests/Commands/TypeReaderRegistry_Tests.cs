@@ -20,7 +20,7 @@ namespace YACCS.Tests.Commands
 			var registry = new TypeReaderRegistry();
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				registry.Register(new UriTypeReader(), typeof(FakeStruct));
+				registry.Register(typeof(FakeStruct), new UriTypeReader());
 			});
 		}
 
@@ -28,7 +28,7 @@ namespace YACCS.Tests.Commands
 		public void NonGenericReaderRegistered_Test()
 		{
 			var registry = new TypeReaderRegistry();
-			registry.Register(new BadStringReader(), typeof(string));
+			registry.Register(typeof(string), new BadStringReader());
 
 			var r1 = registry.GetReader(typeof(string));
 			Assert.IsNotNull(r1);
@@ -58,7 +58,7 @@ namespace YACCS.Tests.Commands
 				output = new Child();
 				return true;
 			});
-			registry.Register(reader, typeof(Parent));
+			registry.Register<Parent>(reader);
 
 			// This is the entire reason I added the ITask package.
 			// Why couldn't there be an ITask in the base library

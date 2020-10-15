@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Models;
+using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Interactivity.Input
 {
@@ -11,12 +12,12 @@ namespace YACCS.Commands.Interactivity.Input
 		: InteractiveBase<TContext, TInput>, IInputGetter<TContext, TInput>
 		where TContext : IContext
 	{
-		public ITypeReaderRegistry TypeReaders { get; }
+		public ITypeRegistry<ITypeReader> TypeReaders { get; }
 
 		protected static Delegate EmptyDelegate { get; } = (Action)(() => { });
 		protected static IEnumerable<IName> EmptyNames { get; } = new[] { new Name(new[] { "Input" }) };
 
-		protected InputGetter(ITypeReaderRegistry typeReaders)
+		protected InputGetter(ITypeRegistry<ITypeReader> typeReaders)
 		{
 			TypeReaders = typeReaders;
 		}

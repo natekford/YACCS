@@ -159,7 +159,7 @@ namespace YACCS.NamedArguments
 			IContext context,
 			IDictionary<string, string> dict)
 		{
-			var registry = context.Services.GetRequiredService<ITypeReaderRegistry>();
+			var registry = context.Services.GetRequiredService<ITypeRegistry<ITypeReader>>();
 			var instance = new T();
 			foreach (var kvp in dict)
 			{

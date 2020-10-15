@@ -21,7 +21,7 @@ namespace YACCS.Commands
 		protected AsyncEvent<CommandExecutedEventArgs> CommandExecutedEvent { get; set; }
 			= new AsyncEvent<CommandExecutedEventArgs>();
 		protected ICommandServiceConfig Config { get; set; }
-		protected ITypeReaderRegistry Readers { get; set; }
+		protected ITypeRegistry<ITypeReader> Readers { get; set; }
 
 		public event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted
 		{
@@ -35,7 +35,7 @@ namespace YACCS.Commands
 			remove => CommandExecutedEvent.Exception.Remove(value);
 		}
 
-		public CommandService(ICommandServiceConfig config, ITypeReaderRegistry readers)
+		public CommandService(ICommandServiceConfig config, ITypeRegistry<ITypeReader> readers)
 		{
 			Commands = new CommandTrie(config.CommandNameComparer, readers);
 			Config = config;
@@ -59,7 +59,7 @@ namespace YACCS.Commands
 				return result;
 			}
 
-			_ = ExecuteCommand(best!, context);
+			_ = ExecuteCommand(context, best!);
 			return SuccessResult.Instance.Sync;
 		}
 
@@ -90,16 +90,16 @@ namespace YACCS.Commands
 			IContext context,
 			IReadOnlyList<string> input)
 		{
-			var node = Commands.Root;
 			var best = default(CommandScore);
 			var cache = new PreconditionCache(context);
+
+			var node = Commands.Root;
 			for (var i = 0; i < input.Count; ++i)
 			{
 				if (!node.TryGetEdge(input[i], out node))
 				{
 					break;
 				}
-
 				foreach (var command in node.DirectValues)
 				{
 					// Add 1 to i to account for how we're in a node
@@ -339,7 +339,7 @@ namespace YACCS.Commands
 			));
 		}
 
-		protected virtual async Task ExecuteCommand(CommandScore score, IContext context)
+		protected virtual async Task ExecuteCommand(IContext context, CommandScore score)
 		{
 			var command = score.Command!;
 
@@ -408,7 +408,7 @@ namespace YACCS.Commands
 			}
 			// Parameter type is directly in the TypeReader collection, use that
 			var pType = parameter.ParameterType;
-			if (Readers.TryGetReader(pType, out var reader))
+			if (Readers.TryGet(pType, out var reader))
 			{
 				return (false, reader);
 			}
@@ -416,7 +416,7 @@ namespace YACCS.Commands
 			// type is in the TypeReader collection.
 			// Let's read each value for the enumerable separately
 			var eType = parameter.ElementType;
-			if (eType is not null && Readers.TryGetReader(eType, out reader))
+			if (eType is not null && Readers.TryGet(eType, out reader))
 			{
 				return (true, reader);
 			}

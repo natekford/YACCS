@@ -18,7 +18,7 @@ namespace YACCS.ParameterPreconditions
 			Func<ParameterInfo, TContext, TValue, Task<IResult>> checkAsync)
 			where TContext : IContext
 		{
-			if (!(context is TContext tContext))
+			if (context is not TContext tContext)
 			{
 				return InvalidContextResult.Instance.Task;
 			}
