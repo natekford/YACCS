@@ -67,7 +67,7 @@ namespace YACCS.Commands.Models
 			ParameterType = type;
 
 			if (this.Get<GenerateNamedArgumentsAttribute>().Any()
-				|| type.GetCustomAttribute<GenerateNamedArgumentsAttribute>() != null)
+				|| type.GetCustomAttribute<GenerateNamedArgumentsAttribute>() is not null)
 			{
 				var ppType = typeof(NamedArgumentParameterPrecondition<>).MakeGenericType(ParameterType);
 				Attributes.Add(Activator.CreateInstance(ppType));
@@ -128,17 +128,6 @@ namespace YACCS.Commands.Models
 		[DebuggerDisplay("{DebuggerDisplay,nq}")]
 		private sealed class ImmutableParameter : IImmutableParameter
 		{
-			// Some interfaces Array implements
-			// Don't deal with the non generic versions b/c how would we parse 'object'?
-			private static readonly Type[] _SupportedEnumerableTypes = new[]
-			{
-				typeof(IList<>),
-				typeof(ICollection<>),
-				typeof(IEnumerable<>),
-				typeof(IReadOnlyList<>),
-				typeof(IReadOnlyCollection<>),
-			};
-
 			public IReadOnlyList<object> Attributes { get; }
 			public object? DefaultValue { get; }
 			public Type? ElementType { get; }
@@ -156,7 +145,7 @@ namespace YACCS.Commands.Models
 			public ImmutableParameter(Parameter mutable)
 			{
 				DefaultValue = mutable.DefaultValue;
-				ElementType = GetEnumerableType(mutable.ParameterType);
+				ElementType = mutable.ParameterType.GetEnumerableType();
 				HasDefaultValue = mutable.HasDefaultValue;
 				ParameterName = mutable.ParameterName;
 				ParameterType = mutable.ParameterType;
@@ -195,26 +184,6 @@ namespace YACCS.Commands.Models
 
 				OverriddenParameterName ??= mutable.ParameterName;
 				PrimaryId ??= Guid.NewGuid().ToString();
-			}
-
-			private static Type? GetEnumerableType(Type type)
-			{
-				if (type.IsArray)
-				{
-					return type.GetElementType();
-				}
-				if (type.IsInterface && type.IsGenericType)
-				{
-					var typeDefinition = type.GetGenericTypeDefinition();
-					foreach (var supportedType in _SupportedEnumerableTypes)
-					{
-						if (typeDefinition == supportedType)
-						{
-							return type.GetGenericArguments()[0];
-						}
-					}
-				}
-				return null;
 			}
 		}
 	}

@@ -13,6 +13,7 @@ namespace YACCS.Help.Models
 	public class HelpItem<T> : IHelpItem<T> where T : notnull
 	{
 		public IReadOnlyList<IHelpItem<object>> Attributes { get; }
+		public virtual bool IsAsyncFormattable { get; }
 		public T Item { get; }
 		public INameAttribute? Name { get; }
 		public ISummaryAttribute? Summary { get; }
@@ -35,6 +36,12 @@ namespace YACCS.Help.Models
 			int n = 0, s = 0;
 			foreach (var attribute in attributes)
 			{
+				// Don't allow attributes to keep adding themselves over and over
+				if (canAdd(attribute) && item.GetType() != attribute.GetType())
+				{
+					items.Add(new HelpItem<object>(attribute));
+				}
+
 				switch (attribute)
 				{
 					case ISummaryAttribute summary:
@@ -45,12 +52,8 @@ namespace YACCS.Help.Models
 						Name = name.ThrowIfDuplicate(x => x, ref n);
 						break;
 
-					case object obj when canAdd(obj):
-						// Don't allow attributes to keep adding themselves over and over
-						if (item.GetType() != obj.GetType())
-						{
-							items.Add(new HelpItem<object>(obj));
-						}
+					case IAsyncRuntimeFormattableAttribute:
+						IsAsyncFormattable = true;
 						break;
 				}
 			}

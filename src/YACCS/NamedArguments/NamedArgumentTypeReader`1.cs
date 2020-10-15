@@ -164,7 +164,7 @@ namespace YACCS.NamedArguments
 			foreach (var kvp in dict)
 			{
 				var parameter = Parameters[kvp.Key];
-				var reader = registry.GetReader(parameter.ParameterType);
+				var reader = registry.Get(parameter.ParameterType);
 
 				var trResult = await reader.ReadAsync(context, kvp.Value).ConfigureAwait(false);
 				if (!trResult.IsSuccess)

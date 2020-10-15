@@ -6,10 +6,10 @@ using YACCS.Preconditions;
 
 namespace YACCS.Help.Models
 {
-	public interface IHelpCommand : IHelpItem<IImmutableCommand>
+	public interface IHelpCommand : IHelpItem<IImmutableCommand>, IHasPreconditions
 	{
 		IHelpItem<Type>? ContextType { get; }
 		IReadOnlyList<IHelpParameter> Parameters { get; }
-		IReadOnlyList<IHelpItem<IPrecondition>> Preconditions { get; }
+		new IReadOnlyList<IHelpItem<IPrecondition>> Preconditions { get; }
 	}
 }

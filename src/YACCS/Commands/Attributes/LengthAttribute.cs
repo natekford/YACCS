@@ -1,10 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+
+using YACCS.Help;
+using YACCS.Help.Attributes;
 
 namespace YACCS.Commands.Attributes
 {
 	[AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
-	public class LengthAttribute : Attribute, ILengthAttribute
+	public class LengthAttribute : Attribute, ILengthAttribute, IRuntimeFormattableAttribute
 	{
+		private static readonly TaggedString _Key = new TaggedString(Tag.Key, "Length");
+
 		public int? Length { get; }
 
 		public LengthAttribute()
@@ -20,6 +26,15 @@ namespace YACCS.Commands.Attributes
 		public LengthAttribute(int? length)
 		{
 			Length = length;
+		}
+
+		public virtual IReadOnlyList<TaggedString> Format(IContext context)
+		{
+			return new[]
+			{
+				_Key,
+				new TaggedString(Tag.Value, Length?.ToString() ?? "Remainder"),
+			};
 		}
 	}
 }

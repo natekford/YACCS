@@ -44,7 +44,14 @@ namespace YACCS.Help
 				return true;
 			}
 
-			item = type.Name;
+			var eType = type.GetEnumerableType();
+			if (eType is not null)
+			{
+				var eName = _Names.TryGetValue(eType, out var eItem) ? eItem : type.Name;
+				item = "List of " + eName;
+			}
+
+			Register(type, item);
 			return true;
 		}
 	}

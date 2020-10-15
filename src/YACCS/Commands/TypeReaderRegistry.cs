@@ -23,9 +23,9 @@ namespace YACCS.Commands
 
 		public TypeReaderRegistry()
 		{
-			this.Register(new StringTypeReader());
-			this.Register(new UriTypeReader());
-			this.Register(new ContextTypeReader<IContext>());
+			Register(typeof(string), new StringTypeReader());
+			Register(typeof(Uri), new UriTypeReader());
+			Register(typeof(IContext), new ContextTypeReader<IContext>());
 			RegisterWithNullable(new TryParseTypeReader<char>(char.TryParse));
 			RegisterWithNullable(new TryParseTypeReader<bool>(bool.TryParse));
 			RegisterWithNullable(new NumberTypeReader<sbyte>(sbyte.TryParse));
@@ -77,7 +77,7 @@ namespace YACCS.Commands
 			{
 				readerType = typeof(EnumTypeReader<>).MakeGenericType(type);
 			}
-			else if (type.GetCustomAttribute<GenerateNamedArgumentsAttribute>() != null)
+			else if (type.GetCustomAttribute<GenerateNamedArgumentsAttribute>() is not null)
 			{
 				readerType = typeof(NamedArgumentTypeReader<>).MakeGenericType(type);
 			}

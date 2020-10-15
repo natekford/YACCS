@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,11 +8,16 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Linq;
+using YACCS.Commands.Models;
 using YACCS.Help;
 using YACCS.Help.Attributes;
 using YACCS.Help.Models;
 using YACCS.ParameterPreconditions;
+using YACCS.Preconditions;
 using YACCS.Results;
+
+using PriorityAttribute = YACCS.Commands.Attributes.PriorityAttribute;
 
 namespace YACCS.Tests.Help
 {
@@ -19,23 +25,66 @@ namespace YACCS.Tests.Help
 	public class HelpFormatter_Tests
 	{
 		[TestMethod]
-		public async Task Standard_Test()
+		public async Task Async_Test()
+		{
+			var (commands, formatter, context) = await CreateAsync().ConfigureAwait(false);
+
+			var help = new HelpCommand(commands.ById(CommandGroup.ASYNC).Single());
+			var task = formatter.FormatAsync(context, help);
+			Assert.IsFalse(task.IsCompleted);
+			Assert.IsFalse(task.IsCompletedSuccessfully);
+			await task.ConfigureAwait(false);
+			Debug.WriteLine(task.Result);
+		}
+
+		[TestMethod]
+		public async Task Sync_Test()
+		{
+			var (commands, formatter, context) = await CreateAsync().ConfigureAwait(false);
+
+			var help = new HelpCommand(commands.ById(CommandGroup.SYNC).Single());
+			var task = formatter.FormatAsync(context, help);
+			Assert.IsTrue(task.IsCompleted);
+			Assert.IsTrue(task.IsCompletedSuccessfully);
+			Debug.WriteLine(task.Result);
+		}
+
+		private async Task<(IReadOnlyList<IImmutableCommand>, IHelpFormatter, IContext)> CreateAsync()
 		{
 			var commands = await typeof(CommandGroup).GetDirectCommandsAsync().ConfigureAwait(false);
-			var help = new HelpCommand(commands.Single());
-			var formatter = new HelpFormatter(new TypeNameRegistry());
+			var formatter = new HelpFormatter(new TypeNameRegistry(), new TagConverter());
 			var context = new FakeContext();
-
-			var text = await formatter.FormatAsync(context, help).ConfigureAwait(false);
-			Debug.WriteLine(text);
+			return (commands, formatter, context);
 		}
 
 		private class CommandGroup : CommandGroup<IContext>
 		{
-			[Command(nameof(Method))]
+			public const string ASYNC = "async_id";
+			public const string SYNC = "sync_id";
+
+			[Command(nameof(Async))]
 			[EnabledByDefault(true, Toggleable = false)]
 			[Summary("Throws an exception if the passed in value is greater than 100.")]
-			public void Method(
+			[Id(ASYNC)]
+			[Priority(2)]
+			[Cooldown]
+			public void Async(
+				[LessThanOrEqualTo100]
+				[Summary("The value to use.")]
+				int value)
+			{
+				if (value > 100)
+				{
+					throw new InvalidOperationException();
+				}
+			}
+
+			[Command(nameof(Sync))]
+			[EnabledByDefault(true, Toggleable = false)]
+			[Summary("Throws an exception if the passed in value is greater than 100.")]
+			[Id(SYNC)]
+			[Priority(1)]
+			public void Sync(
 				[LessThanOrEqualTo100]
 				[Summary("The value to use.")]
 				int value)
@@ -48,8 +97,36 @@ namespace YACCS.Tests.Help
 		}
 
 		[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
+		private class CooldownAttribute : PreconditionAttribute, IAsyncRuntimeFormattableAttribute
+		{
+			private Task<bool> ADatabaseCall => Task.Run(async () =>
+			{
+				await Task.Delay(250).ConfigureAwait(false);
+				return new Random().NextDouble() >= 0.5;
+			});
+
+			public override async Task<IResult> CheckAsync(IImmutableCommand command, IContext context)
+			{
+				return await ADatabaseCall.ConfigureAwait(false)
+					? SuccessResult.Instance.Sync
+					: Result.FromError("ur on cooldown buddy");
+			}
+
+			public async ValueTask<IReadOnlyList<TaggedString>> FormatAsync(IContext context)
+			{
+				var text = await ADatabaseCall.ConfigureAwait(false)
+					? "ur good"
+					: "ur on cooldown buddy";
+				return new[] { new TaggedString(Tag.String, text) };
+			}
+		}
+
+		[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
 		private class EnabledByDefaultAttribute : Attribute, IRuntimeFormattableAttribute
 		{
+			private static readonly TaggedString _Key1 = new TaggedString(Tag.Key, "Enabled by default");
+			private static readonly TaggedString _Key2 = new TaggedString(Tag.Key, "Toggleable");
+
 			public bool EnabledByDefault { get; }
 			public bool Toggleable { get; set; }
 
@@ -58,8 +135,17 @@ namespace YACCS.Tests.Help
 				EnabledByDefault = enabledByDefault;
 			}
 
-			public ValueTask<string> FormatAsync(IContext context)
-				=> new ValueTask<string>($"Enabled by default = {EnabledByDefault}, toggleable = {Toggleable}");
+			public IReadOnlyList<TaggedString> Format(IContext context)
+			{
+				return new[]
+				{
+					_Key1,
+					new TaggedString(Tag.Value, EnabledByDefault.ToString()),
+					TaggedString.Newline,
+					_Key2,
+					new TaggedString(Tag.Value, Toggleable.ToString()),
+				};
+			}
 		}
 
 		[AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]

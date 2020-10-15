@@ -138,6 +138,17 @@ namespace YACCS.Commands
 
 	public static class ReflectionUtils
 	{
+		// Some interfaces Array implements
+		// Don't deal with the non generic versions b/c how would we parse 'object'?
+		public static readonly ImmutableArray<Type> SupportedEnumerableTypes = new[]
+		{
+			typeof(IList<>),
+			typeof(ICollection<>),
+			typeof(IEnumerable<>),
+			typeof(IReadOnlyList<>),
+			typeof(IReadOnlyCollection<>),
+		}.ToImmutableArray();
+
 		public static Lazy<T> CreateDelegate<T>(Func<T> createDelegateDelegate, string name)
 		{
 			return new Lazy<T>(() =>
@@ -171,6 +182,26 @@ namespace YACCS.Commands
 			}
 			throw new ArgumentException(
 				$"{type.Name} does not implement {typeof(T).FullName}.", nameof(type));
+		}
+
+		public static Type? GetEnumerableType(this Type type)
+		{
+			if (type.IsArray)
+			{
+				return type.GetElementType();
+			}
+			if (type.IsInterface && type.IsGenericType)
+			{
+				var typeDefinition = type.GetGenericTypeDefinition();
+				foreach (var supportedType in SupportedEnumerableTypes)
+				{
+					if (typeDefinition == supportedType)
+					{
+						return type.GetGenericArguments()[0];
+					}
+				}
+			}
+			return null;
 		}
 
 		public static (IEnumerable<PropertyInfo>, IEnumerable<FieldInfo>) GetWritableMembers(this Type type)

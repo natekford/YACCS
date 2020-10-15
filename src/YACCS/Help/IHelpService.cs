@@ -7,6 +7,6 @@ namespace YACCS.Help
 {
 	public interface IHelpService
 	{
-		Task<string> FormatAsync(IContext context, IImmutableCommand command);
+		ValueTask<string> FormatAsync(IContext context, IImmutableCommand command);
 	}
 }

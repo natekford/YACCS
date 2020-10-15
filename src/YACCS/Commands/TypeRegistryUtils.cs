@@ -7,20 +7,20 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Commands
 {
-	public static class TypeReaderRegistryUtils
+	public static class TypeRegistryUtils
 	{
-		public static ITypeReader GetReader(this ITypeRegistry<ITypeReader> registry, Type type)
+		public static T Get<T>(this ITypeRegistry<T> registry, Type type)
 		{
 			if (registry.TryGet(type, out var reader))
 			{
 				return reader;
 			}
-			throw new ArgumentException($"There is no type reader registered for {type.Name}.", nameof(type));
+			throw new ArgumentException($"There is no {typeof(T).Name} registered for {type.Name}.", nameof(type));
 		}
 
-		public static ITypeReader<T> GetReader<T>(this ITypeRegistry<ITypeReader> registry)
+		public static ITypeReader<T> Get<T>(this ITypeRegistry<ITypeReader> registry)
 		{
-			if (registry.GetReader(typeof(T)) is ITypeReader<T> reader)
+			if (registry.Get(typeof(T)) is ITypeReader<T> reader)
 			{
 				return reader;
 			}
@@ -41,11 +41,6 @@ namespace YACCS.Commands
 				yield return new TypeReaderInfo(attr.TargetTypes, typeReader);
 			}
 		}
-
-		public static void Register<T>(
-			this ITypeRegistry<ITypeReader> registry,
-			ITypeReader<T> reader)
-			=> registry.Register(typeof(T), reader);
 
 		public static void Register(
 			this ITypeRegistry<ITypeReader> registry,

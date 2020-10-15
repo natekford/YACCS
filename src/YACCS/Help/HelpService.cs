@@ -21,7 +21,7 @@ namespace YACCS.Help
 		public void Add(IImmutableCommand command)
 			=> _Commands.Add(command, new HelpCommand(command));
 
-		public Task<string> FormatAsync(IContext context, IImmutableCommand command)
+		public ValueTask<string> FormatAsync(IContext context, IImmutableCommand command)
 			=> _Formatter.FormatAsync(context, _Commands[command]);
 
 		public void Remove(IImmutableCommand command)
