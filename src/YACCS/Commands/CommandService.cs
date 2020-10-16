@@ -349,7 +349,7 @@ namespace YACCS.Commands
 			{
 				var args = score.Args!;
 				var result = await command.ExecuteAsync(context, args).ConfigureAwait(false);
-				var e = new CommandExecutedEventArgs(command, context, result);
+				var e = new CommandExecutedEventArgs(command, context, result.InnerResult);
 				await CommandExecutedEvent.InvokeAsync(e).ConfigureAwait(false);
 			}
 			catch (Exception ex)

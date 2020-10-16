@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
+using YACCS.Commands.Models;
 using YACCS.ParameterPreconditions;
 using YACCS.Results;
 

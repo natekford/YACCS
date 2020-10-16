@@ -4,11 +4,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
+using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.NamedArguments;
-using YACCS.TypeReaders;
 
-namespace YACCS.Commands
+namespace YACCS.TypeReaders
 {
 	public class TypeReaderRegistry : ITypeRegistry<ITypeReader>
 	{
@@ -65,7 +65,7 @@ namespace YACCS.Commands
 			_Readers[typeof(T?)] = new NullableTypeReader<T>(item);
 		}
 
-		public bool TryGet(Type type, [NotNullWhen(true)] out ITypeReader? item)
+		public virtual bool TryGet(Type type, [NotNullWhen(true)] out ITypeReader? item)
 		{
 			if (_Readers.TryGetValue(type, out item))
 			{
@@ -77,6 +77,10 @@ namespace YACCS.Commands
 			{
 				readerType = typeof(EnumTypeReader<>).MakeGenericType(type);
 			}
+			else if (typeof(IContext).IsAssignableFrom(type))
+			{
+				readerType = typeof(ContextTypeReader<>).MakeGenericType(type);
+			}
 			else if (type.GetCustomAttribute<GenerateNamedArgumentsAttribute>() is not null)
 			{
 				readerType = typeof(NamedArgumentTypeReader<>).MakeGenericType(type);
@@ -87,7 +91,7 @@ namespace YACCS.Commands
 				return false;
 			}
 
-			item = (ITypeReader)Activator.CreateInstance(readerType);
+			item = ReflectionUtils.CreateInstance<ITypeReader>(readerType);
 			Register(type, item);
 			return true;
 		}

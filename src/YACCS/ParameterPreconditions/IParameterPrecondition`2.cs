@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 
 using YACCS.Commands;
+using YACCS.Commands.Models;
 using YACCS.Results;
 
 namespace YACCS.ParameterPreconditions

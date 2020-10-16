@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace YACCS.Commands.Attributes
+namespace YACCS.TypeReaders
 {
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 	public class TypeReaderTargetTypesAttribute : Attribute

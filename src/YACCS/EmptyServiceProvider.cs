@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace YACCS.Commands
+namespace YACCS
 {
 	public sealed class EmptyServiceProvider : IServiceProvider
 	{

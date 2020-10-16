@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 
-namespace YACCS.Commands
+namespace YACCS
 {
 	public delegate Task AsyncEventHandler<T>(T e) where T : HandledEventArgs;
 

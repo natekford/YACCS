@@ -6,11 +6,14 @@ using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using MorseCode.ITask;
+
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Results;
+using YACCS.TypeReaders;
 
 namespace YACCS.Tests.Commands.Models
 {
@@ -32,7 +35,7 @@ namespace YACCS.Tests.Commands.Models
 
 			var args = new object[] { new FakeContext() };
 			var result = await immutable.ExecuteAsync(null!, args).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.InnerResult, typeof(ValueResult));
 			Assert.IsTrue(result.TryGetValue(out bool value));
 			Assert.AreEqual(true, value);
@@ -73,6 +76,37 @@ namespace YACCS.Tests.Commands.Models
 		}
 
 		[TestMethod]
+		public void OverriddenTypeReader_Test()
+		{
+			var str = "";
+			void Delegate([OverrideTypeReader(typeof(FakeTypeReader))] string value)
+				=> str = value;
+
+			var @delegate = (Action<string>)Delegate;
+			var names = new[] { new Name(new[] { "Joe" }) };
+			var command = new DelegateCommand(@delegate, names);
+			var immutable = command.ToImmutable().Single();
+			Assert.AreEqual(1, immutable.Parameters.Count);
+			Assert.IsInstanceOfType(immutable.Parameters[0].TypeReader, typeof(FakeTypeReader));
+		}
+
+		[TestMethod]
+		public void OverriddenTypeReaderInvalidType_Test()
+		{
+			static void Delegate([OverrideTypeReader(typeof(FakeTypeReader))] int value)
+			{
+			}
+
+			var @delegate = (Action<int>)Delegate;
+			var names = new[] { new Name(new[] { "Joe" }) };
+			var command = new DelegateCommand(@delegate, names);
+			Assert.ThrowsException<ArgumentException>(() =>
+			{
+				command.ToImmutable();
+			});
+		}
+
+		[TestMethod]
 		public async Task StaticCommandDelegateBuilding_Test()
 		{
 			static Task<bool> Method(IContext arg) => Task.FromResult(true);
@@ -90,10 +124,18 @@ namespace YACCS.Tests.Commands.Models
 
 			var args = new object[] { new FakeContext() };
 			var result = await immutable.ExecuteAsync(null!, args).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.InnerResult, typeof(ValueResult));
 			Assert.IsTrue(result.TryGetValue(out bool value));
 			Assert.AreEqual(true, value);
+		}
+
+		private class FakeTypeReader : TypeReader<string>
+		{
+			public const string VALUE = "joe";
+
+			public override ITask<ITypeReaderResult<string>> ReadAsync(IContext context, string input)
+				=> TypeReaderResult<string>.FromSuccess(VALUE).AsITask();
 		}
 
 		private class GroupBase : CommandGroup<FakeContext>

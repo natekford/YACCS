@@ -13,7 +13,7 @@ using YACCS.Results;
 
 namespace YACCS.NamedArguments
 {
-	using ParameterInfo = Commands.ParameterInfo;
+	using ParameterInfo = Commands.Models.ParameterInfo;
 
 	public class NamedArgumentParameterPrecondition<T> : ParameterPrecondition<IContext, T>
 	{

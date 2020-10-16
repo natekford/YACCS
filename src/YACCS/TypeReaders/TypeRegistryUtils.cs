@@ -2,22 +2,12 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-using YACCS.Commands.Attributes;
-using YACCS.TypeReaders;
+using YACCS.Commands;
 
-namespace YACCS.Commands
+namespace YACCS.TypeReaders
 {
 	public static class TypeRegistryUtils
 	{
-		public static T Get<T>(this ITypeRegistry<T> registry, Type type)
-		{
-			if (registry.TryGet(type, out var reader))
-			{
-				return reader;
-			}
-			throw new ArgumentException($"There is no {typeof(T).Name} registered for {type.Name}.", nameof(type));
-		}
-
 		public static ITypeReader<T> Get<T>(this ITypeRegistry<ITypeReader> registry)
 		{
 			if (registry.Get(typeof(T)) is ITypeReader<T> reader)

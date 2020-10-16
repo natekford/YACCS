@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace YACCS.Commands
+namespace YACCS
 {
 	public interface ITypeRegistry<T>
 	{

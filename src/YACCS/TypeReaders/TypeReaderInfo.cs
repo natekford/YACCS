@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using YACCS.TypeReaders;
-
-namespace YACCS.Commands
+namespace YACCS.TypeReaders
 {
 	public readonly struct TypeReaderInfo
 	{

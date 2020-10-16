@@ -8,31 +8,28 @@ namespace YACCS.Help
 {
 	public class TypeNameRegistry : ITypeRegistry<string>
 	{
-		private readonly Dictionary<Type, string> _Names
-			= new Dictionary<Type, string>();
-
-		public TypeNameRegistry()
+		private readonly Dictionary<Type, string> _Names = new Dictionary<Type, string>
 		{
-			Register(typeof(string), "text");
-			Register(typeof(Uri), "url");
-			//Register(typeof(IContext), "");
-			Register(typeof(char), "char");
-			Register(typeof(bool), "true or false");
-			Register(typeof(sbyte), $"integer ({sbyte.MinValue} to {sbyte.MaxValue})");
-			Register(typeof(byte), $"integer ({byte.MinValue} to {byte.MaxValue})");
-			Register(typeof(short), $"integer ({short.MinValue} to {short.MaxValue})");
-			Register(typeof(ushort), $"integer ({ushort.MinValue} to {ushort.MaxValue})");
-			Register(typeof(int), $"integer ({int.MinValue} to {int.MaxValue})");
-			Register(typeof(uint), $"integer ({uint.MinValue} to {uint.MaxValue})");
-			Register(typeof(long), $"integer ({long.MinValue} to {long.MaxValue})");
-			Register(typeof(ulong), $"integer ({ulong.MinValue} to {ulong.MaxValue})");
-			Register(typeof(float), $"number ({float.MinValue} to {float.MaxValue})");
-			Register(typeof(double), $"number ({double.MinValue} to {double.MaxValue})");
-			Register(typeof(decimal), $"number ({decimal.MinValue} to {decimal.MaxValue})");
-			Register(typeof(DateTime), "date");
-			Register(typeof(DateTimeOffset), "date");
-			Register(typeof(TimeSpan), "time");
-		}
+			{ typeof(string), "text" },
+			{ typeof(Uri), "url" },
+			//{ typeof(IContext), "context" },
+			{ typeof(char), "char" },
+			{ typeof(bool), "true or false" },
+			{ typeof(sbyte), $"integer ({sbyte.MinValue} to {sbyte.MaxValue})" },
+			{ typeof(byte), $"integer ({byte.MinValue} to {byte.MaxValue})" },
+			{ typeof(short), $"integer ({short.MinValue} to {short.MaxValue})" },
+			{ typeof(ushort), $"integer ({ushort.MinValue} to {ushort.MaxValue})" },
+			{ typeof(int), $"integer ({int.MinValue} to {int.MaxValue})" },
+			{ typeof(uint), $"integer ({uint.MinValue} to {uint.MaxValue})" },
+			{ typeof(long), $"integer ({long.MinValue} to {long.MaxValue})" },
+			{ typeof(ulong), $"integer ({ulong.MinValue} to {ulong.MaxValue})" },
+			{ typeof(float), $"number ({float.MinValue} to {float.MaxValue})" },
+			{ typeof(double), $"number ({double.MinValue} to {double.MaxValue})" },
+			{ typeof(decimal), $"number ({decimal.MinValue} to {decimal.MaxValue})" },
+			{ typeof(DateTime), "date" },
+			{ typeof(DateTimeOffset), "date" },
+			{ typeof(TimeSpan), "time" },
+		};
 
 		public void Register(Type type, string item)
 			=> _Names[type] = item;
@@ -43,16 +40,30 @@ namespace YACCS.Help
 			{
 				return true;
 			}
-
-			var eType = type.GetEnumerableType();
-			if (eType is not null)
+			else if (type.IsGenericOf(typeof(Nullable<>)))
 			{
-				var eName = _Names.TryGetValue(eType, out var eItem) ? eItem : type.Name;
-				item = "List of " + eName;
+				item = GenerateNullableName(type.GetGenericArguments()[0]);
+			}
+			else if (type.GetEnumerableType() is Type eType)
+			{
+				item = GenerateListName(eType);
 			}
 
+			item ??= type.Name;
 			Register(type, item);
 			return true;
+		}
+
+		protected virtual string GenerateListName(Type type)
+		{
+			var name = _Names.TryGetValue(type, out var item) ? item : type.Name;
+			return name + " list";
+		}
+
+		protected virtual string GenerateNullableName(Type type)
+		{
+			var name = _Names.TryGetValue(type, out var item) ? item : type.Name;
+			return name + " or null";
 		}
 	}
 }

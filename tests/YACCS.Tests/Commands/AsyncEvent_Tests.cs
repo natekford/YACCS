@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using YACCS.Commands;
-
 namespace YACCS.Tests.Commands
 {
 	[TestClass]

@@ -13,8 +13,6 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Models
 {
-	using ParameterInfo = System.Reflection.ParameterInfo;
-
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public sealed class Parameter : EntityBase, IParameter
 	{
@@ -85,10 +83,10 @@ namespace YACCS.Commands.Models
 		{
 		}
 
-		public Parameter(ParameterInfo parameter)
+		public Parameter(System.Reflection.ParameterInfo parameter)
 			: this(parameter.ParameterType, parameter.Name, parameter)
 		{
-			DefaultValue = GetDefaultValue(parameter);
+			DefaultValue = GetDefaultValue(parameter.DefaultValue);
 
 			if (this.Get<ParamArrayAttribute>().Any())
 			{
@@ -99,19 +97,19 @@ namespace YACCS.Commands.Models
 		public IImmutableParameter ToImmutable()
 			=> new ImmutableParameter(this);
 
-		private static object? GetDefaultValue(ParameterInfo parameter)
+		private static object? GetDefaultValue(object value)
 		{
 			// Not optional and has no default value
-			if (parameter.DefaultValue == DBNull.Value)
+			if (value == DBNull.Value)
 			{
 				return NoDefaultValue;
 			}
 			// Optional but has no default value
-			if (parameter.DefaultValue == Type.Missing)
+			if (value == Type.Missing)
 			{
 				return NoDefaultValue;
 			}
-			return parameter.DefaultValue;
+			return value;
 		}
 
 		private void AddRemainderAttribute(ref bool? flag)
@@ -149,13 +147,11 @@ namespace YACCS.Commands.Models
 				HasDefaultValue = mutable.HasDefaultValue;
 				ParameterName = mutable.ParameterName;
 				ParameterType = mutable.ParameterType;
-				// TODO: add in type readers from attribute
-				TypeReader = mutable.TypeReader;
 
 				{
 					var attributes = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);
 					var preconditions = new List<IParameterPrecondition>();
-					int l = 0, n = 0;
+					int l = 0, n = 0, t = 0;
 					foreach (var attribute in mutable.Attributes)
 					{
 						attributes.Add(attribute);
@@ -173,6 +169,11 @@ namespace YACCS.Commands.Models
 								OverriddenParameterName = name.ThrowIfDuplicate(x => x.Name, ref n);
 								break;
 
+							case IOverrideTypeReaderAttribute typeReader:
+								typeReader.Reader.ThrowIfInvalidTypeReader(ParameterType);
+								TypeReader = typeReader.ThrowIfDuplicate(x => x.Reader, ref t);
+								break;
+
 							case IIdAttribute id:
 								PrimaryId ??= id.Id;
 								break;
@@ -182,6 +183,7 @@ namespace YACCS.Commands.Models
 					Preconditions = preconditions.ToImmutableArray();
 				}
 
+				TypeReader ??= mutable.TypeReader;
 				OverriddenParameterName ??= mutable.ParameterName;
 				PrimaryId ??= Guid.NewGuid().ToString();
 			}

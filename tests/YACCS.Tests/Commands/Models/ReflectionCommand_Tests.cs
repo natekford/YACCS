@@ -29,7 +29,7 @@ namespace YACCS.Tests.Commands.Models
 			};
 
 			var result = await command.ExecuteAsync(context, new object?[0]).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 		}
 
 		[TestMethod]

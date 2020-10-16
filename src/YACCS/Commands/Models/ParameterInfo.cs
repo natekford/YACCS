@@ -1,6 +1,4 @@
-﻿using YACCS.Commands.Models;
-
-namespace YACCS.Commands
+﻿namespace YACCS.Commands.Models
 {
 	public readonly struct ParameterInfo
 	{
