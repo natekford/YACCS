@@ -11,18 +11,18 @@ namespace YACCS.Help
 {
 	public class HelpFormatter : IHelpFormatter
 	{
-		private readonly ITypeRegistry<string> _Names;
-		private readonly ITagConverter _Tags;
+		protected ITypeRegistry<string> Names { get; }
+		protected ITagConverter Tags { get; }
 
 		public HelpFormatter(ITypeRegistry<string> names, ITagConverter tags)
 		{
-			_Names = names;
-			_Tags = tags;
+			Names = names;
+			Tags = tags;
 		}
 
 		public ValueTask<string> FormatAsync(IContext context, IHelpCommand command)
 		{
-			var builder = new HelpBuilder(context, _Names, _Tags)
+			var builder = GetBuilder(context)
 				.AppendNames(command)
 				.AppendSummary(command);
 
@@ -33,7 +33,7 @@ namespace YACCS.Help
 					await builder.AppendAttributesAsync(command).ConfigureAwait(false);
 					await builder.AppendPreconditionsAsync(command).ConfigureAwait(false);
 					await builder.AppendParametersAsync(command).ConfigureAwait(false);
-					return builder.StringBuilder.ToString();
+					return builder.ToString();
 				}
 				return new ValueTask<string>(FormatAsync(builder, command));
 			}
@@ -43,40 +43,60 @@ namespace YACCS.Help
 					.AppendAttributes(command)
 					.AppendPreconditions(command)
 					.AppendParameters(command);
-				return new ValueTask<string>(builder.StringBuilder.ToString());
+				return new ValueTask<string>(builder.ToString());
 			}
 		}
 
-		private sealed class HelpBuilder
+		protected virtual HelpBuilder GetBuilder(IContext context)
+			=> new HelpBuilder(context, Names, Tags);
+
+		protected class HelpBuilder
 		{
-			private const string ATTRIBUTES = "Attributes: ";
-			private const string NAMES = "Names: ";
-			private const string PARAMETERS = "Parameters: ";
-			private const string PRECONDITIONS = "Preconditions: ";
-			private const string SUMMARY = "Summary: ";
+			private static readonly TaggedString _TaggedAttributes
+				= new TaggedString(Tag.Header, "Attributes");
+			private static readonly TaggedString _TaggedNames
+				= new TaggedString(Tag.Header, "Names");
+			private static readonly TaggedString _TaggedParameters
+				= new TaggedString(Tag.Header, "Parameters");
+			private static readonly TaggedString _TaggedPreconditions
+				= new TaggedString(Tag.Header, "Preconditions");
+			private static readonly TaggedString _TaggedSummary
+				= new TaggedString(Tag.Header, "Summary");
 
-			private readonly IContext _Context;
-			private readonly ITypeRegistry<string> _Names;
-			private readonly string _Separator;
-			private readonly ITagConverter _Tags;
-			private int _CurrentDepth;
+			protected IContext Context { get; }
+			protected int CurrentDepth { get; set; }
+			protected virtual string HeaderAttributes { get; }
+			protected virtual string HeaderNames { get; }
+			protected virtual string HeaderParameters { get; }
+			protected virtual string HeaderPreconditions { get; }
+			protected virtual string HeaderSummary { get; }
+			protected ITypeRegistry<string> Names { get; }
+			protected StringBuilder StringBuilder { get; }
+			protected ITagConverter Tags { get; }
 
-			public StringBuilder StringBuilder { get; }
-
-			public HelpBuilder(IContext context, ITypeRegistry<string> names, ITagConverter tags)
+			public HelpBuilder(
+				IContext context,
+				ITypeRegistry<string> names,
+				ITagConverter tags)
 			{
-				_Context = context;
-				_Names = names;
-				_Tags = tags;
-				_Separator = tags.Separator;
+				Context = context;
+				Names = names;
+				Tags = tags;
+
+				HeaderAttributes = Tags.Convert(_TaggedAttributes);
+				HeaderNames = Tags.Convert(_TaggedNames);
+				HeaderParameters = Tags.Convert(_TaggedParameters);
+				HeaderPreconditions = Tags.Convert(_TaggedPreconditions);
+				HeaderSummary = Tags.Convert(_TaggedSummary);
+
 				StringBuilder = new StringBuilder();
 			}
 
 			public HelpBuilder AppendAttributes(IHelpItem<object> item)
-				=> AppendItems(ATTRIBUTES, item.Attributes);
+				=> AppendItems(HeaderAttributes, item.Attributes);
 
 			public Task<HelpBuilder> AppendAttributesAsync(IHelpItem<object> item)
-				=> AppendItemsAsync(ATTRIBUTES, item.Attributes);
+				=> AppendItemsAsync(HeaderAttributes, item.Attributes);
 
 			public HelpBuilder AppendItems(string header, IEnumerable<IHelpItem<object>> items)
 			{
@@ -86,7 +106,7 @@ namespace YACCS.Help
 					var text = Array.Empty<string>();
 					if (item.Item is IRuntimeFormattableAttribute rfa)
 					{
-						text = Convert(rfa.Format(_Context));
+						text = Convert(rfa.Format(Context));
 					}
 					else if (item.Summary?.Summary is string summary)
 					{
@@ -105,11 +125,11 @@ namespace YACCS.Help
 					var text = Array.Empty<string>();
 					if (item.Item is IAsyncRuntimeFormattableAttribute arfa)
 					{
-						text = Convert(await arfa.FormatAsync(_Context).ConfigureAwait(false));
+						text = Convert(await arfa.FormatAsync(Context).ConfigureAwait(false));
 					}
 					else if (item.Item is IRuntimeFormattableAttribute rfa)
 					{
-						text = Convert(rfa.Format(_Context));
+						text = Convert(rfa.Format(Context));
 					}
 					else if (item.Summary?.Summary is string summary)
 					{
@@ -128,12 +148,12 @@ namespace YACCS.Help
 					{
 						StringBuilder
 							.AppendLine()
-							.AppendDepth(_CurrentDepth)
+							.AppendDepth(CurrentDepth)
 							.AppendLine(header);
 						added = true;
 					}
 
-					StringBuilder.AppendDepth(_CurrentDepth);
+					StringBuilder.AppendDepth(CurrentDepth);
 					foreach (var part in text)
 					{
 						StringBuilder.Append(part);
@@ -146,9 +166,9 @@ namespace YACCS.Help
 			public HelpBuilder AppendNames(IHelpCommand command)
 			{
 				StringBuilder
-					.AppendDepth(_CurrentDepth)
-					.Append(NAMES)
-					.AppendJoin(_Separator, command.Item.Names)
+					.AppendDepth(CurrentDepth)
+					.Append(HeaderNames)
+					.AppendJoin(Tags.Separator, command.Item.Names)
 					.AppendLine();
 				return this;
 			}
@@ -156,22 +176,22 @@ namespace YACCS.Help
 			public HelpBuilder AppendParameter(IHelpParameter parameter)
 			{
 				AppendType(parameter);
-				++_CurrentDepth;
+				++CurrentDepth;
 				AppendSummary(parameter);
 				AppendAttributes(parameter);
 				AppendPreconditions(parameter);
-				--_CurrentDepth;
+				--CurrentDepth;
 				return this;
 			}
 
 			public async Task<HelpBuilder> AppendParameterAsync(IHelpParameter parameter)
 			{
 				AppendType(parameter);
-				++_CurrentDepth;
+				++CurrentDepth;
 				AppendSummary(parameter);
 				await AppendAttributesAsync(parameter).ConfigureAwait(false);
 				await AppendPreconditionsAsync(parameter).ConfigureAwait(false);
-				--_CurrentDepth;
+				--CurrentDepth;
 				return this;
 			}
 
@@ -199,10 +219,10 @@ namespace YACCS.Help
 
 			public HelpBuilder AppendParametersHeader(ref bool added)
 			{
-				StringBuilder.AppendDepth(_CurrentDepth);
+				StringBuilder.AppendDepth(CurrentDepth);
 				if (!added)
 				{
-					StringBuilder.AppendLine().AppendLine(PARAMETERS);
+					StringBuilder.AppendLine().AppendLine(HeaderParameters);
 					added = true;
 				}
 				else
@@ -213,18 +233,18 @@ namespace YACCS.Help
 			}
 
 			public HelpBuilder AppendPreconditions(IHasPreconditions preconditions)
-				=> AppendItems(PRECONDITIONS, preconditions.Preconditions);
+				=> AppendItems(HeaderPreconditions, preconditions.Preconditions);
 
 			public Task<HelpBuilder> AppendPreconditionsAsync(IHasPreconditions preconditions)
-				=> AppendItemsAsync(PRECONDITIONS, preconditions.Preconditions);
+				=> AppendItemsAsync(HeaderPreconditions, preconditions.Preconditions);
 
 			public HelpBuilder AppendSummary(IHelpItem<object> item)
 			{
 				if (item.Summary is not null)
 				{
 					StringBuilder
-						.AppendDepth(_CurrentDepth)
-						.Append(SUMMARY)
+						.AppendDepth(CurrentDepth)
+						.Append(HeaderSummary)
 						.AppendLine(item.Summary?.Summary);
 				}
 				return this;
@@ -234,10 +254,10 @@ namespace YACCS.Help
 			{
 				var pType = parameter.ParameterType;
 				StringBuilder
-					.AppendDepth(_CurrentDepth)
+					.AppendDepth(CurrentDepth)
 					.Append(parameter.Item.OverriddenParameterName)
 					.Append(": ")
-					.AppendLine(pType.Name?.Name ?? _Names.Get(pType.Item));
+					.AppendLine(pType.Name?.Name ?? Names.Get(pType.Item));
 				return this;
 			}
 
@@ -246,10 +266,13 @@ namespace YACCS.Help
 				var untagged = new string[tagged.Count];
 				for (var i = 0; i < tagged.Count; ++i)
 				{
-					untagged[i] = _Tags.Convert(tagged[i]);
+					untagged[i] = Tags.Convert(tagged[i]);
 				}
 				return untagged;
 			}
+
+			public override string ToString()
+				=> StringBuilder.ToString();
 		}
 	}
 

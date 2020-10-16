@@ -17,8 +17,9 @@ namespace YACCS.Tests.TypeReaders
 		public async Task Valid_Test()
 		{
 			var result = await Reader.ReadAsync(Context, "00:00:01").ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, typeof(TimeSpan));
+			Assert.AreEqual(TimeSpan.FromSeconds(1), result.Value);
 		}
 	}
 }

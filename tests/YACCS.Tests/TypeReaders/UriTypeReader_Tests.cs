@@ -16,7 +16,7 @@ namespace YACCS.Tests.TypeReaders
 		public async Task Escaped_Test()
 		{
 			var result = await Reader.ReadAsync(Context, "<https://www.google.com>").ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, typeof(Uri));
 		}
 
@@ -24,24 +24,24 @@ namespace YACCS.Tests.TypeReaders
 		public async Task Exception_Test()
 		{
 			var result = await Reader.ReadAsync(Context, "www.google.com").ConfigureAwait(false);
-			AssertIsReaderResultFailure(result);
+			Assert.IsFalse(result.InnerResult.IsSuccess);
 		}
 
 		[TestMethod]
 		public async Task NullOrEmpty_Test()
 		{
 			var nullResult = await Reader.ReadAsync(Context, null!).ConfigureAwait(false);
-			AssertIsReaderResultFailure(nullResult);
+			Assert.IsFalse(nullResult.InnerResult.IsSuccess);
 
 			var emptyResult = await Reader.ReadAsync(Context, "").ConfigureAwait(false);
-			AssertIsReaderResultFailure(emptyResult);
+			Assert.IsFalse(emptyResult.InnerResult.IsSuccess);
 		}
 
 		[TestMethod]
 		public async Task Valid_Test()
 		{
 			var result = await Reader.ReadAsync(Context, "https://www.google.com").ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, typeof(Uri));
 		}
 	}

@@ -626,7 +626,7 @@ namespace YACCS.Tests.Commands
 				value.Select(x => x.ToString()).Append("joeba").Append("trash").ToArray(),
 				0
 			).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, value.GetType());
 
 			var cast = (int[])result.Value!;
@@ -647,7 +647,7 @@ namespace YACCS.Tests.Commands
 				value.Select(x => x.ToString()).ToArray(),
 				0
 			).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, value.GetType());
 
 			var cast = (int[])result.Value!;
@@ -668,7 +668,7 @@ namespace YACCS.Tests.Commands
 				value.Select(x => x.ToString()).ToArray(),
 				0
 			).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, value.GetType());
 
 			var cast = (int[])result.Value!;
@@ -704,7 +704,7 @@ namespace YACCS.Tests.Commands
 				new[] { "joeba" },
 				0
 			).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 		}
 
 		[TestMethod]
@@ -717,7 +717,7 @@ namespace YACCS.Tests.Commands
 				new[] { "joeba" },
 				0
 			).ConfigureAwait(false);
-			Assert.IsFalse(result.IsSuccess);
+			Assert.IsFalse(result.InnerResult.IsSuccess);
 		}
 
 		[TestMethod]
@@ -731,7 +731,7 @@ namespace YACCS.Tests.Commands
 				new[] { VALUE.ToString() },
 				0
 			).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, VALUE.GetType());
 			Assert.AreEqual(VALUE, result.Value);
 		}
@@ -747,7 +747,7 @@ namespace YACCS.Tests.Commands
 				new[] { VALUE.ToString(), "joeba", "trash" },
 				0
 			).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, VALUE.GetType());
 			Assert.AreEqual(VALUE, result.Value);
 		}
@@ -763,7 +763,7 @@ namespace YACCS.Tests.Commands
 				value,
 				0
 			).ConfigureAwait(false);
-			Assert.IsFalse(result.IsSuccess);
+			Assert.IsFalse(result.InnerResult.IsSuccess);
 		}
 
 		[TestMethod]
@@ -777,7 +777,7 @@ namespace YACCS.Tests.Commands
 				new[] { VALUE },
 				0
 			).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, VALUE.GetType());
 			Assert.AreEqual(VALUE, result.Value);
 		}
@@ -792,7 +792,7 @@ namespace YACCS.Tests.Commands
 				new[] { "doesn't matter" },
 				0
 			).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, typeof(IContext));
 		}
 

@@ -38,8 +38,9 @@ namespace YACCS.Tests.TypeReaders
 		public async Task Valid_Test()
 		{
 			var result = await Reader.ReadAsync(Context, FakeCommandGroup._Name).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, typeof(IReadOnlyCollection<IImmutableCommand>));
+			Assert.AreEqual(1, result.Value!.Count);
 		}
 
 		private class FakeCommandGroup : CommandGroup<IContext>

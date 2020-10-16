@@ -16,8 +16,11 @@ namespace YACCS.NamedArguments
 {
 	public class NamedArgumentTypeReader<T> : TypeReader<T> where T : new()
 	{
+		private static readonly ITask<ITypeReaderResult<T>> _QuoteError
+			= TypeReaderResult<T>.FromError(QuoteMismatchResult.Instance.Sync).AsITask();
 		private static readonly char[] _TrimEndChars = new[] { ':' };
 		private static readonly char[] _TrimStartChars = new[] { '/', '-' };
+
 		private readonly Lazy<IReadOnlyDictionary<string, IImmutableParameter>> _Parameters;
 		private readonly Lazy<Action<T, string, object>> _Setter;
 
@@ -42,20 +45,26 @@ namespace YACCS.NamedArguments
 				CommandServiceUtils.InternallyUsedQuotes,
 				CommandServiceUtils.InternallyUsedQuotes,
 				CommandServiceUtils.InternallyUsedSeparator,
-				out var args) || !TryCreateDict(args, out var dict))
+				out var args))
 			{
-				return TypeReaderResult<T>.Failure.ITask;
+				return _QuoteError;
 			}
-			return ReadDictIntoInstanceAsync(context, dict);
+
+			var result = TryCreateDict(args, out var dict);
+			if (!result.IsSuccess)
+			{
+				return TypeReaderResult<T>.FromError(result).AsITask();
+			}
+
+			return ReadDictIntoInstanceAsync(context, dict!);
 		}
 
-		protected virtual bool TryCreateDict(ParseArgs args, [NotNullWhen(true)] out IDictionary<string, string>? dict)
+		protected virtual IResult TryCreateDict(ParseArgs args, out IDictionary<string, string>? dict)
 		{
 			if (args.Arguments.Count % 2 != 0)
 			{
 				dict = null;
-				// TODO: more descriptive error
-				return false;
+				return NamedArgBadCountResult.Instance.Sync;
 			}
 
 			dict = new Dictionary<string, string>();
@@ -64,17 +73,17 @@ namespace YACCS.NamedArguments
 				var name = args.Arguments[i].TrimStart(_TrimStartChars).TrimEnd(_TrimEndChars);
 				if (!Parameters.TryGetValue(name, out var parameter))
 				{
-					// TODO: more descriptive error
-					return false;
+					return new NamedArgNonExistentResult(name);
 				}
-				if (dict.ContainsKey(parameter.OverriddenParameterName))
+
+				var key = parameter.OverriddenParameterName;
+				if (dict.ContainsKey(key))
 				{
-					// TODO: more descriptive error
-					return false;
+					return new NamedArgDuplicateResult(key);
 				}
-				dict.Add(parameter.OverriddenParameterName, args.Arguments[i + 1]);
+				dict.Add(key, args.Arguments[i + 1]);
 			}
-			return true;
+			return SuccessResult.Instance.Sync;
 		}
 
 		private static Action<T, string, object> CreateSetterDelegate()
@@ -166,14 +175,13 @@ namespace YACCS.NamedArguments
 				var parameter = Parameters[kvp.Key];
 				var reader = registry.Get(parameter.ParameterType);
 
-				var trResult = await reader.ReadAsync(context, kvp.Value).ConfigureAwait(false);
-				if (!trResult.IsSuccess)
+				var result = await reader.ReadAsync(context, kvp.Value).ConfigureAwait(false);
+				if (!result.InnerResult.IsSuccess)
 				{
-					// TODO: return a more descriptive error based on the member failed
-					return TypeReaderResult<T>.Failure.Sync;
+					return TypeReaderResult<T>.FromError(result.InnerResult);
 				}
 
-				Setter.Invoke(instance, parameter.ParameterName, trResult.Value!);
+				Setter.Invoke(instance, parameter.ParameterName, result.Value!);
 			}
 			return TypeReaderResult<T>.FromSuccess(instance);
 		}

@@ -12,26 +12,11 @@ namespace YACCS.Results
 		public static ITask<IResult> AsITask(this IResult result)
 			=> Task.FromResult(result).AsITask();
 
-		public static ITask<ITypeReaderResult<T>> AsITask<T>(this ITypeReaderResult<T> result)
-			=> Task.FromResult(result).AsITask();
-
-		public static ITask<ITypeReaderResult> AsITask(this ITypeReaderResult result)
-			=> Task.FromResult(result).AsITask();
-
 		public static ResultInstance<T, IResult> AsResultInstance<T>(this T instance) where T : IResult
 			=> new ResultInstance<T, IResult>(instance);
 
 		public static Task<IResult> AsTask(this IResult result)
 			=> Task.FromResult(result);
-
-		public static Task<ITypeReaderResult<T>> AsTask<T>(this ITypeReaderResult<T> result)
-			=> Task.FromResult(result);
-
-		public static Task<ITypeReaderResult> AsTask(this ITypeReaderResult result)
-			=> Task.FromResult(result);
-
-		public static ResultInstance<T, ITypeReaderResult> AsTypeReaderResultInstance<T>(this T instance) where T : ITypeReaderResult
-			=> new ResultInstance<T, ITypeReaderResult>(instance);
 
 		public static IResult GetMostNestedResult(this INestedResult result)
 		{

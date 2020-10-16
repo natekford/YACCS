@@ -1,4 +1,6 @@
-﻿namespace YACCS.Results
+﻿using System;
+
+namespace YACCS.Results
 {
 	public class CanceledResult : Result
 	{
@@ -70,6 +72,37 @@
 		}
 	}
 
+	public class NamedArgBadCountResult : Result
+	{
+		public static ResultInstance<NamedArgBadCountResult, IResult> Instance { get; }
+			= new NamedArgBadCountResult().AsResultInstance();
+
+		public NamedArgBadCountResult() : base(false, "There is not an even number of arguments supplied.")
+		{
+		}
+	}
+
+	public class NamedArgDuplicateResult : Result
+	{
+		public NamedArgDuplicateResult(string name) : base(false, $"Duplicate value for named argument {name}.")
+		{
+		}
+	}
+
+	public class NamedArgMissingValueResult : Result
+	{
+		public NamedArgMissingValueResult(string name) : base(false, $"Missing a value for named argument {name}.")
+		{
+		}
+	}
+
+	public class NamedArgNonExistentResult : Result
+	{
+		public NamedArgNonExistentResult(string name) : base(false, $"Named argument does not exist {name}.")
+		{
+		}
+	}
+
 	public class NotEnoughArgsResult : Result
 	{
 		public static ResultInstance<NotEnoughArgsResult, IResult> Instance { get; }
@@ -86,6 +119,26 @@
 			= new NullParameterResult().AsResultInstance();
 
 		protected NullParameterResult() : base(false, "Parameter is null.")
+		{
+		}
+	}
+
+	public class ParseFailedResult : Result
+	{
+		public Type Type { get; }
+
+		protected ParseFailedResult(Type type) : base(false, $"Failed to parse {type.Name}.")
+		{
+			Type = type;
+		}
+	}
+
+	public class ParseFailedResult<T> : ParseFailedResult
+	{
+		public static ResultInstance<ParseFailedResult<T>, IResult> Instance { get; }
+			= new ParseFailedResult<T>().AsResultInstance();
+
+		public ParseFailedResult() : base(typeof(T))
 		{
 		}
 	}
@@ -127,6 +180,16 @@
 
 		protected TooManyArgsResult() : base(false, "Too many arguments provided.")
 		{
+		}
+	}
+
+	public class ValueResult : Result
+	{
+		public object? Value { get; }
+
+		public ValueResult(object? value) : base(true, "")
+		{
+			Value = value;
 		}
 	}
 }

@@ -24,7 +24,7 @@ namespace YACCS.Results
 		public static Result FromSuccess()
 			=> new Result(true, "");
 
-		public class ResultInstance<T, TBase> where T : IResult, TBase
+		public class ResultInstance<T, TBase> where T : TBase
 		{
 			public Task<T> GenericTask { get; }
 			public ITask<T> ITask { get; }

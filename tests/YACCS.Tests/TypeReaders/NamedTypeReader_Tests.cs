@@ -62,7 +62,7 @@ namespace YACCS.Tests.TypeReaders
 				$" {CommandsGroup.D}: {D}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
-			Assert.IsInstanceOfType(result, typeof(TypeReaderResult<NamedArgs>));
+			Assert.IsInstanceOfType(result, typeof(ParseFailedResult<int>));
 		}
 
 		[TestMethod]
@@ -242,7 +242,7 @@ namespace YACCS.Tests.TypeReaders
 
 			var context = Create();
 			var result = await Reader.ReadAsync(context, input).ConfigureAwait(false);
-			Assert.IsFalse(result.IsSuccess);
+			Assert.IsFalse(result.InnerResult.IsSuccess);
 		}
 
 		[TestMethod]
@@ -256,7 +256,7 @@ namespace YACCS.Tests.TypeReaders
 
 			var context = Create();
 			var result = await Reader.ReadAsync(context, input).ConfigureAwait(false);
-			Assert.IsFalse(result.IsSuccess);
+			Assert.IsFalse(result.InnerResult.IsSuccess);
 		}
 
 		[TestMethod]
@@ -270,7 +270,7 @@ namespace YACCS.Tests.TypeReaders
 
 			var context = Create();
 			var result = await Reader.ReadAsync(context, input).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 			if (result.Value is null)
 			{
 				Assert.Fail();

@@ -112,11 +112,9 @@ namespace YACCS.NamedArguments
 				{
 					if (!value.ContainsKey(kvp.Key) && !kvp.Value.HasDefaultValue)
 					{
-						// TODO: more descriptive
-						return NotEnoughArgsResult.Instance.Task;
+						return new NamedArgMissingValueResult(kvp.Key).AsTask();
 					}
 				}
-
 				return base.CheckAsync(parameter, context, value);
 			}
 		}
@@ -132,21 +130,22 @@ namespace YACCS.NamedArguments
 				Parameters = command.Parameters.ToParameterDictionary(x => x.OverriddenParameterName);
 			}
 
-			protected override bool TryCreateDict(ParseArgs args, [NotNullWhen(true)] out IDictionary<string, string>? dict)
+			protected override IResult TryCreateDict(ParseArgs args, out IDictionary<string, string>? dict)
 			{
-				if (!base.TryCreateDict(args, out dict))
+				var result = base.TryCreateDict(args, out dict);
+				if (!result.IsSuccess)
 				{
-					return false;
+					return result;
 				}
 
 				foreach (var kvp in Parameters)
 				{
-					if (!dict.ContainsKey(kvp.Key) && !kvp.Value.HasDefaultValue)
+					if (!dict!.ContainsKey(kvp.Key) && !kvp.Value.HasDefaultValue)
 					{
-						return false;
+						return new NamedArgMissingValueResult(kvp.Key);
 					}
 				}
-				return true;
+				return SuccessResult.Instance.Sync;
 			}
 		}
 	}

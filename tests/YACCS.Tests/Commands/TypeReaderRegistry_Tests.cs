@@ -6,7 +6,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MorseCode.ITask;
 
 using YACCS.Commands;
-using YACCS.Results;
 using YACCS.TypeReaders;
 
 namespace YACCS.Tests.Commands

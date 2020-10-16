@@ -16,9 +16,11 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task Valid_Test()
 		{
-			var result = await Reader.ReadAsync(new FakeContext2(), "").ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			var context = new FakeContext2();
+			var result = await Reader.ReadAsync(context, "").ConfigureAwait(false);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, typeof(FakeContext2));
+			Assert.AreEqual(context, result.Value);
 		}
 	}
 }

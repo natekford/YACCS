@@ -184,9 +184,9 @@ namespace YACCS.Commands
 						input,
 						currentIndex
 					).ConfigureAwait(false);
-					if (!trResult.IsSuccess)
+					if (!trResult.InnerResult.IsSuccess)
 					{
-						return CommandScore.FromFailedTypeReader(command, context, trResult, i);
+						return CommandScore.FromFailedTypeReader(command, context, trResult.InnerResult, i);
 					}
 
 					value = trResult.Value;
@@ -309,22 +309,22 @@ namespace YACCS.Commands
 				int length)
 			{
 				// If an array, test each value one by one
-				var results = new ITypeReaderResult[length];
+				var values = new object?[length];
 				for (var i = startIndex; i < startIndex + length; ++i)
 				{
 					var result = await cache.GetResultAsync(reader, input[i]).ConfigureAwait(false);
-					if (!result.IsSuccess)
+					if (!result.InnerResult.IsSuccess)
 					{
 						return result;
 					}
-					results[i - startIndex] = result;
+					values[i - startIndex] = result.Value;
 				}
 
 				// Copy the values from the type reader result list to an array of the parameter type
-				var output = Array.CreateInstance(parameter.ElementType, results.Length);
-				for (var i = 0; i < results.Length; ++i)
+				var output = Array.CreateInstance(parameter.ElementType, values.Length);
+				for (var i = 0; i < values.Length; ++i)
 				{
-					output.SetValue(results[i].Value, i);
+					output.SetValue(values[i], i);
 				}
 				return TypeReaderResult<object>.FromSuccess(output);
 			}

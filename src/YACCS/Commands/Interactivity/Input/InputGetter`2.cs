@@ -39,7 +39,7 @@ namespace YACCS.Commands.Interactivity.Input
 
 				var tr = options.TypeReader ?? TypeReaders.Get<TValue>();
 				var trResult = await tr.ReadAsync(context, GetInputString(i)).ConfigureAwait(false);
-				if (!trResult.IsSuccess)
+				if (!trResult.InnerResult.IsSuccess)
 				{
 					return;
 				}

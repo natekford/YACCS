@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -231,5 +232,9 @@ namespace YACCS.Commands
 			}
 			throw new InvalidOperationException($"{typeof(T).Name} does not have a registered service.");
 		}
+
+		[return: MaybeNull]
+		public static T GetService<T>(this IServiceProvider provider)
+			=> provider.GetService(typeof(T)) is T t ? t : default;
 	}
 }

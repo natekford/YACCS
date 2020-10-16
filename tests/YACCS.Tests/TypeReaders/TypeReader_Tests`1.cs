@@ -3,7 +3,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
-using YACCS.Results;
 using YACCS.TypeReaders;
 
 namespace YACCS.Tests.TypeReaders
@@ -18,10 +17,7 @@ namespace YACCS.Tests.TypeReaders
 		public async Task Invalid_Test()
 		{
 			var result = await Reader.ReadAsync(Context, Invalid).ConfigureAwait(false);
-			AssertIsReaderResultFailure(result);
+			Assert.IsFalse(result.InnerResult.IsSuccess);
 		}
-
-		protected void AssertIsReaderResultFailure(ITypeReaderResult<T> result)
-			=> Assert.AreEqual(TypeReaderResult<T>.Failure.Sync, result);
 	}
 }

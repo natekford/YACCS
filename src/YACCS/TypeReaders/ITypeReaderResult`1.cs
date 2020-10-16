@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace YACCS.Results
+namespace YACCS.TypeReaders
 {
 	public interface ITypeReaderResult<out T> : ITypeReaderResult
 	{
