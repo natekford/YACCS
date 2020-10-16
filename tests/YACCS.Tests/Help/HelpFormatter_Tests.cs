@@ -29,8 +29,8 @@ namespace YACCS.Tests.Help
 		{
 			var (commands, formatter, context) = await CreateAsync().ConfigureAwait(false);
 
-			var help = new HelpCommand(commands.ById(CommandGroup.ASYNC).Single());
-			var task = formatter.FormatAsync(context, help);
+			var command = commands.ById(CommandGroup.ASYNC).Single();
+			var task = formatter.FormatAsync(context, command);
 			Assert.IsFalse(task.IsCompleted);
 			Assert.IsFalse(task.IsCompletedSuccessfully);
 			await task.ConfigureAwait(false);
@@ -42,8 +42,8 @@ namespace YACCS.Tests.Help
 		{
 			var (commands, formatter, context) = await CreateAsync().ConfigureAwait(false);
 
-			var help = new HelpCommand(commands.ById(CommandGroup.SYNC).Single());
-			var task = formatter.FormatAsync(context, help);
+			var command = commands.ById(CommandGroup.SYNC).Single();
+			var task = formatter.FormatAsync(context, command);
 			Assert.IsTrue(task.IsCompleted);
 			Assert.IsTrue(task.IsCompletedSuccessfully);
 			Debug.WriteLine(task.Result);

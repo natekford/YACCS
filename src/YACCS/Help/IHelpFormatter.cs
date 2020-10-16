@@ -1,12 +1,12 @@
 ﻿using System.Threading.Tasks;
 
 using YACCS.Commands;
-using YACCS.Help.Models;
+using YACCS.Commands.Models;
 
 namespace YACCS.Help
 {
 	public interface IHelpFormatter
 	{
-		ValueTask<string> FormatAsync(IContext context, IHelpCommand command);
+		ValueTask<string> FormatAsync(IContext context, IImmutableCommand command);
 	}
 }

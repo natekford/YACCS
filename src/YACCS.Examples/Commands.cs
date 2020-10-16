@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
+using YACCS.Help;
 using YACCS.Results;
 
 namespace YACCS.Examples
@@ -35,6 +36,7 @@ namespace YACCS.Examples
 		public class Help : CommandGroup<ConsoleContext>
 		{
 			public ICommandService CommandService { get; set; }
+			public IHelpFormatter HelpService { get; set; }
 
 			[Command]
 			public void HelpCommand()
@@ -47,13 +49,12 @@ namespace YACCS.Examples
 			}
 
 			[Command]
-			public void HelpCommand(IReadOnlyList<IImmutableCommand> commands)
+			public async Task HelpCommand(IReadOnlyList<IImmutableCommand> commands)
 			{
 				foreach (var command in commands)
 				{
-					var parameters = command.Parameters
-						.Select(x => $"{x.ParameterType} {x.ParameterName}");
-					Console.WriteLine($"\t{command.Names[0]}({string.Join(", ", parameters)})");
+					var text = await HelpService.FormatAsync(Context, command).ConfigureAwait(false);
+					Console.WriteLine(text);
 				}
 			}
 		}

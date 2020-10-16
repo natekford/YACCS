@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
+using YACCS.Commands.Models;
 using YACCS.Help.Attributes;
 using YACCS.Help.Models;
 
@@ -11,6 +12,8 @@ namespace YACCS.Help
 {
 	public class HelpFormatter : IHelpFormatter
 	{
+		protected Dictionary<IImmutableCommand, HelpCommand> Commands { get; }
+			= new Dictionary<IImmutableCommand, HelpCommand>();
 		protected ITypeRegistry<string> Names { get; }
 		protected ITagConverter Tags { get; }
 
@@ -20,13 +23,18 @@ namespace YACCS.Help
 			Tags = tags;
 		}
 
-		public ValueTask<string> FormatAsync(IContext context, IHelpCommand command)
+		public ValueTask<string> FormatAsync(IContext context, IImmutableCommand command)
 		{
-			var builder = GetBuilder(context)
-				.AppendNames(command)
-				.AppendSummary(command);
+			if (!Commands.TryGetValue(command, out var value))
+			{
+				Commands.Add(command, value = new HelpCommand(command));
+			}
 
-			if (command.IsAsyncFormattable)
+			var builder = GetBuilder(context)
+				.AppendNames(value)
+				.AppendSummary(value);
+
+			if (value.IsAsyncFormattable)
 			{
 				static async Task<string> FormatAsync(HelpBuilder builder, IHelpCommand command)
 				{
@@ -35,14 +43,14 @@ namespace YACCS.Help
 					await builder.AppendParametersAsync(command).ConfigureAwait(false);
 					return builder.ToString();
 				}
-				return new ValueTask<string>(FormatAsync(builder, command));
+				return new ValueTask<string>(FormatAsync(builder, value));
 			}
 			else
 			{
 				builder
-					.AppendAttributes(command)
-					.AppendPreconditions(command)
-					.AppendParameters(command);
+					.AppendAttributes(value)
+					.AppendPreconditions(value)
+					.AppendParameters(value);
 				return new ValueTask<string>(builder.ToString());
 			}
 		}

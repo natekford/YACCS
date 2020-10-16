@@ -9,6 +9,7 @@ using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
+using YACCS.Help;
 using YACCS.TypeReaders;
 
 namespace YACCS.Examples
@@ -16,16 +17,22 @@ namespace YACCS.Examples
 	public sealed class Program
 	{
 		private readonly CommandService _CommandService;
+		private readonly HelpFormatter _HelpFormatter;
+		private readonly TypeNameRegistry _Names;
 		private readonly IServiceProvider _Services;
 		private readonly TypeReaderRegistry _TypeReaders;
 
 		private Program()
 		{
 			_TypeReaders = new TypeReaderRegistry();
+			_Names = new TypeNameRegistry();
 			_CommandService = new CommandService(CommandServiceConfig.Default, _TypeReaders);
+			_HelpFormatter = new HelpFormatter(_Names, new TagConverter());
 			_Services = new ServiceCollection()
-				.AddSingleton<ITypeRegistry<ITypeReader>>(_TypeReaders)
 				.AddSingleton<ICommandService>(_CommandService)
+				.AddSingleton<IHelpFormatter>(_HelpFormatter)
+				.AddSingleton<ITypeRegistry<string>>(_Names)
+				.AddSingleton<ITypeRegistry<ITypeReader>>(_TypeReaders)
 				.BuildServiceProvider();
 		}
 
