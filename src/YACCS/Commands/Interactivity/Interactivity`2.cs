@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using YACCS.Results;
+using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Interactivity
 {
@@ -10,7 +11,7 @@ namespace YACCS.Commands.Interactivity
 	{
 		protected virtual TimeSpan DefaultTimeout { get; } = TimeSpan.FromSeconds(5);
 
-		protected virtual async Task<IInteractivityResult<TValue>> HandleInteraction<TValue>(
+		protected virtual async Task<ITypeReaderResult<TValue>> HandleInteraction<TValue>(
 			TContext context,
 			IInteractivityOptions<TContext, TInput> options,
 			Func<TaskCompletionSource<TValue>, OnInput> createHandler)
@@ -32,15 +33,15 @@ namespace YACCS.Commands.Interactivity
 
 			if (task == cancel)
 			{
-				return new InteractivityResult<TValue>(CanceledResult.Instance.Sync);
+				return TypeReaderResult<TValue>.FromError(CanceledResult.Instance.Sync);
 			}
 			if (task == delay)
 			{
-				return new InteractivityResult<TValue>(TimedOutResult.Instance.Sync);
+				return TypeReaderResult<TValue>.FromError(TimedOutResult.Instance.Sync);
 			}
 
 			var value = await @event.ConfigureAwait(false);
-			return new InteractivityResult<TValue>(value);
+			return TypeReaderResult<TValue>.FromSuccess(value);
 		}
 
 		protected abstract void Subscribe(TContext context, OnInput onInput);

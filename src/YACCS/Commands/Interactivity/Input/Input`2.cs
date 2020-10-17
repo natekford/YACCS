@@ -23,7 +23,7 @@ namespace YACCS.Commands.Interactivity.Input
 			TypeReaders = typeReaders;
 		}
 
-		public virtual Task<IInteractivityResult<TValue>> GetAsync<TValue>(
+		public virtual Task<ITypeReaderResult<TValue>> GetAsync<TValue>(
 			TContext context,
 			IInputOptions<TContext, TInput, TValue> options)
 		{

@@ -39,7 +39,7 @@ namespace YACCS.Examples
 		{
 			public ICommandService CommandService { get; set; }
 			public IHelpFormatter HelpFormatter { get; set; }
-			public IInput<ConsoleContext, string> Input { get; set; }
+			public IInput<IContext, string> Input { get; set; }
 
 			[Command]
 			public void HelpCommand()
@@ -64,7 +64,7 @@ namespace YACCS.Examples
 						Console.WriteLine($"\t{++i}. {c.Names[0]}");
 					}
 
-					var options = new InputOptions<ConsoleContext, string, int>
+					var options = new InputOptions<IContext, string, int>
 					{
 						Preconditions = new[]
 						{
