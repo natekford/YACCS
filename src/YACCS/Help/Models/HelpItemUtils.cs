@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Reflection;
+﻿using System.Reflection;
 
-using YACCS.Commands.Attributes;
-using YACCS.Commands.Models;
 using YACCS.Help.Attributes;
 
 namespace YACCS.Help.Models
@@ -15,10 +9,16 @@ namespace YACCS.Help.Models
 		public static HelpItem<T> Create<T>(T item) where T : ICustomAttributeProvider
 			=> new HelpItem<T>(item, item.GetCustomAttributes(true));
 
-		public static bool IsAsyncFormattable(this IHelpCommand command)
-			=> command.HasAsyncFormattableAttributes || command.HasAsyncFormattableParameters || command.HasAsyncFormattablePreconditions;
+		public static bool IsAsyncFormattable(this IHelpCommand item)
+			=> item.IsAsync() || item.HasAsyncFormattableParameters || item.HasAsyncFormattablePreconditions;
 
-		public static bool IsAsyncFormattable(this IHelpParameter parameter)
-			=> parameter.HasAsyncFormattableAttributes || parameter.HasAsyncFormattablePreconditions;
+		public static bool IsAsyncFormattable(this IHelpParameter item)
+			=> item.IsAsync() || item.HasAsyncFormattablePreconditions;
+
+		public static bool IsAsyncFormattable(this IHelpItem<object> item)
+			=> item.IsAsync();
+
+		private static bool IsAsync(this IHelpItem<object> item)
+			=> item.HasAsyncFormattableAttributes || item.Item is IAsyncRuntimeFormattableAttribute;
 	}
 }

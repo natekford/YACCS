@@ -1,29 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 
+using YACCS.Commands;
 using YACCS.Commands.Interactivity.Input;
 using YACCS.TypeReaders;
 
 namespace YACCS.Examples
 {
-	public class ConsoleInputGetter : InputGetter<ConsoleContext, string>
+	public class ConsoleInput : Input<IContext, string>
 	{
 		private readonly Dictionary<Guid, CancellationTokenSource> _Input
 			= new Dictionary<Guid, CancellationTokenSource>();
 
-		public ConsoleInputGetter(ITypeRegistry<ITypeReader> registry) : base(registry)
+		public ConsoleInput(ITypeRegistry<ITypeReader> registry) : base(registry)
 		{
 		}
 
 		protected override string GetInputString(string input)
 			=> input;
 
-		protected override void Subscribe(ConsoleContext context, OnInput onInput)
+		protected override void Subscribe(IContext context, OnInput onInput)
 		{
 			context.Services.GetRequiredService<SemaphoreSlim>().Wait();
 
@@ -58,7 +58,7 @@ namespace YACCS.Examples
 			_Input[context.Id] = source;
 		}
 
-		protected override void Unsubscribe(ConsoleContext context, OnInput onInput)
+		protected override void Unsubscribe(IContext context, OnInput onInput)
 		{
 			context.Services.GetRequiredService<SemaphoreSlim>().Release();
 

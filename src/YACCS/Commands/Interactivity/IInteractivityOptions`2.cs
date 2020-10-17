@@ -2,7 +2,8 @@
 
 namespace YACCS.Commands.Interactivity
 {
-	public interface IInteractivityOptions<TContext, TInput> : IInteractivityOptions
+	public interface IInteractivityOptions<in TContext, in TInput>
+		: IInteractivityOptions
 		where TContext : IContext
 	{
 		IEnumerable<ICriterion<TContext, TInput>> Criteria { get; }

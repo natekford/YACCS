@@ -9,8 +9,8 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Interactivity.Input
 {
-	public abstract class InputGetter<TContext, TInput>
-		: InteractiveBase<TContext, TInput>, IInputGetter<TContext, TInput>
+	public abstract class Input<TContext, TInput>
+		: Interactivity<TContext, TInput>, IInput<TContext, TInput>
 		where TContext : IContext
 	{
 		public ITypeRegistry<ITypeReader> TypeReaders { get; }
@@ -18,16 +18,16 @@ namespace YACCS.Commands.Interactivity.Input
 		protected static Delegate EmptyDelegate { get; } = (Action)(() => { });
 		protected static IEnumerable<IName> EmptyNames { get; } = new[] { new Name(new[] { "Input" }) };
 
-		protected InputGetter(ITypeRegistry<ITypeReader> typeReaders)
+		protected Input(ITypeRegistry<ITypeReader> typeReaders)
 		{
 			TypeReaders = typeReaders;
 		}
 
-		public virtual Task<IInteractiveResult<TValue>> GetInputAsync<TValue>(
+		public virtual Task<IInteractivityResult<TValue>> GetAsync<TValue>(
 			TContext context,
 			IInputOptions<TContext, TInput, TValue> options)
 		{
-			return GetInputAsync<TValue>(context, options, e => new OnInput(async i =>
+			return HandleInteraction<TValue>(context, options, e => new OnInput(async i =>
 			{
 				foreach (var criterion in options.Criteria)
 				{

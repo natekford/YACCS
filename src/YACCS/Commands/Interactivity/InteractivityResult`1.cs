@@ -4,19 +4,19 @@ using YACCS.Results;
 
 namespace YACCS.Commands.Interactivity
 {
-	public class InteractiveResult<TValue> : IInteractiveResult<TValue>
+	public class InteractivityResult<TValue> : IInteractivityResult<TValue>
 	{
 		public IResult InnerResult { get; }
 		[MaybeNull]
 		public TValue Value { get; }
 
-		public InteractiveResult(TValue value)
+		public InteractivityResult(TValue value)
 		{
 			Value = value;
 			InnerResult = SuccessResult.Instance.Sync;
 		}
 
-		public InteractiveResult(IResult result)
+		public InteractivityResult(IResult result)
 		{
 			InnerResult = result;
 		}

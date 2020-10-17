@@ -7,6 +7,7 @@ using YACCS.Commands.Attributes;
 using YACCS.Commands.Interactivity.Input;
 using YACCS.Commands.Models;
 using YACCS.Help;
+using YACCS.ParameterPreconditions;
 using YACCS.Results;
 
 namespace YACCS.Examples
@@ -37,8 +38,8 @@ namespace YACCS.Examples
 		public class Help : CommandGroup<ConsoleContext>
 		{
 			public ICommandService CommandService { get; set; }
-			public IHelpFormatter HelpService { get; set; }
-			public ConsoleInputGetter Interactivity { get; set; }
+			public IHelpFormatter HelpFormatter { get; set; }
+			public IInput<ConsoleContext, string> Input { get; set; }
 
 			[Command]
 			public void HelpCommand()
@@ -67,10 +68,10 @@ namespace YACCS.Examples
 					{
 						Preconditions = new[]
 						{
-							new PredicateParameterPrecondition<int>(x => x > 0 && x <= commands.Count)
+							new RangeParameterPrecondition(1, commands.Count)
 						},
 					};
-					var result = await Interactivity.GetInputAsync(Context, options).ConfigureAwait(false);
+					var result = await Input.GetAsync(Context, options).ConfigureAwait(false);
 					if (!result.InnerResult.IsSuccess)
 					{
 						return result.InnerResult;
@@ -79,7 +80,7 @@ namespace YACCS.Examples
 					command = commands[result.Value - 1];
 				}
 
-				var text = await HelpService.FormatAsync(Context, command).ConfigureAwait(false);
+				var text = await HelpFormatter.FormatAsync(Context, command).ConfigureAwait(false);
 				Console.WriteLine(text);
 				return SuccessResult.Instance.Sync;
 			}

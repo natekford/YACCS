@@ -43,7 +43,7 @@ namespace YACCS.Help.Models
 				foreach (var precondition in item.Preconditions)
 				{
 					var help = new HelpItem<IPrecondition>(precondition);
-					if (help.HasAsyncFormattableAttributes)
+					if (help.IsAsyncFormattable())
 					{
 						HasAsyncFormattablePreconditions = true;
 					}

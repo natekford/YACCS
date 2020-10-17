@@ -12,7 +12,6 @@ using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Help;
 using YACCS.Help.Attributes;
-using YACCS.Help.Models;
 using YACCS.ParameterPreconditions;
 using YACCS.Preconditions;
 using YACCS.Results;

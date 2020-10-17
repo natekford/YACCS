@@ -6,7 +6,7 @@ using YACCS.Results;
 namespace YACCS.Commands.Interactivity.Pagination
 {
 	public abstract class Paginator<TContext, TInput>
-		: InteractiveBase<TContext, TInput>, IPaginator<TContext, TInput>
+		: Interactivity<TContext, TInput>, IPaginator<TContext, TInput>
 		where TContext : IContext
 	{
 		public virtual async Task PaginateAsync(
@@ -21,7 +21,7 @@ namespace YACCS.Commands.Interactivity.Pagination
 			{
 				await displayer.DisplayAsync(context, page).ConfigureAwait(false);
 
-				var result = await GetInputAsync<int?>(context, options, e => new OnInput(async i =>
+				var result = await HandleInteraction<int?>(context, options, e => new OnInput(async i =>
 				{
 					foreach (var criterion in options.Criteria)
 					{

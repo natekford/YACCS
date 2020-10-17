@@ -4,7 +4,7 @@ using YACCS.Results;
 
 namespace YACCS.Commands.Interactivity
 {
-	public interface IInteractiveResult<out TValue> : INestedResult
+	public interface IInteractivityResult<out TValue> : INestedResult
 	{
 		[MaybeNull]
 		TValue Value { get; }

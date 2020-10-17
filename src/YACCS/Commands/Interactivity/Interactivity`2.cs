@@ -6,11 +6,11 @@ using YACCS.Results;
 
 namespace YACCS.Commands.Interactivity
 {
-	public abstract class InteractiveBase<TContext, TInput> where TContext : IContext
+	public abstract class Interactivity<TContext, TInput> where TContext : IContext
 	{
 		protected virtual TimeSpan DefaultTimeout { get; } = TimeSpan.FromSeconds(5);
 
-		protected virtual async Task<IInteractiveResult<TValue>> GetInputAsync<TValue>(
+		protected virtual async Task<IInteractivityResult<TValue>> HandleInteraction<TValue>(
 			TContext context,
 			IInteractivityOptions<TContext, TInput> options,
 			Func<TaskCompletionSource<TValue>, OnInput> createHandler)
@@ -32,15 +32,15 @@ namespace YACCS.Commands.Interactivity
 
 			if (task == cancel)
 			{
-				return new InteractiveResult<TValue>(CanceledResult.Instance.Sync);
+				return new InteractivityResult<TValue>(CanceledResult.Instance.Sync);
 			}
 			if (task == delay)
 			{
-				return new InteractiveResult<TValue>(TimedOutResult.Instance.Sync);
+				return new InteractivityResult<TValue>(TimedOutResult.Instance.Sync);
 			}
 
 			var value = await @event.ConfigureAwait(false);
-			return new InteractiveResult<TValue>(value);
+			return new InteractivityResult<TValue>(value);
 		}
 
 		protected abstract void Subscribe(TContext context, OnInput onInput);

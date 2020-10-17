@@ -2,9 +2,9 @@
 
 namespace YACCS.Commands.Interactivity.Input
 {
-	public interface IInputGetter<TContext, TInput> where TContext : IContext
+	public interface IInput<TContext, TInput> where TContext : IContext
 	{
-		Task<IInteractiveResult<TValue>> GetInputAsync<TValue>(
+		Task<IInteractivityResult<TValue>> GetAsync<TValue>(
 			TContext context,
 			IInputOptions<TContext, TInput, TValue> options);
 	}
