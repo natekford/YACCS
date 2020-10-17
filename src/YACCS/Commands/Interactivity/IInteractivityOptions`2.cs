@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
+﻿using System.Collections.Generic;
 
 namespace YACCS.Commands.Interactivity
 {
-	public interface IInteractivityOptions<TContext, TInput> where TContext : IContext
+	public interface IInteractivityOptions<TContext, TInput> : IInteractivityOptions
+		where TContext : IContext
 	{
 		IEnumerable<ICriterion<TContext, TInput>> Criteria { get; }
-		TimeSpan? Timeout { get; }
-		CancellationToken? Token { get; }
 	}
 }

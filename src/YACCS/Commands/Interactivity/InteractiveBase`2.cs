@@ -23,16 +23,12 @@ namespace YACCS.Commands.Interactivity
 			}
 
 			var handler = createHandler.Invoke(eventTrigger);
-			// Since delegate equality is kind of wonky, let's just use a guid id in case subscribe
-			// creates a new delegate/closure from the OnInput delegate so the dev can store the new
-			// delegate/closure in a dictionary and retrieve it to unsubscribe with the correct one
-			var id = Guid.NewGuid();
-			Subscribe(context, handler, id);
+			Subscribe(context, handler);
 			var @event = eventTrigger.Task;
 			var cancel = cancelTrigger.Task;
 			var delay = Task.Delay(options.Timeout ?? DefaultTimeout);
 			var task = await Task.WhenAny(@event, delay, cancel).ConfigureAwait(false);
-			Unsubscribe(context, handler, id);
+			Unsubscribe(context, handler);
 
 			if (task == cancel)
 			{
@@ -47,10 +43,10 @@ namespace YACCS.Commands.Interactivity
 			return new InteractiveResult<TValue>(value);
 		}
 
-		protected abstract void Subscribe(TContext context, OnInput onInput, Guid id);
+		protected abstract void Subscribe(TContext context, OnInput onInput);
 
-		protected abstract void Unsubscribe(TContext context, OnInput onInput, Guid id);
+		protected abstract void Unsubscribe(TContext context, OnInput onInput);
 
-		protected delegate Task OnInput(TInput input);
+		protected delegate Task<IResult> OnInput(TInput input);
 	}
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Models;
+using YACCS.Results;
 using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Interactivity.Input
@@ -33,7 +34,7 @@ namespace YACCS.Commands.Interactivity.Input
 					var result = await criterion.JudgeAsync(context, i).ConfigureAwait(false);
 					if (!result)
 					{
-						return;
+						return FailureResult.Instance.Sync;
 					}
 				}
 
@@ -41,7 +42,7 @@ namespace YACCS.Commands.Interactivity.Input
 				var trResult = await tr.ReadAsync(context, GetInputString(i)).ConfigureAwait(false);
 				if (!trResult.InnerResult.IsSuccess)
 				{
-					return;
+					return trResult.InnerResult;
 				}
 
 				var value = trResult.Value!;
@@ -51,11 +52,12 @@ namespace YACCS.Commands.Interactivity.Input
 					var result = await precondition.CheckAsync(parameter, context, value).ConfigureAwait(false);
 					if (!result.IsSuccess)
 					{
-						return;
+						return result;
 					}
 				}
 
 				e.SetResult(trResult.Value!);
+				return SuccessResult.Instance.Sync;
 			}));
 		}
 

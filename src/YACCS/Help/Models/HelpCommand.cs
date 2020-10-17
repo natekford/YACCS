@@ -1,41 +1,56 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
+using System.Diagnostics;
 
 using YACCS.Commands.Models;
 using YACCS.Preconditions;
 
 namespace YACCS.Help.Models
 {
+	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public class HelpCommand : HelpItem<IImmutableCommand>, IHelpCommand
 	{
 		public IHelpItem<Type>? ContextType { get; }
-		public override bool IsAsyncFormattable { get; }
+		public bool HasAsyncFormattableParameters { get; }
+		public bool HasAsyncFormattablePreconditions { get; }
 		public IReadOnlyList<IHelpParameter> Parameters { get; }
 		public IReadOnlyList<IHelpItem<IPrecondition>> Preconditions { get; }
 		IReadOnlyList<IHelpItem<object>> IHasPreconditions.Preconditions => Preconditions;
+		private string DebuggerDisplay => $"Name = {Item.Names[0]}, Parameter Count = {Item.Parameters.Count}";
 
 		public HelpCommand(IImmutableCommand item)
 			: base(item, item.Attributes, x => x is not IPrecondition)
 		{
-			IsAsyncFormattable = base.IsAsyncFormattable;
+			ContextType = item.ContextType is Type c ? HelpItemUtils.Create(c) : null;
 
-			ContextType = item.ContextType is Type c ? new HelpType(c) : null;
-			var builder = ImmutableArray.CreateBuilder<HelpParameter>(item.Parameters.Count);
-			foreach (var parameter in item.Parameters)
 			{
-				var helpParameter = new HelpParameter(parameter);
-				if (helpParameter.IsAsyncFormattable)
+				var array = ImmutableArray.CreateBuilder<HelpParameter>(item.Parameters.Count);
+				foreach (var parameter in item.Parameters)
 				{
-					IsAsyncFormattable = true;
+					var help = new HelpParameter(parameter);
+					if (help.IsAsyncFormattable())
+					{
+						HasAsyncFormattableParameters = true;
+					}
+					array.Add(help);
 				}
-				builder.Add(helpParameter);
+				Parameters = array.MoveToImmutable();
 			}
-			Parameters = builder.MoveToImmutable();
-			Preconditions = item.Preconditions
-				.Select(x => new HelpItem<IPrecondition>(x))
-				.ToImmutableArray();
+
+			{
+				var array = ImmutableArray.CreateBuilder<HelpItem<IPrecondition>>(item.Preconditions.Count);
+				foreach (var precondition in item.Preconditions)
+				{
+					var help = new HelpItem<IPrecondition>(precondition);
+					if (help.HasAsyncFormattableAttributes)
+					{
+						HasAsyncFormattablePreconditions = true;
+					}
+					array.Add(help);
+				}
+				Preconditions = array.MoveToImmutable();
+			}
 		}
 	}
 }

@@ -25,38 +25,65 @@ namespace YACCS.Help
 
 		public ValueTask<string> FormatAsync(IContext context, IImmutableCommand command)
 		{
-			if (!Commands.TryGetValue(command, out var value))
-			{
-				Commands.Add(command, value = new HelpCommand(command));
-			}
-
+			var help = GetHelpCommand(command);
 			var builder = GetBuilder(context)
-				.AppendNames(value)
-				.AppendSummary(value);
+				.AppendNames(help)
+				.AppendSummary(help);
 
-			if (value.IsAsyncFormattable)
-			{
-				static async Task<string> FormatAsync(HelpBuilder builder, IHelpCommand command)
-				{
-					await builder.AppendAttributesAsync(command).ConfigureAwait(false);
-					await builder.AppendPreconditionsAsync(command).ConfigureAwait(false);
-					await builder.AppendParametersAsync(command).ConfigureAwait(false);
-					return builder.ToString();
-				}
-				return new ValueTask<string>(FormatAsync(builder, value));
-			}
-			else
+			if (!help.IsAsyncFormattable())
 			{
 				builder
-					.AppendAttributes(value)
-					.AppendPreconditions(value)
-					.AppendParameters(value);
+					.AppendAttributes(help)
+					.AppendPreconditions(help)
+					.AppendParameters(help);
 				return new ValueTask<string>(builder.ToString());
 			}
+
+			static async Task<string> FormatAsync(HelpBuilder builder, IHelpCommand help)
+			{
+				if (help.HasAsyncFormattableAttributes)
+				{
+					await builder.AppendAttributesAsync(help).ConfigureAwait(false);
+				}
+				else
+				{
+					builder.AppendAttributes(help);
+				}
+
+				if (help.HasAsyncFormattablePreconditions)
+				{
+					await builder.AppendPreconditionsAsync(help).ConfigureAwait(false);
+				}
+				else
+				{
+					builder.AppendPreconditions(help);
+				}
+
+				if (help.HasAsyncFormattableParameters)
+				{
+					await builder.AppendParametersAsync(help).ConfigureAwait(false);
+				}
+				else
+				{
+					builder.AppendParameters(help);
+				}
+
+				return builder.ToString();
+			}
+			return new ValueTask<string>(FormatAsync(builder, help));
 		}
 
 		protected virtual HelpBuilder GetBuilder(IContext context)
 			=> new HelpBuilder(context, Names, Tags);
+
+		protected virtual IHelpCommand GetHelpCommand(IImmutableCommand command)
+		{
+			if (!Commands.TryGetValue(command, out var help))
+			{
+				Commands.Add(command, help = new HelpCommand(command));
+			}
+			return help;
+		}
 
 		protected class HelpBuilder
 		{
@@ -106,7 +133,7 @@ namespace YACCS.Help
 			public Task<HelpBuilder> AppendAttributesAsync(IHelpItem<object> item)
 				=> AppendItemsAsync(HeaderAttributes, item.Attributes);
 
-			public HelpBuilder AppendItems(string header, IEnumerable<IHelpItem<object>> items)
+			public virtual HelpBuilder AppendItems(string header, IEnumerable<IHelpItem<object>> items)
 			{
 				var added = false;
 				foreach (var item in items)
@@ -125,7 +152,7 @@ namespace YACCS.Help
 				return this;
 			}
 
-			public async Task<HelpBuilder> AppendItemsAsync(string header, IEnumerable<IHelpItem<object>> items)
+			public virtual async Task<HelpBuilder> AppendItemsAsync(string header, IEnumerable<IHelpItem<object>> items)
 			{
 				var added = false;
 				foreach (var item in items)
@@ -148,7 +175,7 @@ namespace YACCS.Help
 				return this;
 			}
 
-			public HelpBuilder AppendItemsText(ref bool added, string header, IReadOnlyList<string> text)
+			public virtual HelpBuilder AppendItemsText(ref bool added, string header, IReadOnlyList<string> text)
 			{
 				if (text is not null && text.Count != 0)
 				{
@@ -171,7 +198,7 @@ namespace YACCS.Help
 				return this;
 			}
 
-			public HelpBuilder AppendNames(IHelpCommand command)
+			public virtual HelpBuilder AppendNames(IHelpCommand command)
 			{
 				StringBuilder
 					.AppendDepth(CurrentDepth)
@@ -197,8 +224,22 @@ namespace YACCS.Help
 				AppendType(parameter);
 				++CurrentDepth;
 				AppendSummary(parameter);
-				await AppendAttributesAsync(parameter).ConfigureAwait(false);
-				await AppendPreconditionsAsync(parameter).ConfigureAwait(false);
+				if (parameter.HasAsyncFormattableAttributes)
+				{
+					await AppendAttributesAsync(parameter).ConfigureAwait(false);
+				}
+				else
+				{
+					AppendAttributes(parameter);
+				}
+				if (parameter.HasAsyncFormattablePreconditions)
+				{
+					await AppendPreconditionsAsync(parameter).ConfigureAwait(false);
+				}
+				else
+				{
+					AppendPreconditions(parameter);
+				}
 				--CurrentDepth;
 				return this;
 			}
@@ -220,12 +261,19 @@ namespace YACCS.Help
 				foreach (var parameter in command.Parameters)
 				{
 					AppendParametersHeader(ref added);
-					await AppendParameterAsync(parameter).ConfigureAwait(false);
+					if (parameter.IsAsyncFormattable())
+					{
+						await AppendParameterAsync(parameter).ConfigureAwait(false);
+					}
+					else
+					{
+						AppendParameter(parameter);
+					}
 				}
 				return this;
 			}
 
-			public HelpBuilder AppendParametersHeader(ref bool added)
+			public virtual HelpBuilder AppendParametersHeader(ref bool added)
 			{
 				StringBuilder.AppendDepth(CurrentDepth);
 				if (!added)
@@ -246,7 +294,7 @@ namespace YACCS.Help
 			public Task<HelpBuilder> AppendPreconditionsAsync(IHasPreconditions preconditions)
 				=> AppendItemsAsync(HeaderPreconditions, preconditions.Preconditions);
 
-			public HelpBuilder AppendSummary(IHelpItem<object> item)
+			public virtual HelpBuilder AppendSummary(IHelpItem<object> item)
 			{
 				if (item.Summary is not null)
 				{
@@ -258,7 +306,7 @@ namespace YACCS.Help
 				return this;
 			}
 
-			public HelpBuilder AppendType(IHelpParameter parameter)
+			public virtual HelpBuilder AppendType(IHelpParameter parameter)
 			{
 				var pType = parameter.ParameterType;
 				StringBuilder

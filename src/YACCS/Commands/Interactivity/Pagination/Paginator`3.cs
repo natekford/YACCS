@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 
+using YACCS.Results;
+
 namespace YACCS.Commands.Interactivity.Pagination
 {
 	public abstract class Paginator<TContext, TInput>
@@ -26,11 +28,12 @@ namespace YACCS.Commands.Interactivity.Pagination
 						var result = await criterion.JudgeAsync(context, i).ConfigureAwait(false);
 						if (!result)
 						{
-							return;
+							return FailureResult.Instance.Sync;
 						}
 					}
 
 					e.SetResult(displayer.Convert(i));
+					return SuccessResult.Instance.Sync;
 				})).ConfigureAwait(false);
 				if (!result.InnerResult.IsSuccess || !result.Value.HasValue)
 				{

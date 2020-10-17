@@ -42,6 +42,16 @@ namespace YACCS.Results
 		}
 	}
 
+	public class FailureResult : Result
+	{
+		public static ResultInstance<FailureResult, IResult> Instance { get; }
+			= new FailureResult().AsResultInstance();
+
+		protected FailureResult() : base(false, "")
+		{
+		}
+	}
+
 	public class InvalidContextResult : Result
 	{
 		public static ResultInstance<InvalidContextResult, IResult> Instance { get; }

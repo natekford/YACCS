@@ -13,11 +13,11 @@ namespace YACCS.Help.Models
 	public class HelpItem<T> : IHelpItem<T> where T : notnull
 	{
 		public IReadOnlyList<IHelpItem<object>> Attributes { get; }
-		public virtual bool IsAsyncFormattable { get; }
+		public virtual bool HasAsyncFormattableAttributes { get; }
 		public T Item { get; }
 		public INameAttribute? Name { get; }
 		public ISummaryAttribute? Summary { get; }
-		private string DebuggerDisplay => Item.GetType().ToString();
+		private string DebuggerDisplay => $"Type = {Item.GetType()}, Attribute Count = {Attributes.Count}";
 
 		public HelpItem(T item) : this(item, item.GetType().GetCustomAttributes(true))
 		{
@@ -53,7 +53,7 @@ namespace YACCS.Help.Models
 						break;
 
 					case IAsyncRuntimeFormattableAttribute:
-						IsAsyncFormattable = true;
+						HasAsyncFormattableAttributes = true;
 						break;
 				}
 			}

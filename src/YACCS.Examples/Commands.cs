@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Interactivity.Input;
 using YACCS.Commands.Models;
 using YACCS.Help;
 using YACCS.Results;
@@ -37,6 +38,7 @@ namespace YACCS.Examples
 		{
 			public ICommandService CommandService { get; set; }
 			public IHelpFormatter HelpService { get; set; }
+			public ConsoleInputGetter Interactivity { get; set; }
 
 			[Command]
 			public void HelpCommand()
@@ -49,13 +51,37 @@ namespace YACCS.Examples
 			}
 
 			[Command]
-			public async Task HelpCommand(IReadOnlyList<IImmutableCommand> commands)
+			public async Task<IResult> HelpCommand(IReadOnlyList<IImmutableCommand> commands)
 			{
-				foreach (var command in commands)
+				var command = commands[0];
+				if (commands.Count > 1)
 				{
-					var text = await HelpService.FormatAsync(Context, command).ConfigureAwait(false);
-					Console.WriteLine(text);
+					Console.WriteLine("Enter the position of the command you want to see: ");
+					var i = 0;
+					foreach (var c in commands)
+					{
+						Console.WriteLine($"\t{++i}. {c.Names[0]}");
+					}
+
+					var options = new InputOptions<ConsoleContext, string, int>
+					{
+						Preconditions = new[]
+						{
+							new PredicateParameterPrecondition<int>(x => x > 0 && x <= commands.Count)
+						},
+					};
+					var result = await Interactivity.GetInputAsync(Context, options).ConfigureAwait(false);
+					if (!result.InnerResult.IsSuccess)
+					{
+						return result.InnerResult;
+					}
+
+					command = commands[result.Value - 1];
 				}
+
+				var text = await HelpService.FormatAsync(Context, command).ConfigureAwait(false);
+				Console.WriteLine(text);
+				return SuccessResult.Instance.Sync;
 			}
 		}
 	}
