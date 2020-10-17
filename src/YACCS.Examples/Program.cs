@@ -22,7 +22,8 @@ namespace YACCS.Examples
 		private readonly HelpFormatter _HelpFormatter;
 		private readonly ConsoleInput _Input;
 		private readonly TypeNameRegistry _Names;
-		private readonly SemaphoreSlim _Semaphore;
+		private readonly SemaphoreSlim _InputSemaphore;
+		private readonly SemaphoreSlim _OutputSemaphore;
 		private readonly IServiceProvider _Services;
 		private readonly TagConverter _Tags;
 		private readonly TypeReaderRegistry _TypeReaders;
@@ -33,12 +34,13 @@ namespace YACCS.Examples
 			_TypeReaders = new TypeReaderRegistry();
 			_Names = new TypeNameRegistry();
 			_Tags = new TagConverter();
-			_Semaphore = new SemaphoreSlim(1);
+			_InputSemaphore = new SemaphoreSlim(1, 1);
+			_OutputSemaphore = new SemaphoreSlim(1, 1);
 
 			_CommandService = new CommandService(CommandServiceConfig.Default, _TypeReaders);
 			_HelpFormatter = new HelpFormatter(_Names, _Tags);
-			_Input = new ConsoleInput(_TypeReaders);
 			_Writer = new ConsoleWriter(_Names);
+			_Input = new ConsoleInput(_TypeReaders, _InputSemaphore, _OutputSemaphore, _Writer);
 
 			_Services = new ServiceCollection()
 				.AddSingleton<ICommandService>(_CommandService)
@@ -47,7 +49,6 @@ namespace YACCS.Examples
 				.AddSingleton<ITypeRegistry<string>>(_Names)
 				.AddSingleton<ITagConverter>(_Tags)
 				.AddSingleton<ITypeRegistry<ITypeReader>>(_TypeReaders)
-				.AddSingleton(_Semaphore)
 				.AddSingleton(_Writer)
 				.BuildServiceProvider();
 		}
@@ -57,9 +58,10 @@ namespace YACCS.Examples
 
 		private async Task ExecuteAsync()
 		{
-			await _Semaphore.WaitAsync().ConfigureAwait(false);
-			_Semaphore.Release();
-			await Task.Delay(25).ConfigureAwait(false);
+			await _InputSemaphore.WaitAsync().ConfigureAwait(false);
+			_InputSemaphore.ReleaseIfZero();
+			await _OutputSemaphore.WaitAsync().ConfigureAwait(false);
+			_OutputSemaphore.ReleaseIfZero();
 
 			Console.WriteLine();
 			Console.WriteLine("Enter a command and its arguments: ");
@@ -68,7 +70,12 @@ namespace YACCS.Examples
 			var context = new ConsoleContext(_Services, input);
 			var result = await _CommandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
-			_Writer.WriteResponse(result);
+			if (!result.IsSuccess)
+			{
+				_InputSemaphore.ReleaseIfZero();
+				_OutputSemaphore.ReleaseIfZero();
+			}
+			_Writer.WriteResult(result);
 		}
 
 		private async Task RegisterCommandsAsync()
@@ -99,12 +106,16 @@ namespace YACCS.Examples
 			await RegisterCommandsAsync().ConfigureAwait(false);
 			_CommandService.CommandExecuted += (e) =>
 			{
-				_Writer.WriteResponse(e.Result);
+				_Writer.WriteResult(e.Result);
+				_InputSemaphore.ReleaseIfZero();
+				_OutputSemaphore.ReleaseIfZero();
 				return Task.CompletedTask;
 			};
 			_CommandService.CommandExecutedException += (e) =>
 			{
 				_Writer.WriteLine(string.Join(Environment.NewLine, e.Exceptions), ConsoleColor.Red);
+				_InputSemaphore.ReleaseIfZero();
+				_OutputSemaphore.ReleaseIfZero();
 				return Task.CompletedTask;
 			};
 

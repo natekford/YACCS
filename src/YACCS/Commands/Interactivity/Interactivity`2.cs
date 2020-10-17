@@ -24,12 +24,12 @@ namespace YACCS.Commands.Interactivity
 			}
 
 			var handler = createHandler.Invoke(eventTrigger);
-			Subscribe(context, handler);
+			await SubscribeAsync(context, handler).ConfigureAwait(false);
 			var @event = eventTrigger.Task;
 			var cancel = cancelTrigger.Task;
 			var delay = Task.Delay(options.Timeout ?? DefaultTimeout);
 			var task = await Task.WhenAny(@event, delay, cancel).ConfigureAwait(false);
-			Unsubscribe(context, handler);
+			await UnsubscribeAsync(context, handler).ConfigureAwait(false);
 
 			if (task == cancel)
 			{
@@ -44,9 +44,9 @@ namespace YACCS.Commands.Interactivity
 			return TypeReaderResult<TValue>.FromSuccess(value);
 		}
 
-		protected abstract void Subscribe(TContext context, OnInput onInput);
+		protected abstract Task SubscribeAsync(TContext context, OnInput onInput);
 
-		protected abstract void Unsubscribe(TContext context, OnInput onInput);
+		protected abstract Task UnsubscribeAsync(TContext context, OnInput onInput);
 
 		protected delegate Task<IResult> OnInput(TInput input);
 	}

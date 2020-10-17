@@ -21,7 +21,7 @@ namespace YACCS.Examples
 			Console.ForegroundColor = oldColor;
 		}
 
-		public void WriteResponse(IResult result)
+		public void WriteResult(IResult result)
 		{
 			var response = result switch
 			{

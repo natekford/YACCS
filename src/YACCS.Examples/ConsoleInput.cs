@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.DependencyInjection;
-
 using YACCS.Commands;
 using YACCS.Commands.Interactivity.Input;
 using YACCS.TypeReaders;
@@ -15,20 +13,31 @@ namespace YACCS.Examples
 	{
 		private readonly Dictionary<Guid, CancellationTokenSource> _Input
 			= new Dictionary<Guid, CancellationTokenSource>();
+		private readonly SemaphoreSlim _InputSemaphore;
+		private readonly SemaphoreSlim _OutputSemaphore;
+		private readonly ConsoleWriter _Writer;
 
-		public ConsoleInput(ITypeRegistry<ITypeReader> registry) : base(registry)
+		public ConsoleInput(
+			ITypeRegistry<ITypeReader> registry,
+			SemaphoreSlim inputSemaphore,
+			SemaphoreSlim outputSemaphore,
+			ConsoleWriter writer) : base(registry)
 		{
+			_InputSemaphore = inputSemaphore;
+			_OutputSemaphore = outputSemaphore;
+			_Writer = writer;
 		}
 
 		protected override string GetInputString(string input)
 			=> input;
 
-		protected override void Subscribe(IContext context, OnInput onInput)
+		protected override async Task SubscribeAsync(IContext context, OnInput onInput)
 		{
-			context.Services.GetRequiredService<SemaphoreSlim>().Wait();
+			await _OutputSemaphore.WaitAsync().ConfigureAwait(false);
+			await _InputSemaphore.WaitAsync().ConfigureAwait(false);
 
 			var source = new CancellationTokenSource();
-			Task.Run(async () =>
+			_ = Task.Run(async () =>
 			{
 				// This may seem extremely convoluted and unnecessarily nested, but it's not
 
@@ -52,17 +61,17 @@ namespace YACCS.Examples
 					}
 
 					var result = await onInput.Invoke(input).ConfigureAwait(false);
-					context.Services.GetRequiredService<ConsoleWriter>().WriteResponse(result);
+					_Writer.WriteResult(result);
 				}
 			});
 			_Input[context.Id] = source;
 		}
 
-		protected override void Unsubscribe(IContext context, OnInput onInput)
+		protected override Task UnsubscribeAsync(IContext context, OnInput onInput)
 		{
-			context.Services.GetRequiredService<SemaphoreSlim>().Release();
-
+			_InputSemaphore.ReleaseIfZero();
 			_Input[context.Id].Cancel();
+			return Task.CompletedTask;
 		}
 	}
 }

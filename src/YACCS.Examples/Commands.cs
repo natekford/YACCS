@@ -7,12 +7,11 @@ using YACCS.Commands.Attributes;
 using YACCS.Commands.Interactivity.Input;
 using YACCS.Commands.Models;
 using YACCS.Help;
-using YACCS.ParameterPreconditions;
 using YACCS.Results;
 
 namespace YACCS.Examples
 {
-	public class Commands : CommandGroup<ConsoleContext>
+	public class Commands : CommandGroup<IContext>
 	{
 		[Command(nameof(Echo))]
 		public void Echo([Remainder] string input)
@@ -35,7 +34,7 @@ namespace YACCS.Examples
 			=> Console.WriteLine($"The current time is: {DateTime.UtcNow}");
 
 		[Command(nameof(Help))]
-		public class Help : CommandGroup<ConsoleContext>
+		public class Help : CommandGroup<IContext>
 		{
 			public ICommandService CommandService { get; set; }
 			public IHelpFormatter HelpFormatter { get; set; }
