@@ -7,7 +7,7 @@ namespace YACCS
 {
 	public delegate Task AsyncEventHandler<T>(T e) where T : HandledEventArgs;
 
-	public class AsyncEvent<T> where T : HandledEventArgs
+	public class AsyncEvent<T> : IAsyncEvent<T> where T : HandledEventArgs
 	{
 		private readonly Lazy<AsyncEvent<ExceptionEventArgs<T>>> _Exception
 			= new Lazy<AsyncEvent<ExceptionEventArgs<T>>>(() => new AsyncEvent<ExceptionEventArgs<T>>());
@@ -15,7 +15,7 @@ namespace YACCS
 			= new List<AsyncEventHandler<T>>();
 		private readonly object _Lock = new object();
 
-		public AsyncEvent<ExceptionEventArgs<T>> Exception => _Exception.Value;
+		public IAsyncEvent<ExceptionEventArgs<T>> Exception => _Exception.Value;
 
 		public void Add(AsyncEventHandler<T> handler)
 		{

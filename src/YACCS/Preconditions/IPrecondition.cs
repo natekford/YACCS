@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
@@ -8,7 +9,9 @@ namespace YACCS.Preconditions
 {
 	public interface IPrecondition
 	{
-		Task AfterExecutionAsync(IImmutableCommand command, IContext context);
+		Task AfterExecutionAsync(IImmutableCommand command, IContext context, Exception? exception);
+
+		Task BeforeExecutionAsync(IImmutableCommand command, IContext context);
 
 		Task<IResult> CheckAsync(IImmutableCommand command, IContext context);
 	}

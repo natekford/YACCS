@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -18,29 +17,27 @@ namespace YACCS.Examples
 {
 	public sealed class Program
 	{
-		private readonly CommandService _CommandService;
+		private readonly ConsoleHandler _Console;
+		private readonly ConsoleCommandService _CommandService;
 		private readonly HelpFormatter _HelpFormatter;
 		private readonly ConsoleInput _Input;
 		private readonly TypeNameRegistry _Names;
-		private readonly SemaphoreSlim _InputSemaphore;
-		private readonly SemaphoreSlim _OutputSemaphore;
 		private readonly IServiceProvider _Services;
+		private readonly ICommandServiceConfig _Config;
 		private readonly TagConverter _Tags;
 		private readonly TypeReaderRegistry _TypeReaders;
-		private readonly ConsoleWriter _Writer;
 
 		private Program()
 		{
 			_TypeReaders = new TypeReaderRegistry();
 			_Names = new TypeNameRegistry();
 			_Tags = new TagConverter();
-			_InputSemaphore = new SemaphoreSlim(1, 1);
-			_OutputSemaphore = new SemaphoreSlim(1, 1);
+			_Config = CommandServiceConfig.Default;
 
-			_CommandService = new CommandService(CommandServiceConfig.Default, _TypeReaders);
+			_Console = new ConsoleHandler(_Names);
+			_CommandService = new ConsoleCommandService(_Config, _TypeReaders, _Console);
 			_HelpFormatter = new HelpFormatter(_Names, _Tags);
-			_Writer = new ConsoleWriter(_Names);
-			_Input = new ConsoleInput(_TypeReaders, _InputSemaphore, _OutputSemaphore, _Writer);
+			_Input = new ConsoleInput(_TypeReaders, _Console);
 
 			_Services = new ServiceCollection()
 				.AddSingleton<ICommandService>(_CommandService)
@@ -49,7 +46,7 @@ namespace YACCS.Examples
 				.AddSingleton<ITypeRegistry<string>>(_Names)
 				.AddSingleton<ITagConverter>(_Tags)
 				.AddSingleton<ITypeRegistry<ITypeReader>>(_TypeReaders)
-				.AddSingleton(_Writer)
+				.AddSingleton(_Console)
 				.BuildServiceProvider();
 		}
 
@@ -58,35 +55,36 @@ namespace YACCS.Examples
 
 		private async Task ExecuteAsync()
 		{
-			await _InputSemaphore.WaitAsync().ConfigureAwait(false);
-			_InputSemaphore.ReleaseIfZero();
-			await _OutputSemaphore.WaitAsync().ConfigureAwait(false);
-			_OutputSemaphore.ReleaseIfZero();
+			await _Console.WaitForBothAsync().ConfigureAwait(false);
+			_Console.ReleaseBoth();
 
-			Console.WriteLine();
-			Console.WriteLine("Enter a command and its arguments: ");
+			_Console.WriteLine("");
+			_Console.WriteLine("Enter a command and its arguments: ");
 
-			var input = Console.ReadLine();
-			var context = new ConsoleContext(_Services, input);
+			var input = await _Console.ReadLineAsync().ConfigureAwait(false);
+			if (input is null)
+			{
+				return;
+			}
+			var context = new ConsoleContext(_Services.CreateScope(), input);
+
 			var result = await _CommandService.ExecuteAsync(context, input).ConfigureAwait(false);
-
 			if (!result.IsSuccess)
 			{
-				_InputSemaphore.ReleaseIfZero();
-				_OutputSemaphore.ReleaseIfZero();
+				_Console.ReleaseBoth();
 			}
-			_Writer.WriteResult(result);
+			_Console.WriteResult(result);
 		}
 
 		private async Task RegisterCommandsAsync()
 		{
 			var commands = Assembly.GetExecutingAssembly().GetAllCommandsAsync();
 			await _CommandService.AddRangeAsync(commands).ConfigureAwait(false);
-			Console.WriteLine($"Successfully registered {_CommandService.Commands.Count} commands.");
+			_Console.WriteLine($"Successfully registered {_CommandService.Commands.Count} commands.");
 
 #if true
-			static void DelegateCommand(int i, double d, string s)
-				=> Console.WriteLine($"i am the delegate command: {i} {d} {s}");
+			void DelegateCommand(int i, double d, string s)
+				=> _Console.WriteLine($"i am the delegate command: {i} {d} {s}");
 
 			var @delegate = (Action<int, double, string>)DelegateCommand;
 			var names = new[] { new Name(new[] { "delegate" }) };
@@ -106,16 +104,12 @@ namespace YACCS.Examples
 			await RegisterCommandsAsync().ConfigureAwait(false);
 			_CommandService.CommandExecuted += (e) =>
 			{
-				_Writer.WriteResult(e.Result);
-				_InputSemaphore.ReleaseIfZero();
-				_OutputSemaphore.ReleaseIfZero();
+				_Console.WriteResult(e.Result);
 				return Task.CompletedTask;
 			};
 			_CommandService.CommandExecutedException += (e) =>
 			{
-				_Writer.WriteLine(string.Join(Environment.NewLine, e.Exceptions), ConsoleColor.Red);
-				_InputSemaphore.ReleaseIfZero();
-				_OutputSemaphore.ReleaseIfZero();
+				_Console.WriteLine(string.Join(Environment.NewLine, e.Exceptions), ConsoleColor.Red);
 				return Task.CompletedTask;
 			};
 

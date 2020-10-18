@@ -11,21 +11,16 @@ namespace YACCS.Examples
 {
 	public class ConsoleInput : Input<IContext, string>
 	{
+		private readonly ConsoleHandler _Console;
 		private readonly Dictionary<Guid, CancellationTokenSource> _Input
 			= new Dictionary<Guid, CancellationTokenSource>();
-		private readonly SemaphoreSlim _InputSemaphore;
-		private readonly SemaphoreSlim _OutputSemaphore;
-		private readonly ConsoleWriter _Writer;
 
 		public ConsoleInput(
 			ITypeRegistry<ITypeReader> registry,
-			SemaphoreSlim inputSemaphore,
-			SemaphoreSlim outputSemaphore,
-			ConsoleWriter writer) : base(registry)
+			ConsoleHandler console)
+			: base(registry)
 		{
-			_InputSemaphore = inputSemaphore;
-			_OutputSemaphore = outputSemaphore;
-			_Writer = writer;
+			_Console = console;
 		}
 
 		protected override string GetInputString(string input)
@@ -33,35 +28,31 @@ namespace YACCS.Examples
 
 		protected override async Task SubscribeAsync(IContext context, OnInput onInput)
 		{
-			await _OutputSemaphore.WaitAsync().ConfigureAwait(false);
-			await _InputSemaphore.WaitAsync().ConfigureAwait(false);
+			// Lock both input and output
+			// Input because we're using console input
+			// Ouput so the next "enter a command to execute" prints after this command is done
+			await _Console.WaitForBothAsync().ConfigureAwait(false);
 
 			var source = new CancellationTokenSource();
 			_ = Task.Run(async () =>
 			{
-				// This may seem extremely convoluted and unnecessarily nested, but it's not
-
-				// First, only keep the loop going when not canceled
+				// Only keep the loop going when not canceled
 				while (!source.IsCancellationRequested)
 				{
-					// Second, use Console.KeyAvailable to have Console.ReadLine not be blocking
-					// I'm not sure why, but without this if statement Console.ReadLine acts
-					// very differently
-					if (!Console.KeyAvailable)
-					{
-						continue;
-					}
-
-					var input = Console.ReadLine();
-					// Third, even though we have the loop condition already checking this,
+					var input = await _Console.ReadLineAsync().ConfigureAwait(false);
+					// Even though we have the loop condition already checking this,
 					// check it again so we don't invoke the delegate after timeout/cancel
 					if (source.IsCancellationRequested)
 					{
 						return;
 					}
+					if (input is null)
+					{
+						continue;
+					}
 
 					var result = await onInput.Invoke(input).ConfigureAwait(false);
-					_Writer.WriteResult(result);
+					_Console.WriteResult(result);
 				}
 			});
 			_Input[context.Id] = source;
@@ -69,7 +60,8 @@ namespace YACCS.Examples
 
 		protected override Task UnsubscribeAsync(IContext context, OnInput onInput)
 		{
-			_InputSemaphore.ReleaseIfZero();
+			// Only release input lock since output lock gets released when command is done
+			_Console.ReleaseInput();
 			_Input[context.Id].Cancel();
 			return Task.CompletedTask;
 		}

@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Parsing;
-using YACCS.Preconditions;
 using YACCS.Results;
 using YACCS.TypeReaders;
 
@@ -18,8 +17,7 @@ namespace YACCS.Commands
 	{
 		public ITrie<IImmutableCommand> Commands { get; protected set; }
 		IReadOnlyCollection<IImmutableCommand> ICommandService.Commands => Commands;
-		protected AsyncEvent<CommandExecutedEventArgs> CommandExecutedEvent { get; set; }
-			= new AsyncEvent<CommandExecutedEventArgs>();
+		protected IAsyncEvent<CommandExecutedEventArgs> CommandExecutedEvent { get; set; }
 		protected ICommandServiceConfig Config { get; set; }
 		protected ITypeRegistry<ITypeReader> Readers { get; set; }
 
@@ -38,6 +36,7 @@ namespace YACCS.Commands
 		public CommandService(ICommandServiceConfig config, ITypeRegistry<ITypeReader> readers)
 		{
 			Commands = new CommandTrie(config.CommandNameComparer, readers);
+			CommandExecutedEvent = new AsyncEvent<CommandExecutedEventArgs>();
 			Config = config;
 			Readers = readers;
 		}
@@ -59,7 +58,7 @@ namespace YACCS.Commands
 				return result;
 			}
 
-			_ = ExecuteCommand(context, best!);
+			_ = ExecuteAsync(context, best!);
 			return SuccessResult.Instance.Sync;
 		}
 
@@ -339,47 +338,73 @@ namespace YACCS.Commands
 			));
 		}
 
-		protected virtual async Task ExecuteCommand(IContext context, CommandScore score)
+		protected virtual Task CommandFinishedAsync(IContext context, IImmutableCommand command)
+		{
+			if (context is IDisposable disposable)
+			{
+				disposable.Dispose();
+			}
+			return Task.CompletedTask;
+		}
+
+		protected virtual async Task ExecuteAsync(IContext context, CommandScore score)
 		{
 			var command = score.Command!;
-
 			var exceptions = new List<Exception>();
-			var exceptionResult = default(IResult);
+			var exception = default(Exception?);
+
+			// Handling preconditions which may need to modify state when the command to
+			// execute has been found, e.g. cooldown or prevent duplicate long running commands
+			foreach (var precondition in command.Preconditions)
+			{
+				try
+				{
+					await precondition.BeforeExecutionAsync(command, context).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+					exceptions.Add(ex);
+				}
+			}
+
 			try
 			{
-				var args = score.Args!;
-				var result = await command.ExecuteAsync(context, args).ConfigureAwait(false);
+				var result = await command.ExecuteAsync(context, score.Args!).ConfigureAwait(false);
 				var e = new CommandExecutedEventArgs(command, context, result.InnerResult);
 				await CommandExecutedEvent.InvokeAsync(e).ConfigureAwait(false);
 			}
-			catch (Exception ex)
+			catch (Exception e)
 			{
-				exceptionResult ??= ExceptionDuringCommandResult.Instance.Sync;
-				exceptions.Add(ex);
+				exceptions.Add(e);
+				exception = e;
 			}
 			finally
 			{
-				// Execute each postcondition, like adding in a user to a ratelimit precondition
-				foreach (var precondition in command.Get<IPrecondition>())
+				// Handling preconditions which may need to modify state after a command has
+				// finished executing, e.g. on exception remove user from cooldown or release
+				// long running command lock
+				foreach (var precondition in command.Preconditions)
 				{
 					try
 					{
-						await precondition.AfterExecutionAsync(command, context).ConfigureAwait(false);
+						await precondition.AfterExecutionAsync(command, context, exception).ConfigureAwait(false);
 					}
 					catch (Exception ex)
 					{
-						exceptionResult ??= ExceptionAfterCommandResult.Instance.Sync;
 						exceptions.Add(ex);
 					}
 				}
 			}
 
-			if (exceptions.Count > 0 && exceptionResult is not null)
+			if (exceptions.Count > 0)
 			{
-				var e = new CommandExecutedEventArgs(command, context, exceptionResult)
+				var result = ExceptionDuringCommandResult.Instance.Sync;
+				var e = new CommandExecutedEventArgs(command, context, result)
 					.WithExceptions(exceptions);
 				await CommandExecutedEvent.Exception.InvokeAsync(e).ConfigureAwait(false);
 			}
+
+			await CommandFinishedAsync(context, command).ConfigureAwait(false);
 		}
 
 		protected virtual bool TryGetArgs(string input, [NotNullWhen(true)] out IReadOnlyList<string>? args)

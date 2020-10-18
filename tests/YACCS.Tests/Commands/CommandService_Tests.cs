@@ -240,7 +240,7 @@ namespace YACCS.Tests.Commands
 			var eArgs2 = await tcs2.Task.ConfigureAwait(false);
 			var eResult2 = eArgs2.EventArgs.Result;
 			Assert.IsFalse(eResult2.IsSuccess);
-			Assert.IsInstanceOfType(eResult2, typeof(ExceptionAfterCommandResult));
+			Assert.IsInstanceOfType(eResult2, typeof(ExceptionDuringCommandResult));
 			Assert.IsInstanceOfType(eArgs2.Exceptions[0], typeof(InvalidOperationException));
 		}
 
@@ -892,7 +892,7 @@ namespace YACCS.Tests.Commands
 			=> throw new InvalidOperationException();
 
 		[Command(_ThrowsAfter)]
-		[FakePreconditionWhichThrowsAfter]
+		[FakePreconditionWhichThrows]
 		public void ThrowsAfter()
 		{
 		}
@@ -936,9 +936,9 @@ namespace YACCS.Tests.Commands
 			=> _Success ? SuccessResult.Instance.Task : Result.FromError("lol").AsTask();
 	}
 
-	public class FakePreconditionWhichThrowsAfter : PreconditionAttribute
+	public class FakePreconditionWhichThrows : PreconditionAttribute
 	{
-		public override Task AfterExecutionAsync(IImmutableCommand command, IContext context)
+		public override Task BeforeExecutionAsync(IImmutableCommand command, IContext context)
 			=> throw new InvalidOperationException();
 
 		public override Task<IResult> CheckAsync(IImmutableCommand command, IContext context)

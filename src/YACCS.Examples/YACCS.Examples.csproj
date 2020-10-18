@@ -13,4 +13,10 @@
     <ProjectReference Include="..\YACCS\YACCS.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+
 </Project>

@@ -13,9 +13,11 @@ namespace YACCS.Examples
 {
 	public class Commands : CommandGroup<IContext>
 	{
+		public ConsoleHandler Writer { get; set; } = null!;
+
 		[Command(nameof(Echo))]
 		public void Echo([Remainder] string input)
-			=> Console.WriteLine(input);
+			=> Writer.WriteLine(input);
 
 		[Command(nameof(Exit))]
 		public void Exit()
@@ -31,14 +33,15 @@ namespace YACCS.Examples
 
 		[Command(nameof(Time))]
 		public void Time()
-			=> Console.WriteLine($"The current time is: {DateTime.UtcNow}");
+			=> Writer.WriteLine($"The current time is: {DateTime.UtcNow}");
 
 		[Command(nameof(Help))]
 		public class Help : CommandGroup<IContext>
 		{
-			public ICommandService CommandService { get; set; }
-			public IHelpFormatter HelpFormatter { get; set; }
-			public IInput<IContext, string> Input { get; set; }
+			public ICommandService CommandService { get; set; } = null!;
+			public IHelpFormatter HelpFormatter { get; set; } = null!;
+			public IInput<IContext, string> Input { get; set; } = null!;
+			public ConsoleHandler Writer { get; set; } = null!;
 
 			[Command]
 			public void HelpCommand()
@@ -46,7 +49,7 @@ namespace YACCS.Examples
 				var i = 0;
 				foreach (var command in CommandService.Commands)
 				{
-					Console.WriteLine($"\t{++i}. {command.Names[0]}");
+					Writer.WriteLine($"\t{++i}. {command.Names[0]}");
 				}
 			}
 
@@ -56,11 +59,11 @@ namespace YACCS.Examples
 				var command = commands[0];
 				if (commands.Count > 1)
 				{
-					Console.WriteLine("Enter the position of the command you want to see: ");
+					Writer.WriteLine("Enter the position of the command you want to see: ");
 					var i = 0;
 					foreach (var c in commands)
 					{
-						Console.WriteLine($"\t{++i}. {c.Names[0]}");
+						Writer.WriteLine($"\t{++i}. {c.Names[0]}");
 					}
 
 					var options = new InputOptions<IContext, string, int>
@@ -80,7 +83,7 @@ namespace YACCS.Examples
 				}
 
 				var text = await HelpFormatter.FormatAsync(Context, command).ConfigureAwait(false);
-				Console.WriteLine(text);
+				Writer.WriteLine(text);
 				return SuccessResult.Instance.Sync;
 			}
 		}

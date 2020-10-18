@@ -25,7 +25,7 @@ namespace YACCS.Tests.Preconditions
 			Assert.IsFalse(result.IsSuccess);
 			Assert.IsInstanceOfType(result, typeof(InvalidContextResult));
 
-			var after = precondition.AfterExecutionAsync(command, context);
+			var after = precondition.BeforeExecutionAsync(command, context);
 			Assert.AreEqual(InvalidContextResult.Instance.Task, after);
 		}
 
@@ -39,14 +39,14 @@ namespace YACCS.Tests.Preconditions
 			var result = await precondition.CheckAsync(command, context).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
 
-			var after = precondition.AfterExecutionAsync(command, context);
+			var after = precondition.AfterExecutionAsync(command, context, null);
 			Assert.AreEqual(Task.CompletedTask, after);
 
-			var precondition2 = ((IPrecondition)precondition);
+			var precondition2 = (IPrecondition)precondition;
 			var result2 = await precondition2.CheckAsync(command, context).ConfigureAwait(false);
 			Assert.IsTrue(result2.IsSuccess);
 
-			var after2 = precondition2.AfterExecutionAsync(command, context);
+			var after2 = precondition2.BeforeExecutionAsync(command, context);
 			Assert.AreEqual(Task.CompletedTask, after2);
 		}
 

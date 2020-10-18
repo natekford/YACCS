@@ -9,11 +9,12 @@ namespace YACCS.Preconditions
 {
 	public static class PreconditionUtils
 	{
-		public static Task AfterExecutionAsync<TContext>(
+		public static Task HandleAsync<TContext>(
 			this IPrecondition _,
 			IImmutableCommand command,
 			IContext context,
 			Func<IImmutableCommand, TContext, Task> afterExecutionAsync)
+			where TContext : IContext
 		{
 			if (context is not TContext tContext)
 			{
@@ -25,7 +26,7 @@ namespace YACCS.Preconditions
 			return afterExecutionAsync(command, tContext);
 		}
 
-		public static Task<IResult> CheckAsync<TContext>(
+		public static Task<IResult> HandleAsync<TContext>(
 			this IPrecondition _,
 			IImmutableCommand command,
 			IContext context,
