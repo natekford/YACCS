@@ -8,6 +8,12 @@ using System.Threading.Tasks;
 
 using YACCS.Results;
 
+#if READLINE
+#elif READKEY
+using System.Collections.Generic;
+using System.Text;
+#endif
+
 namespace YACCS.Examples
 {
 	public class ConsoleHandler
@@ -16,11 +22,16 @@ namespace YACCS.Examples
 		private readonly SemaphoreSlim _Input;
 		private readonly ITypeRegistry<string> _Names;
 		private readonly SemaphoreSlim _Output;
+		private int _OldPos;
 
 #if READLINE
 		private string? _LastInput;
-		private (int Left, int Top) _LastPos = (0, 0);
 #elif READKEY
+		private int _CurPos;
+		private string _Empty = new string(' ', 256);
+		private readonly List<string> _History = new List<string>();
+		private int? _HistoryIndex;
+		private readonly StringBuilder _Sb = new StringBuilder(256);
 #endif
 
 		public ConsoleHandler(ITypeRegistry<string> names)
@@ -43,73 +54,56 @@ namespace YACCS.Examples
 					await _Channel.Writer.WriteAsync(_LastInput).ConfigureAwait(false);
 				}
 #elif READKEY
-				var history = new List<string>();
-				var input = new StringBuilder(256);
-				var (left, top) = Console.GetCursorPosition();
-
-				void Move(int add)
-				{
-					var (l, t) = Console.GetCursorPosition();
-					var newL = Math.Min(input!.Length, Math.Max(l + add, 0));
-					Console.SetCursorPosition(newL, t);
-				}
-
-				void Remove(int add)
-				{
-					var (l, _) = Console.GetCursorPosition();
-					var index = l - left + add;
-					if (index >= input!.Length)
-					{
-						return;
-					}
-
-					input.Remove(index, 1);
-					Redraw();
-				}
-
-				void Redraw()
-				{
-					var (l, t) = Console.GetCursorPosition();
-
-					Console.SetCursorPosition(left, top);
-					Console.WriteLine(input.ToString());
-					Console.SetCursorPosition(l, t);
-				}
-
 				while (true)
 				{
 					var key = Console.ReadKey(true);
+					_CurPos = GetAbsolutePosition();
+					if (_Sb.Length == 0)
+					{
+						_OldPos = _CurPos;
+					}
 
 					switch (key.Key)
 					{
-						case ConsoleKey.LeftArrow:
-							Move(-1);
+						case ConsoleKey.UpArrow:
+							History(-1);
+							break;
+
+						case ConsoleKey.DownArrow:
+							History(1);
 							break;
 
 						case ConsoleKey.RightArrow:
 							Move(1);
 							break;
 
-						case ConsoleKey.Delete:
-							Remove(1);
+						case ConsoleKey.LeftArrow:
+							Move(-1);
 							break;
 
-						case ConsoleKey.Backspace:
+						case ConsoleKey.Delete:
 							Remove(0);
 							break;
 
+						case ConsoleKey.Backspace:
+							Remove(-1);
+							break;
+
 						case ConsoleKey.Enter:
-							history.Add(input.ToString());
-							input.Clear();
-							await _Channel.Writer.WriteAsync(history[^1]).ConfigureAwait(false);
+							if (_Sb.Length > _Empty.Length)
+							{
+								_Empty = new string(' ', _Sb.Length);
+							}
+							_History.Add(_Sb.ToString());
+							_HistoryIndex = null;
+							_Sb.Clear();
+
+							Console.WriteLine();
+							await _Channel.Writer.WriteAsync(_History[^1]).ConfigureAwait(false);
 							break;
 
 						default:
-							if (input.Length == 0)
-							{
-								(left, top) = Console.GetCursorPosition();
-							}
-							input.Append(key.KeyChar);
+							_Sb.Append(key.KeyChar);
 							Console.Write(key.KeyChar);
 							break;
 					}
@@ -153,9 +147,10 @@ namespace YACCS.Examples
 		{
 #if READLINE
 			var (left, top) = Console.GetCursorPosition();
-			if (top < _LastPos.Top || (top == _LastPos.Top && left < _LastPos.Left))
+			var (oldLeft, oldTop) = GetPositionCoords(_OldPos);
+			if (top < oldTop || (top == oldTop && left < oldLeft))
 			{
-				Console.SetCursorPosition(_LastPos.Left, _LastPos.Top);
+				Console.SetCursorPosition(oldLeft, oldTop);
 				Console.WriteLine(_LastInput);
 				Console.WriteLine();
 			}
@@ -166,8 +161,10 @@ namespace YACCS.Examples
 			Console.WriteLine(input);
 			Console.ForegroundColor = oldColor;
 
+			_OldPos = GetAbsolutePosition();
 #if READLINE
-			_LastPos = Console.GetCursorPosition();
+#elif READKEY
+			_CurPos = _OldPos;
 #endif
 		}
 
@@ -183,5 +180,82 @@ namespace YACCS.Examples
 				WriteLine(response, result.IsSuccess ? ConsoleColor.Green : ConsoleColor.Red);
 			}
 		}
+
+		private int GetAbsolutePosition()
+		{
+			var (left, top) = Console.GetCursorPosition();
+			return left + (top * Console.BufferWidth);
+		}
+
+		private (int Left, int Top) GetPositionCoords(int position)
+		{
+			var left = position % Console.BufferWidth;
+			var top = position / Console.BufferWidth;
+			return (left, top);
+		}
+
+#if READLINE
+#elif READKEY
+
+		private void Move(int leftDiff)
+		{
+			var (left, top) = GetPositionCoords(_CurPos);
+
+			var newLeft = Math.Min(_Sb!.Length, Math.Max(left + leftDiff, 0));
+			Console.SetCursorPosition(newLeft, top);
+		}
+
+		private void Remove(int add)
+		{
+			var (curLeft, curTop) = GetPositionCoords(_CurPos);
+			var (oldLeft, oldTop) = GetPositionCoords(_OldPos);
+
+			var index = ((curTop - oldTop) * Console.BufferWidth) + curLeft - oldLeft + add;
+			if (index < 0 || index >= _Sb!.Length)
+			{
+				return;
+			}
+
+			_Sb.Remove(index, 1);
+			Redraw(add);
+		}
+
+		private void Redraw(int leftDiff)
+		{
+			var (curLeft, _) = GetPositionCoords(_CurPos);
+			var (oldLeft, oldTop) = GetPositionCoords(_OldPos);
+
+			Console.SetCursorPosition(oldLeft, oldTop);
+			Console.Write(_Sb.ToString());
+			Console.Write(_Empty);
+			Console.WriteLine();
+
+			var left = curLeft + (leftDiff % Console.BufferWidth);
+			if (left < 0)
+			{
+				// Wrap around
+				left += Console.BufferWidth;
+			}
+			var top = oldTop + (_Sb.Length / Console.BufferWidth);
+			Console.SetCursorPosition(left, top);
+		}
+
+		private void History(int change)
+		{
+			var (curLeft, _) = GetPositionCoords(_CurPos);
+
+			_HistoryIndex ??= _History.Count;
+			_HistoryIndex += change;
+			_HistoryIndex = Math.Max(Math.Min(_HistoryIndex.Value, _History.Count - 1), 0);
+
+			_Sb.Clear();
+			if (_History.Count != 0)
+			{
+				_Sb.Append(_History[_HistoryIndex.Value]);
+			}
+			Redraw(_Sb.Length - curLeft);
+		}
+
+#endif
 	}
 }
