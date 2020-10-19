@@ -17,13 +17,13 @@ namespace YACCS.Examples
 {
 	public sealed class Program
 	{
-		private readonly ConsoleHandler _Console;
 		private readonly ConsoleCommandService _CommandService;
+		private readonly ICommandServiceConfig _Config;
+		private readonly ConsoleHandler _Console;
 		private readonly HelpFormatter _HelpFormatter;
 		private readonly ConsoleInput _Input;
 		private readonly TypeNameRegistry _Names;
 		private readonly IServiceProvider _Services;
-		private readonly ICommandServiceConfig _Config;
 		private readonly TagConverter _Tags;
 		private readonly TypeReaderRegistry _TypeReaders;
 
@@ -35,8 +35,8 @@ namespace YACCS.Examples
 			_Config = CommandServiceConfig.Default;
 
 			_Console = new ConsoleHandler(_Names);
-			_CommandService = new ConsoleCommandService(_Config, _TypeReaders, _Console);
 			_HelpFormatter = new HelpFormatter(_Names, _Tags);
+			_CommandService = new ConsoleCommandService(_Config, _TypeReaders, _Console);
 			_Input = new ConsoleInput(_TypeReaders, _Console);
 
 			_Services = new ServiceCollection()
@@ -55,10 +55,10 @@ namespace YACCS.Examples
 
 		private async Task ExecuteAsync()
 		{
-			await _Console.WaitForBothAsync().ConfigureAwait(false);
-			_Console.ReleaseBoth();
+			await _Console.WaitForBothIOLocksAsync().ConfigureAwait(false);
+			_Console.ReleaseIOLocks();
 
-			_Console.WriteLine("");
+			_Console.WriteLine();
 			_Console.WriteLine("Enter a command and its arguments: ");
 
 			var input = await _Console.ReadLineAsync().ConfigureAwait(false);
@@ -71,7 +71,7 @@ namespace YACCS.Examples
 			var result = await _CommandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			if (!result.IsSuccess)
 			{
-				_Console.ReleaseBoth();
+				_Console.ReleaseIOLocks();
 			}
 			_Console.WriteResult(result);
 		}

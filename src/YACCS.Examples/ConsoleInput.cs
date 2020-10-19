@@ -31,7 +31,7 @@ namespace YACCS.Examples
 			// Lock both input and output
 			// Input because we're using console input
 			// Ouput so the next "enter a command to execute" prints after this command is done
-			await _Console.WaitForBothAsync().ConfigureAwait(false);
+			await _Console.WaitForBothIOLocksAsync().ConfigureAwait(false);
 
 			var source = new CancellationTokenSource();
 			_ = Task.Run(async () =>
@@ -61,7 +61,7 @@ namespace YACCS.Examples
 		protected override Task UnsubscribeAsync(IContext context, OnInput onInput)
 		{
 			// Only release input lock since output lock gets released when command is done
-			_Console.ReleaseInput();
+			_Console.ReleaseInputLock();
 			_Input[context.Id].Cancel();
 			return Task.CompletedTask;
 		}

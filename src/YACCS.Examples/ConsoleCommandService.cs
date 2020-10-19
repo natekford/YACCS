@@ -21,7 +21,7 @@ namespace YACCS.Examples
 
 		protected override Task CommandFinishedAsync(IContext context, IImmutableCommand command)
 		{
-			_Console.ReleaseBoth();
+			_Console.ReleaseIOLocks();
 			return base.CommandFinishedAsync(context, command);
 		}
 	}
