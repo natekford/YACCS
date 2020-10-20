@@ -1,21 +1,40 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 
 namespace YACCS.Examples
 {
-	public abstract class ConsoleRead
+	[DebuggerDisplay("{DebuggerDisplay,nq}")]
+	public abstract class TrackingTextWriter : TextWriter
 	{
-		protected TrackingTextWriter Writer { get; }
+		public override Encoding Encoding => Writer.Encoding;
+		protected int LineCount { get; set; }
+		protected CurrentPosition OldPos { get; set; } = CurrentPosition.Zero;
+		protected TextWriter Writer { get; }
+		private string DebuggerDisplay => $"Line Count = {LineCount}";
 
-		protected ConsoleRead(TrackingTextWriter writer)
+		protected TrackingTextWriter(TextWriter writer)
 		{
 			Writer = writer;
 		}
 
 		public abstract string? ReadLine();
+
+		public override void Write(char value)
+		{
+			Writer.Write(value);
+			if (value == '\n')
+			{
+				UpdatePositionOnNewLineReceived();
+			}
+		}
+
+		protected virtual void UpdatePositionOnNewLineReceived()
+		{
+			++LineCount;
+			OldPos = new CurrentPosition(this);
+		}
 
 		[DebuggerDisplay("{DebuggerDisplay,nq}")]
 		protected class CurrentPosition
@@ -73,37 +92,6 @@ namespace YACCS.Examples
 				{
 					return (Left, _Writer.LineCount);
 				}
-			}
-		}
-
-		[DebuggerDisplay("{DebuggerDisplay,nq}")]
-		protected class TrackingTextWriter : TextWriter
-		{
-			public TextWriter Inner { get; }
-			public int LineCount { get; protected set; }
-			public CurrentPosition OldPos { get; protected set; } = CurrentPosition.Zero;
-			public override Encoding Encoding => Inner.Encoding;
-
-			private string DebuggerDisplay => $"Line Count = {LineCount}";
-
-			public TrackingTextWriter(TextWriter writer)
-			{
-				Inner = writer;
-			}
-
-			public override void Write(char value)
-			{
-				if (value == '\n')
-				{
-					UpdatePositionOnNewLineReceived();
-				}
-				Inner.Write(value);
-			}
-
-			protected virtual void UpdatePositionOnNewLineReceived()
-			{
-				++LineCount;
-				OldPos = new CurrentPosition(this);
 			}
 		}
 	}

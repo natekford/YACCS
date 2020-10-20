@@ -13,14 +13,15 @@ namespace YACCS.Examples
 		private readonly SemaphoreSlim _Input;
 		private readonly ITypeRegistry<string> _Names;
 		private readonly SemaphoreSlim _Output;
-		private readonly ConsoleRead _Reader;
+		private readonly TrackingTextWriter _Reader;
 
 		public ConsoleHandler(ITypeRegistry<string> names)
 		{
+			Console.SetOut(_Reader = new TrackingReadLineTextWraiter(Console.Out));
+
 			_Names = names;
 			_Input = new SemaphoreSlim(1, 1);
 			_Output = new SemaphoreSlim(1, 1);
-			_Reader = new ConsoleReadLine();
 			_Channel = Channel.CreateUnbounded<string?>(new UnboundedChannelOptions
 			{
 				SingleReader = true,

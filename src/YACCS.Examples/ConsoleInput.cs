@@ -63,6 +63,7 @@ namespace YACCS.Examples
 			// Only release input lock since output lock gets released when command is done
 			_Console.ReleaseInputLock();
 			_Input[context.Id].Cancel();
+			Console.WriteLine();
 			return Task.CompletedTask;
 		}
 	}
