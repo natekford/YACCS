@@ -24,7 +24,7 @@ namespace YACCS.Commands.Linq
 			this TCommand command,
 			IPrecondition<TContext> precondition)
 			where TContext : IContext
-			where TCommand : ICommand<TContext>
+			where TCommand : ICommand, ICommand<TContext>
 		{
 			command.Attributes.Add(precondition);
 			return command;

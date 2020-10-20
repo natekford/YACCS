@@ -91,7 +91,7 @@ namespace YACCS.TypeReaders
 				return false;
 			}
 
-			item = ReflectionUtils.CreateInstance<ITypeReader>(readerType);
+			item = readerType.CreateInstance<ITypeReader>();
 			Register(type, item);
 			return true;
 		}

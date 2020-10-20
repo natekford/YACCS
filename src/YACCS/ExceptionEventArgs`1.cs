@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 
 namespace YACCS
 {
@@ -18,7 +17,7 @@ namespace YACCS
 
 		public ExceptionEventArgs(Exception exception, T originalEventArgs)
 		{
-			Exceptions = new[] { exception }.ToArray();
+			Exceptions = new[] { exception };
 			EventArgs = originalEventArgs;
 		}
 	}

@@ -11,7 +11,7 @@ namespace YACCS.Commands.Attributes
 
 		public OverrideTypeReaderAttribute(Type type)
 		{
-			Reader = ReflectionUtils.CreateInstance<ITypeReader>(type);
+			Reader = type.CreateInstance<ITypeReader>();
 		}
 	}
 }

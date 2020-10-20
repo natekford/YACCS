@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-using YACCS.Commands;
-
 namespace YACCS.Help
 {
 	public class TypeNameRegistry : ITypeRegistry<string>

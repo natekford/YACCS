@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-using YACCS.Commands;
-
 namespace YACCS.TypeReaders
 {
 	public static class TypeRegistryUtils
@@ -27,7 +25,7 @@ namespace YACCS.TypeReaders
 					continue;
 				}
 
-				var typeReader = ReflectionUtils.CreateInstance<ITypeReader>(type);
+				var typeReader = type.CreateInstance<ITypeReader>();
 				yield return new TypeReaderInfo(attr.TargetTypes, typeReader);
 			}
 		}

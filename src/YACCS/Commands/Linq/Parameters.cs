@@ -17,7 +17,7 @@ namespace YACCS.Commands.Linq
 		public static TParameter AddParameterPrecondition<TValue, TParameter>(
 			this TParameter parameter,
 			IParameterPrecondition<TValue> precondition)
-			where TParameter : IParameter<TValue>
+			where TParameter : IParameter, IParameter<TValue>
 		{
 			parameter.Attributes.Add(precondition);
 			return parameter;
@@ -97,7 +97,7 @@ namespace YACCS.Commands.Linq
 		public static TParameter SetDefaultValue<TValue, TParameter>(
 			this TParameter parameter,
 			TValue value)
-			where TParameter : IParameter<TValue>
+			where TParameter : IParameter, IParameter<TValue>
 		{
 			parameter.DefaultValue = value;
 			return parameter;
@@ -106,7 +106,7 @@ namespace YACCS.Commands.Linq
 		public static TParameter SetTypeReader<TValue, TParameter>(
 			this TParameter parameter,
 			ITypeReader<TValue>? typeReader)
-			where TParameter : IParameter<TValue>
+			where TParameter : IParameter, IParameter<TValue>
 		{
 			parameter.TypeReader = typeReader;
 			return parameter;
