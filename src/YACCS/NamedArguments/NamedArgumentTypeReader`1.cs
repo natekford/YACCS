@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -26,7 +27,6 @@ namespace YACCS.NamedArguments
 		private readonly Lazy<Action<T, string, object>> _Setter;
 
 		protected virtual IReadOnlyDictionary<string, IImmutableParameter> Parameters => _Parameters.Value;
-		protected virtual Action<T, string, object> Setter => _Setter.Value;
 
 		public NamedArgumentTypeReader()
 		{
@@ -63,6 +63,9 @@ namespace YACCS.NamedArguments
 
 			return ReadDictIntoInstanceAsync(context, dict!);
 		}
+
+		protected virtual void Setter(T instance, string property, object value)
+			=> _Setter.Value.Invoke(instance, property, value);
 
 		protected virtual IResult TryCreateDict(IReadOnlyList<string> args, out IDictionary<string, string> dict)
 		{
@@ -180,7 +183,7 @@ namespace YACCS.NamedArguments
 					return TypeReaderResult<T>.FromError(result.InnerResult);
 				}
 
-				Setter.Invoke(instance, parameter.ParameterName, result.Value!);
+				Setter(instance, parameter.ParameterName, result.Value!);
 			}
 			return TypeReaderResult<T>.FromSuccess(instance);
 		}

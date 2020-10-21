@@ -122,13 +122,14 @@ namespace YACCS.NamedArguments
 		private class GeneratedNamedTypeReader : NamedArgumentTypeReader<Dictionary<string, object?>>
 		{
 			protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
-			protected override Action<Dictionary<string, object?>, string, object> Setter { get; }
 
 			public GeneratedNamedTypeReader(IImmutableCommand command)
 			{
-				Setter = (dict, key, value) => dict[key] = value;
 				Parameters = command.Parameters.ToParameterDictionary(x => x.OverriddenParameterName);
 			}
+
+			protected override void Setter(Dictionary<string, object?> instance, string property, object value)
+				=> instance[property] = value;
 
 			protected override IResult TryCreateDict(IReadOnlyList<string> args, out IDictionary<string, string> dict)
 			{
