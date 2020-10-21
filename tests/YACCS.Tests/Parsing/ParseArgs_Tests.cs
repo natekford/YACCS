@@ -20,9 +20,9 @@ namespace YACCS.Tests.Parsing
 		public void Empty_Test()
 		{
 			const string INPUT = "";
-			var parsed = ParseArgs.Parse(INPUT).Arguments;
+			var parsed = ParseArgs.Parse(INPUT);
 
-			Assert.AreEqual(0, parsed.Count);
+			Assert.AreEqual(0, parsed.Length);
 		}
 
 		[TestMethod]
@@ -39,9 +39,9 @@ namespace YACCS.Tests.Parsing
 		public void NestedQuotes1_Test()
 		{
 			const string INPUT = INPUT_1;
-			var parsed = ParseArgs.Parse(INPUT).Arguments;
+			var parsed = ParseArgs.Parse(INPUT);
 
-			Assert.AreEqual(2, parsed.Count);
+			Assert.AreEqual(2, parsed.Length);
 			Assert.AreEqual("A", parsed[0]);
 			Assert.AreEqual("B \"C \\\"D E\\\"\" F G", parsed[1]);
 		}
@@ -50,9 +50,9 @@ namespace YACCS.Tests.Parsing
 		public void NestedQuotes2_Test()
 		{
 			const string INPUT = INPUT_2;
-			var parsed = ParseArgs.Parse(INPUT).Arguments;
+			var parsed = ParseArgs.Parse(INPUT);
 
-			Assert.AreEqual(4, parsed.Count);
+			Assert.AreEqual(4, parsed.Length);
 			Assert.AreEqual("H", parsed[0]);
 			Assert.AreEqual("A \"B \"C \\\"D E\\\"\" F G\"", parsed[1]);
 			Assert.AreEqual("I", parsed[2]);
@@ -63,9 +63,9 @@ namespace YACCS.Tests.Parsing
 		public void NestedQuotes3_Test()
 		{
 			const string INPUT = INPUT_3;
-			var parsed = ParseArgs.Parse(INPUT).Arguments;
+			var parsed = ParseArgs.Parse(INPUT);
 
-			Assert.AreEqual(8, parsed.Count);
+			Assert.AreEqual(8, parsed.Length);
 			Assert.AreEqual("K", parsed[0]);
 			Assert.AreEqual("L M", parsed[1]);
 			Assert.AreEqual("N", parsed[2]);
@@ -80,18 +80,18 @@ namespace YACCS.Tests.Parsing
 		public void NoQuotes_Test()
 		{
 			const string INPUT = "these are some arguments";
-			var parsed = ParseArgs.Parse(INPUT).Arguments;
-			Assert.AreEqual(INPUT.Split(' ').Length, parsed.Count);
+			var parsed = ParseArgs.Parse(INPUT);
+			Assert.AreEqual(INPUT.Split(' ').Length, parsed.Length);
 		}
 
 		[TestMethod]
 		public void SimpleQuotes_Test()
 		{
 			const string INPUT = "\"test value \"aaaaaa\" dog\"";
-			var parsed = ParseArgs.Parse(INPUT).Arguments;
+			var parsed = ParseArgs.Parse(INPUT);
 
 			var expected = INPUT[1..^1];
-			Assert.AreEqual(1, parsed.Count);
+			Assert.AreEqual(1, parsed.Length);
 			Assert.AreEqual(expected, parsed[0]);
 		}
 	}

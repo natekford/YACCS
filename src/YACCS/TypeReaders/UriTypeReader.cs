@@ -8,21 +8,24 @@ namespace YACCS.TypeReaders
 {
 	public class UriTypeReader : TypeReader<Uri>
 	{
-		public override ITask<ITypeReaderResult<Uri>> ReadAsync(IContext context, string input)
+		public override ITask<ITypeReaderResult<Uri>> ReadAsync(
+			IContext context,
+			ReadOnlyMemory<string> input)
 		{
-			if (string.IsNullOrWhiteSpace(input))
+			var item = input.Span[0];
+			if (string.IsNullOrWhiteSpace(item))
 			{
 				return TypeReaderResult<Uri>.Failure.ITask;
 			}
 
 			try
 			{
-				if (input.StartsWith('<') && input.EndsWith('>'))
+				if (item.StartsWith('<') && item.EndsWith('>'))
 				{
-					input = input[1..^1];
+					item = item[1..^1];
 				}
 
-				return TypeReaderResult<Uri>.FromSuccess(new Uri(input)).AsITask();
+				return TypeReaderResult<Uri>.FromSuccess(new Uri(item)).AsITask();
 			}
 			catch
 			{

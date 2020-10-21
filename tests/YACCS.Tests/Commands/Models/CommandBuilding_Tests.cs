@@ -134,7 +134,9 @@ namespace YACCS.Tests.Commands.Models
 		{
 			public const string VALUE = "joe";
 
-			public override ITask<ITypeReaderResult<string>> ReadAsync(IContext context, string input)
+			public override ITask<ITypeReaderResult<string>> ReadAsync(
+				IContext context,
+				ReadOnlyMemory<string> input)
 				=> TypeReaderResult<string>.FromSuccess(VALUE).AsITask();
 		}
 

@@ -15,7 +15,7 @@ namespace YACCS.Tests.TypeReaders
 	public class CommandTypeReader_Tests : TypeReader_Tests<IReadOnlyList<IImmutableCommand>>
 	{
 		public override IContext Context { get; }
-		public override TypeReader<IReadOnlyList<IImmutableCommand>> Reader { get; }
+		public override ITypeReader<IReadOnlyList<IImmutableCommand>> Reader { get; }
 			= new CommandsTypeReader();
 
 		public CommandTypeReader_Tests()

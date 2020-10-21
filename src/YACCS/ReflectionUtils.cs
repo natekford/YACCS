@@ -34,12 +34,12 @@ namespace YACCS
 			});
 		}
 
-		public static T CreateInstance<T>(this Type type)
+		public static T CreateInstance<T>(this Type type, params object[] args)
 		{
 			object instance;
 			try
 			{
-				instance = Activator.CreateInstance(type);
+				instance = Activator.CreateInstance(type, args);
 			}
 			catch (Exception ex)
 			{

@@ -1,12 +1,16 @@
-﻿using MorseCode.ITask;
+﻿using System;
+
+using MorseCode.ITask;
 
 using YACCS.Commands;
 
 namespace YACCS.TypeReaders
 {
-	public class StringTypeReader : TypeReader<string>
+	public class StringTypeReader : TypeReader<string?>
 	{
-		public override ITask<ITypeReaderResult<string>> ReadAsync(IContext context, string input)
-			=> TypeReaderResult<string>.FromSuccess(input).AsITask();
+		public override ITask<ITypeReaderResult<string?>> ReadAsync(
+			IContext context,
+			ReadOnlyMemory<string> input)
+			=> TypeReaderResult<string>.FromSuccess(input.Span[0]).AsITask();
 	}
 }

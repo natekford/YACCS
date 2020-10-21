@@ -10,7 +10,7 @@ namespace YACCS.Tests.TypeReaders
 	[TestClass]
 	public class TimeSpanTypeReader_Tests : TypeReader_Tests<TimeSpan>
 	{
-		public override TypeReader<TimeSpan> Reader { get; }
+		public override ITypeReader<TimeSpan> Reader { get; }
 			= new TimeSpanTypeReader<TimeSpan>(TimeSpan.TryParse);
 
 		[TestMethod]

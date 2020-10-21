@@ -48,7 +48,9 @@ namespace YACCS.Commands
 			return new ValueTask<IResult>(GetUncachedResultAsync(command, precondition, key));
 		}
 
-		public ValueTask<ITypeReaderResult> GetResultAsync(ITypeReader reader, string value)
+		public ValueTask<ITypeReaderResult> GetResultAsync(
+			ITypeReader reader,
+			ReadOnlyMemory<string> value)
 		{
 			var key = new TRKey(reader, value);
 			if (_TypeReaders.TryGetValue(key, out var result))
@@ -83,10 +85,10 @@ namespace YACCS.Commands
 
 		private async Task<ITypeReaderResult> GetUncachedResultAsync(
 			ITypeReader reader,
-			string value,
+			ReadOnlyMemory<string> input,
 			TRKey key)
 		{
-			var result = await reader.ReadAsync(_Context, value).ConfigureAwait(false);
+			var result = await reader.ReadAsync(_Context, input).ConfigureAwait(false);
 			return _TypeReaders[key] = result;
 		}
 
@@ -123,16 +125,16 @@ namespace YACCS.Commands
 		private readonly struct TRKey : IEquatable<TRKey>
 		{
 			public ITypeReader TypeReader { get; }
-			public string Value { get; }
+			public ReadOnlyMemory<string> Value { get; }
 
-			public TRKey(ITypeReader typeReader, string value)
+			public TRKey(ITypeReader typeReader, ReadOnlyMemory<string> value)
 			{
 				TypeReader = typeReader;
 				Value = value;
 			}
 
 			public bool Equals(TRKey other)
-				=> TypeReader == other.TypeReader && Value == other.Value;
+				=> TypeReader == other.TypeReader && Value.Equals(other.Value);
 		}
 	}
 }

@@ -10,7 +10,7 @@ namespace YACCS.Tests.TypeReaders
 	[TestClass]
 	public class ContextTypeReader_Tests : TypeReader_Tests<FakeContext2>
 	{
-		public override TypeReader<FakeContext2> Reader { get; }
+		public override ITypeReader<FakeContext2> Reader { get; }
 			= new ContextTypeReader<FakeContext2>();
 
 		[TestMethod]

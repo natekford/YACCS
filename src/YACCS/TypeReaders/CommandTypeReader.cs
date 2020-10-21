@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using MorseCode.ITask;
 
@@ -19,10 +20,10 @@ namespace YACCS.TypeReaders
 	{
 		public override ITask<ITypeReaderResult<IReadOnlyList<IImmutableCommand>>> ReadAsync(
 			IContext context,
-			string input)
+			ReadOnlyMemory<string> input)
 		{
 			var commands = context.Services.GetRequiredService<ICommandService>();
-			var found = commands.Find(input);
+			var found = commands.Find(input.Span[0]);
 			if (found.Count > 0)
 			{
 				return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.FromSuccess(found).AsITask();

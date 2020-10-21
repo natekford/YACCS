@@ -26,7 +26,7 @@ namespace YACCS.TypeReaders
 		{
 		}
 
-		public bool IsNull(string value)
+		public bool IsNull(string? value)
 			=> value is null || Values.Contains(value);
 	}
 }

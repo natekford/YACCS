@@ -12,49 +12,6 @@ namespace YACCS.Parsing
 	public readonly struct ParseArgs
 	{
 		/// <summary>
-		/// The parsed arguments.
-		/// </summary>
-		public IReadOnlyList<string> Arguments { get; }
-		/// <summary>
-		/// The characters used to end quotes with.
-		/// </summary>
-		public IImmutableSet<char> EndingQuotes { get; }
-		/// <summary>
-		/// The characters used to start quotes with.
-		/// </summary>
-		public IImmutableSet<char> StartingQuotes { get; }
-
-		/// <summary>
-		/// Creates an instance of <see cref="ParseArgs"/>.
-		/// </summary>
-		/// <param name="arguments"></param>
-		/// <param name="startingQuotes"></param>
-		/// <param name="endingQuotes"></param>
-		public ParseArgs(
-			IEnumerable<string> arguments,
-			IEnumerable<char> startingQuotes,
-			IEnumerable<char> endingQuotes)
-			: this(arguments.ToImmutableArray(), startingQuotes.ToImmutableHashSet(), endingQuotes.ToImmutableHashSet())
-		{
-		}
-
-		/// <summary>
-		/// Creates an instance of <see cref="ParseArgs"/>.
-		/// </summary>
-		/// <param name="arguments"></param>
-		/// <param name="startingQuotes"></param>
-		/// <param name="endingQuotes"></param>
-		public ParseArgs(
-			IReadOnlyList<string> arguments,
-			IImmutableSet<char> startingQuotes,
-			IImmutableSet<char> endingQuotes)
-		{
-			Arguments = arguments;
-			StartingQuotes = startingQuotes;
-			EndingQuotes = endingQuotes;
-		}
-
-		/// <summary>
 		/// Gets either start or end indices from the supplied string using the supplied quotes.
 		/// </summary>
 		/// <param name="input"></param>
@@ -90,7 +47,7 @@ namespace YACCS.Parsing
 		/// </summary>
 		/// <param name="input"></param>
 		/// <returns></returns>
-		public static ParseArgs Parse(string input)
+		public static string[] Parse(string input)
 		{
 			if (TryParse(input, out var result))
 			{
@@ -105,13 +62,13 @@ namespace YACCS.Parsing
 		/// <param name="input"></param>
 		/// <param name="result"></param>
 		/// <returns></returns>
-		public static bool TryParse(string input, out ParseArgs result)
+		public static bool TryParse(string input, out string[] result)
 		{
 			return TryParse(
 				input,
-				CommandServiceUtils.InternallyUsedQuotes,
-				CommandServiceUtils.InternallyUsedQuotes,
 				CommandServiceUtils.InternallyUsedSeparator,
+				CommandServiceUtils.InternallyUsedQuotes,
+				CommandServiceUtils.InternallyUsedQuotes,
 				out result
 			);
 		}
@@ -120,21 +77,21 @@ namespace YACCS.Parsing
 		/// Attempts to parse a <see cref="ParseArgs"/> from characters indicating the start of a quote and characters indicating the end of a quote.
 		/// </summary>
 		/// <param name="input"></param>
+		/// <param name="splitChar"></param>
 		/// <param name="startQuotes"></param>
 		/// <param name="endQuotes"></param>
-		/// <param name="splitChar"></param>
 		/// <param name="result"></param>
 		/// <returns></returns>
 		public static bool TryParse(
 			string input,
+			char splitChar,
 			IImmutableSet<char> startQuotes,
 			IImmutableSet<char> endQuotes,
-			char splitChar,
-			out ParseArgs result)
+			out string[] result)
 		{
 			if (string.IsNullOrWhiteSpace(input))
 			{
-				result = new ParseArgs(Array.Empty<string>(), startQuotes, endQuotes);
+				result = Array.Empty<string>();
 				return true;
 			}
 
@@ -148,8 +105,6 @@ namespace YACCS.Parsing
 			var endIndices = GetIndices(input, endQuotes, ValidEndQuote);
 			return TryParse(
 				input,
-				startQuotes,
-				endQuotes,
 				splitChar,
 				startIndices,
 				endIndices,
@@ -161,8 +116,6 @@ namespace YACCS.Parsing
 		/// Attempts to parse a <see cref="ParseArgs"/> from start and end indices.
 		/// </summary>
 		/// <param name="input"></param>
-		/// <param name="startQuotes"></param>
-		/// <param name="endQuotes"></param>
 		/// <param name="splitChar"></param>
 		/// <param name="startIndices">Assumed to be in order.</param>
 		/// <param name="endIndices">Assumed to be in order</param>
@@ -170,16 +123,14 @@ namespace YACCS.Parsing
 		/// <returns></returns>
 		public static bool TryParse(
 			string input,
-			IImmutableSet<char> startQuotes,
-			IImmutableSet<char> endQuotes,
 			char splitChar,
 			IReadOnlyList<int> startIndices,
 			IReadOnlyList<int> endIndices,
-			out ParseArgs result)
+			out string[] result)
 		{
 			if (startIndices.Count != endIndices.Count)
 			{
-				result = default;
+				result = Array.Empty<string>();
 				return false;
 			}
 
@@ -189,7 +140,7 @@ namespace YACCS.Parsing
 			if (startIndices.Count == 0)
 			{
 				AddRange(args, span, splitChar);
-				result = new ParseArgs(args.ToImmutableArray(), startQuotes, endQuotes);
+				result = args.ToArray();
 				return true;
 			}
 
@@ -198,7 +149,7 @@ namespace YACCS.Parsing
 			if (minStart == 0 && maxEnd == span.Length - 1)
 			{
 				Add(args, span[(minStart + 1)..maxEnd]);
-				result = new ParseArgs(args.ToImmutableArray(), startQuotes, endQuotes);
+				result = args.ToArray();
 				return true;
 			}
 
@@ -247,7 +198,7 @@ namespace YACCS.Parsing
 				AddRange(args, span[(maxEnd + 1)..^0], splitChar);
 			}
 
-			result = new ParseArgs(args.ToImmutableArray(), startQuotes, endQuotes);
+			result = args.ToArray();
 			return true;
 		}
 

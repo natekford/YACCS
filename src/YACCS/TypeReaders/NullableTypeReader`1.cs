@@ -1,4 +1,6 @@
-﻿using MorseCode.ITask;
+﻿using System;
+
+using MorseCode.ITask;
 
 using YACCS.Commands;
 
@@ -17,10 +19,13 @@ namespace YACCS.TypeReaders
 			_Reader = reader;
 		}
 
-		public override async ITask<ITypeReaderResult<T?>> ReadAsync(IContext context, string input)
+		public override async ITask<ITypeReaderResult<T?>> ReadAsync(
+			IContext context,
+			ReadOnlyMemory<string> input)
 		{
 			var checker = context.Services.GetService<INullChecker>() ?? Checker;
-			if (checker.IsNull(input))
+			var item = input.Span[0];
+			if (checker.IsNull(item))
 			{
 				return NullResult;
 			}

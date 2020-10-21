@@ -10,7 +10,7 @@ namespace YACCS.Tests.TypeReaders
 	[TestClass]
 	public class EnumTypeReader_Tests : TypeReader_Tests<BindingFlags>
 	{
-		public override TypeReader<BindingFlags> Reader { get; }
+		public override ITypeReader<BindingFlags> Reader { get; }
 			= new EnumTypeReader<BindingFlags>();
 
 		[TestMethod]

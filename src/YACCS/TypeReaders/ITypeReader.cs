@@ -10,6 +10,6 @@ namespace YACCS.TypeReaders
 	{
 		Type OutputType { get; }
 
-		ITask<ITypeReaderResult> ReadAsync(IContext context, string input);
+		ITask<ITypeReaderResult> ReadAsync(IContext context, ReadOnlyMemory<string> input);
 	}
 }

@@ -10,7 +10,7 @@ namespace YACCS.Tests.TypeReaders
 	[TestClass]
 	public class UriTypeReader_Tests : TypeReader_Tests<Uri>
 	{
-		public override TypeReader<Uri> Reader { get; } = new UriTypeReader();
+		public override ITypeReader<Uri> Reader { get; } = new UriTypeReader();
 
 		[TestMethod]
 		public async Task Escaped_Test()
@@ -30,7 +30,7 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task NullOrEmpty_Test()
 		{
-			var nullResult = await Reader.ReadAsync(Context, null!).ConfigureAwait(false);
+			var nullResult = await Reader.ReadAsync(Context, default(string)!).ConfigureAwait(false);
 			Assert.IsFalse(nullResult.InnerResult.IsSuccess);
 
 			var emptyResult = await Reader.ReadAsync(Context, "").ConfigureAwait(false);

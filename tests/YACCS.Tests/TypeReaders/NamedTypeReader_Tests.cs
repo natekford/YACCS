@@ -228,7 +228,7 @@ namespace YACCS.Tests.TypeReaders
 	[TestClass]
 	public class NamedTypeReader_Tests : TypeReader_Tests<NamedTypeReader_Tests.NamedClass>
 	{
-		public override TypeReader<NamedClass> Reader { get; }
+		public override ITypeReader<NamedClass> Reader { get; }
 			= new NamedArgumentTypeReader<NamedClass>();
 
 		[TestMethod]
@@ -236,13 +236,20 @@ namespace YACCS.Tests.TypeReaders
 		{
 			const int NUM = 1;
 			const string STR = "joe";
-			var input = $"{nameof(NamedClass.Number)}: {NUM}" +
-				$" {nameof(NamedClass.String)}: {STR}" +
-				$" {nameof(NamedClass.String)}: {STR}";
+			var input = new[]
+			{
+				nameof(NamedClass.Number),
+				NUM.ToString(),
+				nameof(NamedClass.String),
+				STR,
+				nameof(NamedClass.String),
+				STR
+			};
 
 			var context = Create();
 			var result = await Reader.ReadAsync(context, input).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgDuplicateResult));
 		}
 
 		[TestMethod]
@@ -250,13 +257,20 @@ namespace YACCS.Tests.TypeReaders
 		{
 			const int NUM = 1;
 			const string STR = "joe";
-			var input = $"{nameof(NamedClass.Number)}: {NUM}" +
-				$" {nameof(NamedClass.String)}: {STR}" +
-				$" test: {STR}";
+			var input = new[]
+{
+				nameof(NamedClass.Number),
+				NUM.ToString(),
+				nameof(NamedClass.String),
+				STR,
+				"test",
+				STR
+			};
 
 			var context = Create();
 			var result = await Reader.ReadAsync(context, input).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgNonExistentResult));
 		}
 
 		[TestMethod]
@@ -264,9 +278,15 @@ namespace YACCS.Tests.TypeReaders
 		{
 			const int NUM = 1;
 			const string STR = "joe";
-			var input = $"{nameof(NamedClass.Number)}: {NUM}" +
-				$" {nameof(NamedClass.String)}: {STR}" +
-				$" {nameof(NamedClass.FieldString)}: {STR}";
+			var input = new[]
+			{
+				nameof(NamedClass.Number),
+				NUM.ToString(),
+				nameof(NamedClass.String),
+				STR,
+				nameof(NamedClass.FieldString),
+				STR
+			};
 
 			var context = Create();
 			var result = await Reader.ReadAsync(context, input).ConfigureAwait(false);

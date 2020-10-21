@@ -25,7 +25,6 @@ namespace YACCS.TypeReaders
 		{
 			Register(typeof(string), new StringTypeReader());
 			Register(typeof(Uri), new UriTypeReader());
-			Register(typeof(IContext), new ContextTypeReader<IContext>());
 			RegisterWithNullable(new TryParseTypeReader<char>(char.TryParse));
 			RegisterWithNullable(new TryParseTypeReader<bool>(bool.TryParse));
 			RegisterWithNullable(new NumberTypeReader<sbyte>(sbyte.TryParse));
@@ -65,9 +64,9 @@ namespace YACCS.TypeReaders
 			_Readers[typeof(T?)] = new NullableTypeReader<T>(item);
 		}
 
-		public virtual bool TryGet(Type type, [NotNullWhen(true)] out ITypeReader? item)
+		public virtual bool TryGet(Type type, [NotNullWhen(true)] out ITypeReader? reader)
 		{
-			if (_Readers.TryGetValue(type, out item))
+			if (_Readers.TryGetValue(type, out reader))
 			{
 				return true;
 			}
@@ -85,14 +84,18 @@ namespace YACCS.TypeReaders
 			{
 				readerType = typeof(NamedArgumentTypeReader<>).MakeGenericType(type);
 			}
+			else if (type.GetEnumerableType() is Type eType && _Readers.ContainsKey(eType))
+			{
+				readerType = typeof(ArrayTypeReader<>).MakeGenericType(eType);
+			}
 			else
 			{
-				item = null;
+				reader = null;
 				return false;
 			}
 
-			item = readerType.CreateInstance<ITypeReader>();
-			Register(type, item);
+			reader = readerType.CreateInstance<ITypeReader>();
+			Register(type, reader);
 			return true;
 		}
 	}

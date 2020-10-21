@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Linq;
@@ -48,7 +46,7 @@ namespace YACCS.Commands
 			{
 				return QuoteMismatchResult.Instance.Sync;
 			}
-			if (args.Count == 0)
+			if (args.Length == 0)
 			{
 				return CommandNotFoundResult.Instance.Sync;
 			}
@@ -71,13 +69,13 @@ namespace YACCS.Commands
 			}
 
 			var node = Commands.Root;
-			for (var i = 0; i < args.Count; ++i)
+			for (var i = 0; i < args.Length; ++i)
 			{
-				if (!node.TryGetEdge(args[i], out node))
+				if (!node.TryGetEdge(args.Span[i], out node))
 				{
 					break;
 				}
-				if (i == args.Count - 1)
+				if (i == args.Length - 1)
 				{
 					return node.AllValues.ToImmutableArray();
 				}
@@ -88,15 +86,15 @@ namespace YACCS.Commands
 
 		public virtual async Task<(IResult, CommandScore?)> GetBestMatchAsync(
 			IContext context,
-			IReadOnlyList<string> input)
+			ReadOnlyMemory<string> input)
 		{
 			var best = default(CommandScore);
 			var cache = new PreconditionCache(context);
 
 			var node = Commands.Root;
-			for (var i = 0; i < input.Count; ++i)
+			for (var i = 0; i < input.Length; ++i)
 			{
-				if (!node.TryGetEdge(input[i], out node))
+				if (!node.TryGetEdge(input.Span[i], out node))
 				{
 					break;
 				}
@@ -122,7 +120,7 @@ namespace YACCS.Commands
 			PreconditionCache cache,
 			IContext context,
 			IImmutableCommand command,
-			IReadOnlyList<string> input,
+			ReadOnlyMemory<string> input,
 			int startIndex)
 		{
 			// Trivial cases, invalid context or arg length
@@ -131,12 +129,12 @@ namespace YACCS.Commands
 				var score = CommandScore.FromInvalidContext(command, context, startIndex);
 				return new ValueTask<CommandScore>(score);
 			}
-			else if (input.Count - startIndex < command.MinLength)
+			else if (input.Length - startIndex < command.MinLength)
 			{
 				var score = CommandScore.FromNotEnoughArgs(command, context, startIndex);
 				return new ValueTask<CommandScore>(score);
 			}
-			else if (input.Count - startIndex > command.MaxLength)
+			else if (input.Length - startIndex > command.MaxLength)
 			{
 				var score = CommandScore.FromTooManyArgs(command, context, startIndex);
 				return new ValueTask<CommandScore>(score);
@@ -155,7 +153,7 @@ namespace YACCS.Commands
 			PreconditionCache cache,
 			IImmutableCommand command,
 			IContext context,
-			IReadOnlyList<string> input,
+			ReadOnlyMemory<string> input,
 			int startIndex)
 		{
 			// Any precondition fails, command is not valid
@@ -176,7 +174,7 @@ namespace YACCS.Commands
 
 				var value = parameter.DefaultValue;
 				// We still have more args to parse so let's look through those
-				if (currentIndex < input.Count)
+				if (currentIndex < input.Length)
 				{
 					var trResult = await ProcessTypeReadersAsync(
 						cache,
@@ -285,28 +283,15 @@ namespace YACCS.Commands
 		public ValueTask<ITypeReaderResult> ProcessTypeReadersAsync(
 			PreconditionCache cache,
 			IImmutableParameter parameter,
-			IReadOnlyList<string> input,
+			ReadOnlyMemory<string> input,
 			int startIndex)
 		{
-			var (makeArray, reader) = Readers.Get(parameter);
+			var reader = Readers.Get(parameter);
 			var pLength = parameter.Length ?? int.MaxValue;
 			// Iterate at least once even for arguments with zero length, i.e. IContext
-			var length = Math.Min(input.Count - startIndex, Math.Max(pLength, 1));
-
-			// If not an array, join all the values and treat them as a single string
-			if (!makeArray)
-			{
-				var str = length == 1 ? input[startIndex] : Join(input, startIndex, length);
-				return cache.GetResultAsync(reader, str);
-			}
-
-			return new ValueTask<ITypeReaderResult>(cache.ProcessArrayTypeReadersAsync(
-				parameter,
-				reader,
-				input,
-				startIndex,
-				length
-			));
+			var length = Math.Max(Math.Min(input.Length - startIndex, pLength), 1);
+			var sliced = input.Slice(startIndex, length);
+			return cache.GetResultAsync(reader, sliced);
 		}
 
 		protected virtual Task CommandFinishedAsync(IContext context, IImmutableCommand command)
@@ -377,45 +362,22 @@ namespace YACCS.Commands
 			await CommandFinishedAsync(context, command).ConfigureAwait(false);
 		}
 
-		protected virtual bool TryGetArgs(string input, [NotNullWhen(true)] out IReadOnlyList<string>? args)
+		protected virtual bool TryGetArgs(
+			string input,
+			[NotNullWhen(true)] out ReadOnlyMemory<string> args)
 		{
 			if (ParseArgs.TryParse(
 				input,
+				Config.Separator,
 				Config.StartQuotes,
 				Config.EndQuotes,
-				Config.Separator,
-				out var parseArgs))
+				out var parsed))
 			{
-				args = parseArgs.Arguments;
+				args = parsed;
 				return true;
 			}
 			args = null;
 			return false;
-		}
-
-		private string Join(IReadOnlyList<string> input, int startIndex, int length)
-		{
-			var sb = new StringBuilder();
-			for (var i = startIndex; i < startIndex + length; ++i)
-			{
-				if (sb.Length != 0)
-				{
-					const char Separator = CommandServiceUtils.InternallyUsedSeparator;
-					sb.Append(Separator);
-				}
-
-				var item = input[i];
-				if (item.Contains(Config.Separator))
-				{
-					const char Quote = CommandServiceUtils.InternallyUsedQuote;
-					sb.Append(Quote).Append(item).Append(Quote);
-				}
-				else
-				{
-					sb.Append(item);
-				}
-			}
-			return sb.ToString();
 		}
 	}
 }

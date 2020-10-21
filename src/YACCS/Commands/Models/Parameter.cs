@@ -128,7 +128,6 @@ namespace YACCS.Commands.Models
 		{
 			public IReadOnlyList<object> Attributes { get; }
 			public object? DefaultValue { get; }
-			public Type? ElementType { get; }
 			public bool HasDefaultValue { get; }
 			public int? Length { get; } = 1;
 			public string OverriddenParameterName { get; }
@@ -143,7 +142,6 @@ namespace YACCS.Commands.Models
 			public ImmutableParameter(Parameter mutable)
 			{
 				DefaultValue = mutable.DefaultValue;
-				ElementType = mutable.ParameterType.GetEnumerableType();
 				HasDefaultValue = mutable.HasDefaultValue;
 				ParameterName = mutable.ParameterName;
 				ParameterType = mutable.ParameterType;

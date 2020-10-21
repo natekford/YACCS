@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using MorseCode.ITask;
@@ -798,8 +799,17 @@ namespace YACCS.Tests.Commands
 
 		private (CommandService, FakeContext, IParameter) Create<T>(int? length)
 		{
-			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
-			var context = new FakeContext();
+			var registry = new TypeReaderRegistry();
+			var config = CommandServiceConfig.Default;
+			var commandService = new CommandService(config, registry);
+			var context = new FakeContext
+			{
+				Services = new ServiceCollection()
+					.AddSingleton<ICommandService>(commandService)
+					.AddSingleton<ITypeRegistry<ITypeReader>>(registry)
+					.AddSingleton<ICommandServiceConfig>(config)
+					.BuildServiceProvider(),
+			};
 			var parameter = new Parameter(typeof(T), "", null)
 			{
 				Attributes = new List<object>
@@ -812,7 +822,9 @@ namespace YACCS.Tests.Commands
 
 		private class CoolCharTypeReader : TypeReader<char>
 		{
-			public override ITask<ITypeReaderResult<char>> ReadAsync(IContext context, string input)
+			public override ITask<ITypeReaderResult<char>> ReadAsync(
+				IContext context,
+				ReadOnlyMemory<string> input)
 				=> TypeReaderResult<char>.FromSuccess('z').AsITask();
 		}
 	}

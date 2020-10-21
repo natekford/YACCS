@@ -1,4 +1,6 @@
-﻿using MorseCode.ITask;
+﻿using System;
+
+using MorseCode.ITask;
 
 using YACCS.Commands;
 
@@ -6,7 +8,9 @@ namespace YACCS.TypeReaders
 {
 	public class ContextTypeReader<T> : TypeReader<T> where T : IContext
 	{
-		public override ITask<ITypeReaderResult<T>> ReadAsync(IContext context, string input)
+		public override ITask<ITypeReaderResult<T>> ReadAsync(
+			IContext context,
+			ReadOnlyMemory<string> input)
 		{
 			if (context is not T tContext)
 			{

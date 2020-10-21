@@ -10,7 +10,7 @@ namespace YACCS.Tests.TypeReaders
 	[TestClass]
 	public class NullableTypeReader_Tests : TypeReader_Tests<int?>
 	{
-		public override TypeReader<int?> Reader { get; }
+		public override ITypeReader<int?> Reader { get; }
 			= new NullableTypeReader<int>(new NumberTypeReader<int>(int.TryParse));
 
 		[TestMethod]
@@ -33,7 +33,7 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task Null_Test()
 		{
-			var result = await Reader.ReadAsync(Context, null!).ConfigureAwait(false);
+			var result = await Reader.ReadAsync(Context, default(string)!).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsNull(result.Value);
 		}

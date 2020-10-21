@@ -11,7 +11,7 @@ namespace YACCS.Tests.TypeReaders
 	{
 		public virtual IContext Context { get; } = new FakeContext();
 		public virtual string Invalid { get; } = "asdf";
-		public abstract TypeReader<T> Reader { get; }
+		public abstract ITypeReader<T> Reader { get; }
 
 		[TestMethod]
 		public async Task Invalid_Test()

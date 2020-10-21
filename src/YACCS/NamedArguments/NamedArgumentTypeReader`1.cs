@@ -7,7 +7,6 @@ using MorseCode.ITask;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
-using YACCS.Parsing;
 using YACCS.Results;
 using YACCS.TypeReaders;
 
@@ -17,8 +16,6 @@ namespace YACCS.NamedArguments
 	{
 		private static readonly ITask<ITypeReaderResult<T>> _ArgCountError
 			= TypeReaderResult<T>.FromError(NamedArgBadCountResult.Instance.Sync).AsITask();
-		private static readonly ITask<ITypeReaderResult<T>> _QuoteError
-			= TypeReaderResult<T>.FromError(QuoteMismatchResult.Instance.Sync).AsITask();
 		private static readonly char[] _TrimEndChars = new[] { ':' };
 		private static readonly char[] _TrimStartChars = new[] { '/', '-' };
 
@@ -38,18 +35,16 @@ namespace YACCS.NamedArguments
 				"setter delegate");
 		}
 
-		public override ITask<ITypeReaderResult<T>> ReadAsync(IContext context, string input)
+		public override ITask<ITypeReaderResult<T>> ReadAsync(
+			IContext context,
+			ReadOnlyMemory<string> input)
 		{
-			if (!ParseArgs.TryParse(input, out var args))
-			{
-				return _QuoteError;
-			}
-			if (args.Arguments.Count % 2 != 0)
+			if (input.Length % 2 != 0)
 			{
 				return _ArgCountError;
 			}
 
-			var result = TryCreateDict(args.Arguments, out var dict);
+			var result = TryCreateDict(input.Span, out var dict);
 			if (!result.IsSuccess)
 			{
 				return TypeReaderResult<T>.FromError(result).AsITask();
@@ -61,12 +56,14 @@ namespace YACCS.NamedArguments
 		protected virtual void Setter(T instance, string property, object? value)
 			=> _Setter.Value.Invoke(instance, property, value);
 
-		protected virtual IResult TryCreateDict(IReadOnlyList<string> args, out IDictionary<string, string> dict)
+		protected virtual IResult TryCreateDict(
+			ReadOnlySpan<string> input,
+			out IDictionary<string, string> dict)
 		{
 			dict = new Dictionary<string, string>();
-			for (var i = 0; i < args.Count; i += 2)
+			for (var i = 0; i < input.Length; i += 2)
 			{
-				var name = args[i].TrimStart(_TrimStartChars).TrimEnd(_TrimEndChars);
+				var name = input[i].TrimStart(_TrimStartChars).TrimEnd(_TrimEndChars);
 				if (!Parameters.TryGetValue(name, out var parameter))
 				{
 					return new NamedArgNonExistentResult(name);
@@ -77,7 +74,7 @@ namespace YACCS.NamedArguments
 				{
 					return new NamedArgDuplicateResult(key);
 				}
-				dict.Add(key, args[i + 1]);
+				dict.Add(key, input[i + 1]);
 			}
 			return SuccessResult.Instance.Sync;
 		}
@@ -169,34 +166,16 @@ namespace YACCS.NamedArguments
 			var instance = new T();
 			foreach (var kvp in dict)
 			{
+				var args = kvp.Value;
 				var parameter = Parameters[kvp.Key];
-				var (makeArray, reader) = registry.Get(parameter);
+				var reader = registry.Get(parameter);
 
-				ITypeReaderResult result;
-				if (makeArray)
-				{
-					if (!ParseArgs.TryParse(kvp.Value, out var args))
-					{
-						return _QuoteError.Result;
-					}
-
-					result = await new PreconditionCache(context).ProcessArrayTypeReadersAsync(
-						parameter,
-						reader,
-						args.Arguments,
-						0,
-						args.Arguments.Count
-					).ConfigureAwait(false);
-				}
-				else
-				{
-					result = await reader.ReadAsync(context, kvp.Value).ConfigureAwait(false);
-				}
-
+				var result = await reader.ReadAsync(context, args).ConfigureAwait(false);
 				if (!result.InnerResult.IsSuccess)
 				{
 					return TypeReaderResult<T>.FromError(result.InnerResult);
 				}
+
 				Setter(instance, parameter.ParameterName, result.Value);
 			}
 			return TypeReaderResult<T>.FromSuccess(instance);

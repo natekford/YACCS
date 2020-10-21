@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
-using YACCS.TypeReaders;
 
 namespace YACCS.Commands
 {
@@ -135,35 +133,6 @@ namespace YACCS.Commands
 			}
 
 			return commands;
-		}
-
-		internal static async Task<ITypeReaderResult> ProcessArrayTypeReadersAsync(
-			this PreconditionCache cache,
-			IImmutableParameter parameter,
-			ITypeReader reader,
-			IReadOnlyList<string> input,
-			int startIndex,
-			int length)
-		{
-			// If an array, test each value one by one
-			var values = new object?[length];
-			for (var i = startIndex; i < startIndex + length; ++i)
-			{
-				var result = await cache.GetResultAsync(reader, input[i]).ConfigureAwait(false);
-				if (!result.InnerResult.IsSuccess)
-				{
-					return result;
-				}
-				values[i - startIndex] = result.Value;
-			}
-
-			// Copy the values from the type reader result list to an array of the parameter type
-			var output = Array.CreateInstance(parameter.ElementType, values.Length);
-			for (var i = 0; i < values.Length; ++i)
-			{
-				output.SetValue(values[i], i);
-			}
-			return TypeReaderResult<object>.FromSuccess(output);
 		}
 	}
 }

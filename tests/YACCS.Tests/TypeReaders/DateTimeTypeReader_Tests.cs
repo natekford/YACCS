@@ -10,7 +10,7 @@ namespace YACCS.Tests.TypeReaders
 	[TestClass]
 	public class DateTimeTypeReader_Tests : TypeReader_Tests<DateTime>
 	{
-		public override TypeReader<DateTime> Reader { get; }
+		public override ITypeReader<DateTime> Reader { get; }
 			= new DateTimeTypeReader<DateTime>(DateTime.TryParse);
 
 		[TestMethod]

@@ -33,14 +33,8 @@ namespace YACCS.Commands
 		{
 			foreach (var parameter in item.Parameters)
 			{
-				if (parameter.TypeReader == null
-					&& !_Readers.TryGet(parameter.ParameterType, out _)
-					&& (parameter.ElementType == null || !_Readers.TryGet(parameter.ElementType, out _)))
-				{
-					var param = parameter.ParameterType.Name;
-					var cmd = item.Names?.FirstOrDefault()?.ToString() ?? "NO NAME";
-					throw new ArgumentException($"A type reader for {param} in {cmd} is missing.", nameof(item));
-				}
+				// Verify that every type has a reader
+				_ = _Readers.Get(parameter);
 			}
 
 			var added = 0;

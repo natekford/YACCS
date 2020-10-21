@@ -9,7 +9,7 @@ namespace YACCS.Tests.TypeReaders
 	[TestClass]
 	public class NumberTypeReader_Tests : TypeReader_Tests<int>
 	{
-		public override TypeReader<int> Reader { get; }
+		public override ITypeReader<int> Reader { get; }
 			= new NumberTypeReader<int>(int.TryParse);
 
 		[TestMethod]

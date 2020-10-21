@@ -104,7 +104,9 @@ namespace YACCS.Tests.Commands
 		{
 			public Type OutputType => typeof(string);
 
-			public ITask<ITypeReaderResult> ReadAsync(IContext context, string input)
+			public ITask<ITypeReaderResult> ReadAsync(
+				IContext context,
+				ReadOnlyMemory<string> input)
 				=> throw new NotImplementedException();
 		}
 

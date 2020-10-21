@@ -2,6 +2,6 @@
 {
 	public interface INullChecker
 	{
-		bool IsNull(string value);
+		bool IsNull(string? value);
 	}
 }
