@@ -58,7 +58,7 @@ namespace YACCS.Commands
 				return result;
 			}
 
-			_ = ExecuteAsync(context, best!);
+			_ = ExecuteAsync(context, best!.Command!, best!.Args!);
 			return SuccessResult.Instance.Sync;
 		}
 
@@ -347,9 +347,8 @@ namespace YACCS.Commands
 			return Task.CompletedTask;
 		}
 
-		protected virtual async Task ExecuteAsync(IContext context, CommandScore score)
+		protected virtual async Task ExecuteAsync(IContext context, IImmutableCommand command, object?[] args)
 		{
-			var command = score.Command!;
 			var exceptions = new List<Exception>();
 			var exception = default(Exception?);
 
@@ -369,7 +368,7 @@ namespace YACCS.Commands
 
 			try
 			{
-				var result = await command.ExecuteAsync(context, score.Args!).ConfigureAwait(false);
+				var result = await command.ExecuteAsync(context, args).ConfigureAwait(false);
 				var e = new CommandExecutedEventArgs(command, context, result.InnerResult);
 				await CommandExecutedEvent.InvokeAsync(e).ConfigureAwait(false);
 			}

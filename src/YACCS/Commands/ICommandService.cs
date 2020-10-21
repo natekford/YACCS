@@ -10,10 +10,6 @@ namespace YACCS.Commands
 	{
 		IReadOnlyCollection<IImmutableCommand> Commands { get; }
 
-		event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted;
-
-		event AsyncEventHandler<ExceptionEventArgs<CommandExecutedEventArgs>> CommandExecutedException;
-
 		Task<IResult> ExecuteAsync(IContext context, string input);
 
 		IReadOnlyList<IImmutableCommand> Find(string input);

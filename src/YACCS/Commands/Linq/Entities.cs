@@ -51,25 +51,33 @@ namespace YACCS.Commands.Linq
 			where T : IQueryableEntity
 			=> commands.ByAttribute((IIdAttribute x) => x.Id == id);
 
-		public static IEnumerable<T> ByLastPartOfName<T>(this IEnumerable<T> commands, string name)
+		public static IEnumerable<T> ByLastPartOfName<T>(
+			this IEnumerable<T> commands,
+			string name,
+			StringComparison comparisonType = StringComparison.CurrentCulture)
 			where T : IQueryableCommand
 		{
-			return commands.Where(x => x.Names.Any(n =>
+			foreach (var command in commands)
 			{
-				const StringComparison COMPARISON = StringComparison.OrdinalIgnoreCase;
-				return n.Parts[^1].Equals(name, COMPARISON);
-			}));
+				foreach (var n in command.Names)
+				{
+					if (n.Parts[^1].Equals(name, comparisonType))
+					{
+						yield return command;
+						break;
+					}
+				}
+			}
 		}
 
 		public static IEnumerable<T> ByMethod<T>(this IEnumerable<T> commands, MethodInfo method)
 			where T : IQueryableCommand
 			=> commands.ByAttribute((MethodInfoCommandAttribute x) => x.Method == method);
 
-		public static IEnumerable<T> ByName<T>(this IEnumerable<T> commands, IReadOnlyList<string> parts)
-			where T : IQueryableCommand
-			=> commands.ByName(parts, StringComparison.CurrentCulture);
-
-		public static IEnumerable<T> ByName<T>(this IEnumerable<T> commands, IReadOnlyList<string> parts, StringComparison comparisonType)
+		public static IEnumerable<T> ByName<T>(
+			this IEnumerable<T> commands,
+			IReadOnlyList<string> parts,
+			StringComparison comparisonType = StringComparison.CurrentCulture)
 			where T : IQueryableCommand
 		{
 			foreach (var command in commands)

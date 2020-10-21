@@ -130,7 +130,7 @@ namespace YACCS.NamedArguments
 				Parameters = command.Parameters.ToParameterDictionary(x => x.OverriddenParameterName);
 			}
 
-			protected override IResult TryCreateDict(ParseArgs args, out IDictionary<string, string>? dict)
+			protected override IResult TryCreateDict(IReadOnlyList<string> args, out IDictionary<string, string> dict)
 			{
 				var result = base.TryCreateDict(args, out dict);
 				if (!result.IsSuccess)
@@ -140,7 +140,7 @@ namespace YACCS.NamedArguments
 
 				foreach (var kvp in Parameters)
 				{
-					if (!dict!.ContainsKey(kvp.Key) && !kvp.Value.HasDefaultValue)
+					if (!dict.ContainsKey(kvp.Key) && !kvp.Value.HasDefaultValue)
 					{
 						return new NamedArgMissingValueResult(kvp.Key);
 					}

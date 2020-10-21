@@ -15,6 +15,8 @@ namespace YACCS.NamedArguments
 {
 	public class NamedArgumentTypeReader<T> : TypeReader<T> where T : new()
 	{
+		private static readonly ITask<ITypeReaderResult<T>> _ArgCountError
+			= TypeReaderResult<T>.FromError(NamedArgBadCountResult.Instance.Sync).AsITask();
 		private static readonly ITask<ITypeReaderResult<T>> _QuoteError
 			= TypeReaderResult<T>.FromError(QuoteMismatchResult.Instance.Sync).AsITask();
 		private static readonly char[] _TrimEndChars = new[] { ':' };
@@ -48,8 +50,12 @@ namespace YACCS.NamedArguments
 			{
 				return _QuoteError;
 			}
+			if (args.Arguments.Count % 2 != 0)
+			{
+				return _ArgCountError;
+			}
 
-			var result = TryCreateDict(args, out var dict);
+			var result = TryCreateDict(args.Arguments, out var dict);
 			if (!result.IsSuccess)
 			{
 				return TypeReaderResult<T>.FromError(result).AsITask();
@@ -58,18 +64,12 @@ namespace YACCS.NamedArguments
 			return ReadDictIntoInstanceAsync(context, dict!);
 		}
 
-		protected virtual IResult TryCreateDict(ParseArgs args, out IDictionary<string, string>? dict)
+		protected virtual IResult TryCreateDict(IReadOnlyList<string> args, out IDictionary<string, string> dict)
 		{
-			if (args.Arguments.Count % 2 != 0)
-			{
-				dict = null;
-				return NamedArgBadCountResult.Instance.Sync;
-			}
-
 			dict = new Dictionary<string, string>();
-			for (var i = 0; i < args.Arguments.Count; i += 2)
+			for (var i = 0; i < args.Count; i += 2)
 			{
-				var name = args.Arguments[i].TrimStart(_TrimStartChars).TrimEnd(_TrimEndChars);
+				var name = args[i].TrimStart(_TrimStartChars).TrimEnd(_TrimEndChars);
 				if (!Parameters.TryGetValue(name, out var parameter))
 				{
 					return new NamedArgNonExistentResult(name);
@@ -80,7 +80,7 @@ namespace YACCS.NamedArguments
 				{
 					return new NamedArgDuplicateResult(key);
 				}
-				dict.Add(key, args.Arguments[i + 1]);
+				dict.Add(key, args[i + 1]);
 			}
 			return SuccessResult.Instance.Sync;
 		}
