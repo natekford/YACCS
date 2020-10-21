@@ -17,6 +17,7 @@ namespace YACCS.Examples
 {
 	public sealed class Program
 	{
+		private readonly TypeReaderCache _Cache;
 		private readonly ConsoleCommandService _CommandService;
 		private readonly ICommandServiceConfig _Config;
 		private readonly ConsoleHandler _Console;
@@ -29,10 +30,11 @@ namespace YACCS.Examples
 
 		private Program()
 		{
-			_TypeReaders = new TypeReaderRegistry();
-			_Names = new TypeNameRegistry();
-			_Tags = new TagConverter();
+			_Cache = new TypeReaderCache();
 			_Config = CommandServiceConfig.Default;
+			_Names = new TypeNameRegistry();
+			_TypeReaders = new TypeReaderRegistry();
+			_Tags = new TagConverter();
 
 			_Console = new ConsoleHandler(_Names);
 			_HelpFormatter = new HelpFormatter(_Names, _Tags);
@@ -40,6 +42,7 @@ namespace YACCS.Examples
 			_Input = new ConsoleInput(_TypeReaders, _Console);
 
 			_Services = new ServiceCollection()
+				.AddSingleton<ITypeReaderCache>(_Cache)
 				.AddSingleton<ICommandService>(_CommandService)
 				.AddSingleton<IHelpFormatter>(_HelpFormatter)
 				.AddSingleton<IInput<IContext, string>>(_Input)

@@ -3,11 +3,11 @@ using System.IO;
 
 namespace YACCS.Examples
 {
-	public class TrackingReadLineTextWraiter : TrackingTextWriter
+	public class TrackingReadLineTextWriter : TrackingTextWriter
 	{
 		protected string? LastInput { get; set; }
 
-		public TrackingReadLineTextWraiter(TextWriter writer) : base(writer)
+		public TrackingReadLineTextWriter(TextWriter writer) : base(writer)
 		{
 		}
 

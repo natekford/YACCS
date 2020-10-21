@@ -13,12 +13,9 @@ namespace YACCS.Examples
 		private readonly SemaphoreSlim _Input;
 		private readonly ITypeRegistry<string> _Names;
 		private readonly SemaphoreSlim _Output;
-		private readonly TrackingTextWriter _Reader;
 
 		public ConsoleHandler(ITypeRegistry<string> names)
 		{
-			Console.SetOut(_Reader = new TrackingReadLineTextWraiter(Console.Out));
-
 			_Names = names;
 			_Input = new SemaphoreSlim(1, 1);
 			_Output = new SemaphoreSlim(1, 1);
@@ -30,10 +27,19 @@ namespace YACCS.Examples
 			});
 			_ = Task.Run(async () =>
 			{
+#if false
+				var writer = new TrackingReadLineTextWriter(Console.Out);
+				Console.SetOut(writer);
 				while (true)
 				{
-					await _Channel.Writer.WriteAsync(_Reader.ReadLine()).ConfigureAwait(false);
+					await _Channel.Writer.WriteAsync(writer.ReadLine()).ConfigureAwait(false);
 				}
+#else
+				while (true)
+				{
+					await _Channel.Writer.WriteAsync(Console.ReadLine()).ConfigureAwait(false);
+				}
+#endif
 			});
 		}
 

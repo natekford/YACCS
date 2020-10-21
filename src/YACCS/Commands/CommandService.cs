@@ -300,6 +300,7 @@ namespace YACCS.Commands
 			{
 				disposable.Dispose();
 			}
+			context.GetTypeReaderCache().Remove(context);
 			return Task.CompletedTask;
 		}
 

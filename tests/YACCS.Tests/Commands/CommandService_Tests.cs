@@ -686,7 +686,7 @@ namespace YACCS.Tests.Commands
 			await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
 			{
 				var result = await commandService.ProcessTypeReadersAsync(
-					new PreconditionCache(context),
+				new PreconditionCache(context),
 					parameter.ToImmutable(),
 					new[] { "joeba" },
 					0

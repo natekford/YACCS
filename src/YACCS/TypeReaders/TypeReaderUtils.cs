@@ -14,6 +14,8 @@ namespace YACCS.TypeReaders
 {
 	public static class TypeReaderUtils
 	{
+		public static ITypeReaderCache EmptyCache { get; } = new EmptyTypeReaderCache();
+
 		public static ITask<ITypeReaderResult<T>> AsITask<T>(this ITypeReaderResult<T> result)
 			=> Task.FromResult(result).AsITask();
 
@@ -42,6 +44,9 @@ namespace YACCS.TypeReaders
 			this ITypeRegistry<ITypeReader> registry,
 			IImmutableParameter parameter)
 			=> parameter.TypeReader ?? registry.Get(parameter.ParameterType);
+
+		public static ITypeReaderCache GetTypeReaderCache(this IContext context)
+			=> context.Services.GetService<ITypeReaderCache>() ?? EmptyCache;
 
 		public static IEnumerable<TypeReaderInfo> GetTypeReaders(this Assembly assembly)
 		{
@@ -90,6 +95,20 @@ namespace YACCS.TypeReaders
 				throw new ArgumentException(
 					$"A type reader with the output type {reader.OutputType.Name} " +
 					$"cannot be used for a the type {type.Name}.", nameof(reader));
+			}
+		}
+
+		private class EmptyTypeReaderCache : ITypeReaderCache
+		{
+			public ITask<ITypeReaderResult<T>> GetAsync<T>(
+				ITypeReader<T> reader,
+				IContext context,
+				string input,
+				TypeReaderCacheDelegate<T> func)
+				=> func.Invoke(context, input);
+
+			public void Remove(IContext context)
+			{
 			}
 		}
 	}

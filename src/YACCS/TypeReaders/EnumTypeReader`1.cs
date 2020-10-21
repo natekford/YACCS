@@ -1,22 +1,22 @@
 ﻿using System;
 
-using MorseCode.ITask;
-
-using YACCS.Commands;
-
 namespace YACCS.TypeReaders
 {
-	public class EnumTypeReader<TEnum> : TypeReader<TEnum> where TEnum : struct, Enum
+	public delegate bool EnumDelegate<TEnum>(string input, bool ignoreCase, out TEnum result) where TEnum : struct, Enum;
+
+	public class EnumTypeReader<TEnum> : TryParseTypeReader<TEnum> where TEnum : struct, Enum
 	{
-		public override ITask<ITypeReaderResult<TEnum>> ReadAsync(
-			IContext context,
-			ReadOnlyMemory<string> input)
+		public EnumTypeReader() : base(Convert(Enum.TryParse))
 		{
-			if (Enum.TryParse(input.Span[0], ignoreCase: true, out TEnum value))
+		}
+
+		public static TryParseDelegate<TEnum> Convert(EnumDelegate<TEnum> @delegate)
+		{
+			return (string input, out TEnum result) =>
 			{
-				return TypeReaderResult<TEnum>.FromSuccess(value).AsITask();
-			}
-			return TypeReaderResult<TEnum>.Failure.ITask;
+				const bool IGNORE_CASE = true;
+				return @delegate(input, IGNORE_CASE, out result);
+			};
 		}
 	}
 }
