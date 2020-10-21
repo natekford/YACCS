@@ -20,7 +20,6 @@ namespace YACCS.NamedArguments
 		private readonly Lazy<Func<T, string, object>> _Getter;
 		private readonly Lazy<IReadOnlyDictionary<string, IImmutableParameter>> _Parameters;
 
-		protected virtual Func<T, string, object?> Getter => _Getter.Value;
 		protected virtual IReadOnlyDictionary<string, IImmutableParameter> Parameters => _Parameters.Value;
 
 		public NamedArgumentParameterPrecondition()
@@ -45,7 +44,7 @@ namespace YACCS.NamedArguments
 				var parameterInfo = new ParameterInfo(parameter.Command, member);
 				foreach (var precondition in member.Preconditions)
 				{
-					var memberValue = Getter.Invoke(value, id);
+					var memberValue = Getter(value, id);
 					var result = await precondition.CheckAsync(parameterInfo, context, memberValue).ConfigureAwait(false);
 					if (!result.IsSuccess)
 					{
@@ -55,6 +54,9 @@ namespace YACCS.NamedArguments
 			}
 			return SuccessResult.Instance.Sync;
 		}
+
+		protected virtual object? Getter(T instance, string property)
+			=> _Getter.Value.Invoke(instance, property);
 
 		private static Func<T, string, object> CreateGetterDelegate()
 		{

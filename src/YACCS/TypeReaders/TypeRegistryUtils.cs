@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Reflection;
 
+using YACCS.Commands.Models;
+
 namespace YACCS.TypeReaders
 {
 	public static class TypeRegistryUtils
@@ -13,6 +15,33 @@ namespace YACCS.TypeReaders
 				return reader;
 			}
 			throw new ArgumentException($"Invalid type reader registered for {typeof(T).Name}.", nameof(T));
+		}
+
+		public static (bool MakeArray, ITypeReader Reader) Get(
+			this ITypeRegistry<ITypeReader> registry,
+			IImmutableParameter parameter)
+		{
+			// TypeReader is overridden, we /shouldn't/ need to deal with converting
+			// to an enumerable for the dev
+			if (parameter.TypeReader is not null)
+			{
+				return (false, parameter.TypeReader);
+			}
+			// Parameter type is directly in the TypeReader collection, use that
+			var pType = parameter.ParameterType;
+			if (registry.TryGet(pType, out var reader))
+			{
+				return (false, reader);
+			}
+			// Parameter type is not, but the parameter is an enumerable and its enumerable
+			// type is in the TypeReader collection.
+			// Let's read each value for the enumerable separately
+			var eType = parameter.ElementType;
+			if (eType is not null && registry.TryGet(eType, out reader))
+			{
+				return (true, reader);
+			}
+			throw new ArgumentException($"There is no converter specified for {parameter.ParameterType.Name}.");
 		}
 
 		public static IEnumerable<TypeReaderInfo> GetTypeReaders(this Assembly assembly)

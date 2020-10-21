@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -24,7 +23,7 @@ namespace YACCS.NamedArguments
 		private static readonly char[] _TrimStartChars = new[] { '/', '-' };
 
 		private readonly Lazy<IReadOnlyDictionary<string, IImmutableParameter>> _Parameters;
-		private readonly Lazy<Action<T, string, object>> _Setter;
+		private readonly Lazy<Action<T, string, object?>> _Setter;
 
 		protected virtual IReadOnlyDictionary<string, IImmutableParameter> Parameters => _Parameters.Value;
 
@@ -41,12 +40,7 @@ namespace YACCS.NamedArguments
 
 		public override ITask<ITypeReaderResult<T>> ReadAsync(IContext context, string input)
 		{
-			if (!ParseArgs.TryParse(
-				input,
-				CommandServiceUtils.InternallyUsedQuotes,
-				CommandServiceUtils.InternallyUsedQuotes,
-				CommandServiceUtils.InternallyUsedSeparator,
-				out var args))
+			if (!ParseArgs.TryParse(input, out var args))
 			{
 				return _QuoteError;
 			}
@@ -64,7 +58,7 @@ namespace YACCS.NamedArguments
 			return ReadDictIntoInstanceAsync(context, dict!);
 		}
 
-		protected virtual void Setter(T instance, string property, object value)
+		protected virtual void Setter(T instance, string property, object? value)
 			=> _Setter.Value.Invoke(instance, property, value);
 
 		protected virtual IResult TryCreateDict(IReadOnlyList<string> args, out IDictionary<string, string> dict)
@@ -88,7 +82,7 @@ namespace YACCS.NamedArguments
 			return SuccessResult.Instance.Sync;
 		}
 
-		private static Action<T, string, object> CreateSetterDelegate()
+		private static Action<T, string, object?> CreateSetterDelegate()
 		{
 			/*
 			 *	(T Instance, string Name, object Value) =>
@@ -157,7 +151,7 @@ namespace YACCS.NamedArguments
 				.Append(Expression.Label(returnLabel))
 			);
 
-			var lambda = Expression.Lambda<Action<T, string, object>>(
+			var lambda = Expression.Lambda<Action<T, string, object?>>(
 				allAssignExpr,
 				instanceExpr,
 				nameExpr,
@@ -171,19 +165,39 @@ namespace YACCS.NamedArguments
 			IDictionary<string, string> dict)
 		{
 			var registry = context.Services.GetRequiredService<ITypeRegistry<ITypeReader>>();
+
 			var instance = new T();
 			foreach (var kvp in dict)
 			{
 				var parameter = Parameters[kvp.Key];
-				var reader = registry.Get(parameter.ParameterType);
+				var (makeArray, reader) = registry.Get(parameter);
 
-				var result = await reader.ReadAsync(context, kvp.Value).ConfigureAwait(false);
+				ITypeReaderResult result;
+				if (makeArray)
+				{
+					if (!ParseArgs.TryParse(kvp.Value, out var args))
+					{
+						return _QuoteError.Result;
+					}
+
+					result = await new PreconditionCache(context).ProcessArrayTypeReadersAsync(
+						parameter,
+						reader,
+						args.Arguments,
+						0,
+						args.Arguments.Count
+					).ConfigureAwait(false);
+				}
+				else
+				{
+					result = await reader.ReadAsync(context, kvp.Value).ConfigureAwait(false);
+				}
+
 				if (!result.InnerResult.IsSuccess)
 				{
 					return TypeReaderResult<T>.FromError(result.InnerResult);
 				}
-
-				Setter(instance, parameter.ParameterName, result.Value!);
+				Setter(instance, parameter.ParameterName, result.Value);
 			}
 			return TypeReaderResult<T>.FromSuccess(instance);
 		}

@@ -8,7 +8,6 @@ using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
-using YACCS.Parsing;
 using YACCS.Results;
 
 namespace YACCS.NamedArguments
@@ -92,21 +91,19 @@ namespace YACCS.NamedArguments
 		}
 
 		private class GeneratedNamedParameterPrecondition
-			: NamedArgumentParameterPrecondition<IDictionary<string, object?>>
+			: NamedArgumentParameterPrecondition<Dictionary<string, object?>>
 		{
-			protected override Func<IDictionary<string, object?>, string, object?> Getter { get; }
 			protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
 			public GeneratedNamedParameterPrecondition(IImmutableCommand command)
 			{
-				Getter = (dict, key) => dict[key];
 				Parameters = command.Parameters.ToParameterDictionary(x => x.ParameterName);
 			}
 
 			public override Task<IResult> CheckAsync(
 				ParameterInfo parameter,
 				IContext context,
-				[MaybeNull] IDictionary<string, object?> value)
+				[MaybeNull] Dictionary<string, object?> value)
 			{
 				foreach (var kvp in Parameters)
 				{
@@ -117,6 +114,9 @@ namespace YACCS.NamedArguments
 				}
 				return base.CheckAsync(parameter, context, value);
 			}
+
+			protected override object? Getter(Dictionary<string, object?> instance, string property)
+				=> instance[property];
 		}
 
 		private class GeneratedNamedTypeReader : NamedArgumentTypeReader<Dictionary<string, object?>>
@@ -128,7 +128,7 @@ namespace YACCS.NamedArguments
 				Parameters = command.Parameters.ToParameterDictionary(x => x.OverriddenParameterName);
 			}
 
-			protected override void Setter(Dictionary<string, object?> instance, string property, object value)
+			protected override void Setter(Dictionary<string, object?> instance, string property, object? value)
 				=> instance[property] = value;
 
 			protected override IResult TryCreateDict(IReadOnlyList<string> args, out IDictionary<string, string> dict)

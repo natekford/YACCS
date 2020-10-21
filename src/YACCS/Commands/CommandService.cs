@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -287,7 +288,7 @@ namespace YACCS.Commands
 			IReadOnlyList<string> input,
 			int startIndex)
 		{
-			var (makeArray, reader) = GetReader(parameter);
+			var (makeArray, reader) = Readers.Get(parameter);
 			var pLength = parameter.Length ?? int.MaxValue;
 			// Iterate at least once even for arguments with zero length, i.e. IContext
 			var length = Math.Min(input.Count - startIndex, Math.Max(pLength, 1));
@@ -299,37 +300,7 @@ namespace YACCS.Commands
 				return cache.GetResultAsync(reader, str);
 			}
 
-			static async Task<ITypeReaderResult> ProcessTypeReadersAsync(
-				PreconditionCache cache,
-				IImmutableParameter parameter,
-				ITypeReader reader,
-				IReadOnlyList<string> input,
-				int startIndex,
-				int length)
-			{
-				// If an array, test each value one by one
-				var values = new object?[length];
-				for (var i = startIndex; i < startIndex + length; ++i)
-				{
-					var result = await cache.GetResultAsync(reader, input[i]).ConfigureAwait(false);
-					if (!result.InnerResult.IsSuccess)
-					{
-						return result;
-					}
-					values[i - startIndex] = result.Value;
-				}
-
-				// Copy the values from the type reader result list to an array of the parameter type
-				var output = Array.CreateInstance(parameter.ElementType, values.Length);
-				for (var i = 0; i < values.Length; ++i)
-				{
-					output.SetValue(values[i], i);
-				}
-				return TypeReaderResult<object>.FromSuccess(output);
-			}
-
-			return new ValueTask<ITypeReaderResult>(ProcessTypeReadersAsync(
-				cache,
+			return new ValueTask<ITypeReaderResult>(cache.ProcessArrayTypeReadersAsync(
 				parameter,
 				reader,
 				input,
@@ -420,31 +391,6 @@ namespace YACCS.Commands
 			}
 			args = null;
 			return false;
-		}
-
-		private (bool, ITypeReader) GetReader(IImmutableParameter parameter)
-		{
-			// TypeReader is overridden, we /shouldn't/ need to deal with converting
-			// to an enumerable for the dev
-			if (parameter.TypeReader is not null)
-			{
-				return (false, parameter.TypeReader);
-			}
-			// Parameter type is directly in the TypeReader collection, use that
-			var pType = parameter.ParameterType;
-			if (Readers.TryGet(pType, out var reader))
-			{
-				return (false, reader);
-			}
-			// Parameter type is not, but the parameter is an enumerable and its enumerable
-			// type is in the TypeReader collection.
-			// Let's read each value for the enumerable separately
-			var eType = parameter.ElementType;
-			if (eType is not null && Readers.TryGet(eType, out reader))
-			{
-				return (true, reader);
-			}
-			throw new ArgumentException($"There is no converter specified for {parameter.ParameterType.Name}.");
 		}
 
 		private string Join(IReadOnlyList<string> input, int startIndex, int length)
