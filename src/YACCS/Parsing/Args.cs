@@ -190,12 +190,9 @@ namespace YACCS.Parsing
 
 					// No starts before next end means simple quotes
 					// Some starts before next end means nested quotes
-					for (; i < startIndices.Count - 1; ++i)
+					while (i < startIndices.Count - 1 && startIndices[i + 1] < end)
 					{
-						if (startIndices[i + 1] >= end)
-						{
-							break;
-						}
+						++i;
 					}
 
 					previousEnd = endIndices[i];

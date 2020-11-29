@@ -182,7 +182,7 @@ namespace YACCS.Commands
 
 					value = trResult.Value;
 
-					// Length not null, we can juse add it
+					// Length not null, we can just add it
 					if (parameter.Length is not null)
 					{
 						currentIndex += parameter.Length.Value;
