@@ -15,7 +15,6 @@ namespace YACCS.TypeReaders
 			ReadOnlyMemory<string> input)
 		{
 			var registry = context.Services.GetRequiredService<ITypeRegistry<ITypeReader>>();
-			var config = context.Services.GetRequiredService<ICommandServiceConfig>();
 
 			var reader = registry.Get<T>();
 			var values = new List<T>(input.Length);
@@ -28,8 +27,9 @@ namespace YACCS.TypeReaders
 					continue;
 				}
 
+				var config = context.Services.GetRequiredService<ICommandServiceConfig>();
 				// Unseparated arguments need separation
-				if (!ParseArgs.TryParse(
+				if (!Args.TryParse(
 					input.Span[i],
 					config.Separator,
 					config.StartQuotes,

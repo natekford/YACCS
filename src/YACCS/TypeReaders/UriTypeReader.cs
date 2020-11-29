@@ -1,41 +1,36 @@
 ﻿using System;
 
-using MorseCode.ITask;
-
-using YACCS.Commands;
-
 namespace YACCS.TypeReaders
 {
-	public class UriTypeReader : TypeReader<Uri>
+	public class UriTypeReader : TryParseTypeReader<Uri>
 	{
-		private readonly TypeReaderCacheDelegate<Uri> _CacheDelegate = (_, input) =>
+		public UriTypeReader() : base(TryParse)
 		{
-			if (string.IsNullOrWhiteSpace(input))
+		}
+
+		public static bool TryParse(string s, out Uri result)
+		{
+			if (string.IsNullOrWhiteSpace(s))
 			{
-				return TypeReaderResult<Uri>.Failure.ITask;
+				result = null!;
+				return false;
 			}
 
 			try
 			{
-				if (input.StartsWith('<') && input.EndsWith('>'))
+				if (s.StartsWith('<') && s.EndsWith('>'))
 				{
-					input = input[1..^1];
+					s = s[1..^1];
 				}
 
-				return TypeReaderResult<Uri>.FromSuccess(new Uri(input)).AsITask();
+				result = new Uri(s);
+				return true;
 			}
 			catch
 			{
-				return TypeReaderResult<Uri>.Failure.ITask;
+				result = null!;
+				return false;
 			}
-		};
-
-		public override ITask<ITypeReaderResult<Uri>> ReadAsync(
-			IContext context,
-			ReadOnlyMemory<string> input)
-		{
-			var cache = context.GetTypeReaderCache();
-			return cache.GetAsync(this, context, input.Span[0], _CacheDelegate);
 		}
 	}
 }

@@ -7,9 +7,19 @@ using YACCS.Commands;
 namespace YACCS.Parsing
 {
 	/// <summary>
+	/// Validates a start or end quote.
+	/// </summary>
+	/// <param name="quotes"></param>
+	/// <param name="previousChar"></param>
+	/// <param name="currentChar"></param>
+	/// <param name="nextChar"></param>
+	/// <returns></returns>
+	public delegate bool ValidateQuote(IImmutableSet<char> quotes, char? previousChar, char currentChar, char? nextChar);
+
+	/// <summary>
 	/// Parses arbitrarily nested arguments from quoted strings.
 	/// </summary>
-	public readonly struct ParseArgs
+	public static class Args
 	{
 		/// <summary>
 		/// Gets either start or end indices from the supplied string using the supplied quotes.
@@ -43,7 +53,7 @@ namespace YACCS.Parsing
 		}
 
 		/// <summary>
-		/// Parses a <see cref="ParseArgs"/> from the passed in string or throws an exception.
+		/// Parses args from the passed in string or throws an exception.
 		/// </summary>
 		/// <param name="input"></param>
 		/// <returns></returns>
@@ -57,7 +67,7 @@ namespace YACCS.Parsing
 		}
 
 		/// <summary>
-		/// Attempts to parse a <see cref="ParseArgs"/> using the default quote character " for beginning and ending quotes.
+		/// Attempts to parse args using the default quote character " for beginning and ending quotes.
 		/// </summary>
 		/// <param name="input"></param>
 		/// <param name="result"></param>
@@ -74,7 +84,7 @@ namespace YACCS.Parsing
 		}
 
 		/// <summary>
-		/// Attempts to parse a <see cref="ParseArgs"/> from characters indicating the start of a quote and characters indicating the end of a quote.
+		/// Attempts to parse args from characters indicating the start of a quote and characters indicating the end of a quote.
 		/// </summary>
 		/// <param name="input"></param>
 		/// <param name="splitChar"></param>
@@ -113,7 +123,7 @@ namespace YACCS.Parsing
 		}
 
 		/// <summary>
-		/// Attempts to parse a <see cref="ParseArgs"/> from start and end indices.
+		/// Attempts to parse args from start and end indices.
 		/// </summary>
 		/// <param name="input"></param>
 		/// <param name="splitChar"></param>
@@ -180,11 +190,11 @@ namespace YACCS.Parsing
 
 					// No starts before next end means simple quotes
 					// Some starts before next end means nested quotes
-					for (var j = i + 1; j < startIndices.Count; ++j)
+					for (; i < startIndices.Count - 1; ++i)
 					{
-						if (startIndices[j] < end)
+						if (startIndices[i + 1] >= end)
 						{
-							++i;
+							break;
 						}
 					}
 
@@ -243,15 +253,5 @@ namespace YACCS.Parsing
 			}
 			return true;
 		}
-
-		/// <summary>
-		/// Validates a start or end quote.
-		/// </summary>
-		/// <param name="quotes"></param>
-		/// <param name="previousChar"></param>
-		/// <param name="currentChar"></param>
-		/// <param name="nextChar"></param>
-		/// <returns></returns>
-		public delegate bool ValidateQuote(IImmutableSet<char> quotes, char? previousChar, char currentChar, char? nextChar);
 	}
 }

@@ -18,23 +18,17 @@ namespace YACCS.TypeReaders
 	)]
 	public class CommandsTypeReader : TypeReader<IReadOnlyList<IImmutableCommand>>
 	{
-		private readonly TypeReaderCacheDelegate<IReadOnlyList<IImmutableCommand>> _CacheDelegate = (context, input) =>
+		public override ITask<ITypeReaderResult<IReadOnlyList<IImmutableCommand>>> ReadAsync(
+			IContext context,
+			ReadOnlyMemory<string> input)
 		{
 			var commands = context.Services.GetRequiredService<ICommandService>();
-			var found = commands.Find(input);
+			var found = commands.Find(input.Span[0]);
 			if (found.Count > 0)
 			{
 				return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.FromSuccess(found).AsITask();
 			}
 			return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.Failure.ITask;
-		};
-
-		public override ITask<ITypeReaderResult<IReadOnlyList<IImmutableCommand>>> ReadAsync(
-			IContext context,
-			ReadOnlyMemory<string> input)
-		{
-			var cache = context.GetTypeReaderCache();
-			return cache.GetAsync(this, context, input.Span[0], _CacheDelegate);
 		}
 	}
 }

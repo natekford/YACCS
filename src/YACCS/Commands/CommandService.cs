@@ -40,25 +40,18 @@ namespace YACCS.Commands
 			Readers = readers;
 		}
 
-		public async Task<IResult> ExecuteAsync(IContext context, string input)
+		public virtual Task<IResult> ExecuteAsync(IContext context, string input)
 		{
 			if (!TryGetArgs(input, out var args))
 			{
-				return QuoteMismatchResult.Instance.Sync;
+				return QuoteMismatchResult.Instance.Task;
 			}
 			if (args.Length == 0)
 			{
-				return CommandNotFoundResult.Instance.Sync;
+				return CommandNotFoundResult.Instance.Task;
 			}
 
-			var (result, best) = await GetBestMatchAsync(context, args).ConfigureAwait(false);
-			if (!result.IsSuccess)
-			{
-				return result;
-			}
-
-			_ = ExecuteAsync(context, best!.Command!, best!.Args!);
-			return SuccessResult.Instance.Sync;
+			return PrivateExecuteAsync(context, args);
 		}
 
 		public virtual IReadOnlyList<IImmutableCommand> Find(string input)
@@ -174,7 +167,7 @@ namespace YACCS.Commands
 
 				var value = parameter.DefaultValue;
 				// We still have more args to parse so let's look through those
-				if (currentIndex < input.Length)
+				if (currentIndex < input.Length || parameter.Length is null)
 				{
 					var trResult = await ProcessTypeReadersAsync(
 						cache,
@@ -188,7 +181,20 @@ namespace YACCS.Commands
 					}
 
 					value = trResult.Value;
-					currentIndex += parameter.Length ?? int.MaxValue;
+
+					// Length not null, we can juse add it
+					if (parameter.Length is not null)
+					{
+						currentIndex += parameter.Length.Value;
+					}
+					// Last parameter, indicate we're absolutely done via int.MaxValue
+					else if (i == command.Parameters.Count - 1)
+					{
+						currentIndex = int.MaxValue;
+					}
+					// Middle parameter, just go onto next parameter without moving the index
+					// This won't really ever happen in most well designed commands, but with
+					// delegate commands this is the only way to get context passed to it
 				}
 				// We don't have any more args to parse.
 				// If the parameter isn't optional it's a failure
@@ -367,7 +373,7 @@ namespace YACCS.Commands
 			string input,
 			[NotNullWhen(true)] out ReadOnlyMemory<string> args)
 		{
-			if (ParseArgs.TryParse(
+			if (Args.TryParse(
 				input,
 				Config.Separator,
 				Config.StartQuotes,
@@ -379,6 +385,18 @@ namespace YACCS.Commands
 			}
 			args = null;
 			return false;
+		}
+
+		private async Task<IResult> PrivateExecuteAsync(IContext context, ReadOnlyMemory<string> args)
+		{
+			var (result, best) = await GetBestMatchAsync(context, args).ConfigureAwait(false);
+			if (!result.IsSuccess)
+			{
+				return result;
+			}
+
+			_ = ExecuteAsync(context, best!.Command!, best!.Args!);
+			return SuccessResult.Instance.Sync;
 		}
 	}
 }

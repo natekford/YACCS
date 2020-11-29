@@ -20,7 +20,7 @@ namespace YACCS.Tests.Parsing
 		public void Empty_Test()
 		{
 			const string INPUT = "";
-			var parsed = ParseArgs.Parse(INPUT);
+			var parsed = Args.Parse(INPUT);
 
 			Assert.AreEqual(0, parsed.Length);
 		}
@@ -31,7 +31,7 @@ namespace YACCS.Tests.Parsing
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
 				const string INPUT = "\"an end quote is missing";
-				var parsed = ParseArgs.Parse(INPUT);
+				var parsed = Args.Parse(INPUT);
 			});
 		}
 
@@ -39,7 +39,7 @@ namespace YACCS.Tests.Parsing
 		public void NestedQuotes1_Test()
 		{
 			const string INPUT = INPUT_1;
-			var parsed = ParseArgs.Parse(INPUT);
+			var parsed = Args.Parse(INPUT);
 
 			Assert.AreEqual(2, parsed.Length);
 			Assert.AreEqual("A", parsed[0]);
@@ -50,7 +50,7 @@ namespace YACCS.Tests.Parsing
 		public void NestedQuotes2_Test()
 		{
 			const string INPUT = INPUT_2;
-			var parsed = ParseArgs.Parse(INPUT);
+			var parsed = Args.Parse(INPUT);
 
 			Assert.AreEqual(4, parsed.Length);
 			Assert.AreEqual("H", parsed[0]);
@@ -63,7 +63,7 @@ namespace YACCS.Tests.Parsing
 		public void NestedQuotes3_Test()
 		{
 			const string INPUT = INPUT_3;
-			var parsed = ParseArgs.Parse(INPUT);
+			var parsed = Args.Parse(INPUT);
 
 			Assert.AreEqual(8, parsed.Length);
 			Assert.AreEqual("K", parsed[0]);
@@ -80,7 +80,7 @@ namespace YACCS.Tests.Parsing
 		public void NoQuotes_Test()
 		{
 			const string INPUT = "these are some arguments";
-			var parsed = ParseArgs.Parse(INPUT);
+			var parsed = Args.Parse(INPUT);
 			Assert.AreEqual(INPUT.Split(' ').Length, parsed.Length);
 		}
 
@@ -88,7 +88,7 @@ namespace YACCS.Tests.Parsing
 		public void SimpleQuotes_Test()
 		{
 			const string INPUT = "\"test value \"aaaaaa\" dog\"";
-			var parsed = ParseArgs.Parse(INPUT);
+			var parsed = Args.Parse(INPUT);
 
 			var expected = INPUT[1..^1];
 			Assert.AreEqual(1, parsed.Length);
