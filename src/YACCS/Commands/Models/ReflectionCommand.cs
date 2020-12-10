@@ -56,7 +56,7 @@ namespace YACCS.Commands.Models
 				: new[] { immutable };
 		}
 
-		private static IList<IName> GetFullNames(
+		private static IEnumerable<IName> GetFullNames(
 			Type group,
 			MethodInfo method,
 			IEnumerable<string>? extraNames)
@@ -104,7 +104,7 @@ namespace YACCS.Commands.Models
 				type = type.DeclaringType;
 			}
 
-			return output.Select(x => new Name(x)).ToList<IName>();
+			return output.Select(x => new Name(x));
 		}
 
 		private void AddAllParentsAttributes(Type type)

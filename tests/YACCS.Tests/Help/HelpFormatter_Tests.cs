@@ -48,7 +48,7 @@ namespace YACCS.Tests.Help
 			Debug.WriteLine(task.Result);
 		}
 
-		private async Task<(IReadOnlyList<IImmutableCommand>, IHelpFormatter, IContext)> CreateAsync()
+		private static async Task<(IEnumerable<IImmutableCommand>, IHelpFormatter, IContext)> CreateAsync()
 		{
 			var commands = await typeof(CommandGroup).GetDirectCommandsAsync().ConfigureAwait(false);
 			var formatter = new HelpFormatter(new TypeNameRegistry(), new TagConverter());
@@ -98,7 +98,7 @@ namespace YACCS.Tests.Help
 		[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
 		private class CooldownAttribute : PreconditionAttribute, IAsyncRuntimeFormattableAttribute
 		{
-			private Task<bool> ADatabaseCall => Task.Run(async () =>
+			private static Task<bool> ADatabaseCall => Task.Run(async () =>
 			{
 				await Task.Delay(250).ConfigureAwait(false);
 				return new Random().NextDouble() >= 0.5;

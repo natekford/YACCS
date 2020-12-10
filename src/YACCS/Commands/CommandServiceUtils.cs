@@ -87,16 +87,16 @@ namespace YACCS.Commands
 			}
 		}
 
-		public static Task<IReadOnlyList<IImmutableCommand>> GetDirectCommandsAsync(
+		public static Task<IEnumerable<IImmutableCommand>> GetDirectCommandsAsync(
 			this Type type)
 		{
 			var commands = type.CreateMutableCommands();
 			if (commands.Count == 0)
 			{
-				return Task.FromResult<IReadOnlyList<IImmutableCommand>>(Array.Empty<IImmutableCommand>());
+				return Task.FromResult<IEnumerable<IImmutableCommand>>(Array.Empty<IImmutableCommand>());
 			}
 
-			static async Task<IReadOnlyList<IImmutableCommand>> GetDirectCommandsAsync(
+			static async Task<IEnumerable<IImmutableCommand>> GetDirectCommandsAsync(
 				Type type,
 				List<ICommand> commands)
 			{
@@ -105,7 +105,7 @@ namespace YACCS.Commands
 
 				// Commands have been modified by whoever implemented them
 				// We can now return them in an immutable state
-				return commands.SelectMany(x => x.ToImmutable()).ToArray();
+				return commands.SelectMany(x => x.ToImmutable());
 			}
 			return GetDirectCommandsAsync(type, commands);
 		}

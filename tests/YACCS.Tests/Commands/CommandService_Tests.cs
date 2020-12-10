@@ -296,7 +296,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsInstanceOfType(result, typeof(QuoteMismatchResult));
 		}
 
-		private async Task<(CommandService, FakeContext)> CreateAsync()
+		private static async Task<(CommandService, FakeContext)> CreateAsync()
 		{
 			var commandService = new CommandService(new CommandServiceConfig
 			{
@@ -470,7 +470,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsTrue(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
-		private (CommandService, FakeContext, ICommand, IParameter) Create(bool success, int disallowedValue)
+		private static (CommandService, FakeContext, ICommand, IParameter) Create(bool success, int disallowedValue)
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
@@ -557,7 +557,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsTrue(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
-		private (CommandService, FakeContext, IImmutableCommand, IImmutableParameter) Create(int disallowedValue)
+		private static (CommandService, FakeContext, IImmutableCommand, IImmutableParameter) Create(int disallowedValue)
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
@@ -600,7 +600,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
 		}
 
-		private (CommandService, FakeContext, IImmutableCommand) Create(bool success)
+		private static (CommandService, FakeContext, IImmutableCommand) Create(bool success)
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
@@ -797,7 +797,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsInstanceOfType(result.Value, typeof(IContext));
 		}
 
-		private (CommandService, FakeContext, IParameter) Create<T>(int? length)
+		private static (CommandService, FakeContext, IParameter) Create<T>(int? length)
 		{
 			var registry = new TypeReaderRegistry();
 			var config = CommandServiceConfig.Default;
@@ -836,14 +836,14 @@ namespace YACCS.Tests.Commands
 
 		[Command]
 		[Id(_1)]
-		public void CommandOne()
+		public static void CommandOne()
 		{
 		}
 
 		[Command]
 		[Id(_2)]
 		[YACCS.Commands.Attributes.Priority(1000)]
-		public void CommandTwo()
+		public static void CommandTwo()
 		{
 		}
 	}
