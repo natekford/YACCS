@@ -94,8 +94,8 @@ namespace YACCS.Commands.Models
 			}
 		}
 
-		public IImmutableParameter ToImmutable()
-			=> new ImmutableParameter(this);
+		public IImmutableParameter ToImmutable(IImmutableCommand? owner)
+			=> new ImmutableParameter(this, owner);
 
 		private static object? GetDefaultValue(object value)
 		{
@@ -127,6 +127,7 @@ namespace YACCS.Commands.Models
 		private sealed class ImmutableParameter : IImmutableParameter
 		{
 			public IReadOnlyList<object> Attributes { get; }
+			public IImmutableCommand? Command { get; }
 			public object? DefaultValue { get; }
 			public bool HasDefaultValue { get; }
 			public int? Length { get; } = 1;
@@ -139,12 +140,13 @@ namespace YACCS.Commands.Models
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 			private string DebuggerDisplay => $"Name = {ParameterName}, Type = {ParameterType}";
 
-			public ImmutableParameter(Parameter mutable)
+			public ImmutableParameter(Parameter mutable, IImmutableCommand? owner)
 			{
 				DefaultValue = mutable.DefaultValue;
 				HasDefaultValue = mutable.HasDefaultValue;
 				ParameterName = mutable.ParameterName;
 				ParameterType = mutable.ParameterType;
+				Command = owner;
 
 				{
 					var attributes = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);

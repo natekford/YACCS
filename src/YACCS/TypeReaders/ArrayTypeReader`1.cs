@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using MorseCode.ITask;
 
 using YACCS.Commands;
-using YACCS.Parsing;
 
 namespace YACCS.TypeReaders
 {
@@ -15,6 +14,7 @@ namespace YACCS.TypeReaders
 			ReadOnlyMemory<string> input)
 		{
 			var registry = context.Services.GetRequiredService<ITypeRegistry<ITypeReader>>();
+			var service = context.Services.GetRequiredService<ICommandService>();
 
 			var reader = registry.Get<T>();
 			var values = new List<T>(input.Length);
@@ -27,22 +27,15 @@ namespace YACCS.TypeReaders
 					continue;
 				}
 
-				var config = context.Services.GetRequiredService<ICommandServiceConfig>();
 				// Unseparated arguments need separation
-				if (!Args.TryParse(
-					input.Span[i],
-					config.Separator,
-					config.StartQuotes,
-					config.EndQuotes,
-					out var args) || args.Length < 2)
+				if (!service.TryGetArgs(input.Span[i], out var args) || args.Length < 2)
 				{
 					return TypeReaderResult<T[]>.FromError(iResult.InnerResult);
 				}
 
-				var memory = args.AsMemory();
-				for (var j = 0; j < memory.Length; ++j)
+				for (var j = 0; j < args.Length; ++j)
 				{
-					var jResult = await reader.ReadAsync(context, memory.Slice(j, 1)).ConfigureAwait(false);
+					var jResult = await reader.ReadAsync(context, args.Slice(j, 1)).ConfigureAwait(false);
 					if (!jResult.InnerResult.IsSuccess)
 					{
 						return TypeReaderResult<T[]>.FromError(jResult.InnerResult);

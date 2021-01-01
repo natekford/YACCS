@@ -152,7 +152,7 @@ namespace YACCS.Tests.Help
 		private class LessThanOrEqualTo100Attribute : ParameterPreconditionAttribute
 		{
 			public override Task<IResult> CheckAsync(
-				ParameterInfo parameter,
+				IImmutableParameter parameter,
 				IContext context,
 				object? value)
 			{

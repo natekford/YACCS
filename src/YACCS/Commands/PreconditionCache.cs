@@ -26,7 +26,7 @@ namespace YACCS.Commands
 		}
 
 		public ValueTask<IResult> GetResultAsync(
-			ParameterInfo parameter,
+			IImmutableParameter parameter,
 			IParameterPrecondition precondition,
 			object? value)
 		{
@@ -35,17 +35,21 @@ namespace YACCS.Commands
 			{
 				return new ValueTask<IResult>(result);
 			}
-			return new ValueTask<IResult>(GetUncachedResultAsync(parameter, precondition, value, key));
+			return new ValueTask<IResult>(
+				GetUncachedResultAsync(parameter, precondition, value, key));
 		}
 
-		public ValueTask<IResult> GetResultAsync(IImmutableCommand command, IPrecondition precondition)
+		public ValueTask<IResult> GetResultAsync(
+			IImmutableCommand command,
+			IPrecondition precondition)
 		{
 			var key = new PKey(precondition, command);
 			if (_Preconditions.TryGetValue(key, out var result))
 			{
 				return new ValueTask<IResult>(result);
 			}
-			return new ValueTask<IResult>(GetUncachedResultAsync(command, precondition, key));
+			return new ValueTask<IResult>(
+				GetUncachedResultAsync(command, precondition, key));
 		}
 
 		public ValueTask<ITypeReaderResult> GetResultAsync(
@@ -57,11 +61,12 @@ namespace YACCS.Commands
 			{
 				return new ValueTask<ITypeReaderResult>(result);
 			}
-			return new ValueTask<ITypeReaderResult>(GetUncachedResultAsync(reader, value, key));
+			return new ValueTask<ITypeReaderResult>(
+				GetUncachedResultAsync(reader, value, key));
 		}
 
 		private async Task<IResult> GetUncachedResultAsync(
-			ParameterInfo parameter,
+			IImmutableParameter parameter,
 			IParameterPrecondition precondition,
 			object? value,
 			PPKey key)

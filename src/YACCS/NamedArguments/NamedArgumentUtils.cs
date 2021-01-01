@@ -14,16 +14,13 @@ namespace YACCS.NamedArguments
 {
 	public static class NamedArgumentUtils
 	{
-		public static IEnumerable<IImmutableParameter> CreateParameters<T>()
-			=> CreateParameters(typeof(T));
-
-		public static IEnumerable<IImmutableParameter> CreateParameters(Type type)
+		public static IEnumerable<IImmutableParameter> CreateParametersForType(Type type)
 		{
 			var (properties, fields) = type.GetWritableMembers();
 			return properties
 				.Select(x => new Parameter(x))
 				.Concat(fields.Select(x => new Parameter(x)))
-				.Select(x => x.ToImmutable());
+				.Select(x => x.ToImmutable(null));
 		}
 
 		public static IImmutableCommand GenerateNamedArgumentVersion(this IImmutableCommand command)
@@ -82,14 +79,6 @@ namespace YACCS.NamedArguments
 			return newCommand.ToImmutable().Single();
 		}
 
-		public static IReadOnlyDictionary<string, IImmutableParameter> ToParameterDictionary(
-			this IEnumerable<IImmutableParameter> parameters,
-			Func<IImmutableParameter, string> keySelector)
-		{
-			return parameters
-				.ToDictionary(keySelector, x => x, StringComparer.OrdinalIgnoreCase);
-		}
-
 		private class GeneratedNamedParameterPrecondition
 			: NamedArgumentParameterPrecondition<Dictionary<string, object?>>
 		{
@@ -97,11 +86,12 @@ namespace YACCS.NamedArguments
 
 			public GeneratedNamedParameterPrecondition(IImmutableCommand command)
 			{
-				Parameters = command.Parameters.ToParameterDictionary(x => x.ParameterName);
+				Parameters = command.Parameters
+					.ToDictionary(x => x.ParameterName, StringComparer.OrdinalIgnoreCase);
 			}
 
 			public override Task<IResult> CheckAsync(
-				ParameterInfo parameter,
+				IImmutableParameter parameter,
 				IContext context,
 				[MaybeNull] Dictionary<string, object?> value)
 			{
@@ -128,7 +118,8 @@ namespace YACCS.NamedArguments
 
 			public GeneratedNamedTypeReader(IImmutableCommand command)
 			{
-				Parameters = command.Parameters.ToParameterDictionary(x => x.OverriddenParameterName);
+				Parameters = command.Parameters
+					.ToDictionary(x => x.OverriddenParameterName, StringComparer.OrdinalIgnoreCase);
 			}
 
 			protected override void Setter(

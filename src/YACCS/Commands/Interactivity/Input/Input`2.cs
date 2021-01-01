@@ -46,7 +46,8 @@ namespace YACCS.Commands.Interactivity.Input
 				}
 
 				var value = trResult.Value!;
-				var parameter = GenerateInputParameter<TValue>();
+				var parameterBuilder = new Parameter(typeof(TValue), "InputParameter", null);
+				var parameter = parameterBuilder.ToImmutable(null);
 				foreach (var precondition in options.Preconditions)
 				{
 					var result = await precondition.CheckAsync(parameter, context, value).ConfigureAwait(false);
@@ -59,17 +60,6 @@ namespace YACCS.Commands.Interactivity.Input
 				e.SetResult(trResult.Value!);
 				return SuccessResult.Instance.Sync;
 			}));
-		}
-
-		protected static ParameterInfo GenerateInputParameter<TValue>()
-		{
-			var commandBuilder = new DelegateCommand(EmptyDelegate, EmptyNames);
-			var parameterBuilder = new Parameter(typeof(TValue), "InputParameter", null);
-			commandBuilder.Parameters.Add(parameterBuilder);
-
-			var command = commandBuilder.ToImmutable().Single();
-			var parameter = command.Parameters[0];
-			return new ParameterInfo(command, parameter);
 		}
 
 		protected abstract string GetInputString(TInput input);

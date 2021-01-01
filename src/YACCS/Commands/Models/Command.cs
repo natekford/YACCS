@@ -62,7 +62,7 @@ namespace YACCS.Commands.Models
 					var builder = ImmutableArray.CreateBuilder<IImmutableParameter>(mutable.Parameters.Count);
 					for (var i = 0; i < mutable.Parameters.Count; ++i)
 					{
-						var immutable = mutable.Parameters[i].ToImmutable();
+						var immutable = mutable.Parameters[i].ToImmutable(this);
 						builder.Add(immutable);
 
 						// Remainder will always be the last parameter

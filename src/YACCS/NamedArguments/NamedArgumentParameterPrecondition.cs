@@ -13,8 +13,6 @@ using YACCS.Results;
 
 namespace YACCS.NamedArguments
 {
-	using ParameterInfo = Commands.Models.ParameterInfo;
-
 	public class NamedArgumentParameterPrecondition<T> : ParameterPrecondition<IContext, T>
 	{
 		private readonly Lazy<Func<T, string, object>> _Getter;
@@ -26,26 +24,26 @@ namespace YACCS.NamedArguments
 		{
 			_Parameters = new Lazy<IReadOnlyDictionary<string, IImmutableParameter>>(() =>
 			{
-				return NamedArgumentUtils.CreateParameters(typeof(T))
-					.ToParameterDictionary(x => x.ParameterName);
+				return NamedArgumentUtils
+					.CreateParametersForType(typeof(T))
+					.ToDictionary(x => x.ParameterName, StringComparer.OrdinalIgnoreCase);
 			});
 			_Getter = ReflectionUtils.CreateDelegate(CreateGetterDelegate,
 				"getter delegate");
 		}
 
 		public override async Task<IResult> CheckAsync(
-			ParameterInfo parameter,
+			IImmutableParameter parameter,
 			IContext context,
 			[MaybeNull] T value)
 		{
 			foreach (var kvp in Parameters)
 			{
 				var (id, member) = kvp;
-				var parameterInfo = new ParameterInfo(parameter.Command, member);
 				foreach (var precondition in member.Preconditions)
 				{
 					var memberValue = Getter(value, id);
-					var result = await precondition.CheckAsync(parameterInfo, context, memberValue).ConfigureAwait(false);
+					var result = await precondition.CheckAsync(member, context, memberValue).ConfigureAwait(false);
 					if (!result.IsSuccess)
 					{
 						return result;

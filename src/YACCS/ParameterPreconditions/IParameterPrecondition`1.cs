@@ -9,6 +9,9 @@ namespace YACCS.ParameterPreconditions
 {
 	public interface IParameterPrecondition<in TValue> : IParameterPrecondition
 	{
-		Task<IResult> CheckAsync(ParameterInfo parameter, IContext context, [MaybeNull] TValue value);
+		Task<IResult> CheckAsync(
+			IImmutableParameter parameter,
+			IContext context,
+			[MaybeNull] TValue value);
 	}
 }

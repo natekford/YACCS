@@ -24,7 +24,7 @@ namespace YACCS.Examples
 		}
 
 		public override Task<IResult> CheckAsync(
-			ParameterInfo parameter,
+			IImmutableParameter parameter,
 			IContext context,
 			[MaybeNull] int value)
 		{

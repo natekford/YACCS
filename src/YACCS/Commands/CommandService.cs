@@ -205,7 +205,6 @@ namespace YACCS.Commands
 
 				var ppResult = await ProcessParameterPreconditionsAsync(
 					cache,
-					command,
 					parameter,
 					value
 				).ConfigureAwait(false);
@@ -221,7 +220,6 @@ namespace YACCS.Commands
 
 		public ValueTask<IResult> ProcessParameterPreconditionsAsync(
 			PreconditionCache cache,
-			IImmutableCommand command,
 			IImmutableParameter parameter,
 			object? value)
 		{
@@ -232,14 +230,12 @@ namespace YACCS.Commands
 
 			static async Task<IResult> ProcessParameterPreconditionsAsync(
 				PreconditionCache cache,
-				IImmutableCommand command,
 				IImmutableParameter parameter,
 				object? value)
 			{
-				var info = new ParameterInfo(command, parameter);
 				foreach (var precondition in parameter.Preconditions)
 				{
-					var result = await cache.GetResultAsync(info, precondition, value).ConfigureAwait(false);
+					var result = await cache.GetResultAsync(parameter, precondition, value).ConfigureAwait(false);
 					if (!result.IsSuccess)
 					{
 						return result;
@@ -250,7 +246,6 @@ namespace YACCS.Commands
 
 			return new ValueTask<IResult>(ProcessParameterPreconditionsAsync(
 				cache,
-				command,
 				parameter,
 				value
 			));
@@ -298,6 +293,24 @@ namespace YACCS.Commands
 			var length = Math.Max(Math.Min(input.Length - startIndex, pLength), 1);
 			var sliced = input.Slice(startIndex, length);
 			return cache.GetResultAsync(reader, sliced);
+		}
+
+		public virtual bool TryGetArgs(
+			string input,
+			[NotNullWhen(true)] out ReadOnlyMemory<string> args)
+		{
+			if (Args.TryParse(
+				input,
+				Config.Separator,
+				Config.StartQuotes,
+				Config.EndQuotes,
+				out var parsed))
+			{
+				args = parsed;
+				return true;
+			}
+			args = null;
+			return false;
 		}
 
 		protected virtual Task CommandFinishedAsync(IContext context, IImmutableCommand command)
@@ -367,24 +380,6 @@ namespace YACCS.Commands
 			}
 
 			await CommandFinishedAsync(context, command).ConfigureAwait(false);
-		}
-
-		protected virtual bool TryGetArgs(
-			string input,
-			[NotNullWhen(true)] out ReadOnlyMemory<string> args)
-		{
-			if (Args.TryParse(
-				input,
-				Config.Separator,
-				Config.StartQuotes,
-				Config.EndQuotes,
-				out var parsed))
-			{
-				args = parsed;
-				return true;
-			}
-			args = null;
-			return false;
 		}
 
 		private async Task<IResult> PrivateExecuteAsync(IContext context, ReadOnlyMemory<string> args)

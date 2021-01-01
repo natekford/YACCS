@@ -498,10 +498,9 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (commandService, context, command, parameter) = Create(DISALLOWED_VALUE);
+			var (commandService, context, parameter) = Create(DISALLOWED_VALUE);
 			var result = await commandService.ProcessParameterPreconditionsAsync(
 				new PreconditionCache(context),
-				command,
 				parameter,
 				new[] { DISALLOWED_VALUE, DISALLOWED_VALUE + 1, DISALLOWED_VALUE + 2 }
 			).ConfigureAwait(false);
@@ -514,10 +513,9 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (commandService, context, command, parameter) = Create(DISALLOWED_VALUE);
+			var (commandService, context, parameter) = Create(DISALLOWED_VALUE);
 			var result = await commandService.ProcessParameterPreconditionsAsync(
 				new PreconditionCache(context),
-				command,
 				parameter,
 				new[] { DISALLOWED_VALUE + 1, DISALLOWED_VALUE + 2, DISALLOWED_VALUE + 3 }
 			).ConfigureAwait(false);
@@ -530,10 +528,9 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (commandService, context, command, parameter) = Create(DISALLOWED_VALUE);
+			var (commandService, context, parameter) = Create(DISALLOWED_VALUE);
 			var result = await commandService.ProcessParameterPreconditionsAsync(
 				new PreconditionCache(context),
-				command,
 				parameter,
 				DISALLOWED_VALUE
 			).ConfigureAwait(false);
@@ -546,10 +543,9 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (commandService, context, command, parameter) = Create(DISALLOWED_VALUE);
+			var (commandService, context, parameter) = Create(DISALLOWED_VALUE);
 			var result = await commandService.ProcessParameterPreconditionsAsync(
 				new PreconditionCache(context),
-				command,
 				parameter,
 				DISALLOWED_VALUE + 1
 			).ConfigureAwait(false);
@@ -557,7 +553,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsTrue(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
-		private static (CommandService, FakeContext, IImmutableCommand, IImmutableParameter) Create(int disallowedValue)
+		private static (CommandService, FakeContext, IImmutableParameter) Create(int disallowedValue)
 		{
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var context = new FakeContext();
@@ -568,8 +564,8 @@ namespace YACCS.Tests.Commands
 			var commandBuilder = FakeDelegateCommand.New();
 			commandBuilder.Parameters.Add(parameterBuilder);
 			var command = commandBuilder.ToImmutable().Single();
-			var parameter = parameterBuilder.ToImmutable();
-			return (commandService, context, command, parameter);
+			var parameter = parameterBuilder.ToImmutable(command);
+			return (commandService, context, parameter);
 		}
 	}
 
@@ -623,7 +619,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<int[]>(4);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToImmutable(),
+				parameter,
 				value.Select(x => x.ToString()).Append("joeba").Append("trash").ToArray(),
 				0
 			).ConfigureAwait(false);
@@ -644,7 +640,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<int[]>(4);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToImmutable(),
+				parameter,
 				value.Select(x => x.ToString()).ToArray(),
 				0
 			).ConfigureAwait(false);
@@ -665,7 +661,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<int[]>(null);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToImmutable(),
+				parameter,
 				value.Select(x => x.ToString()).ToArray(),
 				0
 			).ConfigureAwait(false);
@@ -686,8 +682,8 @@ namespace YACCS.Tests.Commands
 			await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
 			{
 				var result = await commandService.ProcessTypeReadersAsync(
-				new PreconditionCache(context),
-					parameter.ToImmutable(),
+					new PreconditionCache(context),
+					parameter,
 					new[] { "joeba" },
 					0
 				).ConfigureAwait(false);
@@ -697,11 +693,10 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task ProcessTypeReaderOverridden_Test()
 		{
-			var (commandService, context, parameter) = Create<char>(1);
-			parameter.TypeReader = new CoolCharTypeReader();
+			var (commandService, context, parameter) = Create<char>(1, new CoolCharTypeReader());
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToImmutable(),
+				parameter,
 				new[] { "joeba" },
 				0
 			).ConfigureAwait(false);
@@ -714,7 +709,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<char>(1);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToImmutable(),
+				parameter,
 				new[] { "joeba" },
 				0
 			).ConfigureAwait(false);
@@ -728,7 +723,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<int>(1);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToImmutable(),
+				parameter,
 				new[] { VALUE.ToString() },
 				0
 			).ConfigureAwait(false);
@@ -744,7 +739,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<int>(1);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToImmutable(),
+				parameter,
 				new[] { VALUE.ToString(), "joeba", "trash" },
 				0
 			).ConfigureAwait(false);
@@ -760,7 +755,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<char[]>(4);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToImmutable(),
+				parameter,
 				value,
 				0
 			).ConfigureAwait(false);
@@ -774,7 +769,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<string>(1);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToImmutable(),
+				parameter,
 				new[] { VALUE },
 				0
 			).ConfigureAwait(false);
@@ -789,7 +784,7 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, parameter) = Create<IContext>(0);
 			var result = await commandService.ProcessTypeReadersAsync(
 				new PreconditionCache(context),
-				parameter.ToImmutable(),
+				parameter,
 				new[] { "doesn't matter" },
 				0
 			).ConfigureAwait(false);
@@ -797,7 +792,9 @@ namespace YACCS.Tests.Commands
 			Assert.IsInstanceOfType(result.Value, typeof(IContext));
 		}
 
-		private static (CommandService, FakeContext, IParameter) Create<T>(int? length)
+		private static (CommandService, FakeContext, IImmutableParameter) Create<T>(
+			int? length,
+			ITypeReader? reader = null)
 		{
 			var registry = new TypeReaderRegistry();
 			var config = CommandServiceConfig.Default;
@@ -816,7 +813,8 @@ namespace YACCS.Tests.Commands
 				{
 					new LengthAttribute(length),
 				},
-			};
+				TypeReader = reader,
+			}.ToImmutable(null);
 			return (commandService, context, parameter);
 		}
 
@@ -931,7 +929,10 @@ namespace YACCS.Tests.Commands
 			DisallowedValue = value;
 		}
 
-		public override Task<IResult> CheckAsync(ParameterInfo parameter, FakeContext context, [MaybeNull] int value)
+		public override Task<IResult> CheckAsync(
+			IImmutableParameter parameter,
+			FakeContext context,
+			[MaybeNull] int value)
 			=> value == DisallowedValue ? Result.FromError("lol").AsTask() : SuccessResult.Instance.Task;
 	}
 
@@ -967,7 +968,10 @@ namespace YACCS.Tests.Commands
 	{
 		public bool IWasReached { get; private set; }
 
-		public override Task<IResult> CheckAsync(ParameterInfo parameter, FakeContext context, [MaybeNull] int value)
+		public override Task<IResult> CheckAsync(
+			IImmutableParameter parameter,
+			FakeContext context,
+			[MaybeNull] int value)
 		{
 			IWasReached = true;
 			return SuccessResult.Instance.Task;

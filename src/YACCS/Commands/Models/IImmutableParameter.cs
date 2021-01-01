@@ -7,6 +7,7 @@ namespace YACCS.Commands.Models
 {
 	public interface IImmutableParameter : IImmutableEntityBase, IQueryableParameter
 	{
+		IImmutableCommand? Command { get; }
 		object? DefaultValue { get; }
 		bool HasDefaultValue { get; }
 		int? Length { get; }

@@ -28,8 +28,9 @@ namespace YACCS.NamedArguments
 		{
 			_Parameters = new Lazy<IReadOnlyDictionary<string, IImmutableParameter>>(() =>
 			{
-				return NamedArgumentUtils.CreateParameters<T>()
-					.ToParameterDictionary(x => x.OverriddenParameterName);
+				return NamedArgumentUtils
+					.CreateParametersForType(typeof(T))
+					.ToDictionary(x => x.OverriddenParameterName, StringComparer.OrdinalIgnoreCase);
 			});
 			_Setter = ReflectionUtils.CreateDelegate(CreateSetterDelegate,
 				"setter delegate");

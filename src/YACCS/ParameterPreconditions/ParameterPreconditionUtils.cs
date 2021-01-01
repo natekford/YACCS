@@ -13,10 +13,10 @@ namespace YACCS.ParameterPreconditions
 	{
 		public static Task<IResult> CheckAsync<TContext, TValue>(
 			this IParameterPrecondition _,
-			ParameterInfo parameter,
+			IImmutableParameter parameter,
 			IContext context,
 			object? value,
-			Func<ParameterInfo, TContext, TValue, Task<IResult>> checkAsync)
+			Func<IImmutableParameter, TContext, TValue, Task<IResult>> checkAsync)
 			where TContext : IContext
 		{
 			if (context is not TContext tContext)
@@ -53,10 +53,10 @@ namespace YACCS.ParameterPreconditions
 		}
 
 		private static async Task<IResult> CheckAsync<TContext, TValue>(
-			ParameterInfo parameter,
+			IImmutableParameter parameter,
 			TContext context,
 			IEnumerable<TValue> values,
-			Func<ParameterInfo, TContext, TValue, Task<IResult>> checkAsync)
+			Func<IImmutableParameter, TContext, TValue, Task<IResult>> checkAsync)
 		{
 			foreach (var value in values)
 			{
@@ -70,10 +70,10 @@ namespace YACCS.ParameterPreconditions
 		}
 
 		private static async Task<IResult> CheckAsync<TContext, TValue>(
-			ParameterInfo parameter,
+			IImmutableParameter parameter,
 			TContext context,
 			IEnumerable values,
-			Func<ParameterInfo, TContext, TValue, Task<IResult>> checkAsync)
+			Func<IImmutableParameter, TContext, TValue, Task<IResult>> checkAsync)
 		{
 			foreach (var value in values)
 			{
