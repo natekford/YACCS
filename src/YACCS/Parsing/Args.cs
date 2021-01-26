@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 using YACCS.Commands;
 
@@ -57,7 +58,7 @@ namespace YACCS.Parsing
 		/// </summary>
 		/// <param name="input"></param>
 		/// <returns></returns>
-		public static string[] Parse(string input)
+		public static List<string> Parse(string input)
 		{
 			if (TryParse(input, out var result))
 			{
@@ -72,7 +73,9 @@ namespace YACCS.Parsing
 		/// <param name="input"></param>
 		/// <param name="result"></param>
 		/// <returns></returns>
-		public static bool TryParse(string input, out string[] result)
+		public static bool TryParse(
+			string input,
+			[NotNullWhen(true)] out List<string>? result)
 		{
 			return TryParse(
 				input,
@@ -97,11 +100,11 @@ namespace YACCS.Parsing
 			char splitChar,
 			IImmutableSet<char> startQuotes,
 			IImmutableSet<char> endQuotes,
-			out string[] result)
+			[NotNullWhen(true)] out List<string>? result)
 		{
 			if (string.IsNullOrWhiteSpace(input))
 			{
-				result = Array.Empty<string>();
+				result = new List<string>();
 				return true;
 			}
 
@@ -136,11 +139,11 @@ namespace YACCS.Parsing
 			char splitChar,
 			IReadOnlyList<int> startIndices,
 			IReadOnlyList<int> endIndices,
-			out string[] result)
+			[NotNullWhen(true)] out List<string>? result)
 		{
 			if (startIndices.Count != endIndices.Count)
 			{
-				result = Array.Empty<string>();
+				result = null;
 				return false;
 			}
 
@@ -150,7 +153,7 @@ namespace YACCS.Parsing
 			if (startIndices.Count == 0)
 			{
 				AddRange(args, span, splitChar);
-				result = args.ToArray();
+				result = args;
 				return true;
 			}
 
@@ -159,7 +162,7 @@ namespace YACCS.Parsing
 			if (minStart == 0 && maxEnd == span.Length - 1)
 			{
 				Add(args, span[(minStart + 1)..maxEnd]);
-				result = args.ToArray();
+				result = args;
 				return true;
 			}
 
@@ -205,7 +208,7 @@ namespace YACCS.Parsing
 				AddRange(args, span[(maxEnd + 1)..^0], splitChar);
 			}
 
-			result = args.ToArray();
+			result = args;
 			return true;
 		}
 

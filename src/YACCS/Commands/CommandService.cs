@@ -306,7 +306,7 @@ namespace YACCS.Commands
 				Config.EndQuotes,
 				out var parsed))
 			{
-				args = parsed;
+				args = parsed.ToArray();
 				return true;
 			}
 			args = null;
@@ -319,7 +319,6 @@ namespace YACCS.Commands
 			{
 				disposable.Dispose();
 			}
-			context.GetTypeReaderCache().Remove(context);
 			return Task.CompletedTask;
 		}
 

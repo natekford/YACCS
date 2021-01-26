@@ -22,7 +22,7 @@ namespace YACCS.Tests.Parsing
 			const string INPUT = "";
 			var parsed = Args.Parse(INPUT);
 
-			Assert.AreEqual(0, parsed.Length);
+			Assert.AreEqual(0, parsed.Count);
 		}
 
 		[TestMethod]
@@ -41,7 +41,7 @@ namespace YACCS.Tests.Parsing
 			const string INPUT = INPUT_1;
 			var parsed = Args.Parse(INPUT);
 
-			Assert.AreEqual(2, parsed.Length);
+			Assert.AreEqual(2, parsed.Count);
 			Assert.AreEqual("A", parsed[0]);
 			Assert.AreEqual("B \"C \\\"D E\\\"\" F G", parsed[1]);
 		}
@@ -52,7 +52,7 @@ namespace YACCS.Tests.Parsing
 			const string INPUT = INPUT_2;
 			var parsed = Args.Parse(INPUT);
 
-			Assert.AreEqual(4, parsed.Length);
+			Assert.AreEqual(4, parsed.Count);
 			Assert.AreEqual("H", parsed[0]);
 			Assert.AreEqual("A \"B \"C \\\"D E\\\"\" F G\"", parsed[1]);
 			Assert.AreEqual("I", parsed[2]);
@@ -65,7 +65,7 @@ namespace YACCS.Tests.Parsing
 			const string INPUT = INPUT_3;
 			var parsed = Args.Parse(INPUT);
 
-			Assert.AreEqual(8, parsed.Length);
+			Assert.AreEqual(8, parsed.Count);
 			Assert.AreEqual("K", parsed[0]);
 			Assert.AreEqual("L M", parsed[1]);
 			Assert.AreEqual("N", parsed[2]);
@@ -81,7 +81,7 @@ namespace YACCS.Tests.Parsing
 		{
 			const string INPUT = "these are some arguments";
 			var parsed = Args.Parse(INPUT);
-			Assert.AreEqual(INPUT.Split(' ').Length, parsed.Length);
+			Assert.AreEqual(INPUT.Split(' ').Length, parsed.Count);
 		}
 
 		[TestMethod]
@@ -91,7 +91,7 @@ namespace YACCS.Tests.Parsing
 			var parsed = Args.Parse(INPUT);
 
 			var expected = INPUT[1..^1];
-			Assert.AreEqual(1, parsed.Length);
+			Assert.AreEqual(1, parsed.Count);
 			Assert.AreEqual(expected, parsed[0]);
 		}
 	}
