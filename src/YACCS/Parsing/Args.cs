@@ -8,52 +8,16 @@ using YACCS.Commands;
 namespace YACCS.Parsing
 {
 	/// <summary>
-	/// Validates a start or end quote.
-	/// </summary>
-	/// <param name="quotes"></param>
-	/// <param name="previousChar"></param>
-	/// <param name="currentChar"></param>
-	/// <param name="nextChar"></param>
-	/// <returns></returns>
-	public delegate bool ValidateQuote(IImmutableSet<char> quotes, char? previousChar, char currentChar, char? nextChar);
-
-	/// <summary>
 	/// Parses arbitrarily nested arguments from quoted strings.
 	/// </summary>
 	public static class Args
 	{
 		/// <summary>
-		/// Gets either start or end indices from the supplied string using the supplied quotes.
-		/// </summary>
-		/// <param name="input"></param>
-		/// <param name="quotes"></param>
-		/// <param name="valid"></param>
-		/// <returns></returns>
-		public static IReadOnlyList<int> GetIndices(
-			string input,
-			IImmutableSet<char> quotes,
-			ValidateQuote valid)
-		{
-			var indices = new List<int>();
-			for (var i = 0; i < input.Length; ++i)
-			{
-				var curr = input[i];
-				var prev = i == 0 ? default(char?) : input[i - 1];
-				var next = i == input.Length - 1 ? default(char?) : input[i + 1];
-				if (valid(quotes, prev, curr, next))
-				{
-					indices.Add(i);
-				}
-			}
-			return indices;
-		}
-
-		/// <summary>
 		/// Parses args from the passed in string or throws an exception.
 		/// </summary>
 		/// <param name="input"></param>
 		/// <returns></returns>
-		public static List<string> Parse(string input)
+		public static string[] Parse(string input)
 		{
 			if (TryParse(input, out var result))
 			{
@@ -70,7 +34,7 @@ namespace YACCS.Parsing
 		/// <returns></returns>
 		public static bool TryParse(
 			string input,
-			[NotNullWhen(true)] out List<string>? result)
+			[NotNullWhen(true)] out string[]? result)
 		{
 			return TryParse(
 				input,
@@ -95,158 +59,241 @@ namespace YACCS.Parsing
 			char splitChar,
 			IImmutableSet<char> startQuotes,
 			IImmutableSet<char> endQuotes,
-			[NotNullWhen(true)] out List<string>? result)
+			[NotNullWhen(true)] out string[]? result)
 		{
-			if (string.IsNullOrWhiteSpace(input))
-			{
-				result = new List<string>();
-				return true;
-			}
-
-			var startIndices = GetIndices(input, startQuotes, ValidStartQuote);
-			var endIndices = GetIndices(input, endQuotes, ValidEndQuote);
-			return TryParse(
-				input,
-				splitChar,
-				startIndices,
-				endIndices,
-				out result
-			);
-		}
-
-		/// <summary>
-		/// Attempts to parse args from start and end indices.
-		/// </summary>
-		/// <param name="input"></param>
-		/// <param name="splitChar"></param>
-		/// <param name="startIndices">Assumed to be in order.</param>
-		/// <param name="endIndices">Assumed to be in order</param>
-		/// <param name="result"></param>
-		/// <returns></returns>
-		public static bool TryParse(
-			string input,
-			char splitChar,
-			IReadOnlyList<int> startIndices,
-			IReadOnlyList<int> endIndices,
-			[NotNullWhen(true)] out List<string>? result)
-		{
-			static void Add(ICollection<string> col, ReadOnlySpan<char> input)
+			static void Add(string[] col, ref int index, ReadOnlySpan<char> input)
 			{
 				var trimmed = input.Trim();
 				if (trimmed.Length != 0)
 				{
-					col.Add(trimmed.ToString());
+					col[index] = trimmed.ToString();
+					++index;
 				}
 			}
 
-			static void AddRange(ICollection<string> col, ReadOnlySpan<char> input, char splitChar)
+			static void AddRange(string[] col, ref int index, ReadOnlySpan<char> input, char splitChar)
 			{
 				var lastStart = 0;
 				for (var i = 0; i < input.Length; ++i)
 				{
 					if (input[i] == splitChar)
 					{
-						Add(col, input[lastStart..i]);
+						Add(col, ref index, input[lastStart..i]);
 						lastStart = i;
 					}
 					else if (i == input.Length - 1)
 					{
-						Add(col, input[lastStart..^0]);
+						Add(col, ref index, input[lastStart..^0]);
 					}
 				}
 			}
 
-			if (startIndices.Count != endIndices.Count)
+			if (string.IsNullOrWhiteSpace(input))
+			{
+				result = Array.Empty<string>();
+				return true;
+			}
+
+			var info = GetQuoteInfo(input, splitChar, startQuotes, endQuotes);
+
+			// Quote mismatch, indicate error
+			if (info.CurrentDepth != 0)
 			{
 				result = null;
 				return false;
 			}
 
 			var span = input.AsSpan();
-			var args = new List<string>();
-			// No quotes means just return splitting on space
-			if (startIndices.Count == 0)
+			var index = 0;
+			result = new string[info.Size];
+
+			// No quotes in string, split everything
+			if (info.MinStart == QuoteInfo.DEFAULT)
 			{
-				AddRange(args, span, splitChar);
-				result = args;
+				AddRange(result, ref index, span, splitChar);
 				return true;
 			}
 
-			var minStart = startIndices[0];
-			var maxEnd = endIndices[endIndices.Count - 1];
-			if (minStart == 0 && maxEnd == span.Length - 1)
+			// Entire string is quoted, split nothing
+			if (info.MinStart == 0 && info.MaxEnd == span.Length - 1)
 			{
-				Add(args, span[(minStart + 1)..maxEnd]);
-				result = args;
+				Add(result, ref index, span[(info.MinStart + 1)..info.MaxEnd]);
 				return true;
 			}
 
-			if (minStart != 0)
+			// Quotes start mid way through the string, add the first unquoted bit
+			if (info.MinStart != 0)
 			{
-				AddRange(args, span[0..minStart], splitChar);
+				AddRange(result, ref index, span[0..info.MinStart], splitChar);
 			}
 
-			// If all start indices are less than any end index this is fairly easy
-			// Just pair them off from the outside in
-			if (IsPairedOffOutsideToIn(startIndices, endIndices))
+			// All start indices are less than end indices indicates something similar to
+			// the entire string being quoted, in that everything between those 2 extrema
+			// can be treated as a single quoted string
+			if (info.MaxStart < info.MinEnd)
 			{
-				Add(args, span[(startIndices[0] + 1)..endIndices[endIndices.Count - 1]]);
+				Add(result, ref index, span[(info.MinStart + 1)..info.MaxEnd]);
 			}
 			else
 			{
-				for (int i = 0, previousEnd = int.MaxValue; i < startIndices.Count; ++i)
+				int start = info.MinStart, end = info.MinEnd, previousEnd = int.MaxValue;
+				do
 				{
-					var start = startIndices[i];
-					var end = endIndices[i];
+					// Keep track of the start for this iteration
+					var iStart = start;
 
-					// If the last ending is before the current start that means everything
-					// in between is ignored unless we manually add it + we need to split it
+					// If the previous end is before the current start that means everything
+					// in between is ignored unless we manually add it, so do that
 					if (previousEnd < start)
 					{
-						AddRange(args, span[(previousEnd + 1)..start], splitChar);
+						AddRange(result, ref index, span[(previousEnd + 1)..start], splitChar);
 					}
 
 					// No starts before next end means simple quotes
 					// Some starts before next end means nested quotes
-					while (i < startIndices.Count - 1 && startIndices[i + 1] < end)
+					var nestedCount = 0;
+					// Begin with incrementing start since we already know well enough to
+					// skip the current index
+					for (++start; start < end; ++start)
 					{
-						++i;
+						var (prev, curr, next) = input.GetChars(start);
+						if (ValidStartQuote(startQuotes, prev, curr, next))
+						{
+							++nestedCount;
+						}
+					}
+					// Begin with incrementing end due to the reason explained above
+					for (++end; end <= info.MaxEnd && nestedCount > 0; ++end)
+					{
+						var (prev, curr, next) = input.GetChars(end);
+						if (ValidEndQuote(endQuotes, prev, curr, next))
+						{
+							--nestedCount;
+						}
 					}
 
-					previousEnd = endIndices[i];
-					Add(args, span[(start + 1)..previousEnd]);
-				}
+					// Subtract 1 to account for removing the quote itself
+					previousEnd = end - 1;
+					Add(result, ref index, span[(iStart + 1)..previousEnd]);
+
+					// Iterate to the next start/end quotes
+					for (; start < info.MaxStart; ++start)
+					{
+						var (prev, curr, next) = input.GetChars(start);
+						if (ValidStartQuote(startQuotes, prev, curr, next))
+						{
+							break;
+						}
+					}
+					for (; end < info.MaxEnd; ++end)
+					{
+						var (prev, curr, next) = input.GetChars(end);
+						if (ValidEndQuote(endQuotes, prev, curr, next))
+						{
+							break;
+						}
+					}
+				} while (start <= info.MaxStart);
 			}
 
-			if (maxEnd != span.Length - 1)
+			// Quotes stop mid way through the string, add the last unquoted bit
+			if (info.MaxEnd != span.Length - 1)
 			{
-				AddRange(args, span[(maxEnd + 1)..^0], splitChar);
+				AddRange(result, ref index, span[(info.MaxEnd + 1)..^0], splitChar);
 			}
 
-			result = args;
 			return true;
 		}
 
-		private static bool IsPairedOffOutsideToIn(IReadOnlyList<int> startIndices, IReadOnlyList<int> endIndices)
+		private static (char? Prev, char Curr, char? Next) GetChars(this string input, int i)
 		{
-			for (var s = 0; s < startIndices.Count; ++s)
+			var prev = i == 0 ? default(char?) : input[i - 1];
+			var curr = input[i];
+			var next = i == input.Length - 1 ? default(char?) : input[i + 1];
+			return (prev, curr, next);
+		}
+
+		private static QuoteInfo GetQuoteInfo(
+			string input,
+			char splitChar,
+			IImmutableSet<char> startQuotes,
+			IImmutableSet<char> endQuotes)
+		{
+			const int DEFAULT = QuoteInfo.DEFAULT;
+
+			int maxDepth = 0, currentDepth = 0, size = 1,
+				minStart = DEFAULT, maxStart = DEFAULT, startCount = 0,
+				minEnd = DEFAULT, maxEnd = DEFAULT, endCount = 0;
+			for (var i = 0; i < input.Length; ++i)
 			{
-				var start = startIndices[s];
-				for (var e = 0; e < endIndices.Count; ++e)
+				var (prev, curr, next) = input.GetChars(i);
+				if (currentDepth == 0 && curr == splitChar)
 				{
-					if (start > endIndices[e])
+					++size;
+				}
+				else if (ValidStartQuote(startQuotes, prev, curr, next))
+				{
+					++currentDepth;
+					maxDepth = Math.Max(maxDepth, currentDepth);
+
+					++startCount;
+					maxStart = i;
+					if (minStart == DEFAULT)
 					{
-						return false;
+						minStart = i;
+					}
+				}
+				else if (ValidEndQuote(endQuotes, prev, curr, next))
+				{
+					--currentDepth;
+
+					++endCount;
+					maxEnd = i;
+					if (minEnd == DEFAULT)
+					{
+						minEnd = i;
 					}
 				}
 			}
-			return true;
+			return new QuoteInfo(
+				currentDepth, endCount, maxDepth, maxEnd, maxStart,
+				minEnd, minStart, size, startCount);
 		}
 
 		private static bool ValidEndQuote(IImmutableSet<char> q, char? p, char c, char? n)
 			=> p != '\\' && q.Contains(c) && (n == null || char.IsWhiteSpace(n.Value) || q.Contains(n.Value));
 
-		private static bool ValidStartQuote(IImmutableSet<char> q, char? p, char c, char? ___)
+		private static bool ValidStartQuote(IImmutableSet<char> q, char? p, char c, char? _)
 			=> p != '\\' && q.Contains(c) && (p == null || char.IsWhiteSpace(p.Value));
+
+		private readonly struct QuoteInfo
+		{
+			public const int DEFAULT = -1;
+
+			public int CurrentDepth { get; }
+			public int EndCount { get; }
+			public int MaxDepth { get; }
+			public int MaxEnd { get; }
+			public int MaxStart { get; }
+			public int MinEnd { get; }
+			public int MinStart { get; }
+			public int Size { get; }
+			public int StartCount { get; }
+
+			public QuoteInfo(
+				int currentDepth, int endCount, int maxDepth, int maxEnd, int maxStart,
+				int minEnd, int minStart, int size, int startCount)
+			{
+				CurrentDepth = currentDepth;
+				EndCount = endCount;
+				MaxDepth = maxDepth;
+				MaxEnd = maxEnd;
+				MaxStart = maxStart;
+				MinEnd = minEnd;
+				MinStart = minStart;
+				Size = size;
+				StartCount = startCount;
+			}
+		}
 	}
 }

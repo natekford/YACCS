@@ -306,7 +306,7 @@ namespace YACCS.Commands
 				Config.EndQuotes,
 				out var parsed))
 			{
-				args = parsed.ToArray();
+				args = parsed;
 				return true;
 			}
 			args = null;
