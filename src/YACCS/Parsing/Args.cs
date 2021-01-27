@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
@@ -62,28 +61,36 @@ namespace YACCS.Parsing
 			[NotNullWhen(true)] out string[]? result)
 		{
 			static void Add(string[] col, ref int index, ReadOnlySpan<char> input)
-			{
-				var trimmed = input.Trim();
-				if (trimmed.Length != 0)
-				{
-					col[index] = trimmed.ToString();
-					++index;
-				}
-			}
+				=> col[index++] = input.Trim().ToString();
 
 			static void AddRange(string[] col, ref int index, ReadOnlySpan<char> input, char splitChar)
 			{
+				input = input.Trim();
+				if (input.Length == 0)
+				{
+					return;
+				}
+
 				var lastStart = 0;
+				var inWord = false;
 				for (var i = 0; i < input.Length; ++i)
 				{
 					if (input[i] == splitChar)
 					{
-						Add(col, ref index, input[lastStart..i]);
-						lastStart = i;
+						if (inWord)
+						{
+							Add(col, ref index, input[lastStart..i]);
+							lastStart = i + 1;
+							inWord = false;
+						}
 					}
 					else if (i == input.Length - 1)
 					{
 						Add(col, ref index, input[lastStart..^0]);
+					}
+					else
+					{
+						inWord = true;
 					}
 				}
 			}
@@ -174,7 +181,11 @@ namespace YACCS.Parsing
 
 					// Subtract 1 to account for removing the quote itself
 					previousEnd = end - 1;
-					Add(result, ref index, span[(iStart + 1)..previousEnd]);
+					// Deals with empty quotes being supplied
+					if (start != end)
+					{
+						Add(result, ref index, span[(iStart + 1)..previousEnd]);
+					}
 
 					// Iterate to the next start/end quotes
 					for (; start < info.MaxStart; ++start)
@@ -227,7 +238,9 @@ namespace YACCS.Parsing
 			for (var i = 0; i < input.Length; ++i)
 			{
 				var (prev, curr, next) = input.GetChars(i);
-				if (currentDepth == 0 && curr == splitChar)
+				if (currentDepth == 0
+					&& curr == splitChar
+					&& (!prev.HasValue || prev.Value != splitChar))
 				{
 					++size;
 				}

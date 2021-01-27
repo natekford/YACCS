@@ -11,10 +11,10 @@ namespace YACCS.Tests.Parsing
 	{
 		//A "B "C \"D E\"" F G"
 		public const string INPUT_1 = "A \"B \"C \\\"D E\\\"\" F G\"";
-		//H "A "B "C \"D E\"" F G"" I J
-		public const string INPUT_2 = "H \"" + INPUT_1 + "\" I J";
-		//K "L M" N "H "A "B "C \"D E\"" F G"" I J" O "H "A "B "C \"D E\"" F G"" I J" P Q
-		public const string INPUT_3 = "K \"L M\" N \"" + INPUT_2 + "\" O \"" + INPUT_2 + "\" P Q";
+		//H "A "B "C \"D E\"" F G"" I    J
+		public const string INPUT_2 = "H \"" + INPUT_1 + "\" I    J";
+		//"K" "" "L M" N "H "A "B "C \"D E\"" F G"" I J" O "H "A "B "C \"D E\"" F G"" I J" P Q
+		public const string INPUT_3 = "\"K\" \"\" \"L M\" N \"" + INPUT_2 + "\" O \"" + INPUT_2 + "\" P Q";
 
 		[TestMethod]
 		public void Empty_Test()
@@ -69,9 +69,9 @@ namespace YACCS.Tests.Parsing
 			Assert.AreEqual("K", parsed[0]);
 			Assert.AreEqual("L M", parsed[1]);
 			Assert.AreEqual("N", parsed[2]);
-			Assert.AreEqual("H \"A \"B \"C \\\"D E\\\"\" F G\"\" I J", parsed[3]);
+			Assert.AreEqual("H \"A \"B \"C \\\"D E\\\"\" F G\"\" I    J", parsed[3]);
 			Assert.AreEqual("O", parsed[4]);
-			Assert.AreEqual("H \"A \"B \"C \\\"D E\\\"\" F G\"\" I J", parsed[5]);
+			Assert.AreEqual("H \"A \"B \"C \\\"D E\\\"\" F G\"\" I    J", parsed[5]);
 			Assert.AreEqual("P", parsed[6]);
 			Assert.AreEqual("Q", parsed[7]);
 		}
