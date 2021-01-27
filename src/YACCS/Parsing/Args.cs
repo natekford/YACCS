@@ -38,11 +38,6 @@ namespace YACCS.Parsing
 			for (var i = 0; i < input.Length; ++i)
 			{
 				var curr = input[i];
-				if (!quotes.Contains(curr))
-				{
-					continue;
-				}
-
 				var prev = i == 0 ? default(char?) : input[i - 1];
 				var next = i == input.Length - 1 ? default(char?) : input[i + 1];
 				if (valid(quotes, prev, curr, next))
@@ -108,12 +103,6 @@ namespace YACCS.Parsing
 				return true;
 			}
 
-			static bool ValidStartQuote(IImmutableSet<char> _, char? p, char __, char? ___)
-				=> p != '\\' && (p == null || char.IsWhiteSpace(p.Value));
-
-			static bool ValidEndQuote(IImmutableSet<char> q, char? p, char __, char? n)
-				=> p != '\\' && (n == null || char.IsWhiteSpace(n.Value) || q.Contains(n.Value));
-
 			var startIndices = GetIndices(input, startQuotes, ValidStartQuote);
 			var endIndices = GetIndices(input, endQuotes, ValidEndQuote);
 			return TryParse(
@@ -141,6 +130,32 @@ namespace YACCS.Parsing
 			IReadOnlyList<int> endIndices,
 			[NotNullWhen(true)] out List<string>? result)
 		{
+			static void Add(ICollection<string> col, ReadOnlySpan<char> input)
+			{
+				var trimmed = input.Trim();
+				if (trimmed.Length != 0)
+				{
+					col.Add(trimmed.ToString());
+				}
+			}
+
+			static void AddRange(ICollection<string> col, ReadOnlySpan<char> input, char splitChar)
+			{
+				var lastStart = 0;
+				for (var i = 0; i < input.Length; ++i)
+				{
+					if (input[i] == splitChar)
+					{
+						Add(col, input[lastStart..i]);
+						lastStart = i;
+					}
+					else if (i == input.Length - 1)
+					{
+						Add(col, input[lastStart..^0]);
+					}
+				}
+			}
+
 			if (startIndices.Count != endIndices.Count)
 			{
 				result = null;
@@ -212,32 +227,6 @@ namespace YACCS.Parsing
 			return true;
 		}
 
-		private static void Add(ICollection<string> col, ReadOnlySpan<char> input)
-		{
-			var trimmed = input.Trim();
-			if (trimmed.Length != 0)
-			{
-				col.Add(trimmed.ToString());
-			}
-		}
-
-		private static void AddRange(ICollection<string> col, ReadOnlySpan<char> input, char splitChar)
-		{
-			var lastStart = 0;
-			for (var i = 0; i < input.Length; ++i)
-			{
-				if (input[i] == splitChar)
-				{
-					Add(col, input[lastStart..i]);
-					lastStart = i;
-				}
-				else if (i == input.Length - 1)
-				{
-					Add(col, input[lastStart..^0]);
-				}
-			}
-		}
-
 		private static bool IsPairedOffOutsideToIn(IReadOnlyList<int> startIndices, IReadOnlyList<int> endIndices)
 		{
 			for (var s = 0; s < startIndices.Count; ++s)
@@ -253,5 +242,11 @@ namespace YACCS.Parsing
 			}
 			return true;
 		}
+
+		private static bool ValidEndQuote(IImmutableSet<char> q, char? p, char c, char? n)
+			=> p != '\\' && q.Contains(c) && (n == null || char.IsWhiteSpace(n.Value) || q.Contains(n.Value));
+
+		private static bool ValidStartQuote(IImmutableSet<char> q, char? p, char c, char? ___)
+			=> p != '\\' && q.Contains(c) && (p == null || char.IsWhiteSpace(p.Value));
 	}
 }
