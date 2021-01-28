@@ -18,6 +18,7 @@ namespace YACCS.Commands
 		IReadOnlyCollection<IImmutableCommand> ICommandService.Commands => Commands;
 		protected IAsyncEvent<CommandExecutedEventArgs> CommandExecutedEvent { get; set; }
 		protected ICommandServiceConfig Config { get; set; }
+		protected IQuoteHandler Quoter { get; set; }
 		protected ITypeRegistry<ITypeReader> Readers { get; set; }
 
 		public event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted
@@ -38,6 +39,7 @@ namespace YACCS.Commands
 			CommandExecutedEvent = new AsyncEvent<CommandExecutedEventArgs>();
 			Config = config;
 			Readers = readers;
+			Quoter = new DefaultQuoteHandler(config.Separator, config.StartQuotes, config.EndQuotes);
 		}
 
 		public virtual Task<IResult> ExecuteAsync(IContext context, string input)
@@ -299,18 +301,9 @@ namespace YACCS.Commands
 			string input,
 			[NotNullWhen(true)] out ReadOnlyMemory<string> args)
 		{
-			if (Args.TryParse(
-				input,
-				Config.Separator,
-				Config.StartQuotes,
-				Config.EndQuotes,
-				out var parsed))
-			{
-				args = parsed;
-				return true;
-			}
-			args = null;
-			return false;
+			var result = Args.TryParse(input, Quoter, out var parsed);
+			args = parsed;
+			return result;
 		}
 
 		protected virtual Task CommandFinishedAsync(IContext context, IImmutableCommand command)
