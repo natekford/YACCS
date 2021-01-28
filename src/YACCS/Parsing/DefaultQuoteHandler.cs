@@ -4,7 +4,7 @@ using YACCS.Commands;
 
 namespace YACCS.Parsing
 {
-	public class DefaultQuoteHandler : IQuoteHandler
+	public sealed class DefaultQuoteHandler : IQuoteHandler
 	{
 		private readonly IImmutableSet<char> _End;
 		private readonly char _Split;
