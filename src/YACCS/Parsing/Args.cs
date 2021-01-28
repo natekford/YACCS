@@ -62,25 +62,17 @@ namespace YACCS.Parsing
 				}
 
 				var lastStart = 0;
-				var inWord = false;
 				for (var i = 0; i < input.Length; ++i)
 				{
-					if (quoter.ValidSplit(null, input[i], null))
+					var (prev, curr, next) = input.GetChars(i);
+					if (quoter.ValidSplit(prev, curr, next))
 					{
-						if (inWord)
-						{
-							Add(col, ref index, input[lastStart..i]);
-							lastStart = i + 1;
-							inWord = false;
-						}
+						Add(col, ref index, input[lastStart..i]);
+						lastStart = i + 1;
 					}
 					else if (i == input.Length - 1)
 					{
 						Add(col, ref index, input[lastStart..^0]);
-					}
-					else
-					{
-						inWord = true;
 					}
 				}
 			}
@@ -197,6 +189,14 @@ namespace YACCS.Parsing
 			}
 
 			return true;
+		}
+
+		private static (char? Prev, char Curr, char? Next) GetChars(this ReadOnlySpan<char> input, int i)
+		{
+			var prev = i == 0 ? default(char?) : input[i - 1];
+			var curr = input[i];
+			var next = i == input.Length - 1 ? default(char?) : input[i + 1];
+			return (prev, curr, next);
 		}
 
 		private static (char? Prev, char Curr, char? Next) GetChars(this string input, int i)
