@@ -247,7 +247,7 @@ namespace YACCS.Parsing
 				}
 
 				// Don't use else in this since a quote can technically be both start and end
-				// and we want to return a failure/quote mismatch result instead of throwing
+				// and we want to return a failure instead of throwing ArgumentOutOfRange
 				if (ValidStartQuote(startQuotes, prev, curr, next))
 				{
 					++currentDepth;
