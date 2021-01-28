@@ -22,7 +22,7 @@ namespace YACCS.Parsing
 			{
 				return result;
 			}
-			throw new ArgumentException("There is a quote mismatch.");
+			throw new QuoteMismatchException("There is a quote mismatch.", nameof(input));
 		}
 
 		/// <summary>
@@ -243,8 +243,12 @@ namespace YACCS.Parsing
 					&& (!prev.HasValue || prev.Value != splitChar))
 				{
 					++size;
+					continue;
 				}
-				else if (ValidStartQuote(startQuotes, prev, curr, next))
+
+				// Don't use else in this since a quote can technically be both start and end
+				// and we want to return a failure/quote mismatch result instead of throwing
+				if (ValidStartQuote(startQuotes, prev, curr, next))
 				{
 					++currentDepth;
 					maxDepth = Math.Max(maxDepth, currentDepth);
@@ -256,7 +260,7 @@ namespace YACCS.Parsing
 						minStart = i;
 					}
 				}
-				else if (ValidEndQuote(endQuotes, prev, curr, next))
+				if (ValidEndQuote(endQuotes, prev, curr, next))
 				{
 					--currentDepth;
 
@@ -307,6 +311,29 @@ namespace YACCS.Parsing
 				Size = size;
 				StartCount = startCount;
 			}
+		}
+	}
+
+	public class QuoteMismatchException : ArgumentException
+	{
+		public QuoteMismatchException()
+		{
+		}
+
+		public QuoteMismatchException(string message) : base(message)
+		{
+		}
+
+		public QuoteMismatchException(string message, Exception innerException) : base(message, innerException)
+		{
+		}
+
+		public QuoteMismatchException(string message, string paramName) : base(message, paramName)
+		{
+		}
+
+		public QuoteMismatchException(string message, string paramName, Exception innerException) : base(message, paramName, innerException)
+		{
 		}
 	}
 }

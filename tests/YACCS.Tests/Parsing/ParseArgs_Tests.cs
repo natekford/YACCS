@@ -13,8 +13,8 @@ namespace YACCS.Tests.Parsing
 		public const string INPUT_1 = "A \"B \"C \\\"D E\\\"\" F G\"";
 		//H "A "B "C \"D E\"" F G"" I    J
 		public const string INPUT_2 = "H \"" + INPUT_1 + "\" I    J";
-		//"K" "" "L M" N "H "A "B "C \"D E\"" F G"" I J" O "H "A "B "C \"D E\"" F G"" I J" P Q
-		public const string INPUT_3 = "\"K\" \"\" \"L M\" N \"" + INPUT_2 + "\" O \"" + INPUT_2 + "\" P Q";
+		//"K" "L M" N "H "A "B "C \"D E\"" F G"" I J" O "H "A "B "C \"D E\"" F G"" I J" P Q
+		public const string INPUT_3 = "\"K\" \"L M\" N \"" + INPUT_2 + "\" O \"" + INPUT_2 + "\" P Q";
 
 		[TestMethod]
 		public void Empty_Test()
@@ -28,7 +28,7 @@ namespace YACCS.Tests.Parsing
 		[TestMethod]
 		public void Mismatch_Test()
 		{
-			Assert.ThrowsException<ArgumentException>(() =>
+			Assert.ThrowsException<QuoteMismatchException>(() =>
 			{
 				const string INPUT = "\"an end quote is missing";
 				var parsed = Args.Parse(INPUT);
