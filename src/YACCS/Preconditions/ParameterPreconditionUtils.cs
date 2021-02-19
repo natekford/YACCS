@@ -7,7 +7,7 @@ using YACCS.Commands;
 using YACCS.Commands.Models;
 using YACCS.Results;
 
-namespace YACCS.ParameterPreconditions
+namespace YACCS.Preconditions
 {
 	public static class ParameterPreconditionUtils
 	{

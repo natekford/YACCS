@@ -1,5 +1,7 @@
 ﻿using System;
 
+using YACCS.Commands.Models;
+
 namespace YACCS.Results
 {
 	public class CanceledResult : Result
@@ -197,7 +199,7 @@ namespace YACCS.Results
 	{
 		public object? Value { get; }
 
-		public ValueResult(object? value) : base(true, "")
+		public ValueResult(object? value) : base(true, value?.ToString() ?? "")
 		{
 			Value = value;
 		}

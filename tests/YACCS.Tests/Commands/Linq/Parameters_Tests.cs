@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
-using YACCS.ParameterPreconditions;
+using YACCS.Preconditions;
 using YACCS.Results;
 using YACCS.TypeReaders;
 

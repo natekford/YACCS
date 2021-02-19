@@ -7,7 +7,7 @@ using YACCS.Results;
 
 namespace YACCS.Preconditions
 {
-	public interface IPrecondition
+	public interface IPrecondition : IGroupablePrecondition
 	{
 		Task AfterExecutionAsync(IImmutableCommand command, IContext context, Exception? exception);
 

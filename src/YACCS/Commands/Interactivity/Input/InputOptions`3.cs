@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-using YACCS.ParameterPreconditions;
+using YACCS.Preconditions;
 using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Interactivity.Input

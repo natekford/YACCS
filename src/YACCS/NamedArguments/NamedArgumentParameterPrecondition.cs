@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
-using YACCS.ParameterPreconditions;
+using YACCS.Preconditions;
 using YACCS.Results;
 
 namespace YACCS.NamedArguments

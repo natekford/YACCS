@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-using YACCS.ParameterPreconditions;
+using YACCS.Preconditions;
 using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Interactivity.Input

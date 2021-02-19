@@ -8,7 +8,7 @@ using System.Reflection;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.NamedArguments;
-using YACCS.ParameterPreconditions;
+using YACCS.Preconditions;
 using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Models

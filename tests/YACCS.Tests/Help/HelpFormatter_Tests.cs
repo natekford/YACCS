@@ -12,7 +12,6 @@ using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Help;
 using YACCS.Help.Attributes;
-using YACCS.ParameterPreconditions;
 using YACCS.Preconditions;
 using YACCS.Results;
 
@@ -151,7 +150,7 @@ namespace YACCS.Tests.Help
 		[Summary("The passed in value is less than or equal to 100.")]
 		private class LessThanOrEqualTo100Attribute : ParameterPreconditionAttribute
 		{
-			public override Task<IResult> CheckAsync(
+			protected override Task<IResult> CheckAsync(
 				IImmutableParameter parameter,
 				IContext context,
 				object? value)

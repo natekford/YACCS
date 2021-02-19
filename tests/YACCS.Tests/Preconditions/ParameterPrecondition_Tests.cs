@@ -6,10 +6,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
-using YACCS.ParameterPreconditions;
+using YACCS.Preconditions;
 using YACCS.Results;
 
-namespace YACCS.Tests.ParameterPreconditions
+namespace YACCS.Tests.Preconditions
 {
 	[TestClass]
 	public class ParameterPrecondition_Tests

@@ -5,10 +5,10 @@ using YACCS.Commands;
 using YACCS.Commands.Models;
 using YACCS.Results;
 
-namespace YACCS.ParameterPreconditions
+namespace YACCS.Preconditions
 {
 	public abstract class ParameterPrecondition<TContext, TValue>
-		: IParameterPrecondition<TContext, TValue> where TContext : IContext
+		: GroupablePrecondition, IParameterPrecondition<TContext, TValue> where TContext : IContext
 	{
 		public abstract Task<IResult> CheckAsync(
 			IImmutableParameter parameter,

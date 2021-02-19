@@ -42,15 +42,15 @@ namespace YACCS.Commands
 			Quoter = new DefaultQuoteHandler(config.Separator, config.StartQuotes, config.EndQuotes);
 		}
 
-		public virtual Task<IResult> ExecuteAsync(IContext context, string input)
+		public virtual Task<ICommandResult> ExecuteAsync(IContext context, string input)
 		{
 			if (!TryGetArgs(input, out var args))
 			{
-				return QuoteMismatchResult.Instance.Task;
+				return CommandScore.QuoteMismatchTask;
 			}
 			if (args.Length == 0)
 			{
-				return CommandNotFoundResult.Instance.Task;
+				return CommandScore.CommandNotFoundTask;
 			}
 
 			return PrivateExecuteAsync(context, args);
@@ -79,7 +79,7 @@ namespace YACCS.Commands
 			return Array.Empty<IImmutableCommand>();
 		}
 
-		public virtual async Task<(IResult, CommandScore?)> GetBestMatchAsync(
+		public virtual async Task<CommandScore> GetBestMatchAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
@@ -101,14 +101,13 @@ namespace YACCS.Commands
 						&& best?.InnerResult.IsSuccess == true
 						&& score.InnerResult.IsSuccess)
 					{
-						return (MultiMatchHandlingErrorResult.Instance.Sync, null);
+						return CommandScore.MultiMatch;
 					}
 					best = CommandScore.Max(best, score);
 				}
 			}
 
-			var result = best?.InnerResult ?? CommandNotFoundResult.Instance.Sync;
-			return (result, best);
+			return best ?? CommandScore.CommandNotFound;
 		}
 
 		public ValueTask<CommandScore> GetCommandScoreAsync(
@@ -179,7 +178,7 @@ namespace YACCS.Commands
 					).ConfigureAwait(false);
 					if (!trResult.InnerResult.IsSuccess)
 					{
-						return CommandScore.FromFailedTypeReader(command, context, trResult.InnerResult, i);
+						return CommandScore.FromFailedTypeReader(command, parameter, context, trResult.InnerResult, i);
 					}
 
 					value = trResult.Value;
@@ -202,7 +201,7 @@ namespace YACCS.Commands
 				// If the parameter isn't optional it's a failure
 				else if (!parameter.HasDefaultValue)
 				{
-					return CommandScore.FromFailedOptionalArgs(command, context, i);
+					return CommandScore.FromFailedOptionalArgs(command, parameter, context, i);
 				}
 
 				var ppResult = await ProcessParameterPreconditionsAsync(
@@ -212,7 +211,7 @@ namespace YACCS.Commands
 				).ConfigureAwait(false);
 				if (!ppResult.IsSuccess)
 				{
-					return CommandScore.FromFailedParameterPrecondition(command, context, ppResult, i);
+					return CommandScore.FromFailedParameterPrecondition(command, parameter, context, ppResult, i);
 				}
 
 				args[i] = value;
@@ -374,16 +373,16 @@ namespace YACCS.Commands
 			await CommandFinishedAsync(context, command).ConfigureAwait(false);
 		}
 
-		private async Task<IResult> PrivateExecuteAsync(IContext context, ReadOnlyMemory<string> args)
+		private async Task<ICommandResult> PrivateExecuteAsync(IContext context, ReadOnlyMemory<string> args)
 		{
-			var (result, best) = await GetBestMatchAsync(context, args).ConfigureAwait(false);
-			if (!result.IsSuccess)
+			var best = await GetBestMatchAsync(context, args).ConfigureAwait(false);
+			if (!best.IsSuccess)
 			{
-				return result;
+				return best;
 			}
 
 			_ = ExecuteAsync(context, best!.Command!, best!.Args!);
-			return SuccessResult.Instance.Sync;
+			return best;
 		}
 	}
 }

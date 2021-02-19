@@ -7,7 +7,8 @@ using YACCS.Results;
 
 namespace YACCS.Preconditions
 {
-	public abstract class Precondition<TContext> : IPrecondition<TContext> where TContext : IContext
+	public abstract class Precondition<TContext>
+		: GroupablePrecondition, IPrecondition<TContext> where TContext : IContext
 	{
 		public virtual Task AfterExecutionAsync(IImmutableCommand command, TContext context, Exception? exception)
 			=> Task.CompletedTask;

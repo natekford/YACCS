@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using YACCS.Commands.Models;
-using YACCS.ParameterPreconditions;
+using YACCS.Preconditions;
 using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Linq

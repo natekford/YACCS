@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 
 using YACCS.Commands.Models;
-using YACCS.ParameterPreconditions;
+using YACCS.Preconditions;
 using YACCS.TypeReaders;
 
 namespace YACCS.Help.Models

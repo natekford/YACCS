@@ -69,7 +69,7 @@ namespace YACCS.Examples
 			var context = new ConsoleContext(_Services.CreateScope(), input);
 
 			var result = await _CommandService.ExecuteAsync(context, input).ConfigureAwait(false);
-			if (!result.IsSuccess)
+			if (!result.InnerResult.IsSuccess)
 			{
 				_Console.ReleaseIOLocks();
 			}

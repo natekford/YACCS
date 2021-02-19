@@ -14,7 +14,6 @@ using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
-using YACCS.ParameterPreconditions;
 using YACCS.Preconditions;
 using YACCS.Results;
 using YACCS.TypeReaders;
@@ -172,8 +171,8 @@ namespace YACCS.Tests.Commands
 			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
 			var input = $"{CommandsGroup3._Name2} {CommandsGroup3._Disabled}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
-			Assert.IsFalse(result.IsSuccess);
-			Assert.AreEqual(DisabledPrecondition._DisabledMessage, result.Response);
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.AreEqual(DisabledPrecondition._DisabledMessage, result.InnerResult.Response);
 		}
 
 		[TestMethod]
@@ -181,8 +180,8 @@ namespace YACCS.Tests.Commands
 		{
 			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
 			var result = await commandService.ExecuteAsync(context, "").ConfigureAwait(false);
-			Assert.IsFalse(result.IsSuccess);
-			Assert.IsInstanceOfType(result, typeof(CommandNotFoundResult));
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.IsInstanceOfType(result.InnerResult, typeof(CommandNotFoundResult));
 		}
 
 		[TestMethod]
@@ -201,7 +200,7 @@ namespace YACCS.Tests.Commands
 			sw.Start();
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			sw.Stop();
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 			if (sw.ElapsedMilliseconds >= CommandsGroup3.DELAY - 50)
 			{
 				Assert.Fail("ExecuteAsync did not run in the background.");
@@ -232,7 +231,7 @@ namespace YACCS.Tests.Commands
 
 			var input = $"{CommandsGroup3._Name2} {CommandsGroup3._ThrowsAfter}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 
 			var eArgs1 = await tcs1.Task.ConfigureAwait(false);
 			var eResult1 = eArgs1.Result;
@@ -258,7 +257,7 @@ namespace YACCS.Tests.Commands
 
 			var input = $"{CommandsGroup3._Name2} {CommandsGroup3._Throws}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 
 			var eArgs = await tcs.Task.ConfigureAwait(false);
 			var eResult = eArgs.EventArgs.Result;
@@ -274,8 +273,8 @@ namespace YACCS.Tests.Commands
 			var input = $"{CommandsGroup2._NAME} asdf";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
-			Assert.IsFalse(result.IsSuccess);
-			Assert.IsInstanceOfType(result, typeof(MultiMatchHandlingErrorResult));
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.IsInstanceOfType(result.InnerResult, typeof(MultiMatchHandlingErrorResult));
 		}
 
 		[TestMethod]
@@ -283,8 +282,8 @@ namespace YACCS.Tests.Commands
 		{
 			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
 			var result = await commandService.ExecuteAsync(context, "asdf").ConfigureAwait(false);
-			Assert.IsFalse(result.IsSuccess);
-			Assert.IsInstanceOfType(result, typeof(CommandNotFoundResult));
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.IsInstanceOfType(result.InnerResult, typeof(CommandNotFoundResult));
 		}
 
 		[TestMethod]
@@ -292,8 +291,8 @@ namespace YACCS.Tests.Commands
 		{
 			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
 			var result = await commandService.ExecuteAsync(context, "\"an end quote is missing").ConfigureAwait(false);
-			Assert.IsFalse(result.IsSuccess);
-			Assert.IsInstanceOfType(result, typeof(QuoteMismatchResult));
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.IsInstanceOfType(result.InnerResult, typeof(QuoteMismatchResult));
 		}
 
 		private static async Task<(CommandService, FakeContext)> CreateAsync()

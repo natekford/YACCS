@@ -1,4 +1,6 @@
-﻿using System;
+﻿#pragma warning disable CA1822 // Mark members as static
+
+using System;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -82,17 +84,36 @@ namespace YACCS.Examples
 			Console.ForegroundColor = oldColor;
 		}
 
+		public void WriteResult(ICommandResult result)
+		{
+			var response = FormatResult(result.InnerResult);
+			if (!string.IsNullOrWhiteSpace(response))
+			{
+				if (result.Parameter != null)
+				{
+					response = result.Parameter.OverriddenParameterName + ": " + response;
+				}
+
+				WriteLine(response, result.InnerResult.IsSuccess ? ConsoleColor.Green : ConsoleColor.Red);
+			}
+		}
+
 		public void WriteResult(IResult result)
 		{
-			var response = result switch
-			{
-				ParseFailedResult pfr => $"Failed to parse {_Names.Get(pfr.Type)}.",
-				_ => result.Response,
-			};
+			var response = FormatResult(result);
 			if (!string.IsNullOrWhiteSpace(response))
 			{
 				WriteLine(response, result.IsSuccess ? ConsoleColor.Green : ConsoleColor.Red);
 			}
+		}
+
+		private string FormatResult(IResult result)
+		{
+			return result switch
+			{
+				ParseFailedResult pfr => $"Failed to parse {_Names.Get(pfr.Type)}.",
+				_ => result.Response,
+			};
 		}
 	}
 }

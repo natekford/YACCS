@@ -7,7 +7,7 @@ using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 using YACCS.NamedArguments;
-using YACCS.ParameterPreconditions;
+using YACCS.Preconditions;
 using YACCS.Results;
 using YACCS.TypeReaders;
 
@@ -30,7 +30,7 @@ namespace YACCS.Tests.TypeReaders
 				$" {CommandsGroup.S}: {S}" +
 				$" {CommandsGroup.D}: {D}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 
 			Assert.AreEqual(I, setMe.IntValue);
 			Assert.AreEqual(D, setMe.DoubleValue);
@@ -47,8 +47,8 @@ namespace YACCS.Tests.TypeReaders
 				$" {CommandsGroup.S}: {S}" +
 				$" {CommandsGroup.D}: {D}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
-			Assert.IsFalse(result.IsSuccess);
-			Assert.IsInstanceOfType(result, typeof(InvalidParameterResult));
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.IsInstanceOfType(result.InnerResult, typeof(InvalidParameterResult));
 		}
 
 		[TestMethod]
@@ -61,8 +61,8 @@ namespace YACCS.Tests.TypeReaders
 				$" {CommandsGroup.S}: {S}" +
 				$" {CommandsGroup.D}: {D}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
-			Assert.IsFalse(result.IsSuccess);
-			Assert.IsInstanceOfType(result, typeof(ParseFailedResult<int>));
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.IsInstanceOfType(result.InnerResult, typeof(ParseFailedResult<int>));
 		}
 
 		[TestMethod]
@@ -82,7 +82,7 @@ namespace YACCS.Tests.TypeReaders
 				$" {CommandsGroup.S}: {S}" +
 				$" {CommandsGroup.D}: {D}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 
 			await tcs.Task.ConfigureAwait(false);
 
@@ -107,7 +107,7 @@ namespace YACCS.Tests.TypeReaders
 				$" {CommandsGroup.I}: {I}" +
 				$" {CommandsGroup.D}: {D}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
-			Assert.IsTrue(result.IsSuccess);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
 
 			await tcs.Task.ConfigureAwait(false);
 
@@ -123,8 +123,8 @@ namespace YACCS.Tests.TypeReaders
 
 			const string INPUT = nameof(CommandsGroup.Test3);
 			var result = await commandService.ExecuteAsync(context, INPUT).ConfigureAwait(false);
-			Assert.IsFalse(result.IsSuccess);
-			Assert.IsInstanceOfType(result, typeof(NotEnoughArgsResult));
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.IsInstanceOfType(result.InnerResult, typeof(NotEnoughArgsResult));
 		}
 
 		private async Task<(CommandService, SetMe, FakeContext)> CreateAsync()
@@ -204,7 +204,7 @@ namespace YACCS.Tests.TypeReaders
 
 		private class NotNegative : ParameterPreconditionAttribute
 		{
-			public override Task<IResult> CheckAsync(
+			protected override Task<IResult> CheckAsync(
 				IImmutableParameter parameter,
 				IContext context,
 				object? value)

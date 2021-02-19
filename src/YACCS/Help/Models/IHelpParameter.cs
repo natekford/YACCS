@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 using YACCS.Commands.Models;
-using YACCS.ParameterPreconditions;
+using YACCS.Preconditions;
 using YACCS.TypeReaders;
 
 namespace YACCS.Help.Models
