@@ -16,8 +16,8 @@ namespace YACCS.Examples
 		public ConsoleHandler Writer { get; set; } = null!;
 
 		[Command(nameof(Divide))]
-		public IResult Divide(int a, [NotZero] int b)
-			=> new ValueResult(a / b);
+		public IResult Divide(int numerator, [NotZero] int divisor)
+			=> new ValueResult(numerator / divisor);
 
 		[Command(nameof(Echo))]
 		public void Echo([Remainder] string input)

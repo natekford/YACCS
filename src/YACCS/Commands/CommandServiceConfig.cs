@@ -15,7 +15,7 @@ namespace YACCS.Commands
 		public bool IgnoreExtraArgs { get; set; }
 		public bool IsCaseSensitive { get; set; }
 		public MultiMatchHandling MultiMatchHandling { get; set; } = MultiMatchHandling.Best;
-		public char Separator { get; set; } = ' ';
+		public char Separator { get; set; } = CommandServiceUtils.InternallyUsedSeparator;
 		public HashSet<char> StartQuotes { get; set; } = new HashSet<char> { '"' };
 		IImmutableSet<char> ICommandServiceConfig.EndQuotes => EndQuotes.ToImmutableHashSet();
 		IImmutableSet<char> ICommandServiceConfig.StartQuotes => StartQuotes.ToImmutableHashSet();

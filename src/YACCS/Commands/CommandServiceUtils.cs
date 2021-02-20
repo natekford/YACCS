@@ -38,16 +38,17 @@ namespace YACCS.Commands
 		}
 
 		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
-			this Type type)
+			this Type type,
+			ICommandServiceConfig? config = null)
 		{
-			var commands = await type.GetDirectCommandsAsync().ConfigureAwait(false);
+			var commands = await type.GetDirectCommandsAsync(config).ConfigureAwait(false);
 			foreach (var command in commands)
 			{
 				yield return command;
 			}
 			foreach (var nested in type.GetNestedTypes())
 			{
-				await foreach (var command in nested.GetAllCommandsAsync())
+				await foreach (var command in nested.GetAllCommandsAsync(config))
 				{
 					yield return command;
 				}
@@ -55,11 +56,12 @@ namespace YACCS.Commands
 		}
 
 		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
-			this IEnumerable<Assembly> assemblies)
+			this IEnumerable<Assembly> assemblies,
+			ICommandServiceConfig? config = null)
 		{
 			foreach (var assembly in assemblies)
 			{
-				await foreach (var command in assembly.GetAllCommandsAsync())
+				await foreach (var command in assembly.GetAllCommandsAsync(config))
 				{
 					yield return command;
 				}
@@ -67,19 +69,22 @@ namespace YACCS.Commands
 		}
 
 		public static IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
-			this Assembly assembly)
-			=> assembly.GetExportedTypes().GetDirectCommandsAsync();
+			this Assembly assembly,
+			ICommandServiceConfig? config = null)
+			=> assembly.GetExportedTypes().GetDirectCommandsAsync(config);
 
-		public static IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync<T>()
+		public static IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync<T>(
+			ICommandServiceConfig? config = null)
 			where T : ICommandGroup, new()
-			=> typeof(T).GetAllCommandsAsync();
+			=> typeof(T).GetAllCommandsAsync(config);
 
 		public static async IAsyncEnumerable<IImmutableCommand> GetDirectCommandsAsync(
-			this IEnumerable<Type> types)
+			this IEnumerable<Type> types,
+			ICommandServiceConfig? config = null)
 		{
 			foreach (var type in types)
 			{
-				var commands = await type.GetDirectCommandsAsync().ConfigureAwait(false);
+				var commands = await type.GetDirectCommandsAsync(config).ConfigureAwait(false);
 				foreach (var command in commands)
 				{
 					yield return command;
@@ -88,9 +93,10 @@ namespace YACCS.Commands
 		}
 
 		public static Task<IEnumerable<IImmutableCommand>> GetDirectCommandsAsync(
-			this Type type)
+			this Type type,
+			ICommandServiceConfig? config = null)
 		{
-			var commands = type.CreateMutableCommands();
+			var commands = type.CreateMutableCommands(config);
 			if (commands.Count == 0)
 			{
 				return Task.FromResult<IEnumerable<IImmutableCommand>>(Array.Empty<IImmutableCommand>());
@@ -110,12 +116,15 @@ namespace YACCS.Commands
 			return GetDirectCommandsAsync(type, commands);
 		}
 
-		internal static List<ICommand> CreateMutableCommands(this Type type)
+		internal static List<ICommand> CreateMutableCommands(
+			this Type type,
+			ICommandServiceConfig? config = null)
 		{
 			const BindingFlags FLAGS = 0
 				| BindingFlags.Public
 				| BindingFlags.Instance
 				| BindingFlags.FlattenHierarchy;
+			config ??= CommandServiceConfig.Default;
 
 			var commands = new List<ICommand>();
 			foreach (var method in type.GetMethods(FLAGS))
@@ -127,6 +136,14 @@ namespace YACCS.Commands
 				if (command is null || (!command.AllowInheritance && type != method.DeclaringType))
 				{
 					continue;
+				}
+
+				foreach (var name in command.Names)
+				{
+					if (name.Contains(config.Separator))
+					{
+						throw new ArgumentException("Command names cannot contain the separator.", name);
+					}
 				}
 
 				commands.Add(new ReflectionCommand(method));

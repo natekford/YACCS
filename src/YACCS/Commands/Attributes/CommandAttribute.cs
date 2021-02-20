@@ -12,16 +12,7 @@ namespace YACCS.Commands.Attributes
 
 		public CommandAttribute(params string[] names)
 		{
-			var builder = ImmutableArray.CreateBuilder<string>(names.Length);
-			foreach (var name in names)
-			{
-				if (name.Contains(' '))
-				{
-					throw new ArgumentException("Command names cannot contain spaces.", nameof(names));
-				}
-				builder.Add(name);
-			}
-			Names = builder.MoveToImmutable();
+			Names = names.ToImmutableArray();
 		}
 
 		public CommandAttribute() : this(Array.Empty<string>())

@@ -297,10 +297,11 @@ namespace YACCS.Tests.Commands
 
 		private static async Task<(CommandService, FakeContext)> CreateAsync()
 		{
-			var commandService = new CommandService(new CommandServiceConfig
+			var config = new CommandServiceConfig
 			{
 				MultiMatchHandling = MultiMatchHandling.Error,
-			}, new TypeReaderRegistry());
+			};
+			var commandService = new CommandService(config, new TypeReaderRegistry());
 			var context = new FakeContext();
 
 			var commands = new[]
