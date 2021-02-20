@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Parsing;
+using YACCS.Preconditions;
 using YACCS.Results;
 using YACCS.TypeReaders;
 
@@ -265,12 +266,37 @@ namespace YACCS.Commands
 				PreconditionCache cache,
 				IImmutableCommand command)
 			{
-				foreach (var precondition in command.Preconditions)
+				foreach (var group in command.Preconditions)
 				{
-					var result = await cache.GetResultAsync(command, precondition).ConfigureAwait(false);
-					if (!result.IsSuccess)
+					var orSuccess = false;
+					var orResult = default(IResult?);
+
+					foreach (var precondition in group.Value)
 					{
-						return result;
+						var result = await cache.GetResultAsync(command, precondition).ConfigureAwait(false);
+						if (precondition.Op == GroupOp.And)
+						{
+							if (!result.IsSuccess)
+							{
+								return result;
+							}
+						}
+						else if (precondition.Op == GroupOp.Or)
+						{
+							if (result.IsSuccess)
+							{
+								orSuccess = true;
+							}
+							else
+							{
+								orResult = result;
+							}
+						}
+					}
+
+					if (!orSuccess && orResult != null)
+					{
+						return orResult;
 					}
 				}
 				return SuccessResult.Instance.Sync;
@@ -321,15 +347,18 @@ namespace YACCS.Commands
 
 			// Handling preconditions which may need to modify state when the command to
 			// execute has been found, e.g. cooldown or prevent duplicate long running commands
-			foreach (var precondition in command.Preconditions)
+			foreach (var group in command.Preconditions)
 			{
-				try
+				foreach (var precondition in group.Value)
 				{
-					await precondition.BeforeExecutionAsync(command, context).ConfigureAwait(false);
-				}
-				catch (Exception ex)
-				{
-					exceptions.Add(ex);
+					try
+					{
+						await precondition.BeforeExecutionAsync(command, context).ConfigureAwait(false);
+					}
+					catch (Exception ex)
+					{
+						exceptions.Add(ex);
+					}
 				}
 			}
 
@@ -349,15 +378,18 @@ namespace YACCS.Commands
 				// Handling preconditions which may need to modify state after a command has
 				// finished executing, e.g. on exception remove user from cooldown or release
 				// long running command lock
-				foreach (var precondition in command.Preconditions)
+				foreach (var group in command.Preconditions)
 				{
-					try
+					foreach (var precondition in group.Value)
 					{
-						await precondition.AfterExecutionAsync(command, context, exception).ConfigureAwait(false);
-					}
-					catch (Exception ex)
-					{
-						exceptions.Add(ex);
+						try
+						{
+							await precondition.AfterExecutionAsync(command, context, exception).ConfigureAwait(false);
+						}
+						catch (Exception ex)
+						{
+							exceptions.Add(ex);
+						}
 					}
 				}
 			}

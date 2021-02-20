@@ -12,7 +12,7 @@ namespace YACCS.Commands.Models
 		int MinLength { get; }
 		new IReadOnlyList<IName> Names { get; }
 		IReadOnlyList<IImmutableParameter> Parameters { get; }
-		IReadOnlyList<IPrecondition> Preconditions { get; }
+		IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions { get; }
 		int Priority { get; }
 
 		Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args);

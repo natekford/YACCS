@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -41,7 +42,7 @@ namespace YACCS.Commands.Models
 			public int MinLength { get; }
 			public IReadOnlyList<IName> Names { get; }
 			public IReadOnlyList<IImmutableParameter> Parameters { get; }
-			public IReadOnlyList<IPrecondition> Preconditions { get; }
+			public IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions { get; }
 			public string PrimaryId { get; }
 			public int Priority { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
@@ -87,7 +88,8 @@ namespace YACCS.Commands.Models
 
 				{
 					var attributes = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);
-					var preconditions = new List<IPrecondition>();
+					// Use ConcurrentDictionary because it has GetOrAdd by default, not threading reasons
+					var preconditions = new ConcurrentDictionary<string, List<IPrecondition>>();
 					var p = 0;
 					foreach (var attribute in mutable.Attributes)
 					{
@@ -95,7 +97,19 @@ namespace YACCS.Commands.Models
 						switch (attribute)
 						{
 							case IPrecondition precondition:
-								preconditions.Add(precondition);
+								if (precondition.Groups.Count == 0)
+								{
+									preconditions.GetOrAdd("", _ => new List<IPrecondition>())
+										.Add(precondition);
+								}
+								else
+								{
+									foreach (var group in precondition.Groups)
+									{
+										preconditions.GetOrAdd(group, _ => new List<IPrecondition>())
+											.Add(precondition);
+									}
+								}
 								break;
 
 							case IPriorityAttribute priority:
@@ -108,7 +122,10 @@ namespace YACCS.Commands.Models
 						}
 					}
 					Attributes = attributes.MoveToImmutable();
-					Preconditions = preconditions.ToImmutableArray();
+					Preconditions = preconditions.ToImmutableDictionary(
+						x => x.Key,
+						x => (IReadOnlyList<IPrecondition>)x.Value.ToImmutableArray()
+					)!;
 				}
 
 				PrimaryId ??= Guid.NewGuid().ToString();

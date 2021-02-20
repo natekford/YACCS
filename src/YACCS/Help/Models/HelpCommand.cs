@@ -40,14 +40,17 @@ namespace YACCS.Help.Models
 
 			{
 				var array = ImmutableArray.CreateBuilder<HelpItem<IPrecondition>>(item.Preconditions.Count);
-				foreach (var precondition in item.Preconditions)
+				foreach (var group in item.Preconditions)
 				{
-					var help = new HelpItem<IPrecondition>(precondition);
-					if (help.IsAsyncFormattable())
+					foreach (var precondition in group.Value)
 					{
-						HasAsyncFormattablePreconditions = true;
+						var help = new HelpItem<IPrecondition>(precondition);
+						if (help.IsAsyncFormattable())
+						{
+							HasAsyncFormattablePreconditions = true;
+						}
+						array.Add(help);
 					}
-					array.Add(help);
 				}
 				Preconditions = array.MoveToImmutable();
 			}
