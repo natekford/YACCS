@@ -35,7 +35,7 @@ namespace YACCS.Commands
 
 		public CommandService(ICommandServiceConfig config, IReadOnlyDictionary<Type, ITypeReader> readers)
 		{
-			Commands = new CommandTrie(config.CommandNameComparer, readers);
+			Commands = new CommandTrie(readers, config);
 			CommandExecutedEvent = new AsyncEvent<CommandExecutedEventArgs>();
 			Config = config;
 			Readers = readers;

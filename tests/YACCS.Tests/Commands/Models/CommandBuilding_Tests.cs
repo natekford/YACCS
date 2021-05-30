@@ -24,7 +24,7 @@ namespace YACCS.Tests.Commands.Models
 		public async Task CommandDelegateBuilding_Test()
 		{
 			var @delegate = (Func<IContext, Task<bool>>)((IContext arg) => Task.FromResult(true));
-			var names = new[] { new Name(new[] { "Joe" }) };
+			var names = new[] { new[] { "Joe" } };
 			var command = new DelegateCommand(@delegate, names);
 			var immutable = command.ToImmutable().Single();
 			Assert.AreEqual(names.Length, command.Names.Count);
@@ -83,7 +83,7 @@ namespace YACCS.Tests.Commands.Models
 				=> str = value;
 
 			var @delegate = (Action<string>)Delegate;
-			var names = new[] { new Name(new[] { "Joe" }) };
+			var names = new[] { new[] { "Joe" } };
 			var command = new DelegateCommand(@delegate, names);
 			var immutable = command.ToImmutable().Single();
 			Assert.AreEqual(1, immutable.Parameters.Count);
@@ -98,7 +98,7 @@ namespace YACCS.Tests.Commands.Models
 			}
 
 			var @delegate = (Action<int>)Delegate;
-			var names = new[] { new Name(new[] { "Joe" }) };
+			var names = new[] { new[] { "Joe" } };
 			var command = new DelegateCommand(@delegate, names);
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
@@ -112,7 +112,7 @@ namespace YACCS.Tests.Commands.Models
 			static Task<bool> Method(IContext arg) => Task.FromResult(true);
 
 			var @delegate = (Func<IContext, Task<bool>>)Method;
-			var names = new[] { new Name(new[] { "Joe" }) };
+			var names = new[] { new[] { "Joe" } };
 			var command = new DelegateCommand(@delegate, names);
 			var immutable = command.ToImmutable().Single();
 			Assert.AreEqual(names.Length, command.Names.Count);

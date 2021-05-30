@@ -12,8 +12,8 @@ namespace YACCS.Commands
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public sealed class CommandTrie : ITrie<IImmutableCommand>
 	{
+		private readonly ICommandServiceConfig _Config;
 		private readonly IReadOnlyDictionary<Type, ITypeReader> _Readers;
-		private readonly IEqualityComparer<string> _StringComparer;
 		private HashSet<IImmutableCommand> _Items;
 		private Node _Root;
 
@@ -22,21 +22,40 @@ namespace YACCS.Commands
 		public int Count => _Items.Count;
 		private string DebuggerDisplay => $"Count = {Count}";
 
-		public CommandTrie(IEqualityComparer<string> stringComparer, IReadOnlyDictionary<Type, ITypeReader> readers)
+		public CommandTrie(
+			IReadOnlyDictionary<Type, ITypeReader> readers,
+			ICommandServiceConfig config)
 		{
-			_StringComparer = stringComparer;
 			_Readers = readers;
-			_Root = new Node(null, null, _StringComparer);
+			_Config = config;
+			_Root = new Node(null, null, _Config.CommandNameComparer);
 			_Items = new HashSet<IImmutableCommand>();
 		}
 
 		public int Add(IImmutableCommand item)
 		{
+			if (item.Names.Count == 0)
+			{
+				throw new ArgumentException("Cannot add a command with no name.", nameof(item));
+			}
+
+			// Very that every name is valid
+			foreach (var name in item.Names)
+			{
+				foreach (var part in name)
+				{
+					if (part.Contains(_Config.Separator))
+					{
+						throw new ArgumentException($"Command names cannot contain the separator ({name}).", nameof(item));
+					}
+				}
+			}
+
+			// Verify that every parameter has a type reader
 			foreach (var parameter in item.Parameters)
 			{
 				try
 				{
-					// Verify that every type has a reader
 					_ = _Readers.GetTypeReader(parameter);
 				}
 				catch (Exception ex)
@@ -54,7 +73,7 @@ namespace YACCS.Commands
 					var key = name[i];
 					if (!node.TryGetEdge(key, out var next))
 					{
-						node[key] = next = new Node(key, node, _StringComparer);
+						node[key] = next = new Node(key, node, _Config.CommandNameComparer);
 					}
 					if (i == name.Count - 1 && next.Add(item))
 					{
@@ -72,7 +91,7 @@ namespace YACCS.Commands
 
 		public void Clear()
 		{
-			_Root = new Node(null, null, _StringComparer);
+			_Root = new Node(null, null, _Config.CommandNameComparer);
 			_Items = new HashSet<IImmutableCommand>();
 		}
 

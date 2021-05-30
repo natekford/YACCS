@@ -17,13 +17,13 @@ namespace YACCS.Tests.Commands
 	{
 		private const string DUPE_ID = "dupe_id";
 		private readonly CommandTrie _Trie
-			= new(StringComparer.OrdinalIgnoreCase, new TypeReaderRegistry());
+			= new(new TypeReaderRegistry(), CommandServiceConfig.Default);
 
 		[TestMethod]
 		public void AddAndRemove_Tests()
 		{
 			var c1 = FakeDelegateCommand.New()
-				.AddName(new Name(new[] { "1" }))
+				.AddName(new[] { "1" })
 				.ToImmutable()
 				.Single();
 			Assert.AreEqual(1, _Trie.Add(c1));
@@ -32,8 +32,8 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(1, _Trie.Root["1"].Items.Count);
 
 			var c2 = FakeDelegateCommand.New()
-				.AddName(new Name(new[] { "2" }))
-				.AddName(new Name(new[] { "3" }))
+				.AddName(new[] { "2" })
+				.AddName(new[] { "3" })
 				.ToImmutable()
 				.Single();
 			Assert.AreEqual(2, _Trie.Add(c2));
@@ -44,9 +44,9 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(1, _Trie.Root["3"].Items.Count);
 
 			var c3 = FakeDelegateCommand.New()
-				.AddName(new Name(new[] { "4", "1" }))
-				.AddName(new Name(new[] { "4", "2" }))
-				.AddName(new Name(new[] { "4", "3" }))
+				.AddName(new[] { "4", "1" })
+				.AddName(new[] { "4", "2" })
+				.AddName(new[] { "4", "3" })
 				.ToImmutable()
 				.Single();
 			Assert.AreEqual(3, _Trie.Add(c3));
@@ -58,7 +58,7 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(1, _Trie.Root["4"]["3"].GetAllItems().Count);
 
 			var c4 = FakeDelegateCommand.New()
-				.AddName(new Name(new[] { "4", "1" }))
+				.AddName(new[] { "4", "1" })
 				.ToImmutable()
 				.Single();
 			Assert.AreEqual(1, _Trie.Add(c4));
@@ -71,7 +71,7 @@ namespace YACCS.Tests.Commands
 
 			var c5 = FakeDelegateCommand.New()
 				.AddAttribute(new IdAttribute(DUPE_ID))
-				.AddName(new Name(new[] { "5" }))
+				.AddName(new[] { "5" })
 				.ToImmutable()
 				.Single();
 			((ICollection<IImmutableCommand>)_Trie).Add(c5);
@@ -80,7 +80,7 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(1, _Trie.Root["5"].Items.Count);
 
 			var c6 = FakeDelegateCommand.New()
-				.AddName(new Name(new[] { "4" }))
+				.AddName(new[] { "4" })
 				.ToImmutable()
 				.Single();
 			Assert.AreEqual(1, _Trie.Remove(c4));
@@ -112,12 +112,10 @@ namespace YACCS.Tests.Commands
 		public void ContainsLotsOfName_Test()
 		{
 			var command = FakeDelegateCommand.New();
-			var array = new string[1];
 			const int COUNT = 100000;
 			for (var i = 0; i < COUNT; ++i)
 			{
-				array[0] = i.ToString();
-				command.AddName(new Name(array));
+				command.AddName(new[] { i.ToString() });
 			}
 			var immutable = command.ToImmutable().Single();
 
@@ -130,7 +128,7 @@ namespace YACCS.Tests.Commands
 		public void Duplicate_Tests()
 		{
 			var c1 = FakeDelegateCommand.New()
-				.AddName(new Name(new[] { "a" }))
+				.AddName(new[] { "a" })
 				.AddAttribute(new IdAttribute(DUPE_ID))
 				.ToImmutable()
 				.Single();
@@ -140,7 +138,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsTrue(_Trie.Contains(c1));
 
 			var c2 = FakeDelegateCommand.New()
-				.AddName(new Name(new[] { "a" }))
+				.AddName(new[] { "a" })
 				.AddAttribute(new IdAttribute(DUPE_ID))
 				.ToImmutable()
 				.Single();
@@ -149,7 +147,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsTrue(_Trie.Contains(c2));
 
 			var c3 = FakeDelegateCommand.New()
-				.AddName(new Name(new[] { "b" }))
+				.AddName(new[] { "b" })
 				.AddAttribute(new IdAttribute(DUPE_ID))
 				.ToImmutable()
 				.Single();
@@ -159,7 +157,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsTrue(_Trie.Contains(c3));
 
 			var @delegate = (Action<string>)(x => { });
-			var c4 = new DelegateCommand(@delegate, new[] { new Name(new[] { "a" }) })
+			var c4 = new DelegateCommand(@delegate, new[] { new[] { "a" } })
 				.AddAttribute(new IdAttribute(DUPE_ID))
 				.ToImmutable()
 				.Single();
@@ -170,14 +168,29 @@ namespace YACCS.Tests.Commands
 		}
 
 		[TestMethod]
+		public void NameWithSeparator_Test()
+		{
+			var command = FakeDelegateCommand.New()
+				.AddName(new[] { "asdf asdf", "bob" })
+				.ToImmutable()
+				.Single();
+			Assert.ThrowsException<ArgumentException>(() =>
+			{
+				_Trie.Add(command);
+			});
+		}
+
+		[TestMethod]
 		public void NoName_Test()
 		{
 			var command = FakeDelegateCommand.New()
 				.ToImmutable()
 				.Single();
 			Assert.IsFalse(_Trie.Contains(command));
-			Assert.AreEqual(0, _Trie.Add(command));
-			Assert.IsFalse(_Trie.Contains(command));
+			Assert.ThrowsException<ArgumentException>(() =>
+			{
+				_Trie.Add(command);
+			});
 		}
 	}
 }

@@ -47,7 +47,7 @@ namespace YACCS.Tests.Commands.Linq
 		{
 			var command = _Commands.GetCommandById<FakeContext>(NORM_ID);
 			Assert.AreEqual(0, command.Names.Count);
-			command.AddName(new Name(new[] { "joe", "mama" }));
+			command.AddName(new[] { "joe", "mama" });
 			Assert.AreEqual(1, command.Names.Count);
 		}
 

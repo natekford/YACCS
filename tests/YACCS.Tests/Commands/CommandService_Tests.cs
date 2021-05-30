@@ -31,14 +31,14 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(0, collection.Count);
 
 			var c1 = FakeDelegateCommand.New()
-				.AddName(new Name(new[] { "1" }))
+				.AddName(new[] { "1" })
 				.ToImmutable()
 				.Single();
 			collection.Add(c1);
 			Assert.AreEqual(1, collection.Count);
 
 			var c2 = FakeDelegateCommand.New()
-				.AddName(new Name(new[] { "2" }))
+				.AddName(new[] { "2" })
 				.ToImmutable()
 				.Single();
 			collection.Add(c2);
@@ -58,7 +58,7 @@ namespace YACCS.Tests.Commands
 			var collection = commandService.Commands;
 
 			static void Method(Fake x) { }
-			var c1 = new DelegateCommand((Action<Fake>)Method, new[] { new Name(new[] { "1" }) });
+			var c1 = new DelegateCommand((Action<Fake>)Method, new[] { new[] { "1" } });
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
 				collection.Add(c1.ToImmutable().Single());
@@ -80,25 +80,25 @@ namespace YACCS.Tests.Commands
 			var collection = commandService.Commands;
 
 			var c1 = FakeDelegateCommand.New()
-				.AddName(new Name(new[] { "1" }))
+				.AddName(new[] { "1" })
 				.ToImmutable()
 				.Single();
 			collection.Add(c1);
 			var c2 = FakeDelegateCommand.New()
-				.AddName(new Name(new[] { "2" }))
-				.AddName(new Name(new[] { "3" }))
+				.AddName(new[] { "2" })
+				.AddName(new[] { "3" })
 				.ToImmutable()
 				.Single();
 			collection.Add(c2);
 			var c3 = FakeDelegateCommand.New()
-				.AddName(new Name(new[] { "4", "1" }))
-				.AddName(new Name(new[] { "4", "2" }))
-				.AddName(new Name(new[] { "4", "3" }))
+				.AddName(new[] { "4", "1" })
+				.AddName(new[] { "4", "2" })
+				.AddName(new[] { "4", "3" })
 				.ToImmutable()
 				.Single();
 			collection.Add(c3);
 			var c4 = FakeDelegateCommand.New()
-				.AddName(new Name(new[] { "4", "1" }))
+				.AddName(new[] { "4", "1" })
 				.ToImmutable()
 				.Single();
 			collection.Add(c4);
