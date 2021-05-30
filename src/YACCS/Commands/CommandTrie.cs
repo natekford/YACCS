@@ -49,14 +49,14 @@ namespace YACCS.Commands
 			foreach (var name in item.Names)
 			{
 				var node = _Root;
-				for (var i = 0; i < name.Parts.Count; ++i)
+				for (var i = 0; i < name.Count; ++i)
 				{
-					var key = name.Parts[i];
+					var key = name[i];
 					if (!node.TryGetEdge(key, out var next))
 					{
 						node[key] = next = new Node(key, node, _StringComparer);
 					}
-					if (i == name.Parts.Count - 1 && next.Add(item))
+					if (i == name.Count - 1 && next.Add(item))
 					{
 						++added;
 					}
@@ -91,13 +91,13 @@ namespace YACCS.Commands
 			foreach (var name in item.Names)
 			{
 				var node = _Root;
-				for (var i = 0; i < name.Parts.Count; ++i)
+				for (var i = 0; i < name.Count; ++i)
 				{
-					if (!node.TryGetEdge(name.Parts[i], out node))
+					if (!node.TryGetEdge(name[i], out node))
 					{
 						break;
 					}
-					if (i == name.Parts.Count - 1 && node.Contains(item))
+					if (i == name.Count - 1 && node.Contains(item))
 					{
 						return true;
 					}
@@ -130,13 +130,13 @@ namespace YACCS.Commands
 			foreach (var name in item.Names)
 			{
 				var node = _Root;
-				for (var i = 0; i < name.Parts.Count; ++i)
+				for (var i = 0; i < name.Count; ++i)
 				{
-					if (!node.TryGetEdge(name.Parts[i], out node))
+					if (!node.TryGetEdge(name[i], out node))
 					{
 						break;
 					}
-					if (i == name.Parts.Count - 1 && node.Remove(item))
+					if (i == name.Count - 1 && node.Remove(item))
 					{
 						++removed;
 					}

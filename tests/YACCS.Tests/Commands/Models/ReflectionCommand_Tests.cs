@@ -28,7 +28,7 @@ namespace YACCS.Tests.Commands.Models
 					.BuildServiceProvider(),
 			};
 
-			var result = await command.ExecuteAsync(context, new object?[0]).ConfigureAwait(false);
+			var result = await command.ExecuteAsync(context, Array.Empty<object?>()).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 		}
 

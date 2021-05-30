@@ -61,7 +61,7 @@ namespace YACCS.Commands.Linq
 			{
 				foreach (var n in command.Names)
 				{
-					if (n.Parts[^1].Equals(name, comparisonType))
+					if (n[^1].Equals(name, comparisonType))
 					{
 						yield return command;
 						break;
@@ -84,7 +84,7 @@ namespace YACCS.Commands.Linq
 			{
 				foreach (var name in command.Names)
 				{
-					if (name.Parts.Count != parts.Count)
+					if (name.Count != parts.Count)
 					{
 						break;
 					}
@@ -92,7 +92,7 @@ namespace YACCS.Commands.Linq
 					var isMatch = true;
 					for (var i = 0; i < parts.Count; ++i)
 					{
-						if (!name.Parts[i].Equals(parts[i], comparisonType))
+						if (!name[i].Equals(parts[i], comparisonType))
 						{
 							isMatch = false;
 							break;

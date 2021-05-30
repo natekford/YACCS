@@ -13,7 +13,7 @@ namespace YACCS.Commands.Linq
 
 	public static class Commands
 	{
-		public static TCommand AddName<TCommand>(this TCommand command, IName name)
+		public static TCommand AddName<TCommand>(this TCommand command, IReadOnlyList<string> name)
 			where TCommand : ICommand
 		{
 			command.Names.Add(name);
@@ -99,7 +99,7 @@ namespace YACCS.Commands.Linq
 				get => _Actual.Attributes;
 				set => _Actual.Attributes = value;
 			}
-			public IList<IName> Names
+			public IList<IReadOnlyList<string>> Names
 			{
 				get => _Actual.Names;
 				set => _Actual.Names = value;
@@ -111,7 +111,7 @@ namespace YACCS.Commands.Linq
 			}
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 			public Type? ContextType => _Actual.ContextType;
-			IEnumerable<IName> IQueryableCommand.Names => Names;
+			IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
 
 			public Command(ICommand actual)
 			{

@@ -56,7 +56,7 @@ namespace YACCS.Commands.Models
 				: new[] { immutable };
 		}
 
-		private static IEnumerable<IName> GetFullNames(
+		private static IEnumerable<IReadOnlyList<string>> GetFullNames(
 			Type group,
 			MethodInfo method,
 			IEnumerable<string>? extraNames)

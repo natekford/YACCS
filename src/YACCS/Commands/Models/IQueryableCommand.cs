@@ -6,6 +6,6 @@ namespace YACCS.Commands.Models
 	public interface IQueryableCommand : IQueryableEntity
 	{
 		Type? ContextType { get; }
-		IEnumerable<IName> Names { get; }
+		IEnumerable<IReadOnlyList<string>> Names { get; }
 	}
 }

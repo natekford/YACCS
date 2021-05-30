@@ -80,7 +80,7 @@ namespace YACCS.Commands.Models
 		{
 		}
 
-		public Parameter(System.Reflection.ParameterInfo parameter)
+		public Parameter(ParameterInfo parameter)
 			: this(parameter.ParameterType, parameter.Name, parameter)
 		{
 			DefaultValue = GetDefaultValue(parameter.DefaultValue);

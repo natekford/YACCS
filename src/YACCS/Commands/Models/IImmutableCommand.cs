@@ -10,7 +10,7 @@ namespace YACCS.Commands.Models
 	{
 		int MaxLength { get; }
 		int MinLength { get; }
-		new IReadOnlyList<IName> Names { get; }
+		new IReadOnlyList<IReadOnlyList<string>> Names { get; }
 		IReadOnlyList<IImmutableParameter> Parameters { get; }
 		IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions { get; }
 		int Priority { get; }

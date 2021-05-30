@@ -17,7 +17,7 @@ namespace YACCS.Commands.Models
 		public override Type? ContextType { get; }
 		public Delegate Delegate { get; }
 
-		public DelegateCommand(Delegate @delegate, IEnumerable<IName> names)
+		public DelegateCommand(Delegate @delegate, IEnumerable<IReadOnlyList<string>> names)
 			: base(@delegate.Method)
 		{
 			Delegate = @delegate;
@@ -30,7 +30,7 @@ namespace YACCS.Commands.Models
 			Attributes.Add(new DelegateCommandAttribute(@delegate));
 		}
 
-		public DelegateCommand(Delegate @delegate, Type? contextType, IEnumerable<IName> names)
+		public DelegateCommand(Delegate @delegate, Type? contextType, IEnumerable<IReadOnlyList<string>> names)
 			: base(@delegate.Method)
 		{
 			ContextType = contextType;

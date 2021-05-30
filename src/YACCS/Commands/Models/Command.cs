@@ -18,14 +18,14 @@ namespace YACCS.Commands.Models
 	public abstract class Command : EntityBase, ICommand
 	{
 		public abstract Type? ContextType { get; }
-		public IList<IName> Names { get; set; }
+		public IList<IReadOnlyList<string>> Names { get; set; }
 		public IList<IParameter> Parameters { get; set; }
-		IEnumerable<IName> IQueryableCommand.Names => Names;
+		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
 		private string DebuggerDisplay => $"Name = {Names[0]}, Parameter Count = {Parameters.Count}";
 
 		protected Command(MethodInfo method) : base(method)
 		{
-			Names = new List<IName>();
+			Names = new List<IReadOnlyList<string>>();
 			Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IParameter>();
 		}
 
@@ -40,13 +40,13 @@ namespace YACCS.Commands.Models
 			public Type? ContextType { get; }
 			public int MaxLength { get; }
 			public int MinLength { get; }
-			public IReadOnlyList<IName> Names { get; }
+			public IReadOnlyList<IReadOnlyList<string>> Names { get; }
 			public IReadOnlyList<IImmutableParameter> Parameters { get; }
 			public IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions { get; }
 			public string PrimaryId { get; }
 			public int Priority { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
-			IEnumerable<IName> IQueryableCommand.Names => Names;
+			IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
 			protected Type ReturnType { get; }
 			private string DebuggerDisplay => $"Name = {Names?.FirstOrDefault()?.ToString() ?? "NULL"}, Parameter Count = {Parameters.Count}";
 

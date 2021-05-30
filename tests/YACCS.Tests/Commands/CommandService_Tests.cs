@@ -57,8 +57,8 @@ namespace YACCS.Tests.Commands
 			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			var collection = commandService.Commands;
 
-			var d1 = (Action<Fake>)(x => { });
-			var c1 = new DelegateCommand(d1, new[] { new Name(new[] { "1" }) });
+			static void Method(Fake x) { }
+			var c1 = new DelegateCommand((Action<Fake>)Method, new[] { new Name(new[] { "1" }) });
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
 				collection.Add(c1.ToImmutable().Single());
