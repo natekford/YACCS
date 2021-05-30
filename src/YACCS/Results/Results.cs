@@ -1,7 +1,5 @@
 ﻿using System;
 
-using YACCS.Commands.Models;
-
 namespace YACCS.Results
 {
 	public class CanceledResult : Result

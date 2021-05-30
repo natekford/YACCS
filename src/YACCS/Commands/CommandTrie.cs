@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 using YACCS.Commands.Models;
 using YACCS.TypeReaders;
@@ -113,6 +111,13 @@ namespace YACCS.Commands
 
 		public int Remove(IImmutableCommand item)
 		{
+			// Since commands with no names can't get added, they will never be in the trie
+			// If the item isn't in the hashset containing all items, it's not in the trie
+			if (item.Names.Count == 0 || !_Items.Remove(item))
+			{
+				return 0;
+			}
+
 			var removed = 0;
 			foreach (var name in item.Names)
 			{
@@ -128,10 +133,6 @@ namespace YACCS.Commands
 						++removed;
 					}
 				}
-			}
-			if (removed != 0)
-			{
-				_Items.Remove(item);
 			}
 			return removed;
 		}
