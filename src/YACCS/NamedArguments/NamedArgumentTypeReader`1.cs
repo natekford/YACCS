@@ -30,7 +30,7 @@ namespace YACCS.NamedArguments
 			{
 				return NamedArgumentUtils
 					.CreateParametersForType(typeof(T))
-					.ToDictionary(x => x.OverriddenParameterName, StringComparer.OrdinalIgnoreCase);
+					.ToDictionary(x => x.ParameterName, StringComparer.OrdinalIgnoreCase);
 			});
 			_Setter = ReflectionUtils.CreateDelegate(CreateSetterDelegate,
 				"setter delegate");
@@ -70,7 +70,7 @@ namespace YACCS.NamedArguments
 					return new NamedArgNonExistentResult(name);
 				}
 
-				var key = parameter.OverriddenParameterName;
+				var key = parameter.ParameterName;
 				if (dict.ContainsKey(key))
 				{
 					return new NamedArgDuplicateResult(key);
@@ -177,7 +177,7 @@ namespace YACCS.NamedArguments
 					return TypeReaderResult<T>.FromError(result.InnerResult);
 				}
 
-				Setter(instance, parameter.ParameterName, result.Value);
+				Setter(instance, parameter.OriginalParameterName, result.Value);
 			}
 			return TypeReaderResult<T>.FromSuccess(instance);
 		}

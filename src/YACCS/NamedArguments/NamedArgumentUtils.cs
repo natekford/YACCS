@@ -38,7 +38,7 @@ namespace YACCS.NamedArguments
 				for (var i = 0; i < args.Length; ++i)
 				{
 					var parameter = command.Parameters[i];
-					if (values.TryGetValue(parameter.ParameterName, out var value))
+					if (values.TryGetValue(parameter.OriginalParameterName, out var value))
 					{
 						args[i] = value;
 					}
@@ -87,7 +87,7 @@ namespace YACCS.NamedArguments
 			public GeneratedNamedParameterPrecondition(IImmutableCommand command)
 			{
 				Parameters = command.Parameters
-					.ToDictionary(x => x.ParameterName, StringComparer.OrdinalIgnoreCase);
+					.ToDictionary(x => x.OriginalParameterName, StringComparer.OrdinalIgnoreCase);
 			}
 
 			public override Task<IResult> CheckAsync(
@@ -119,7 +119,7 @@ namespace YACCS.NamedArguments
 			public GeneratedNamedTypeReader(IImmutableCommand command)
 			{
 				Parameters = command.Parameters
-					.ToDictionary(x => x.OverriddenParameterName, StringComparer.OrdinalIgnoreCase);
+					.ToDictionary(x => x.ParameterName, StringComparer.OrdinalIgnoreCase);
 			}
 
 			protected override void Setter(

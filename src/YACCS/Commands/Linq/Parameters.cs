@@ -137,7 +137,7 @@ namespace YACCS.Commands.Linq
 				set => _Actual.TypeReader = value;
 			}
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
-			public string ParameterName => _Actual.ParameterName;
+			public string OriginalParameterName => _Actual.OriginalParameterName;
 			public Type ParameterType => _Actual.ParameterType;
 			ITypeReader? IParameter.TypeReader
 			{

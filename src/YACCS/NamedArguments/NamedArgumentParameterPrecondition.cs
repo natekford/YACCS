@@ -26,7 +26,7 @@ namespace YACCS.NamedArguments
 			{
 				return NamedArgumentUtils
 					.CreateParametersForType(typeof(T))
-					.ToDictionary(x => x.ParameterName, StringComparer.OrdinalIgnoreCase);
+					.ToDictionary(x => x.OriginalParameterName, StringComparer.OrdinalIgnoreCase);
 			});
 			_Getter = ReflectionUtils.CreateDelegate(CreateGetterDelegate,
 				"getter delegate");

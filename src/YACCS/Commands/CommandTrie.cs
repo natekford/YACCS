@@ -34,8 +34,15 @@ namespace YACCS.Commands
 		{
 			foreach (var parameter in item.Parameters)
 			{
-				// Verify that every type has a reader
-				_ = _Readers.GetTypeReader(parameter);
+				try
+				{
+					// Verify that every type has a reader
+					_ = _Readers.GetTypeReader(parameter);
+				}
+				catch (Exception ex)
+				{
+					throw new ArgumentException($"{parameter.ParameterName} does not have a registered type reader for {parameter.ParameterType}.", ex);
+				}
 			}
 
 			var added = 0;

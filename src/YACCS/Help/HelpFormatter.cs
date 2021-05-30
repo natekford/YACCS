@@ -310,7 +310,7 @@ namespace YACCS.Help
 				var pType = parameter.ParameterType;
 				StringBuilder
 					.AppendDepth(CurrentDepth)
-					.Append(parameter.Item.OverriddenParameterName)
+					.Append(parameter.Item.ParameterName)
 					.Append(": ")
 					.AppendLine(pType.Name?.Name ?? Names[pType.Item]);
 				return this;

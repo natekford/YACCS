@@ -18,7 +18,7 @@ namespace YACCS.Help.Models
 		public IReadOnlyList<IHelpItem<IParameterPrecondition>> Preconditions { get; }
 		public IHelpItem<ITypeReader>? TypeReader { get; }
 		IReadOnlyList<IHelpItem<object>> IHasPreconditions.Preconditions => Preconditions;
-		private string DebuggerDisplay => $"Name = {Item.ParameterName}, Type = {Item.ParameterType}";
+		private string DebuggerDisplay => $"Name = {Item.OriginalParameterName}, Type = {Item.ParameterType}";
 
 		public HelpParameter(IImmutableParameter item)
 			: base(item, item.Attributes, x => x is not IParameterPrecondition)

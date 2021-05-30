@@ -33,7 +33,7 @@ namespace YACCS.Commands.Models
 				}
 			}
 		}
-		public string ParameterName { get; }
+		public string OriginalParameterName { get; }
 		public Type ParameterType { get; }
 		public ITypeReader? TypeReader
 		{
@@ -44,7 +44,7 @@ namespace YACCS.Commands.Models
 				_OverriddenTypeReader = value;
 			}
 		}
-		private string DebuggerDisplay => $"Name = {ParameterName}, Type = {ParameterType}";
+		private string DebuggerDisplay => $"Name = {OriginalParameterName}, Type = {ParameterType}";
 
 		public Parameter() : this(typeof(void), "", null)
 		{
@@ -58,7 +58,7 @@ namespace YACCS.Commands.Models
 				throw new ArgumentException("Cannot have a parameter type of void.", nameof(type));
 			}
 
-			ParameterName = name;
+			OriginalParameterName = name;
 			ParameterType = type;
 
 			if (this.Get<GenerateNamedArgumentsAttribute>().Any()
@@ -128,20 +128,20 @@ namespace YACCS.Commands.Models
 			public object? DefaultValue { get; }
 			public bool HasDefaultValue { get; }
 			public int? Length { get; } = 1;
-			public string OverriddenParameterName { get; }
+			public string OriginalParameterName { get; }
 			public string ParameterName { get; }
 			public Type ParameterType { get; }
 			public IReadOnlyList<IParameterPrecondition> Preconditions { get; }
 			public string PrimaryId { get; }
 			public ITypeReader? TypeReader { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
-			private string DebuggerDisplay => $"Name = {ParameterName}, Type = {ParameterType}";
+			private string DebuggerDisplay => $"Name = {OriginalParameterName}, Type = {ParameterType}";
 
 			public ImmutableParameter(Parameter mutable, IImmutableCommand? owner)
 			{
 				DefaultValue = mutable.DefaultValue;
 				HasDefaultValue = mutable.HasDefaultValue;
-				ParameterName = mutable.ParameterName;
+				OriginalParameterName = mutable.OriginalParameterName;
 				ParameterType = mutable.ParameterType;
 				Command = owner;
 
@@ -163,7 +163,7 @@ namespace YACCS.Commands.Models
 								break;
 
 							case INameAttribute name:
-								OverriddenParameterName = name.ThrowIfDuplicate(x => x.Name, ref n);
+								ParameterName = name.ThrowIfDuplicate(x => x.Name, ref n);
 								break;
 
 							case IOverrideTypeReaderAttribute typeReader:
@@ -181,7 +181,7 @@ namespace YACCS.Commands.Models
 				}
 
 				TypeReader ??= mutable.TypeReader;
-				OverriddenParameterName ??= mutable.ParameterName;
+				ParameterName ??= mutable.OriginalParameterName;
 				PrimaryId ??= Guid.NewGuid().ToString();
 			}
 		}

@@ -4,7 +4,7 @@ namespace YACCS.Commands.Models
 {
 	public interface IQueryableParameter
 	{
-		string ParameterName { get; }
+		string OriginalParameterName { get; }
 		Type ParameterType { get; }
 	}
 }

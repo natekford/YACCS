@@ -59,7 +59,7 @@ namespace YACCS.Tests.Commands
 
 			var d1 = (Action<Fake>)(x => { });
 			var c1 = new DelegateCommand(d1, new[] { new Name(new[] { "1" }) });
-			Assert.ThrowsException<KeyNotFoundException>(() =>
+			Assert.ThrowsException<ArgumentException>(() =>
 			{
 				collection.Add(c1.ToImmutable().Single());
 			});

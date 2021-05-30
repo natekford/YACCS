@@ -92,7 +92,7 @@ namespace YACCS.Examples
 			{
 				if (result.Parameter != null)
 				{
-					response = result.Parameter.OverriddenParameterName + ": " + response;
+					response = result.Parameter.ParameterName + ": " + response;
 				}
 
 				WriteLine(response, result.InnerResult.IsSuccess ? ConsoleColor.Green : ConsoleColor.Red);
