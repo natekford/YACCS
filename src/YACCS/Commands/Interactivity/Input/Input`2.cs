@@ -12,12 +12,12 @@ namespace YACCS.Commands.Interactivity.Input
 		: Interactivity<TContext, TInput>, IInput<TContext, TInput>
 		where TContext : IContext
 	{
-		public ITypeRegistry<ITypeReader> TypeReaders { get; }
+		public IReadOnlyDictionary<Type, ITypeReader> TypeReaders { get; }
 
 		protected static Delegate EmptyDelegate { get; } = (Action)(() => { });
 		protected static IEnumerable<IName> EmptyNames { get; } = new[] { new Name(new[] { "Input" }) };
 
-		protected Input(ITypeRegistry<ITypeReader> typeReaders)
+		protected Input(IReadOnlyDictionary<Type, ITypeReader> typeReaders)
 		{
 			TypeReaders = typeReaders;
 		}
@@ -31,13 +31,13 @@ namespace YACCS.Commands.Interactivity.Input
 				foreach (var criterion in options.Criteria)
 				{
 					var result = await criterion.JudgeAsync(context, i).ConfigureAwait(false);
-					if (!result)
+					if (!result.IsSuccess)
 					{
-						return FailureResult.Instance.Sync;
+						return result;
 					}
 				}
 
-				var tr = options.TypeReader ?? TypeReaders.Get<TValue>();
+				var tr = options.TypeReader ?? TypeReaders.GetTypeReader<TValue>();
 				var trResult = await tr.ReadAsync(context, GetInputString(i)).ConfigureAwait(false);
 				if (!trResult.InnerResult.IsSuccess)
 				{

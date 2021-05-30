@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -23,11 +25,11 @@ namespace YACCS.Tests.TypeReaders
 			{
 				Services = new ServiceCollection()
 					.AddSingleton<ICommandService>(commandService)
-					.AddSingleton<ITypeRegistry<ITypeReader>>(registry)
+					.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>>(registry)
 					.AddSingleton<ICommandServiceConfig>(config)
 					.BuildServiceProvider(),
 			};
-			Reader = registry.Get<int[]>();
+			Reader = registry.GetTypeReader<int[]>();
 		}
 
 		[TestMethod]

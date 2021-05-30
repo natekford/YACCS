@@ -4,9 +4,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace YACCS.Help
 {
-	public class TypeNameRegistry : ITypeRegistry<string>
+	public class TypeNameRegistry : TypeRegistry<string>
 	{
-		private readonly Dictionary<Type, string> _Names = new Dictionary<Type, string>
+		public TypeNameRegistry() : base(new Dictionary<Type, string>()
 		{
 			{ typeof(string), "text" },
 			{ typeof(Uri), "url" },
@@ -27,40 +27,39 @@ namespace YACCS.Help
 			{ typeof(DateTime), "date" },
 			{ typeof(DateTimeOffset), "date" },
 			{ typeof(TimeSpan), "time" },
-		};
-
-		public void Register(Type type, string item)
-			=> _Names[type] = item;
-
-		public bool TryGet(Type type, [MaybeNull, NotNullWhen(true)] out string item)
+		})
 		{
-			if (_Names.TryGetValue(type, out item))
+		}
+
+		public override bool TryGetValue(Type key, [NotNullWhen(true)] out string value)
+		{
+			if (Items.TryGetValue(key, out value))
 			{
 				return true;
 			}
-			else if (type.IsGenericOf(typeof(Nullable<>)))
+			else if (key.IsGenericOf(typeof(Nullable<>)))
 			{
-				item = GenerateNullableName(type.GetGenericArguments()[0]);
+				value = GenerateNullableName(key.GetGenericArguments()[0]);
 			}
-			else if (type.GetEnumerableType() is Type eType)
+			else if (key.GetArrayType() is Type eType)
 			{
-				item = GenerateListName(eType);
+				value = GenerateListName(eType);
 			}
 
-			item ??= type.Name;
-			Register(type, item);
+			value ??= key.Name;
+			Add(key, value);
 			return true;
 		}
 
 		protected virtual string GenerateListName(Type type)
 		{
-			var name = _Names.TryGetValue(type, out var item) ? item : type.Name;
+			var name = Items.TryGetValue(type, out var item) ? item : type.Name;
 			return name + " list";
 		}
 
 		protected virtual string GenerateNullableName(Type type)
 		{
-			var name = _Names.TryGetValue(type, out var item) ? item : type.Name;
+			var name = Items.TryGetValue(type, out var item) ? item : type.Name;
 			return name + " or null";
 		}
 	}

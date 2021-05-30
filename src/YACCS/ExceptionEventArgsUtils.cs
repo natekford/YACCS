@@ -8,10 +8,10 @@ namespace YACCS
 	{
 		public static ExceptionEventArgs<T> WithExceptions<T>(this T e, params Exception[] exs)
 			where T : HandledEventArgs
-			=> new ExceptionEventArgs<T>(exs, e);
+			=> new(exs, e);
 
 		public static ExceptionEventArgs<T> WithExceptions<T>(this T e, IReadOnlyList<Exception> exs)
 			where T : HandledEventArgs
-			=> new ExceptionEventArgs<T>(exs, e);
+			=> new(exs, e);
 	}
 }

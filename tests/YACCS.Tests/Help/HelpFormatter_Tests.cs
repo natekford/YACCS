@@ -122,8 +122,8 @@ namespace YACCS.Tests.Help
 		[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
 		private class EnabledByDefaultAttribute : Attribute, IRuntimeFormattableAttribute
 		{
-			private static readonly TaggedString _Key1 = new TaggedString(Tag.Key, "Enabled by default");
-			private static readonly TaggedString _Key2 = new TaggedString(Tag.Key, "Toggleable");
+			private static readonly TaggedString _Key1 = new(Tag.Key, "Enabled by default");
+			private static readonly TaggedString _Key2 = new(Tag.Key, "Toggleable");
 
 			public bool EnabledByDefault { get; }
 			public bool Toggleable { get; set; }

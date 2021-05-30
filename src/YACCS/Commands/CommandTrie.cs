@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -11,7 +12,7 @@ namespace YACCS.Commands
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public sealed class CommandTrie : ITrie<IImmutableCommand>
 	{
-		private readonly ITypeRegistry<ITypeReader> _Readers;
+		private readonly IReadOnlyDictionary<Type, ITypeReader> _Readers;
 		private readonly IEqualityComparer<string> _StringComparer;
 		private HashSet<IImmutableCommand> _Items;
 		private Node _Root;
@@ -21,7 +22,7 @@ namespace YACCS.Commands
 		public int Count => _Items.Count;
 		private string DebuggerDisplay => $"Count = {Count}";
 
-		public CommandTrie(IEqualityComparer<string> stringComparer, ITypeRegistry<ITypeReader> readers)
+		public CommandTrie(IEqualityComparer<string> stringComparer, IReadOnlyDictionary<Type, ITypeReader> readers)
 		{
 			_StringComparer = stringComparer;
 			_Readers = readers;
@@ -34,7 +35,7 @@ namespace YACCS.Commands
 			foreach (var parameter in item.Parameters)
 			{
 				// Verify that every type has a reader
-				_ = _Readers.Get(parameter);
+				_ = _Readers.GetTypeReader(parameter);
 			}
 
 			var added = 0;

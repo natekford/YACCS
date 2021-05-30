@@ -9,7 +9,7 @@ namespace YACCS.Commands.Attributes
 	[AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
 	public class IdAttribute : Attribute, IIdAttribute, IRuntimeFormattableAttribute
 	{
-		private static readonly TaggedString _Key = new TaggedString(Tag.Key, "Id");
+		private static readonly TaggedString _Key = new(Tag.Key, "Id");
 
 		public string Id { get; }
 

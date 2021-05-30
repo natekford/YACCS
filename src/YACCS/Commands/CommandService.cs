@@ -19,7 +19,7 @@ namespace YACCS.Commands
 		protected IAsyncEvent<CommandExecutedEventArgs> CommandExecutedEvent { get; set; }
 		protected ICommandServiceConfig Config { get; set; }
 		protected IQuoteHandler Quoter { get; set; }
-		protected ITypeRegistry<ITypeReader> Readers { get; set; }
+		protected IReadOnlyDictionary<Type, ITypeReader> Readers { get; set; }
 
 		public event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted
 		{
@@ -33,7 +33,7 @@ namespace YACCS.Commands
 			remove => CommandExecutedEvent.Exception.Remove(value);
 		}
 
-		public CommandService(ICommandServiceConfig config, ITypeRegistry<ITypeReader> readers)
+		public CommandService(ICommandServiceConfig config, IReadOnlyDictionary<Type, ITypeReader> readers)
 		{
 			Commands = new CommandTrie(config.CommandNameComparer, readers);
 			CommandExecutedEvent = new AsyncEvent<CommandExecutedEventArgs>();
@@ -313,7 +313,7 @@ namespace YACCS.Commands
 			ReadOnlyMemory<string> input,
 			int startIndex)
 		{
-			var reader = Readers.Get(parameter);
+			var reader = Readers.GetTypeReader(parameter);
 			var pLength = parameter.Length ?? int.MaxValue;
 			// Iterate at least once even for arguments with zero length, i.e. IContext
 			var length = Math.Max(Math.Min(input.Length - startIndex, pLength), 1);

@@ -7,7 +7,7 @@ namespace YACCS.Help.Models
 	public static class HelpItemUtils
 	{
 		public static HelpItem<T> Create<T>(T item) where T : ICustomAttributeProvider
-			=> new HelpItem<T>(item, item.GetCustomAttributes(true));
+			=> new(item, item.GetCustomAttributes(true));
 
 		public static bool IsAsyncFormattable(this IHelpCommand item)
 			=> item.IsAsync() || item.HasAsyncFormattableParameters || item.HasAsyncFormattablePreconditions;

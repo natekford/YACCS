@@ -9,7 +9,7 @@ namespace YACCS.Commands.Attributes
 	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
 	public class PriorityAttribute : Attribute, IPriorityAttribute, IRuntimeFormattableAttribute
 	{
-		private static readonly TaggedString _Key = new TaggedString(Tag.Key, "Priority");
+		private static readonly TaggedString _Key = new(Tag.Key, "Priority");
 
 		public int Priority { get; }
 

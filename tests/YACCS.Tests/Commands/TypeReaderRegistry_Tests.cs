@@ -29,12 +29,12 @@ namespace YACCS.Tests.Commands
 			var registry = new TypeReaderRegistry();
 			registry.Register(typeof(string), new BadStringReader());
 
-			var r1 = registry.Get(typeof(string));
+			var r1 = registry[typeof(string)];
 			Assert.IsNotNull(r1);
 
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				registry.Get<string>();
+				registry.GetTypeReader<string>();
 			});
 		}
 
@@ -44,7 +44,7 @@ namespace YACCS.Tests.Commands
 			var registry = new TypeReaderRegistry();
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				var reader = registry.Get<FakeStruct>();
+				var reader = registry.GetTypeReader<FakeStruct>();
 			});
 		}
 
@@ -61,12 +61,12 @@ namespace YACCS.Tests.Commands
 
 			// This is the entire reason I added the ITask package.
 			// Why couldn't there be an ITask in the base library
-			var r1 = registry.Get<Parent>();
+			var r1 = registry.GetTypeReader<Parent>();
 			Assert.IsNotNull(r1);
 
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				registry.Get<Child>();
+				registry.GetTypeReader<Child>();
 			});
 		}
 
@@ -81,10 +81,10 @@ namespace YACCS.Tests.Commands
 			});
 			registry.Register(typeof(FakeStruct), reader);
 
-			var r1 = registry.Get<FakeStruct>();
+			var r1 = registry.GetTypeReader<FakeStruct>();
 			Assert.IsNotNull(r1);
 
-			var r2 = registry.Get<FakeStruct?>();
+			var r2 = registry.GetTypeReader<FakeStruct?>();
 			Assert.IsNotNull(r2);
 		}
 
@@ -92,7 +92,7 @@ namespace YACCS.Tests.Commands
 		public void TryGetEnumReader_Test()
 		{
 			var registry = new TypeReaderRegistry();
-			var reader = registry.Get<BindingFlags>();
+			var reader = registry.GetTypeReader<BindingFlags>();
 			Assert.IsNotNull(reader);
 		}
 

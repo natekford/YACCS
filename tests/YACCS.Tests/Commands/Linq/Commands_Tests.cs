@@ -21,7 +21,7 @@ namespace YACCS.Tests.Commands.Linq
 		private const string DUPE_ID = "dupe_id";
 		private const string NORM_ID = "normal_id";
 		private const string PARENT_ID = "parent_id";
-		private readonly List<ICommand> _Commands = new List<ICommand>
+		private readonly List<ICommand> _Commands = new()
 		{
 			FakeDelegateCommand.New().AddAttribute(new IdAttribute(DUPE_ID)),
 			FakeDelegateCommand.New().AddAttribute(new IdAttribute(DUPE_ID)),

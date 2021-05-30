@@ -162,14 +162,14 @@ namespace YACCS.NamedArguments
 			IContext context,
 			IDictionary<string, string> dict)
 		{
-			var registry = context.Services.GetRequiredService<ITypeRegistry<ITypeReader>>();
+			var registry = context.Services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
 
 			var instance = new T();
 			foreach (var kvp in dict)
 			{
 				var args = kvp.Value;
 				var parameter = Parameters[kvp.Key];
-				var reader = registry.Get(parameter);
+				var reader = registry.GetTypeReader(parameter);
 
 				var result = await reader.ReadAsync(context, args).ConfigureAwait(false);
 				if (!result.InnerResult.IsSuccess)

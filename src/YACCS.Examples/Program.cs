@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -43,9 +44,9 @@ namespace YACCS.Examples
 				.AddSingleton<ICommandService>(_CommandService)
 				.AddSingleton<IHelpFormatter>(_HelpFormatter)
 				.AddSingleton<IInput<IContext, string>>(_Input)
-				.AddSingleton<ITypeRegistry<string>>(_Names)
+				.AddSingleton<IReadOnlyDictionary<Type, string>>(_Names)
 				.AddSingleton<ITagConverter>(_Tags)
-				.AddSingleton<ITypeRegistry<ITypeReader>>(_TypeReaders)
+				.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>>(_TypeReaders)
 				.AddSingleton(_Console)
 				.BuildServiceProvider();
 		}

@@ -12,11 +12,10 @@ namespace YACCS.Examples
 	public class ConsoleInput : Input<IContext, string>
 	{
 		private readonly ConsoleHandler _Console;
-		private readonly Dictionary<Guid, CancellationTokenSource> _Input
-			= new Dictionary<Guid, CancellationTokenSource>();
+		private readonly Dictionary<Guid, CancellationTokenSource> _Input = new();
 
 		public ConsoleInput(
-			ITypeRegistry<ITypeReader> registry,
+			IReadOnlyDictionary<Type, ITypeReader> registry,
 			ConsoleHandler console)
 			: base(registry)
 		{
@@ -55,14 +54,17 @@ namespace YACCS.Examples
 					_Console.WriteResult(result);
 				}
 			});
-			_Input[context.Id] = source;
+			_Input.Add(context.Id, source);
 		}
 
 		protected override Task UnsubscribeAsync(IContext context, OnInput onInput)
 		{
 			// Only release input lock since output lock gets released when command is done
 			_Console.ReleaseInputLock();
-			_Input[context.Id].Cancel();
+			if (_Input.Remove(context.Id, out var token))
+			{
+				token.Cancel();
+			}
 			Console.WriteLine();
 			return Task.CompletedTask;
 		}

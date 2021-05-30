@@ -13,7 +13,7 @@ namespace YACCS.Results
 			=> Task.FromResult(result).AsITask();
 
 		public static ResultInstance<T, IResult> AsResultInstance<T>(this T instance) where T : IResult
-			=> new ResultInstance<T, IResult>(instance);
+			=> new(instance);
 
 		public static Task<IResult> AsTask(this IResult result)
 			=> Task.FromResult(result);

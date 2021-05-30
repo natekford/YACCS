@@ -26,9 +26,9 @@ namespace YACCS.Commands.Interactivity.Pagination
 					foreach (var criterion in options.Criteria)
 					{
 						var result = await criterion.JudgeAsync(context, i).ConfigureAwait(false);
-						if (!result)
+						if (!result.IsSuccess)
 						{
-							return FailureResult.Instance.Sync;
+							return result;
 						}
 					}
 

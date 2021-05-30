@@ -13,10 +13,10 @@ namespace YACCS.TypeReaders
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
-			var registry = context.Services.GetRequiredService<ITypeRegistry<ITypeReader>>();
+			var registry = context.Services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
 			var service = context.Services.GetRequiredService<ICommandService>();
 
-			var reader = registry.Get<T>();
+			var reader = registry.GetTypeReader<T>();
 			var values = new List<T>(input.Length);
 			for (var i = 0; i < input.Length; ++i)
 			{

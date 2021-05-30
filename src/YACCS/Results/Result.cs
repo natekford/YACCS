@@ -19,10 +19,10 @@ namespace YACCS.Results
 		}
 
 		public static Result FromError(string response)
-			=> new Result(false, response);
+			=> new(false, response);
 
 		public static Result FromSuccess()
-			=> new Result(true, "");
+			=> new(true, "");
 
 		public class ResultInstance<T, TBase> where T : TBase
 		{

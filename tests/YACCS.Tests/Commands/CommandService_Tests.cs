@@ -59,7 +59,7 @@ namespace YACCS.Tests.Commands
 
 			var d1 = (Action<Fake>)(x => { });
 			var c1 = new DelegateCommand(d1, new[] { new Name(new[] { "1" }) });
-			Assert.ThrowsException<ArgumentException>(() =>
+			Assert.ThrowsException<KeyNotFoundException>(() =>
 			{
 				collection.Add(c1.ToImmutable().Single());
 			});
@@ -679,7 +679,7 @@ namespace YACCS.Tests.Commands
 		public async Task ProcessTypeReaderNotRegistered_Test()
 		{
 			var (commandService, context, parameter) = Create<CommandService_TypeReaders_Tests>(1);
-			await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
+			await Assert.ThrowsExceptionAsync<KeyNotFoundException>(async () =>
 			{
 				var result = await commandService.ProcessTypeReadersAsync(
 					new PreconditionCache(context),
@@ -803,7 +803,7 @@ namespace YACCS.Tests.Commands
 			{
 				Services = new ServiceCollection()
 					.AddSingleton<ICommandService>(commandService)
-					.AddSingleton<ITypeRegistry<ITypeReader>>(registry)
+					.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>>(registry)
 					.AddSingleton<ICommandServiceConfig>(config)
 					.BuildServiceProvider(),
 			};

@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
@@ -12,7 +14,7 @@ namespace YACCS.Examples
 
 		public ConsoleCommandService(
 			ICommandServiceConfig config,
-			ITypeRegistry<ITypeReader> readers,
+			IReadOnlyDictionary<Type, ITypeReader> readers,
 			ConsoleHandler console)
 			: base(config, readers)
 		{

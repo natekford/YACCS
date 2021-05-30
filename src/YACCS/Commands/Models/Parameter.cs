@@ -16,7 +16,7 @@ namespace YACCS.Commands.Models
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public sealed class Parameter : EntityBase, IParameter
 	{
-		private static readonly object NoDefaultValue = new object();
+		private static readonly object NoDefaultValue = new();
 
 		private readonly bool? _HasLengthAttribute;
 		private ITypeReader? _OverriddenTypeReader;
@@ -40,10 +40,7 @@ namespace YACCS.Commands.Models
 			get => _OverriddenTypeReader;
 			set
 			{
-				if (value is not null)
-				{
-					value.ThrowIfInvalidTypeReader(ParameterType);
-				}
+				value?.ThrowIfInvalidTypeReader(ParameterType);
 				_OverriddenTypeReader = value;
 			}
 		}

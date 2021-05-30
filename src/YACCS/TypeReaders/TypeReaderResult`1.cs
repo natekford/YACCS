@@ -24,12 +24,12 @@ namespace YACCS.TypeReaders
 		}
 
 		public static TypeReaderResult<T> FromError()
-			=> new TypeReaderResult<T>(ParseFailedResult<T>.Instance.Sync, default!);
+			=> new(ParseFailedResult<T>.Instance.Sync, default!);
 
 		public static TypeReaderResult<T> FromError(IResult result)
-			=> new TypeReaderResult<T>(result, default!);
+			=> new(result, default!);
 
 		public static TypeReaderResult<T> FromSuccess(T value)
-			=> new TypeReaderResult<T>(SuccessResult.Instance.Sync, value);
+			=> new(SuccessResult.Instance.Sync, value);
 	}
 }

@@ -15,7 +15,7 @@ namespace YACCS.Tests.Help
 		{
 			var registry = new TypeNameRegistry();
 
-			var name = registry.Get(typeof(TimeSpan));
+			var name = registry[typeof(TimeSpan)];
 			Assert.AreEqual("time", name);
 		}
 
@@ -25,12 +25,12 @@ namespace YACCS.Tests.Help
 			var registry = new TypeNameRegistry();
 
 			{
-				var name = registry.Get(typeof(TimeSpan[]));
+				var name = registry[typeof(TimeSpan[])];
 				Assert.AreEqual("time list", name);
 			}
 
 			{
-				var name = registry.Get(typeof(IEnumerable<TimeSpan>));
+				var name = registry[typeof(IEnumerable<TimeSpan>)];
 				Assert.AreEqual("time list", name);
 			}
 		}
@@ -40,7 +40,7 @@ namespace YACCS.Tests.Help
 		{
 			var registry = new TypeNameRegistry();
 
-			var name = registry.Get(typeof(TypeNameRegistry_Tests));
+			var name = registry[typeof(TypeNameRegistry_Tests)];
 			Assert.AreEqual(nameof(TypeNameRegistry_Tests), name);
 		}
 
@@ -49,7 +49,7 @@ namespace YACCS.Tests.Help
 		{
 			var registry = new TypeNameRegistry();
 
-			var name = registry.Get(typeof(TimeSpan?));
+			var name = registry[typeof(TimeSpan?)];
 			Assert.AreEqual("time or null", name);
 		}
 	}

@@ -9,8 +9,8 @@ namespace YACCS.Tests.Commands
 	[TestClass]
 	public class AsyncEvent_Tests
 	{
-		private readonly FakeEventArgs _Args = new FakeEventArgs();
-		private readonly AsyncEvent<FakeEventArgs> _Event = new AsyncEvent<FakeEventArgs>();
+		private readonly FakeEventArgs _Args = new();
+		private readonly AsyncEvent<FakeEventArgs> _Event = new();
 
 		[TestMethod]
 		public async Task EmptyInvoke_Test()

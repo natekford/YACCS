@@ -9,7 +9,7 @@ namespace YACCS.Commands.Attributes
 	[AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
 	public class LengthAttribute : Attribute, ILengthAttribute, IRuntimeFormattableAttribute
 	{
-		private static readonly TaggedString _Key = new TaggedString(Tag.Key, "Length");
+		private static readonly TaggedString _Key = new(Tag.Key, "Length");
 
 		public int? Length { get; }
 

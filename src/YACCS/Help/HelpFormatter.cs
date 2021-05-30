@@ -12,12 +12,11 @@ namespace YACCS.Help
 {
 	public class HelpFormatter : IHelpFormatter
 	{
-		protected Dictionary<IImmutableCommand, HelpCommand> Commands { get; }
-			= new Dictionary<IImmutableCommand, HelpCommand>();
-		protected ITypeRegistry<string> Names { get; }
+		protected Dictionary<IImmutableCommand, HelpCommand> Commands { get; } = new();
+		protected IReadOnlyDictionary<Type, string> Names { get; }
 		protected ITagConverter Tags { get; }
 
-		public HelpFormatter(ITypeRegistry<string> names, ITagConverter tags)
+		public HelpFormatter(IReadOnlyDictionary<Type, string> names, ITagConverter tags)
 		{
 			Names = names;
 			Tags = tags;
@@ -74,7 +73,7 @@ namespace YACCS.Help
 		}
 
 		protected virtual HelpBuilder GetBuilder(IContext context)
-			=> new HelpBuilder(context, Names, Tags);
+			=> new(context, Names, Tags);
 
 		protected virtual IHelpCommand GetHelpCommand(IImmutableCommand command)
 		{
@@ -88,15 +87,15 @@ namespace YACCS.Help
 		protected class HelpBuilder
 		{
 			private static readonly TaggedString _TaggedAttributes
-				= new TaggedString(Tag.Header, "Attributes");
+				= new(Tag.Header, "Attributes");
 			private static readonly TaggedString _TaggedNames
-				= new TaggedString(Tag.Header, "Names");
+				= new(Tag.Header, "Names");
 			private static readonly TaggedString _TaggedParameters
-				= new TaggedString(Tag.Header, "Parameters");
+				= new(Tag.Header, "Parameters");
 			private static readonly TaggedString _TaggedPreconditions
-				= new TaggedString(Tag.Header, "Preconditions");
+				= new(Tag.Header, "Preconditions");
 			private static readonly TaggedString _TaggedSummary
-				= new TaggedString(Tag.Header, "Summary");
+				= new(Tag.Header, "Summary");
 
 			protected IContext Context { get; }
 			protected int CurrentDepth { get; set; }
@@ -105,13 +104,13 @@ namespace YACCS.Help
 			protected virtual string HeaderParameters { get; }
 			protected virtual string HeaderPreconditions { get; }
 			protected virtual string HeaderSummary { get; }
-			protected ITypeRegistry<string> Names { get; }
+			protected IReadOnlyDictionary<Type, string> Names { get; }
 			protected StringBuilder StringBuilder { get; }
 			protected ITagConverter Tags { get; }
 
 			public HelpBuilder(
 				IContext context,
-				ITypeRegistry<string> names,
+				IReadOnlyDictionary<Type, string> names,
 				ITagConverter tags)
 			{
 				Context = context;
@@ -313,7 +312,7 @@ namespace YACCS.Help
 					.AppendDepth(CurrentDepth)
 					.Append(parameter.Item.OverriddenParameterName)
 					.Append(": ")
-					.AppendLine(pType.Name?.Name ?? Names.Get(pType.Item));
+					.AppendLine(pType.Name?.Name ?? Names[pType.Item]);
 				return this;
 			}
 

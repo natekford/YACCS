@@ -10,7 +10,7 @@ using YACCS.NamedArguments;
 
 namespace YACCS.TypeReaders
 {
-	public class TypeReaderRegistry : ITypeRegistry<ITypeReader>
+	public class TypeReaderRegistry : TypeRegistry<ITypeReader>
 	{
 		private static readonly MethodInfo _RegisterMethod =
 			typeof(TypeReaderRegistry)
@@ -18,10 +18,17 @@ namespace YACCS.TypeReaders
 			.DeclaredMethods
 			.Single(x => x.Name == nameof(RegisterWithNullable));
 
-		private readonly Dictionary<Type, ITypeReader> _Readers
-			= new Dictionary<Type, ITypeReader>();
+		public override ITypeReader this[Type key]
+		{
+			get => base[key];
+			set
+			{
+				value.ThrowIfInvalidTypeReader(key);
+				base[key] = value;
+			}
+		}
 
-		public TypeReaderRegistry()
+		public TypeReaderRegistry() : base(new Dictionary<Type, ITypeReader>())
 		{
 			Register(typeof(string), new StringTypeReader());
 			Register(typeof(Uri), new UriTypeReader());
@@ -42,31 +49,31 @@ namespace YACCS.TypeReaders
 			RegisterWithNullable(new DateTimeTypeReader<DateTimeOffset>(DateTimeOffset.TryParse));
 			RegisterWithNullable(new TimeSpanTypeReader<TimeSpan>(TimeSpan.TryParse));
 
-			this.Register(typeof(TypeReaderRegistry).Assembly.GetTypeReaders());
+			this.RegisterTypeReaders(typeof(TypeReaderRegistry).Assembly.GetTypeReaders());
 		}
 
 		public void Register(Type type, ITypeReader item)
 		{
-			item.ThrowIfInvalidTypeReader(type);
-
 			if (type.IsValueType
 				&& item.GetType().GetInterfaces().Any(x => x.IsGenericOf(typeof(ITypeReader<>))))
 			{
 				_RegisterMethod.MakeGenericMethod(type).Invoke(this, new object[] { item });
 			}
-
-			_Readers[type] = item;
+			else
+			{
+				Items[type] = item;
+			}
 		}
 
 		public void RegisterWithNullable<T>(ITypeReader<T> item) where T : struct
 		{
-			_Readers[typeof(T)] = item;
-			_Readers[typeof(T?)] = new NullableTypeReader<T>(item);
+			Items[typeof(T)] = item;
+			Items[typeof(T?)] = new NullableTypeReader<T>(item);
 		}
 
-		public virtual bool TryGet(Type type, [NotNullWhen(true)] out ITypeReader? reader)
+		public override bool TryGetValue(Type type, [NotNullWhen(true)] out ITypeReader reader)
 		{
-			if (_Readers.TryGetValue(type, out reader))
+			if (Items.TryGetValue(type, out reader))
 			{
 				return true;
 			}
@@ -84,13 +91,13 @@ namespace YACCS.TypeReaders
 			{
 				readerType = typeof(NamedArgumentTypeReader<>).MakeGenericType(type);
 			}
-			else if (type.GetEnumerableType() is Type eType && _Readers.ContainsKey(eType))
+			else if (type.GetArrayType() is Type eType && Items.ContainsKey(eType))
 			{
 				readerType = typeof(ArrayTypeReader<>).MakeGenericType(eType);
 			}
 			else
 			{
-				reader = null;
+				reader = null!;
 				return false;
 			}
 

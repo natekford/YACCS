@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 
@@ -10,14 +9,14 @@ namespace YACCS
 	{
 		// Some interfaces Array implements
 		// Don't deal with the non generic versions b/c how would we parse 'object'?
-		public static readonly ImmutableArray<Type> SupportedEnumerableTypes = new[]
+		public static readonly HashSet<Type> SupportedArrayInterfaces = new()
 		{
 			typeof(IList<>),
 			typeof(ICollection<>),
 			typeof(IEnumerable<>),
 			typeof(IReadOnlyList<>),
 			typeof(IReadOnlyCollection<>),
-		}.ToImmutableArray();
+		};
 
 		public static Lazy<T> CreateDelegate<T>(Func<T> createDelegateDelegate, string name)
 		{
@@ -44,7 +43,7 @@ namespace YACCS
 			catch (Exception ex)
 			{
 				throw new ArgumentException(
-					$"Unable to create an instance of {type.Name}. Is it missing a public parameterless constructor?", nameof(type), ex);
+					$"Unable to create an instance of {type.Name}.", nameof(type), ex);
 			}
 			if (instance is T t)
 			{
@@ -54,22 +53,16 @@ namespace YACCS
 				$"{type.Name} does not implement {typeof(T).FullName}.", nameof(type));
 		}
 
-		public static Type? GetEnumerableType(this Type type)
+		public static Type? GetArrayType(this Type type)
 		{
 			if (type.IsArray)
 			{
 				return type.GetElementType();
 			}
-			if (type.IsInterface && type.IsGenericType)
+			if (type.IsInterface && type.IsGenericType
+				&& SupportedArrayInterfaces.Contains(type.GetGenericTypeDefinition()))
 			{
-				var typeDefinition = type.GetGenericTypeDefinition();
-				foreach (var supportedType in SupportedEnumerableTypes)
-				{
-					if (typeDefinition == supportedType)
-					{
-						return type.GetGenericArguments()[0];
-					}
-				}
+				return type.GetGenericArguments()[0];
 			}
 			return null;
 		}

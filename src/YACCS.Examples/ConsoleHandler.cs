@@ -1,6 +1,7 @@
 ﻿#pragma warning disable CA1822 // Mark members as static
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -13,10 +14,10 @@ namespace YACCS.Examples
 	{
 		private readonly Channel<string?> _Channel;
 		private readonly SemaphoreSlim _Input;
-		private readonly ITypeRegistry<string> _Names;
+		private readonly IReadOnlyDictionary<Type, string> _Names;
 		private readonly SemaphoreSlim _Output;
 
-		public ConsoleHandler(ITypeRegistry<string> names)
+		public ConsoleHandler(IReadOnlyDictionary<Type, string> names)
 		{
 			_Names = names;
 			_Input = new SemaphoreSlim(1, 1);
@@ -111,7 +112,7 @@ namespace YACCS.Examples
 		{
 			return result switch
 			{
-				ParseFailedResult pfr => $"Failed to parse {_Names.Get(pfr.Type)}.",
+				ParseFailedResult pfr => $"Failed to parse {_Names[pfr.Type]}.",
 				_ => result.Response,
 			};
 		}
