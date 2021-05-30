@@ -9,14 +9,14 @@ namespace YACCS.Commands
 		public static ICommandServiceConfig Default { get; }
 			= new ImmutableCommandServiceConfig(new CommandServiceConfig());
 
-		public IEqualityComparer<string> CommandNameComparer
-			=> IsCaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
-		public HashSet<char> EndQuotes { get; set; } = new HashSet<char> { '"' };
+		public HashSet<char> EndQuotes { get; set; } = new() { CommandServiceUtils.InternallyUsedQuote };
 		public bool IgnoreExtraArgs { get; set; }
 		public bool IsCaseSensitive { get; set; }
 		public MultiMatchHandling MultiMatchHandling { get; set; } = MultiMatchHandling.Best;
 		public char Separator { get; set; } = CommandServiceUtils.InternallyUsedSeparator;
-		public HashSet<char> StartQuotes { get; set; } = new HashSet<char> { '"' };
+		public HashSet<char> StartQuotes { get; set; } = new() { CommandServiceUtils.InternallyUsedQuote };
+		IEqualityComparer<string> ICommandServiceConfig.CommandNameComparer
+			=> IsCaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
 		IImmutableSet<char> ICommandServiceConfig.EndQuotes => EndQuotes.ToImmutableHashSet();
 		IImmutableSet<char> ICommandServiceConfig.StartQuotes => StartQuotes.ToImmutableHashSet();
 
