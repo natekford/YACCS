@@ -116,39 +116,39 @@ namespace YACCS.Tests.Commands
 			{
 				var found = commandService.Find("1");
 				Assert.AreEqual(1, found.Count);
-				Assert.AreSame(c1, found[0]);
+				Assert.AreSame(c1, found.Single());
 			}
 
 			{
 				var found = commandService.Find("2");
 				Assert.AreEqual(1, found.Count);
-				Assert.AreSame(c2, found[0]);
+				Assert.AreSame(c2, found.Single());
 			}
 
 			{
 				var found = commandService.Find("3");
 				Assert.AreEqual(1, found.Count);
-				Assert.AreSame(c2, found[0]);
+				Assert.AreSame(c2, found.Single());
 			}
 
 			{
 				var found = commandService.Find("4");
 				Assert.AreEqual(2, found.Count);
-				Assert.AreSame(c3, found[0]);
-				Assert.AreSame(c4, found[1]);
+				Assert.IsTrue(found.Contains(c3));
+				Assert.IsTrue(found.Contains(c4));
 			}
 
 			{
 				var found = commandService.Find("4 1");
 				Assert.AreEqual(2, found.Count);
-				Assert.AreSame(c3, found[0]);
-				Assert.AreSame(c4, found[1]);
+				Assert.IsTrue(found.Contains(c3));
+				Assert.IsTrue(found.Contains(c4));
 			}
 
 			{
 				var found = commandService.Find("4 2");
 				Assert.AreEqual(1, found.Count);
-				Assert.AreSame(c3, found[0]);
+				Assert.AreSame(c3, found.Single());
 			}
 
 			{
@@ -169,7 +169,7 @@ namespace YACCS.Tests.Commands
 		public async Task BestMatchIsDisabled_Test()
 		{
 			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-			var input = $"{CommandsGroup3._Name2} {CommandsGroup3._Disabled}";
+			const string input = $"{CommandsGroup3._Name2} {CommandsGroup3._Disabled}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 			Assert.AreEqual(DisabledPrecondition._DisabledMessage, result.InnerResult.Response);
@@ -195,7 +195,7 @@ namespace YACCS.Tests.Commands
 				return Task.CompletedTask;
 			};
 
-			var input = $"{CommandsGroup3._Name2} {CommandsGroup3._Delay}";
+			const string input = $"{CommandsGroup3._Name2} {CommandsGroup3._Delay}";
 			var sw = new Stopwatch();
 			sw.Start();
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
@@ -229,7 +229,7 @@ namespace YACCS.Tests.Commands
 				return Task.CompletedTask;
 			};
 
-			var input = $"{CommandsGroup3._Name2} {CommandsGroup3._ThrowsAfter}";
+			const string input = $"{CommandsGroup3._Name2} {CommandsGroup3._ThrowsAfter}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 
@@ -255,7 +255,7 @@ namespace YACCS.Tests.Commands
 				return Task.CompletedTask;
 			};
 
-			var input = $"{CommandsGroup3._Name2} {CommandsGroup3._Throws}";
+			const string input = $"{CommandsGroup3._Name2} {CommandsGroup3._Throws}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 
@@ -270,7 +270,7 @@ namespace YACCS.Tests.Commands
 		public async Task Multimatch_Test()
 		{
 			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-			var input = $"{CommandsGroup2._NAME} asdf";
+			const string input = $"{CommandsGroup2._NAME} asdf";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 			Assert.IsFalse(result.InnerResult.IsSuccess);

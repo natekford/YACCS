@@ -78,6 +78,44 @@ namespace YACCS.Commands
 			where T : ICommandGroup, new()
 			=> typeof(T).GetAllCommandsAsync(config);
 
+		public static IReadOnlyList<T> GetAllItems<T>(this INode<T> node)
+		{
+			static int GetMaximumSize(INode<T> node)
+			{
+				var size = node.Items.Count;
+				foreach (var edge in node.Edges)
+				{
+					size += GetMaximumSize(edge);
+				}
+				return size;
+			}
+
+			static IEnumerable<T> GetItems(INode<T> node)
+			{
+				foreach (var item in node.Items)
+				{
+					yield return item;
+				}
+				foreach (var edge in node.Edges)
+				{
+					foreach (var item in GetItems(edge))
+					{
+						yield return item;
+					}
+				}
+			}
+
+			var set = new HashSet<T>(GetMaximumSize(node));
+			foreach (var item in GetItems(node))
+			{
+				set.Add(item);
+			}
+
+			var arr = ImmutableArray.CreateBuilder<T>(set.Count);
+			arr.AddRange(set);
+			return arr.MoveToImmutable();
+		}
+
 		public static async IAsyncEnumerable<IImmutableCommand> GetDirectCommandsAsync(
 			this IEnumerable<Type> types,
 			ICommandServiceConfig? config = null)

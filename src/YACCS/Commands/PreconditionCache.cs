@@ -12,12 +12,9 @@ namespace YACCS.Commands
 	public class PreconditionCache
 	{
 		private readonly IContext _Context;
-		private readonly Dictionary<PPKey, IResult> _ParameterPreconditions
-			= new Dictionary<PPKey, IResult>();
-		private readonly Dictionary<PKey, IResult> _Preconditions
-			= new Dictionary<PKey, IResult>();
-		private readonly Dictionary<TRKey, ITypeReaderResult> _TypeReaders
-			= new Dictionary<TRKey, ITypeReaderResult>();
+		private readonly Dictionary<PPKey, IResult> _ParameterPreconditions = new();
+		private readonly Dictionary<PKey, IResult> _Preconditions = new();
+		private readonly Dictionary<TRKey, ITypeReaderResult> _TypeReaders = new();
 
 		public PreconditionCache(IContext context)
 		{

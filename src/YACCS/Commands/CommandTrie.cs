@@ -15,11 +15,12 @@ namespace YACCS.Commands
 	{
 		private readonly ITypeRegistry<ITypeReader> _Readers;
 		private readonly IEqualityComparer<string> _StringComparer;
+		private HashSet<IImmutableCommand> _Items;
 		private Node _Root;
 
 		public bool IsReadOnly => false;
 		public INode<IImmutableCommand> Root => _Root;
-		public int Count => _Root.AllValues.Count;
+		public int Count => _Items.Count;
 		private string DebuggerDisplay => $"Count = {Count}";
 
 		public CommandTrie(IEqualityComparer<string> stringComparer, ITypeRegistry<ITypeReader> readers)
@@ -27,6 +28,7 @@ namespace YACCS.Commands
 			_StringComparer = stringComparer;
 			_Readers = readers;
 			_Root = new Node(null, null, _StringComparer);
+			_Items = new HashSet<IImmutableCommand>();
 		}
 
 		public int Add(IImmutableCommand item)
@@ -55,11 +57,18 @@ namespace YACCS.Commands
 					node = next;
 				}
 			}
+			if (added != 0)
+			{
+				_Items.Add(item);
+			}
 			return added;
 		}
 
 		public void Clear()
-			=> _Root = new Node(null, null, _StringComparer);
+		{
+			_Root = new Node(null, null, _StringComparer);
+			_Items = new HashSet<IImmutableCommand>();
+		}
 
 		public bool Contains(IImmutableCommand item)
 		{
@@ -68,9 +77,9 @@ namespace YACCS.Commands
 			{
 				return false;
 			}
-			if (item.Names.Count >= _Root.AllValues.Count)
+			if (item.Names.Count >= _Items.Count)
 			{
-				return _Root.AllValues.Contains(item);
+				return _Items.Contains(item);
 			}
 
 			foreach (var name in item.Names)
@@ -100,7 +109,7 @@ namespace YACCS.Commands
 		}
 
 		public IEnumerator<IImmutableCommand> GetEnumerator()
-			=> _Root.AllValues.GetEnumerator();
+			=> _Items.GetEnumerator();
 
 		public int Remove(IImmutableCommand item)
 		{
@@ -120,6 +129,10 @@ namespace YACCS.Commands
 					}
 				}
 			}
+			if (removed != 0)
+			{
+				_Items.Remove(item);
+			}
 			return removed;
 		}
 
@@ -135,14 +148,12 @@ namespace YACCS.Commands
 		[DebuggerDisplay("{DebuggerDisplay,nq}")]
 		private sealed class Node : INode<IImmutableCommand>
 		{
-			private readonly HashSet<IImmutableCommand> _Commands;
-			private readonly HashSet<IImmutableCommand> _DirectCommands;
 			private readonly Dictionary<string, Node> _Edges;
+			private readonly HashSet<IImmutableCommand> _Items;
 			private readonly string? _Key;
 			private readonly Node? _Parent;
 
-			public IReadOnlyCollection<IImmutableCommand> AllValues => _Commands;
-			public IReadOnlyCollection<IImmutableCommand> DirectValues => _DirectCommands;
+			public IReadOnlyCollection<IImmutableCommand> Items => _Items;
 			public IReadOnlyCollection<Node> Edges => _Edges.Values;
 			IReadOnlyCollection<INode<IImmutableCommand>> INode<IImmutableCommand>.Edges => Edges;
 			private string DebuggerDisplay
@@ -158,7 +169,7 @@ namespace YACCS.Commands
 					{
 						path = "ROOT";
 					}
-					return $"Path = {path}, Count = {AllValues.Count}";
+					return $"Path = {path}, Count = {_Items.Count}";
 				}
 			}
 
@@ -172,45 +183,30 @@ namespace YACCS.Commands
 
 			public Node(string? key, Node? parent, IEqualityComparer<string> stringComparer)
 			{
-				_Commands = new HashSet<IImmutableCommand>();
-				_DirectCommands = new HashSet<IImmutableCommand>();
+				_Items = new HashSet<IImmutableCommand>();
 				_Edges = new Dictionary<string, Node>(stringComparer);
 				_Key = key;
 				_Parent = parent;
 			}
 
 			public bool Add(IImmutableCommand command)
-			{
-				if (!_DirectCommands.Add(command))
-				{
-					return false;
-				}
-
-				// Add the command to all parent nodes
-				for (var node = this; node is not null; node = node._Parent)
-				{
-					node._Commands.Add(command);
-				}
-
-				return true;
-			}
+				=> _Items.Add(command);
 
 			public bool Contains(IImmutableCommand command)
 				// Only direct commands since the node has already been found via name
-				=> _DirectCommands.Contains(command);
+				=> _Items.Contains(command);
 
 			public bool Remove(IImmutableCommand command)
 			{
-				if (!_DirectCommands.Remove(command))
+				if (!_Items.Remove(command))
 				{
 					return false;
 				}
 
-				// Remove the command from all parent nodes and kill all empty nodes
+				// Kill all empty nodes
 				for (var node = this; node is not null; node = node._Parent)
 				{
-					node._Commands.Remove(command);
-					if (node._Commands.Count == 0 && node._Edges.Count == 0)
+					if (node._Items.Count == 0 && node._Edges.Count == 0)
 					{
 						node._Parent?._Edges?.Remove(node._Key!);
 					}

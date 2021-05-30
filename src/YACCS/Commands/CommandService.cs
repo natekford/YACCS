@@ -73,7 +73,7 @@ namespace YACCS.Commands
 				}
 				if (i == args.Length - 1)
 				{
-					return node.AllValues.ToImmutableArray();
+					return node.GetAllItems();
 				}
 			}
 
@@ -94,7 +94,7 @@ namespace YACCS.Commands
 				{
 					break;
 				}
-				foreach (var command in node.DirectValues)
+				foreach (var command in node.Items)
 				{
 					// Add 1 to i to account for how we're in a node
 					var score = await GetCommandScoreAsync(cache, context, command, input, i + 1).ConfigureAwait(false);

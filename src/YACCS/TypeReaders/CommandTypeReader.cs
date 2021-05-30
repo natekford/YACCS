@@ -9,12 +9,15 @@ using YACCS.Commands.Models;
 namespace YACCS.TypeReaders
 {
 	// The interface defines IReadOnlyList<command> while the default implementation is
-	// ImmutableArray<command>, but we can't guarantee that the default is what will be used
+	// List<command>, but we can't guarantee that the default is what will be used
 	// so we should only use IReadOnlyList<command> and the interfaces it implements
+	/// <summary>
+	/// Gets commands which start with the provided value. Order is NOT guaranteed.
+	/// </summary>
 	[TypeReaderTargetTypes(
-		typeof(IReadOnlyList<IImmutableCommand>),
 		typeof(IEnumerable<IImmutableCommand>),
-		typeof(IReadOnlyCollection<IImmutableCommand>)
+		typeof(IReadOnlyCollection<IImmutableCommand>),
+		typeof(IReadOnlyList<IImmutableCommand>)
 	)]
 	public class CommandsTypeReader : TypeReader<IReadOnlyList<IImmutableCommand>>
 	{
