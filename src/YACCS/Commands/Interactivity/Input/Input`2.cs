@@ -16,7 +16,7 @@ namespace YACCS.Commands.Interactivity.Input
 
 		protected static Delegate EmptyDelegate { get; } = (Action)(() => { });
 		protected static IEnumerable<IReadOnlyList<string>> EmptyNames { get; }
-			= new[] { new Name(new[] { "Input" }) };
+			= new[] { new ImmutableName(new[] { "Input" }) };
 
 		protected Input(IReadOnlyDictionary<Type, ITypeReader> typeReaders)
 		{

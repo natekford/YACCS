@@ -9,7 +9,7 @@ namespace YACCS.Tests
 		public static DelegateCommand New(Type? type = null)
 		{
 			var @delegate = (Action)(() => { });
-			return new DelegateCommand(@delegate, type, Array.Empty<Name>());
+			return new DelegateCommand(@delegate, type, Array.Empty<ImmutableName>());
 		}
 	}
 }

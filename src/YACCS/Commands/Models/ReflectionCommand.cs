@@ -61,16 +61,11 @@ namespace YACCS.Commands.Models
 			MethodInfo method,
 			IEnumerable<string>? extraNames)
 		{
-			var names = Enumerable.Empty<string>();
-			var methodNames = method
+			var names = method
 				.GetCustomAttributes(true)
 				.OfType<ICommandAttribute>()
 				.SingleOrDefault()
-				?.Names;
-			if (methodNames is not null)
-			{
-				names = names.Concat(methodNames);
-			}
+				?.Names ?? Enumerable.Empty<string>();
 			if (extraNames is not null)
 			{
 				names = names.Concat(extraNames);
@@ -104,7 +99,7 @@ namespace YACCS.Commands.Models
 				type = type.DeclaringType;
 			}
 
-			return output.Select(x => new Name(x));
+			return output.Select(x => new ImmutableName(x));
 		}
 
 		private void AddAllParentsAttributes(Type type)

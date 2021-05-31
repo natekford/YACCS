@@ -88,7 +88,7 @@ namespace YACCS.Examples
 				=> _Console.WriteLine($"i am the delegate command: {i} {d} {s}");
 
 			var @delegate = (Action<int, double, string>)DelegateCommand;
-			var names = new[] { new Name(new[] { "delegate" }) };
+			var names = new[] { new ImmutableName(new[] { "delegate" }) };
 			for (var i = 0; i < 1000; ++i)
 			{
 				var command = new DelegateCommand(@delegate, names)

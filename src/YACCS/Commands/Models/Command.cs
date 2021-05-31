@@ -53,18 +53,25 @@ namespace YACCS.Commands.Models
 			protected ImmutableCommand(Command mutable, Type returnType)
 			{
 				ReturnType = returnType;
+				ContextType = mutable.ContextType;
 				_TaskResultDelegate = ReflectionUtils.CreateDelegate(CreateTaskResultDelegate,
 					"task result delegate");
 
-				ContextType = mutable.ContextType;
-				Names = mutable.Names.ToImmutableArray();
+				{
+					var names = ImmutableArray.CreateBuilder<IReadOnlyList<string>>(mutable.Names.Count);
+					foreach (var name in mutable.Names)
+					{
+						names.Add(new ImmutableName(name));
+					}
+					Names = names.MoveToImmutable();
+				}
 
 				{
-					var builder = ImmutableArray.CreateBuilder<IImmutableParameter>(mutable.Parameters.Count);
+					var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(mutable.Parameters.Count);
 					for (var i = 0; i < mutable.Parameters.Count; ++i)
 					{
 						var immutable = mutable.Parameters[i].ToImmutable(this);
-						builder.Add(immutable);
+						parameters.Add(immutable);
 
 						// Remainder will always be the last parameter
 						if (!immutable.Length.HasValue)
@@ -83,7 +90,7 @@ namespace YACCS.Commands.Models
 						}
 						MaxLength += immutable.Length.Value;
 					}
-					Parameters = builder.MoveToImmutable();
+					Parameters = parameters.MoveToImmutable();
 				}
 
 				{
