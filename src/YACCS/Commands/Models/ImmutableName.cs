@@ -6,7 +6,7 @@ using System.Diagnostics;
 namespace YACCS.Commands.Models
 {
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
-	public class Name : IReadOnlyList<string>
+	public class ImmutableName : IReadOnlyList<string>
 	{
 		private readonly ImmutableArray<string> _Parts;
 		private string? _Joined;
@@ -15,9 +15,16 @@ namespace YACCS.Commands.Models
 
 		public string this[int index] => _Parts[index];
 
-		public Name(IEnumerable<string> parts)
+		public ImmutableName(IEnumerable<string> parts)
 		{
-			_Parts = parts.ToImmutableArray();
+			if (parts is ImmutableName name)
+			{
+				_Parts = name._Parts;
+			}
+			else
+			{
+				_Parts = parts.ToImmutableArray();
+			}
 		}
 
 		public IEnumerator<string> GetEnumerator()
