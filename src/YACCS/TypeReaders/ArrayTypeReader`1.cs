@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MorseCode.ITask;
 
 using YACCS.Commands;
+using YACCS.Parsing;
 
 namespace YACCS.TypeReaders
 {
@@ -13,10 +14,10 @@ namespace YACCS.TypeReaders
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
-			var registry = context.Services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
-			var service = context.Services.GetRequiredService<ICommandService>();
+			var readers = context.Services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
+			var splitter = context.Services.GetRequiredService<IArgumentSplitter>();
 
-			var reader = registry.GetTypeReader<T>();
+			var reader = readers.GetTypeReader<T>();
 			var values = new List<T>(input.Length);
 			for (var i = 0; i < input.Length; ++i)
 			{
@@ -28,7 +29,7 @@ namespace YACCS.TypeReaders
 				}
 
 				// Unseparated arguments need separation
-				if (!service.TryGetArgs(input.Span[i], out var args) || args.Length < 2)
+				if (!splitter.TryGetArgs(input.Span[i], out var args) || args.Length < 2)
 				{
 					return TypeReaderResult<T[]>.FromError(iResult.InnerResult);
 				}

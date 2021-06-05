@@ -77,10 +77,10 @@ namespace YACCS.Commands.Models
 				output.Add(Enumerable.Empty<string>());
 			}
 
-			var type = group;
-			while (type is not null)
+			var parent = group;
+			while (parent is not null)
 			{
-				var command = type
+				var command = parent
 					.GetCustomAttributes()
 					.OfType<ICommandAttribute>()
 					.SingleOrDefault();
@@ -96,7 +96,7 @@ namespace YACCS.Commands.Models
 					}
 					output.RemoveRange(0, count);
 				}
-				type = type.DeclaringType;
+				parent = parent.DeclaringType;
 			}
 
 			return output.Select(x => new ImmutableName(x));

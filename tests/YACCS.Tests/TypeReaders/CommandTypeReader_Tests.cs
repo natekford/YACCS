@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
@@ -20,17 +19,14 @@ namespace YACCS.Tests.TypeReaders
 
 		public CommandTypeReader_Tests()
 		{
-			var service = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
 			Context = new FakeContext
 			{
-				Services = new ServiceCollection()
-					.AddSingleton<ICommandService>(service)
-					.BuildServiceProvider(),
+				Services = Utils.CreateServices(),
 			};
 
 			foreach (var command in typeof(FakeCommandGroup).GetDirectCommandsAsync().GetAwaiter().GetResult())
 			{
-				service.Commands.Add(command);
+				Context.Get<CommandService>().Commands.Add(command);
 			}
 		}
 

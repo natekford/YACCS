@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Linq;
@@ -18,8 +17,8 @@ namespace YACCS.Commands
 		IReadOnlyCollection<IImmutableCommand> ICommandService.Commands => Commands;
 		protected IAsyncEvent<CommandExecutedEventArgs> CommandExecutedEvent { get; set; }
 		protected ICommandServiceConfig Config { get; set; }
-		protected IQuoteHandler Quoter { get; set; }
 		protected IReadOnlyDictionary<Type, ITypeReader> Readers { get; set; }
+		protected IArgumentSplitter Splitter { get; set; }
 
 		public event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted
 		{
@@ -33,18 +32,22 @@ namespace YACCS.Commands
 			remove => CommandExecutedEvent.Exception.Remove(value);
 		}
 
-		public CommandService(ICommandServiceConfig config, IReadOnlyDictionary<Type, ITypeReader> readers)
+		public CommandService(
+			ICommandServiceConfig config,
+			IArgumentSplitter splitter,
+			IReadOnlyDictionary<Type, ITypeReader> readers)
 		{
-			Commands = new CommandTrie(readers, config);
-			CommandExecutedEvent = new AsyncEvent<CommandExecutedEventArgs>();
 			Config = config;
+			Splitter = splitter;
 			Readers = readers;
-			Quoter = new DefaultQuoteHandler(config.Separator, config.StartQuotes, config.EndQuotes);
+
+			CommandExecutedEvent = new AsyncEvent<CommandExecutedEventArgs>();
+			Commands = new CommandTrie(readers, config);
 		}
 
 		public virtual Task<ICommandResult> ExecuteAsync(IContext context, string input)
 		{
-			if (!TryGetArgs(input, out var args))
+			if (!Splitter.TryGetArgs(input, out var args))
 			{
 				return CommandScore.QuoteMismatchTask;
 			}
@@ -58,7 +61,7 @@ namespace YACCS.Commands
 
 		public virtual IReadOnlyList<IImmutableCommand> Find(string input)
 		{
-			if (!TryGetArgs(input, out var args))
+			if (!Splitter.TryGetArgs(input, out var args))
 			{
 				return Array.Empty<IImmutableCommand>();
 			}
@@ -319,15 +322,6 @@ namespace YACCS.Commands
 			var length = Math.Max(Math.Min(input.Length - startIndex, pLength), 1);
 			var sliced = input.Slice(startIndex, length);
 			return cache.GetResultAsync(reader, sliced);
-		}
-
-		public virtual bool TryGetArgs(
-			string input,
-			[NotNullWhen(true)] out ReadOnlyMemory<string> args)
-		{
-			var result = Args.TryParse(input, Quoter, out var parsed);
-			args = parsed;
-			return result;
 		}
 
 		protected virtual Task CommandFinishedAsync(IContext context, IImmutableCommand command)

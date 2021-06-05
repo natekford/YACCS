@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
@@ -18,18 +17,11 @@ namespace YACCS.Tests.TypeReaders
 
 		public ArrayTypeReader_Tests()
 		{
-			var registry = new TypeReaderRegistry();
-			var config = CommandServiceConfig.Default;
-			var commandService = new CommandService(config, registry);
 			Context = new FakeContext
 			{
-				Services = new ServiceCollection()
-					.AddSingleton<ICommandService>(commandService)
-					.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>>(registry)
-					.AddSingleton<ICommandServiceConfig>(config)
-					.BuildServiceProvider(),
+				Services = Utils.CreateServices(),
 			};
-			Reader = registry.GetTypeReader<int[]>();
+			Reader = Context.Get<IReadOnlyDictionary<Type, ITypeReader>>().GetTypeReader<int[]>();
 		}
 
 		[TestMethod]

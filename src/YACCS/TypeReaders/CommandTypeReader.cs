@@ -26,6 +26,7 @@ namespace YACCS.TypeReaders
 			ReadOnlyMemory<string> input)
 		{
 			var commands = context.Services.GetRequiredService<ICommandService>();
+
 			var found = commands.Find(input.Span[0]);
 			if (found.Count > 0)
 			{

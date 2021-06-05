@@ -12,6 +12,7 @@ using YACCS.Commands.Interactivity.Input;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Help;
+using YACCS.Parsing;
 using YACCS.TypeReaders;
 
 namespace YACCS.Examples
@@ -20,6 +21,7 @@ namespace YACCS.Examples
 	{
 		private readonly ConsoleCommandService _CommandService;
 		private readonly ICommandServiceConfig _Config;
+		private readonly IArgumentSplitter _Splitter;
 		private readonly ConsoleHandler _Console;
 		private readonly HelpFormatter _HelpFormatter;
 		private readonly ConsoleInput _Input;
@@ -31,17 +33,19 @@ namespace YACCS.Examples
 		private Program()
 		{
 			_Config = CommandServiceConfig.Default;
+			_Splitter = ArgumentSplitter.Default;
 			_Names = new TypeNameRegistry();
 			_TypeReaders = new TypeReaderRegistry();
 			_Tags = new TagConverter();
 
 			_Console = new ConsoleHandler(_Names);
 			_HelpFormatter = new HelpFormatter(_Names, _Tags);
-			_CommandService = new ConsoleCommandService(_Config, _TypeReaders, _Console);
+			_CommandService = new ConsoleCommandService(_Config, _Splitter, _TypeReaders, _Console);
 			_Input = new ConsoleInput(_TypeReaders, _Console);
 
 			_Services = new ServiceCollection()
 				.AddSingleton<ICommandService>(_CommandService)
+				.AddSingleton<IArgumentSplitter>(_Splitter)
 				.AddSingleton<IHelpFormatter>(_HelpFormatter)
 				.AddSingleton<IInput<IContext, string>>(_Input)
 				.AddSingleton<IReadOnlyDictionary<Type, string>>(_Names)

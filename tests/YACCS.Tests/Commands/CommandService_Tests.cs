@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using MorseCode.ITask;
@@ -26,42 +25,41 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public void AddAndRemove_Test()
 		{
-			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
-			var collection = commandService.Commands;
-			Assert.AreEqual(0, collection.Count);
+			var commandService = Utils.CreateServices().Get<CommandService>();
+			var trie = commandService.Commands;
 
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new[] { "1" })
 				.ToImmutable()
 				.Single();
-			collection.Add(c1);
-			Assert.AreEqual(1, collection.Count);
+			trie.Add(c1);
+			Assert.AreEqual(1, trie.Count);
 
 			var c2 = FakeDelegateCommand.New()
 				.AddName(new[] { "2" })
 				.ToImmutable()
 				.Single();
-			collection.Add(c2);
+			trie.Add(c2);
 			Assert.AreEqual(2, commandService.Commands.Count);
 
-			collection.Remove(c1);
+			trie.Remove(c1);
 			Assert.AreEqual(1, commandService.Commands.Count);
 
-			collection.Remove(c2);
+			trie.Remove(c2);
 			Assert.AreEqual(0, commandService.Commands.Count);
 		}
 
 		[TestMethod]
 		public void AddWithParameters_Test()
 		{
-			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
-			var collection = commandService.Commands;
+			var commandService = Utils.CreateServices().Get<CommandService>();
+			var trie = commandService.Commands;
 
 			static void Method(Fake x) { }
 			var c1 = new DelegateCommand((Action<Fake>)Method, new[] { new[] { "1" } });
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				collection.Add(c1.ToImmutable().Single());
+				trie.Add(c1.ToImmutable().Single());
 			});
 
 			c1.Parameters[0].TypeReader = new TryParseTypeReader<Fake>((string input, out Fake output) =>
@@ -69,39 +67,39 @@ namespace YACCS.Tests.Commands
 				output = null!;
 				return false;
 			});
-			collection.Add(c1.ToImmutable().Single());
+			trie.Add(c1.ToImmutable().Single());
 			Assert.AreEqual(1, commandService.Commands.Count);
 		}
 
 		[TestMethod]
 		public void Find_Test()
 		{
-			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
-			var collection = commandService.Commands;
+			var commandService = Utils.CreateServices().Get<ICommandService>();
+			var trie = (ITrie<IImmutableCommand>)commandService.Commands;
 
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new[] { "1" })
 				.ToImmutable()
 				.Single();
-			collection.Add(c1);
+			trie.Add(c1);
 			var c2 = FakeDelegateCommand.New()
 				.AddName(new[] { "2" })
 				.AddName(new[] { "3" })
 				.ToImmutable()
 				.Single();
-			collection.Add(c2);
+			trie.Add(c2);
 			var c3 = FakeDelegateCommand.New()
 				.AddName(new[] { "4", "1" })
 				.AddName(new[] { "4", "2" })
 				.AddName(new[] { "4", "3" })
 				.ToImmutable()
 				.Single();
-			collection.Add(c3);
+			trie.Add(c3);
 			var c4 = FakeDelegateCommand.New()
 				.AddName(new[] { "4", "1" })
 				.ToImmutable()
 				.Single();
-			collection.Add(c4);
+			trie.Add(c4);
 
 			{
 				var found = commandService.Find("");
@@ -297,13 +295,15 @@ namespace YACCS.Tests.Commands
 
 		private static async Task<(CommandService, FakeContext)> CreateAsync()
 		{
-			var config = new CommandServiceConfig
+			var context = new FakeContext
 			{
-				MultiMatchHandling = MultiMatchHandling.Error,
+				Services = Utils.CreateServices(new CommandServiceConfig
+				{
+					MultiMatchHandling = MultiMatchHandling.Error,
+				}),
 			};
-			var commandService = new CommandService(config, new TypeReaderRegistry());
-			var context = new FakeContext();
 
+			var commandService = context.Get<CommandService>();
 			var commands = new[]
 			{
 				 typeof(CommandsGroup),
@@ -472,8 +472,10 @@ namespace YACCS.Tests.Commands
 
 		private static (CommandService, FakeContext, ICommand, IParameter) Create(bool success, int disallowedValue)
 		{
-			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
-			var context = new FakeContext();
+			var context = new FakeContext
+			{
+				Services = Utils.CreateServices(),
+			};
 
 			var command = FakeDelegateCommand.New(typeof(FakeContext))
 				.AsContext<FakeContext>()
@@ -486,7 +488,7 @@ namespace YACCS.Tests.Commands
 				.AddParameterPrecondition(new WasIReachedParameterPrecondition());
 			command.Parameters.Add(parameter);
 
-			return (commandService, context, command, parameter);
+			return (context.Get<CommandService>(), context, command, parameter);
 		}
 	}
 
@@ -555,17 +557,22 @@ namespace YACCS.Tests.Commands
 
 		private static (CommandService, FakeContext, IImmutableParameter) Create(int disallowedValue)
 		{
-			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
-			var context = new FakeContext();
+			var context = new FakeContext
+			{
+				Services = Utils.CreateServices(),
+			};
+
 			var parameterBuilder = new Parameter(typeof(int), "", null)
 				.AsType<int>()
 				.AddParameterPrecondition(new FakeParameterPrecondition(disallowedValue))
 				.AddParameterPrecondition(new WasIReachedParameterPrecondition());
+
 			var commandBuilder = FakeDelegateCommand.New();
 			commandBuilder.Parameters.Add(parameterBuilder);
 			var command = commandBuilder.ToImmutable().Single();
 			var parameter = parameterBuilder.ToImmutable(command);
-			return (commandService, context, parameter);
+
+			return (context.Get<CommandService>(), context, parameter);
 		}
 	}
 
@@ -598,14 +605,18 @@ namespace YACCS.Tests.Commands
 
 		private static (CommandService, FakeContext, IImmutableCommand) Create(bool success)
 		{
-			var commandService = new CommandService(CommandServiceConfig.Default, new TypeReaderRegistry());
-			var context = new FakeContext();
+			var context = new FakeContext
+			{
+				Services = Utils.CreateServices(),
+			};
+
 			var command = FakeDelegateCommand.New()
 				.AsContext<IContext>()
 				.AddPrecondition(new FakePrecondition(success))
 				.AddPrecondition(new WasIReachedPrecondition())
 				.ToImmutable();
-			return (commandService, context, command.Single());
+
+			return (context.Get<CommandService>(), context, command.Single());
 		}
 	}
 
@@ -796,16 +807,9 @@ namespace YACCS.Tests.Commands
 			int? length,
 			ITypeReader? reader = null)
 		{
-			var registry = new TypeReaderRegistry();
-			var config = CommandServiceConfig.Default;
-			var commandService = new CommandService(config, registry);
 			var context = new FakeContext
 			{
-				Services = new ServiceCollection()
-					.AddSingleton<ICommandService>(commandService)
-					.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>>(registry)
-					.AddSingleton<ICommandServiceConfig>(config)
-					.BuildServiceProvider(),
+				Services = Utils.CreateServices(),
 			};
 			var parameter = new Parameter(typeof(T), "", null)
 			{
@@ -815,7 +819,7 @@ namespace YACCS.Tests.Commands
 				},
 				TypeReader = reader,
 			}.ToImmutable(null);
-			return (commandService, context, parameter);
+			return ((CommandService)context.Get<ICommandService>(), context, parameter);
 		}
 
 		private class CoolCharTypeReader : TypeReader<char>

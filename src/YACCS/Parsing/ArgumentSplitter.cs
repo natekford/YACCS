@@ -1,28 +1,38 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 using YACCS.Commands;
 
 namespace YACCS.Parsing
 {
-	public sealed class DefaultQuoteHandler : IQuoteHandler
+	public class ArgumentSplitter : IArgumentSplitter
 	{
 		private readonly IImmutableSet<char> _End;
 		private readonly char _Split;
 		private readonly IImmutableSet<char> _Start;
 
+		public static IArgumentSplitter Default { get; } = new ArgumentSplitter();
 		public bool AllowEscaping { get; set; } = true;
 
-		public DefaultQuoteHandler() : this(
+		public ArgumentSplitter() : this(
 			CommandServiceUtils.InternallyUsedSeparator,
 			CommandServiceUtils.InternallyUsedQuotes,
 			CommandServiceUtils.InternallyUsedQuotes)
 		{ }
 
-		public DefaultQuoteHandler(char split, IImmutableSet<char> start, IImmutableSet<char> end)
+		public ArgumentSplitter(char split, IImmutableSet<char> start, IImmutableSet<char> end)
 		{
 			_Start = start;
 			_End = end;
 			_Split = split;
+		}
+
+		public bool TryGetArgs(string input, [NotNullWhen(true)] out ReadOnlyMemory<string> args)
+		{
+			var result = Args.TryParse(input, this, out var temp);
+			args = temp;
+			return result;
 		}
 
 		public bool ValidEndQuote(char? p, char c, char? n)

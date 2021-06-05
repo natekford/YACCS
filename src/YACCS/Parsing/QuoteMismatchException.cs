@@ -2,7 +2,6 @@
 
 namespace YACCS.Parsing
 {
-
 	public class QuoteMismatchException : ArgumentException
 	{
 		public QuoteMismatchException()

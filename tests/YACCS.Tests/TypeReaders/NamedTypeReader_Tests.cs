@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -131,19 +129,16 @@ namespace YACCS.Tests.TypeReaders
 
 		private async Task<(CommandService, SetMe, FakeContext)> CreateAsync()
 		{
-			var typeReaders = new TypeReaderRegistry();
-			var commandService = new CommandService(CommandServiceConfig.Default, typeReaders);
-			var commands = typeof(CommandsGroup).GetAllCommandsAsync();
-			await commandService.AddRangeAsync(commands).ConfigureAwait(false);
-
 			var setMe = new SetMe();
 			var context = new FakeContext()
 			{
-				Services = new ServiceCollection()
-					.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>>(typeReaders)
-					.AddSingleton(setMe)
-					.BuildServiceProvider(),
+				Services = Utils.CreateServiceCollection().AddSingleton(setMe).BuildServiceProvider(),
 			};
+
+			var commandService = context.Get<CommandService>();
+			var commands = typeof(CommandsGroup).GetAllCommandsAsync();
+			await commandService.AddRangeAsync(commands).ConfigureAwait(false);
+
 			return (commandService, setMe, context);
 		}
 
@@ -310,9 +305,7 @@ namespace YACCS.Tests.TypeReaders
 		{
 			return new FakeContext()
 			{
-				Services = new ServiceCollection()
-					.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>, TypeReaderRegistry>()
-					.BuildServiceProvider(),
+				Services = Utils.CreateServices(),
 			};
 		}
 

@@ -16,7 +16,7 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public void InvalidReaderRegistered_Test()
 		{
-			var registry = new TypeReaderRegistry();
+			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
 				registry.Register(typeof(FakeStruct), new UriTypeReader());
@@ -26,7 +26,7 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public void NonGenericReaderRegistered_Test()
 		{
-			var registry = new TypeReaderRegistry();
+			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
 			registry.Register(typeof(string), new BadStringReader());
 
 			var r1 = registry[typeof(string)];
@@ -41,7 +41,7 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public void NoReaderRegistered_Test()
 		{
-			var registry = new TypeReaderRegistry();
+			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
 				var reader = registry.GetTypeReader<FakeStruct>();
@@ -51,7 +51,7 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public void RegisterChildTypeReaderToParent_Test()
 		{
-			var registry = new TypeReaderRegistry();
+			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
 			var reader = new TryParseTypeReader<Child>((string input, out Child output) =>
 			{
 				output = new Child();
@@ -73,7 +73,7 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public void RegisterValueType_Test()
 		{
-			var registry = new TypeReaderRegistry();
+			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
 			var reader = new TryParseTypeReader<FakeStruct>((string input, out FakeStruct output) =>
 			{
 				output = new FakeStruct();
@@ -91,7 +91,7 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public void TryGetEnumReader_Test()
 		{
-			var registry = new TypeReaderRegistry();
+			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
 			var reader = registry.GetTypeReader<BindingFlags>();
 			Assert.IsNotNull(reader);
 		}
