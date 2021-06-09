@@ -1,6 +1,6 @@
 ﻿namespace YACCS.Preconditions
 {
-	public enum GroupOp
+	public enum BoolOp
 	{
 		/// <summary>
 		/// ALL preconditions with this operator must succeed for the command to be valid.

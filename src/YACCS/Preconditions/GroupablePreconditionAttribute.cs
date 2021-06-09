@@ -7,7 +7,7 @@ namespace YACCS.Preconditions
 	public abstract class GroupablePreconditionAttribute : Attribute, IGroupablePrecondition
 	{
 		public string[] Groups { get; set; } = Array.Empty<string>();
-		public GroupOp Op { get; set; } = GroupOp.And;
+		public BoolOp Op { get; set; } = BoolOp.And;
 
 		IReadOnlyList<string> IGroupablePrecondition.Groups => Groups;
 	}

@@ -5,6 +5,6 @@ namespace YACCS.Preconditions
 	public interface IGroupablePrecondition
 	{
 		IReadOnlyList<string> Groups { get; }
-		GroupOp Op { get; }
+		BoolOp Op { get; }
 	}
 }

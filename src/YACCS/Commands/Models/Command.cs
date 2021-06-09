@@ -106,14 +106,16 @@ namespace YACCS.Commands.Models
 							case IPrecondition precondition:
 								if (precondition.Groups.Count == 0)
 								{
-									preconditions.GetOrAdd("", _ => new List<IPrecondition>())
+									preconditions
+										.GetOrAdd(string.Empty, _ => new List<IPrecondition>())
 										.Add(precondition);
 								}
 								else
 								{
 									foreach (var group in precondition.Groups)
 									{
-										preconditions.GetOrAdd(group, _ => new List<IPrecondition>())
+										preconditions
+											.GetOrAdd(group, _ => new List<IPrecondition>())
 											.Add(precondition);
 									}
 								}

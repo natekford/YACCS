@@ -273,16 +273,36 @@ namespace YACCS.Commands
 				PreconditionCache cache,
 				IImmutableCommand command)
 			{
+				// Preconditions are grouped but cannot be subgrouped
+				// So treat logic as group is surrounded by parantheses but inside isn't
+				// Each group must succeed for a command to be valid
 				foreach (var group in command.Preconditions)
 				{
+					IResult groupResult = SuccessResult.Instance.Sync;
 					foreach (var precondition in group.Value)
 					{
-						var result = await cache.GetResultAsync(command, precondition).ConfigureAwait(false);
-						if ((precondition.Op == GroupOp.And && !result.IsSuccess)
-							|| (precondition.Op == GroupOp.Or && result.IsSuccess))
+						// An AND has already failed, no need to check other ANDs
+						if (precondition.Op == BoolOp.And && !groupResult.IsSuccess)
 						{
-							return result;
+							continue;
 						}
+
+						var result = await cache.GetResultAsync(command, precondition).ConfigureAwait(false);
+						// OR: Any success = instant success, go to next group
+						if (precondition.Op == BoolOp.Or && result.IsSuccess)
+						{
+							groupResult = SuccessResult.Instance.Sync;
+							break;
+						}
+						// AND: Any failure = skip other ANDs, only check further ORs
+						else if (precondition.Op == BoolOp.And && !result.IsSuccess)
+						{
+							groupResult = result;
+						}
+					}
+					if (!groupResult.IsSuccess)
+					{
+						return groupResult;
 					}
 				}
 				return SuccessResult.Instance.Sync;
@@ -302,8 +322,8 @@ namespace YACCS.Commands
 		{
 			var reader = Readers.GetTypeReader(parameter);
 			var pLength = parameter.Length ?? int.MaxValue;
-			// Iterate at least once even for arguments with zero length, i.e. IContext
-			var length = Math.Max(Math.Min(input.Length - startIndex, pLength), 1);
+			// Allow a length of zero for arguments with zero length, i.e. IContext
+			var length = Math.Max(Math.Min(input.Length - startIndex, pLength), 0);
 			var sliced = input.Slice(startIndex, length);
 			return cache.GetResultAsync(reader, sliced);
 		}
