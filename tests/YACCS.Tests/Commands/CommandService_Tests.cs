@@ -211,57 +211,50 @@ namespace YACCS.Tests.Commands
 		}
 
 		[TestMethod]
-		public async Task ExecutionExceptionAfter_Test()
+		public async Task ExecutionExceptionBefore_Test()
 		{
 			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-			var tcs1 = new TaskCompletionSource<CommandExecutedEventArgs>();
+			var tcs = new TaskCompletionSource<CommandExecutedEventArgs>();
 			commandService.CommandExecuted += (e) =>
 			{
-				tcs1.SetResult(e);
-				return Task.CompletedTask;
-			};
-			var tcs2 = new TaskCompletionSource<ExceptionEventArgs<CommandExecutedEventArgs>>();
-			commandService.CommandExecutedException += (e) =>
-			{
-				tcs2.SetResult(e);
+				tcs.SetResult(e);
 				return Task.CompletedTask;
 			};
 
 			const string input = $"{CommandsGroup3._Name2} {CommandsGroup3._ThrowsAfter}";
-			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
-			Assert.IsTrue(result.InnerResult.IsSuccess);
+			var syncResult = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+			Assert.IsTrue(syncResult.InnerResult.IsSuccess);
 
-			var eArgs1 = await tcs1.Task.ConfigureAwait(false);
-			var eResult1 = eArgs1.Result;
-			Assert.IsTrue(eResult1.IsSuccess);
-
-			var eArgs2 = await tcs2.Task.ConfigureAwait(false);
-			var eResult2 = eArgs2.EventArgs.Result;
-			Assert.IsFalse(eResult2.IsSuccess);
-			Assert.IsInstanceOfType(eResult2, typeof(ExceptionDuringCommandResult));
-			Assert.IsInstanceOfType(eArgs2.Exceptions[0], typeof(InvalidOperationException));
+			var asyncResult = await tcs.Task.ConfigureAwait(false);
+			Assert.IsTrue(asyncResult.Result.IsSuccess);
+			Assert.IsInstanceOfType(asyncResult.Result, typeof(SuccessResult));
+			Assert.IsNull(asyncResult.DuringException);
+			Assert.IsNull(asyncResult.AfterExceptions);
+			Assert.AreEqual(1, asyncResult.BeforeExceptions!.Count);
+			Assert.IsInstanceOfType(asyncResult.BeforeExceptions[0], typeof(InvalidOperationException));
 		}
 
 		[TestMethod]
 		public async Task ExecutionExceptionDuring_Test()
 		{
 			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-			var tcs = new TaskCompletionSource<ExceptionEventArgs<CommandExecutedEventArgs>>();
-			commandService.CommandExecutedException += (e) =>
+			var tcs = new TaskCompletionSource<CommandExecutedEventArgs>();
+			commandService.CommandExecuted += (e) =>
 			{
 				tcs.SetResult(e);
 				return Task.CompletedTask;
 			};
 
 			const string input = $"{CommandsGroup3._Name2} {CommandsGroup3._Throws}";
-			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
-			Assert.IsTrue(result.InnerResult.IsSuccess);
+			var syncResult = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+			Assert.IsTrue(syncResult.InnerResult.IsSuccess);
 
-			var eArgs = await tcs.Task.ConfigureAwait(false);
-			var eResult = eArgs.EventArgs.Result;
-			Assert.IsFalse(eResult.IsSuccess);
-			Assert.IsInstanceOfType(eResult, typeof(ExceptionDuringCommandResult));
-			Assert.IsInstanceOfType(eArgs.Exceptions[0], typeof(InvalidOperationException));
+			var asyncResult = await tcs.Task.ConfigureAwait(false);
+			Assert.IsFalse(asyncResult.Result.IsSuccess);
+			Assert.IsInstanceOfType(asyncResult.Result, typeof(ExceptionDuringCommandResult));
+			Assert.IsInstanceOfType(asyncResult.DuringException, typeof(InvalidOperationException));
+			Assert.IsNull(asyncResult.BeforeExceptions);
+			Assert.IsNull(asyncResult.AfterExceptions);
 		}
 
 		[TestMethod]

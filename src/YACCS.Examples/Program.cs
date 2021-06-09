@@ -110,11 +110,11 @@ namespace YACCS.Examples
 			_CommandService.CommandExecuted += (e) =>
 			{
 				_Console.WriteResult(e.Result);
-				return Task.CompletedTask;
-			};
-			_CommandService.CommandExecutedException += (e) =>
-			{
-				_Console.WriteLine(string.Join(Environment.NewLine, e.Exceptions), ConsoleColor.Red);
+				var exceptions = e.GetAllExceptions();
+				if (exceptions.Any())
+				{
+					_Console.WriteLine(string.Join(Environment.NewLine, exceptions), ConsoleColor.Red);
+				}
 				return Task.CompletedTask;
 			};
 

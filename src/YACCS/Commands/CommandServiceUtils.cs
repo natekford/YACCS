@@ -74,6 +74,24 @@ namespace YACCS.Commands
 			where T : ICommandGroup, new()
 			=> typeof(T).GetAllCommandsAsync();
 
+		public static IEnumerable<Exception> GetAllExceptions(this CommandExecutedEventArgs e)
+		{
+			var enumerable = Enumerable.Empty<Exception>();
+			if (e.BeforeExceptions != null)
+			{
+				enumerable = enumerable.Concat(e.BeforeExceptions);
+			}
+			if (e.DuringException != null)
+			{
+				enumerable = enumerable.Append(e.DuringException);
+			}
+			if (e.AfterExceptions != null)
+			{
+				enumerable = enumerable.Concat(e.AfterExceptions);
+			}
+			return enumerable;
+		}
+
 		public static IReadOnlyList<T> GetAllItems<T>(this INode<T> node)
 		{
 			static int GetMaximumSize(INode<T> node)

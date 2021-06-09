@@ -15,6 +15,6 @@ namespace YACCS.Commands.Models
 		IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions { get; }
 		int Priority { get; }
 
-		Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args);
+		Task<IResult> ExecuteAsync(IContext context, object?[] args);
 	}
 }

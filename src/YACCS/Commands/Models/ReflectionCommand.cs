@@ -135,7 +135,7 @@ namespace YACCS.Commands.Models
 					"invoke delegate");
 			}
 
-			public override async Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args)
+			public override async Task<IResult> ExecuteAsync(IContext context, object?[] args)
 			{
 				// Don't catch exceptions in here, it's easier for the command handler to
 				// catch them itself + this makes testing easier
@@ -145,7 +145,7 @@ namespace YACCS.Commands.Models
 				await group.BeforeExecutionAsync(this, context).ConfigureAwait(false);
 
 				var value = _InvokeDelegate.Value.Invoke(group, args);
-				var result = await ConvertValueAsync(context, value).ConfigureAwait(false);
+				var result = await ConvertValueAsync(value).ConfigureAwait(false);
 
 				await group.AfterExecutionAsync(this, context).ConfigureAwait(false);
 				return result;

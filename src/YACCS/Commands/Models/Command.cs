@@ -138,14 +138,14 @@ namespace YACCS.Commands.Models
 				PrimaryId ??= Guid.NewGuid().ToString();
 			}
 
-			public abstract Task<ExecutionResult> ExecuteAsync(IContext context, object?[] args);
+			public abstract Task<IResult> ExecuteAsync(IContext context, object?[] args);
 
-			protected async Task<ExecutionResult> ConvertValueAsync(IContext context, object? value)
+			protected async Task<IResult> ConvertValueAsync(object? value)
 			{
 				// Void method. No value to return, we're done
 				if (ReturnType == typeof(void))
 				{
-					return new ExecutionResult(this, context, SuccessResult.Instance.Sync);
+					return SuccessResult.Instance.Sync;
 				}
 
 				// We're given a task
@@ -157,7 +157,7 @@ namespace YACCS.Commands.Models
 					// Not generic? No value to return, we're done
 					if (!ReturnType.IsGenericType)
 					{
-						return new ExecutionResult(this, context, SuccessResult.Instance.Sync);
+						return SuccessResult.Instance.Sync;
 					}
 
 					// It has a value? Ok, let's get it
@@ -167,11 +167,11 @@ namespace YACCS.Commands.Models
 				// We're given a result, we can just return that
 				if (value is IResult result)
 				{
-					return new ExecutionResult(this, context, result);
+					return result;
 				}
 
 				// What do I do with random values?
-				return new ExecutionResult(this, context, new ValueResult(value));
+				return new ValueResult(value);
 			}
 
 			private Func<Task, object> CreateTaskResultDelegate()

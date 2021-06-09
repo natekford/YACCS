@@ -29,13 +29,17 @@ namespace YACCS.Results
 		}
 
 		public static bool TryGetValue<T>(
-			this ExecutionResult result,
+			this IResult result,
 			[NotNullWhen(true)] out T value)
 		{
-			if (result.InnerResult is ValueResult vResult && vResult.Value is T t)
+			if (result is ValueResult vResult && vResult.Value is T t)
 			{
 				value = t;
 				return true;
+			}
+			if (result is INestedResult nResult)
+			{
+				return nResult.InnerResult.TryGetValue(out value);
 			}
 			value = default!;
 			return false;

@@ -28,7 +28,7 @@ namespace YACCS.NamedArguments
 			const string CONTEXT_ID = "context_id";
 			const string VALUES_ID = "values_id";
 
-			Task<ExecutionResult> ExecuteAsync(
+			Task<IResult> ExecuteAsync(
 				[Id(CONTEXT_ID)]
 				IContext context,
 				[Id(VALUES_ID)]
@@ -56,7 +56,7 @@ namespace YACCS.NamedArguments
 				return command.ExecuteAsync(context, args);
 			}
 
-			var @delegate = (Func<IContext, IDictionary<string, object?>, Task<ExecutionResult>>)ExecuteAsync;
+			var @delegate = (Func<IContext, IDictionary<string, object?>, Task<IResult>>)ExecuteAsync;
 			var newCommand = new DelegateCommand(@delegate, command.ContextType, command.Names);
 			newCommand.AddAttribute(new GeneratedNamedArgumentsAttribute(command));
 

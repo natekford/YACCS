@@ -29,9 +29,9 @@ namespace YACCS.Tests.Commands.Models
 			{
 				var result = results[i];
 
-				Assert.IsTrue(result.InnerResult.IsSuccess);
-				Assert.IsInstanceOfType(result.InnerResult, typeof(ValueResult));
-				Assert.AreEqual(i + 1, ((ValueResult)result.InnerResult).Value);
+				Assert.IsTrue(result.IsSuccess);
+				Assert.IsInstanceOfType(result, typeof(ValueResult));
+				Assert.AreEqual(i + 1, ((ValueResult)result).Value);
 			}
 		}
 
@@ -50,8 +50,8 @@ namespace YACCS.Tests.Commands.Models
 			Assert.AreEqual(2, value);
 			foreach (var result in results)
 			{
-				Assert.IsTrue(result.InnerResult.IsSuccess);
-				Assert.IsInstanceOfType(result.InnerResult, typeof(SuccessResult));
+				Assert.IsTrue(result.IsSuccess);
+				Assert.IsInstanceOfType(result, typeof(SuccessResult));
 			}
 		}
 
@@ -72,9 +72,9 @@ namespace YACCS.Tests.Commands.Models
 			{
 				var result = results[i];
 
-				Assert.IsTrue(result.InnerResult.IsSuccess);
-				Assert.IsInstanceOfType(result.InnerResult, typeof(ValueResult));
-				Assert.AreEqual(i + 1, ((ValueResult)result.InnerResult).Value);
+				Assert.IsTrue(result.IsSuccess);
+				Assert.IsInstanceOfType(result, typeof(ValueResult));
+				Assert.AreEqual(i + 1, ((ValueResult)result).Value);
 			}
 		}
 
@@ -93,8 +93,8 @@ namespace YACCS.Tests.Commands.Models
 			Assert.AreEqual(2, value);
 			foreach (var result in results)
 			{
-				Assert.IsTrue(result.InnerResult.IsSuccess);
-				Assert.IsInstanceOfType(result.InnerResult, typeof(SuccessResult));
+				Assert.IsTrue(result.IsSuccess);
+				Assert.IsInstanceOfType(result, typeof(SuccessResult));
 			}
 		}
 	}

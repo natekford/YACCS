@@ -23,10 +23,10 @@ namespace YACCS.Examples
 			_Console = console;
 		}
 
-		protected override Task CommandFinishedAsync(IContext context, IImmutableCommand command)
+		protected override Task DisposeCommandAsync(CommandExecutedEventArgs e)
 		{
 			_Console.ReleaseIOLocks();
-			return base.CommandFinishedAsync(context, command);
+			return base.DisposeCommandAsync(e);
 		}
 	}
 }

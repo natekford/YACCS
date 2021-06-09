@@ -26,12 +26,6 @@ namespace YACCS.Commands
 			remove => CommandExecutedEvent.Remove(value);
 		}
 
-		public event AsyncEventHandler<ExceptionEventArgs<CommandExecutedEventArgs>> CommandExecutedException
-		{
-			add => CommandExecutedEvent.Exception.Add(value);
-			remove => CommandExecutedEvent.Exception.Remove(value);
-		}
-
 		public CommandService(
 			ICommandServiceConfig config,
 			IArgumentSplitter splitter,
@@ -54,6 +48,17 @@ namespace YACCS.Commands
 			if (args.Length == 0)
 			{
 				return CommandScore.CommandNotFoundTask;
+			}
+
+			async Task<ICommandResult> PrivateExecuteAsync(IContext context, ReadOnlyMemory<string> args)
+			{
+				var best = await GetBestMatchAsync(context, args).ConfigureAwait(false);
+				// If a command is found and args are parsed, execute command in background
+				if (best.IsSuccess && best.Command != null && best.Args != null)
+				{
+					_ = HandleCommandAsync(context, best.Command, best.Args);
+				}
+				return best;
 			}
 
 			return PrivateExecuteAsync(context, args);
@@ -270,35 +275,14 @@ namespace YACCS.Commands
 			{
 				foreach (var group in command.Preconditions)
 				{
-					var orSuccess = false;
-					var orResult = default(IResult?);
-
 					foreach (var precondition in group.Value)
 					{
 						var result = await cache.GetResultAsync(command, precondition).ConfigureAwait(false);
-						if (precondition.Op == GroupOp.And)
+						if ((precondition.Op == GroupOp.And && !result.IsSuccess)
+							|| (precondition.Op == GroupOp.Or && result.IsSuccess))
 						{
-							if (!result.IsSuccess)
-							{
-								return result;
-							}
+							return result;
 						}
-						else if (precondition.Op == GroupOp.Or)
-						{
-							if (result.IsSuccess)
-							{
-								orSuccess = true;
-							}
-							else
-							{
-								orResult = result;
-							}
-						}
-					}
-
-					if (!orSuccess && orResult != null)
-					{
-						return orResult;
 					}
 				}
 				return SuccessResult.Instance.Sync;
@@ -324,19 +308,19 @@ namespace YACCS.Commands
 			return cache.GetResultAsync(reader, sliced);
 		}
 
-		protected virtual Task CommandFinishedAsync(IContext context, IImmutableCommand command)
+		protected virtual Task DisposeCommandAsync(CommandExecutedEventArgs e)
 		{
-			if (context is IDisposable disposable)
+			if (e.Context is IDisposable disposable)
 			{
 				disposable.Dispose();
 			}
 			return Task.CompletedTask;
 		}
 
-		protected virtual async Task ExecuteAsync(IContext context, IImmutableCommand command, object?[] args)
+		protected virtual async Task HandleCommandAsync(IContext context, IImmutableCommand command, object?[] args)
 		{
-			var exceptions = new List<Exception>();
-			var exception = default(Exception?);
+			var beforeExceptions = default(List<Exception>?);
+			var afterExceptions = default(List<Exception>?);
 
 			// Handling preconditions which may need to modify state when the command to
 			// execute has been found, e.g. cooldown or prevent duplicate long running commands
@@ -350,64 +334,53 @@ namespace YACCS.Commands
 					}
 					catch (Exception ex)
 					{
-						exceptions.Add(ex);
+						beforeExceptions ??= new();
+						beforeExceptions.Add(ex);
 					}
 				}
 			}
 
+			IResult? result;
+			var duringException = default(Exception?);
 			try
 			{
-				var result = await command.ExecuteAsync(context, args).ConfigureAwait(false);
-				var e = new CommandExecutedEventArgs(command, context, result.InnerResult);
-				await CommandExecutedEvent.InvokeAsync(e).ConfigureAwait(false);
+				result = await command.ExecuteAsync(context, args).ConfigureAwait(false);
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				exceptions.Add(e);
-				exception = e;
+				result = ExceptionDuringCommandResult.Instance.Sync;
+				duringException = ex;
 			}
-			finally
+
+			// Handling preconditions which may need to modify state after a command has
+			// finished executing, e.g. on exception remove user from cooldown or release
+			// long running command lock
+			foreach (var group in command.Preconditions)
 			{
-				// Handling preconditions which may need to modify state after a command has
-				// finished executing, e.g. on exception remove user from cooldown or release
-				// long running command lock
-				foreach (var group in command.Preconditions)
+				foreach (var precondition in group.Value)
 				{
-					foreach (var precondition in group.Value)
+					try
 					{
-						try
-						{
-							await precondition.AfterExecutionAsync(command, context, exception).ConfigureAwait(false);
-						}
-						catch (Exception ex)
-						{
-							exceptions.Add(ex);
-						}
+						await precondition.AfterExecutionAsync(command, context, duringException).ConfigureAwait(false);
+					}
+					catch (Exception ex)
+					{
+						afterExceptions ??= new();
+						afterExceptions.Add(ex);
 					}
 				}
 			}
 
-			if (exceptions.Count > 0)
-			{
-				var result = ExceptionDuringCommandResult.Instance.Sync;
-				var e = new CommandExecutedEventArgs(command, context, result)
-					.WithExceptions(exceptions);
-				await CommandExecutedEvent.Exception.InvokeAsync(e).ConfigureAwait(false);
-			}
-
-			await CommandFinishedAsync(context, command).ConfigureAwait(false);
-		}
-
-		private async Task<ICommandResult> PrivateExecuteAsync(IContext context, ReadOnlyMemory<string> args)
-		{
-			var best = await GetBestMatchAsync(context, args).ConfigureAwait(false);
-			if (!best.IsSuccess)
-			{
-				return best;
-			}
-
-			_ = ExecuteAsync(context, best!.Command!, best!.Args!);
-			return best;
+			var e = new CommandExecutedEventArgs(
+				command,
+				context,
+				beforeExceptions,
+				afterExceptions,
+				duringException,
+				result
+			);
+			await CommandExecutedEvent.InvokeAsync(e).ConfigureAwait(false);
+			await DisposeCommandAsync(e).ConfigureAwait(false);
 		}
 	}
 }
