@@ -2,13 +2,12 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using YACCS.Tests.Commands;
 using YACCS.TypeReaders;
 
 namespace YACCS.Tests.TypeReaders
 {
 	[TestClass]
-	public class ContextTypeReader_Tests : TypeReader_Tests<FakeContext2>
+	public class ContextTypeReader_Tests : TypeReader_Tests<ContextTypeReader_Tests.FakeContext2>
 	{
 		public override ITypeReader<FakeContext2> Reader { get; }
 			= new ContextTypeReader<FakeContext2>();
@@ -21,6 +20,10 @@ namespace YACCS.Tests.TypeReaders
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, typeof(FakeContext2));
 			Assert.AreEqual(context, result.Value);
+		}
+
+		public sealed class FakeContext2 : FakeContext
+		{
 		}
 	}
 }

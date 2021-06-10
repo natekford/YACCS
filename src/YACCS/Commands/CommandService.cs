@@ -165,7 +165,7 @@ namespace YACCS.Commands
 			).ConfigureAwait(false);
 			if (!pResult.IsSuccess)
 			{
-				return CommandScore.FromFailedPrecondition(command, context, pResult, 0);
+				return CommandScore.FromFailedPrecondition(command, context, pResult, startIndex);
 			}
 
 			var args = new object?[command.Parameters.Count];

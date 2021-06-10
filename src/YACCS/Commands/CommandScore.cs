@@ -10,6 +10,7 @@ namespace YACCS.Commands
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public class CommandScore : IComparable<CommandScore>, IComparable, ICommandResult
 	{
+		// This class is a mess
 		public static CommandScore CommandNotFound { get; }
 			= new CommandScore(null, null, null!, CommandNotFoundResult.Instance.Sync, 0, 0, null);
 		public static Task<ICommandResult> CommandNotFoundTask { get; }
@@ -71,19 +72,10 @@ namespace YACCS.Commands
 				return 1;
 			}
 
-			var stage = ((int)a.Stage).CompareTo((int)b.Stage);
-			if (stage != 0)
-			{
-				return stage;
-			}
-
-			var priority = a.Priority.CompareTo(b.Priority);
-			if (priority != 0)
-			{
-				return priority;
-			}
-
-			return a.Score.CompareTo(b.Score);
+			// Cast to long instead of int because Score is likely to be int.MaxValue
+			var scoreA = (((long)a.Stage) * a.Score) + a.Priority;
+			var scoreB = (((long)b.Stage) * b.Score) + b.Priority;
+			return scoreA.CompareTo(scoreB);
 		}
 
 		public static CommandScore FromCanExecute(
