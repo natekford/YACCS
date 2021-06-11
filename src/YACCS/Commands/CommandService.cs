@@ -18,7 +18,7 @@ namespace YACCS.Commands
 		protected IAsyncEvent<CommandExecutedEventArgs> CommandExecutedEvent { get; set; }
 		protected ICommandServiceConfig Config { get; set; }
 		protected IReadOnlyDictionary<Type, ITypeReader> Readers { get; set; }
-		protected IArgumentSplitter Splitter { get; set; }
+		protected IArgumentHandler Splitter { get; set; }
 
 		public event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted
 		{
@@ -28,7 +28,7 @@ namespace YACCS.Commands
 
 		public CommandService(
 			ICommandServiceConfig config,
-			IArgumentSplitter splitter,
+			IArgumentHandler splitter,
 			IReadOnlyDictionary<Type, ITypeReader> readers)
 		{
 			Config = config;
@@ -144,8 +144,8 @@ namespace YACCS.Commands
 
 			return new ValueTask<CommandScore>(ProcessAllPreconditionsAsync(
 				cache,
-				command,
 				context,
+				command,
 				input,
 				startIndex
 			));
@@ -153,8 +153,8 @@ namespace YACCS.Commands
 
 		public async Task<CommandScore> ProcessAllPreconditionsAsync(
 			PreconditionCache cache,
-			IImmutableCommand command,
 			IContext context,
+			IImmutableCommand command,
 			ReadOnlyMemory<string> input,
 			int startIndex)
 		{
@@ -186,7 +186,7 @@ namespace YACCS.Commands
 					).ConfigureAwait(false);
 					if (!trResult.InnerResult.IsSuccess)
 					{
-						return CommandScore.FromFailedTypeReader(command, parameter, context, trResult.InnerResult, i);
+						return CommandScore.FromFailedTypeReader(command, parameter, context, trResult.InnerResult, currentIndex - 1);
 					}
 
 					value = trResult.Value;
@@ -209,7 +209,7 @@ namespace YACCS.Commands
 				// If the parameter isn't optional it's a failure
 				else if (!parameter.HasDefaultValue)
 				{
-					return CommandScore.FromFailedOptionalArgs(command, parameter, context, i);
+					return CommandScore.FromFailedOptionalArgs(command, parameter, context, currentIndex - 1);
 				}
 
 				var ppResult = await ProcessParameterPreconditionsAsync(
@@ -219,7 +219,7 @@ namespace YACCS.Commands
 				).ConfigureAwait(false);
 				if (!ppResult.IsSuccess)
 				{
-					return CommandScore.FromFailedParameterPrecondition(command, parameter, context, ppResult, i);
+					return CommandScore.FromFailedParameterPrecondition(command, parameter, context, ppResult, currentIndex - 1);
 				}
 
 				args[i] = value;

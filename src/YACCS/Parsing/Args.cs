@@ -31,7 +31,7 @@ namespace YACCS.Parsing
 		public static bool TryParse(
 			string input,
 			[NotNullWhen(true)] out string[]? result)
-			=> TryParse(input, ArgumentSplitter.Default, out result);
+			=> TryParse(input, ArgumentHandler.Default, out result);
 
 		/// <summary>
 		/// Attempts to parse args from characters indicating the start of a quote and characters indicating the end of a quote.
@@ -42,13 +42,13 @@ namespace YACCS.Parsing
 		/// <returns></returns>
 		public static bool TryParse(
 			string input,
-			IArgumentSplitter splitter,
+			IArgumentHandler splitter,
 			[NotNullWhen(true)] out string[]? result)
 		{
 			static void Add(string[] col, ref int index, ReadOnlySpan<char> input)
 				=> col[index++] = input.Trim().ToString();
 
-			static void AddRange(string[] col, ref int index, ReadOnlySpan<char> input, IArgumentSplitter splitter)
+			static void AddRange(string[] col, ref int index, ReadOnlySpan<char> input, IArgumentHandler splitter)
 			{
 				input = input.Trim();
 				if (input.Length == 0)
@@ -202,13 +202,13 @@ namespace YACCS.Parsing
 			return (prev, curr, next);
 		}
 
-		private static bool ValidEndQuote(this IArgumentSplitter splitter, string input, int i)
+		private static bool ValidEndQuote(this IArgumentHandler splitter, string input, int i)
 		{
 			var (prev, curr, next) = input.GetChars(i);
 			return splitter.ValidEndQuote(prev, curr, next);
 		}
 
-		private static bool ValidStartQuote(this IArgumentSplitter splitter, string input, int i)
+		private static bool ValidStartQuote(this IArgumentHandler splitter, string input, int i)
 		{
 			var (prev, curr, next) = input.GetChars(i);
 			return splitter.ValidStartQuote(prev, curr, next);
@@ -244,7 +244,7 @@ namespace YACCS.Parsing
 				StartCount = startCount;
 			}
 
-			public static QuoteInfo Create(string input, IArgumentSplitter splitter)
+			public static QuoteInfo Create(string input, IArgumentHandler splitter)
 			{
 				int maxDepth = 0, currentDepth = 0, size = 1,
 					minStart = DEFAULT, maxStart = DEFAULT, startCount = 0,

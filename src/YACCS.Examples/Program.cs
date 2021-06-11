@@ -21,7 +21,7 @@ namespace YACCS.Examples
 	{
 		private readonly ConsoleCommandService _CommandService;
 		private readonly ICommandServiceConfig _Config;
-		private readonly IArgumentSplitter _Splitter;
+		private readonly IArgumentHandler _Splitter;
 		private readonly ConsoleHandler _Console;
 		private readonly HelpFormatter _HelpFormatter;
 		private readonly ConsoleInput _Input;
@@ -33,7 +33,7 @@ namespace YACCS.Examples
 		private Program()
 		{
 			_Config = CommandServiceConfig.Default;
-			_Splitter = ArgumentSplitter.Default;
+			_Splitter = ArgumentHandler.Default;
 			_Names = new TypeNameRegistry();
 			_TypeReaders = new TypeReaderRegistry();
 			_Tags = new TagConverter();
@@ -45,7 +45,7 @@ namespace YACCS.Examples
 
 			_Services = new ServiceCollection()
 				.AddSingleton<ICommandService>(_CommandService)
-				.AddSingleton<IArgumentSplitter>(_Splitter)
+				.AddSingleton<IArgumentHandler>(_Splitter)
 				.AddSingleton<IHelpFormatter>(_HelpFormatter)
 				.AddSingleton<IInput<IContext, string>>(_Input)
 				.AddSingleton<IReadOnlyDictionary<Type, string>>(_Names)

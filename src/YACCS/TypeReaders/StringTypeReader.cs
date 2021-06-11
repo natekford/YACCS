@@ -1,15 +1,20 @@
-﻿namespace YACCS.TypeReaders
-{
-	public class StringTypeReader : TryParseTypeReader<string?>
-	{
-		public StringTypeReader() : base(TryParse)
-		{
-		}
+﻿using System;
 
-		private static bool TryParse(string s, out string result)
+using MorseCode.ITask;
+
+using YACCS.Commands;
+using YACCS.Parsing;
+
+namespace YACCS.TypeReaders
+{
+	public class StringTypeReader : TypeReader<string?>
+	{
+		public override ITask<ITypeReaderResult<string?>> ReadAsync(
+			IContext context,
+			ReadOnlyMemory<string> input)
 		{
-			result = s;
-			return true;
+			var handler = context.Services.GetRequiredService<IArgumentHandler>();
+			return TypeReaderResult<string?>.FromSuccess(handler.Join(input)).AsITask();
 		}
 	}
 }

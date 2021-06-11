@@ -379,8 +379,8 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
-				command.ToImmutable().Single(),
 				context,
+				command.ToImmutable().Single(),
 				new[] { DISALLOWED_VALUE.ToString() },
 				1
 			).ConfigureAwait(false);
@@ -399,8 +399,8 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
-				command.ToImmutable().Single(),
 				context,
+				command.ToImmutable().Single(),
 				new[] { DISALLOWED_VALUE.ToString() },
 				0
 			).ConfigureAwait(false);
@@ -419,8 +419,8 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, command, parameter) = Create(false, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
-				command.ToImmutable().Single(),
 				context,
+				command.ToImmutable().Single(),
 				new[] { DISALLOWED_VALUE.ToString() },
 				0
 			).ConfigureAwait(false);
@@ -439,8 +439,8 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
-				command.ToImmutable().Single(),
 				context,
+				command.ToImmutable().Single(),
 				new[] { "joeba" },
 				0
 			).ConfigureAwait(false);
@@ -508,8 +508,8 @@ namespace YACCS.Tests.Commands
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
-				command.ToImmutable().Single(),
 				context,
+				command.ToImmutable().Single(),
 				new[] { (DISALLOWED_VALUE + 1).ToString() },
 				0
 			).ConfigureAwait(false);
@@ -948,6 +948,7 @@ namespace YACCS.Tests.Commands
 	{
 		public const string _1 = "c1_id";
 		public const string _2 = "c2_id";
+		public const string _3 = "c3_id";
 		public const string _Delay = "delay";
 		public const string _DelayedMessage = "delayed message";
 		public const string _Disabled = "disabled";
@@ -999,7 +1000,8 @@ namespace YACCS.Tests.Commands
 		}
 
 		[Command]
-		[YACCS.Commands.Attributes.Priority(5)]
+		[Id(_3)]
+		[YACCS.Commands.Attributes.Priority(1)]
 		public void TestCommandWithRemainder([Remainder] int input)
 		{
 		}

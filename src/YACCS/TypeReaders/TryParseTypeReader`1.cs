@@ -21,6 +21,10 @@ namespace YACCS.TypeReaders
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
+			if (input.Length > 1)
+			{
+				throw new ArgumentException("Length cannot be more than 1.", nameof(input));
+			}
 			if (_Delegate(input.Span[0], out var result))
 			{
 				return TypeReaderResult<T>.FromSuccess(result).AsITask();

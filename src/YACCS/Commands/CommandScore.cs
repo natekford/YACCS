@@ -52,7 +52,7 @@ namespace YACCS.Commands
 			Context = context;
 			Priority = command?.Priority ?? 0;
 			InnerResult = result;
-			Score = score;
+			Score = Math.Max(score, 0);
 			Stage = stage;
 		}
 
@@ -72,9 +72,25 @@ namespace YACCS.Commands
 				return 1;
 			}
 
-			// Cast to long instead of int because Score is likely to be int.MaxValue
-			var scoreA = (((long)a.Stage) * a.Score) + a.Priority;
-			var scoreB = (((long)b.Stage) * b.Score) + b.Priority;
+			static double GetModifier(CommandStage stage)
+			{
+				return stage switch
+				{
+					CommandStage.BadContext => 0,
+					CommandStage.BadArgCount => 0.1,
+					CommandStage.FailedPrecondition => 0.6,
+					CommandStage.FailedTypeReader => 0.7,
+					CommandStage.FailedParameterPrecondition => 0.8,
+					CommandStage.CanExecute => 1,
+					_ => throw new ArgumentOutOfRangeException(nameof(stage)),
+				};
+			}
+
+			var modifierA = GetModifier(a.Stage);
+			var modifierB = GetModifier(b.Stage);
+
+			var scoreA = modifierA * (a.Score + Math.Pow(a.Priority, modifierA));
+			var scoreB = modifierB * (b.Score + Math.Pow(b.Priority, modifierB));
 			return scoreA.CompareTo(scoreB);
 		}
 

@@ -6,26 +6,39 @@ using YACCS.Commands;
 
 namespace YACCS.Parsing
 {
-	public class ArgumentSplitter : IArgumentSplitter
+	public class ArgumentHandler : IArgumentHandler
 	{
 		private readonly IImmutableSet<char> _End;
-		private readonly char _Split;
+		private readonly char _Separator;
 		private readonly IImmutableSet<char> _Start;
 
-		public static IArgumentSplitter Default { get; } = new ArgumentSplitter();
+		public static IArgumentHandler Default { get; } = new ArgumentHandler();
 		public bool AllowEscaping { get; set; } = true;
 
-		public ArgumentSplitter() : this(
+		public ArgumentHandler() : this(
 			CommandServiceUtils.InternallyUsedSeparator,
 			CommandServiceUtils.InternallyUsedQuotes,
 			CommandServiceUtils.InternallyUsedQuotes)
 		{ }
 
-		public ArgumentSplitter(char split, IImmutableSet<char> start, IImmutableSet<char> end)
+		public ArgumentHandler(char separator, IImmutableSet<char> start, IImmutableSet<char> end)
 		{
 			_Start = start;
 			_End = end;
-			_Split = split;
+			_Separator = separator;
+		}
+
+		public string Join(ReadOnlyMemory<string> args)
+		{
+			if (args.Length == 0)
+			{
+				return string.Empty;
+			}
+			else if (args.Length == 1)
+			{
+				return args.Span[0];
+			}
+			return string.Join(_Separator, args.ToArray());
 		}
 
 		public bool TryGetArgs(string input, [NotNullWhen(true)] out ReadOnlyMemory<string> args)
@@ -39,7 +52,7 @@ namespace YACCS.Parsing
 			=> ValidQuote(_End, _Start, p, c, n, allowUnionQuotes: true);
 
 		public bool ValidSplit(char? p, char c, char? n)
-			=> c == _Split && (!p.HasValue || p.Value != _Split);
+			=> c == _Separator && (!p.HasValue || p.Value != _Separator);
 
 		public bool ValidStartQuote(char? p, char c, char? n)
 			=> ValidQuote(_Start, _End, p, c, p, allowUnionQuotes: false);

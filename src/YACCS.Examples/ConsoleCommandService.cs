@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
-using YACCS.Commands.Models;
 using YACCS.Parsing;
 using YACCS.TypeReaders;
 
@@ -15,7 +14,7 @@ namespace YACCS.Examples
 
 		public ConsoleCommandService(
 			ICommandServiceConfig config,
-			IArgumentSplitter splitter,
+			IArgumentHandler splitter,
 			IReadOnlyDictionary<Type, ITypeReader> readers,
 			ConsoleHandler console)
 			: base(config, splitter, readers)
