@@ -41,7 +41,7 @@ namespace YACCS.Parsing
 			return string.Join(_Separator, args.ToArray());
 		}
 
-		public bool TryGetArgs(string input, [NotNullWhen(true)] out ReadOnlyMemory<string> args)
+		public bool TryGetArgs(ReadOnlySpan<char> input, [NotNullWhen(true)] out ReadOnlyMemory<string> args)
 		{
 			var result = Args.TryParse(input, this, out var temp);
 			args = temp;

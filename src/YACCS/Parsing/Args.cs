@@ -13,7 +13,7 @@ namespace YACCS.Parsing
 		/// </summary>
 		/// <param name="input"></param>
 		/// <returns></returns>
-		public static string[] Parse(string input)
+		public static string[] Parse(ReadOnlySpan<char> input)
 		{
 			if (TryParse(input, out var result))
 			{
@@ -29,7 +29,7 @@ namespace YACCS.Parsing
 		/// <param name="result"></param>
 		/// <returns></returns>
 		public static bool TryParse(
-			string input,
+			ReadOnlySpan<char> input,
 			[NotNullWhen(true)] out string[]? result)
 			=> TryParse(input, ArgumentHandler.Default, out result);
 
@@ -41,7 +41,7 @@ namespace YACCS.Parsing
 		/// <param name="result"></param>
 		/// <returns></returns>
 		public static bool TryParse(
-			string input,
+			ReadOnlySpan<char> input,
 			IArgumentHandler splitter,
 			[NotNullWhen(true)] out string[]? result)
 		{
@@ -72,7 +72,7 @@ namespace YACCS.Parsing
 				}
 			}
 
-			if (string.IsNullOrWhiteSpace(input))
+			if (input.IsEmpty || input.IsWhiteSpace())
 			{
 				result = Array.Empty<string>();
 				return true;
@@ -87,28 +87,27 @@ namespace YACCS.Parsing
 				return false;
 			}
 
-			var span = input.AsSpan();
 			var index = 0;
 			result = new string[info.Size];
 
 			// No quotes in string, split everything
 			if (info.HasNoQuotes)
 			{
-				AddRange(result, ref index, span, splitter);
+				AddRange(result, ref index, input, splitter);
 				return true;
 			}
 
 			// Entire string is quoted, split nothing
-			if (info.MinStart == 0 && info.MaxEnd == span.Length - 1)
+			if (info.MinStart == 0 && info.MaxEnd == input.Length - 1)
 			{
-				Add(result, ref index, span[(info.MinStart + 1)..info.MaxEnd]);
+				Add(result, ref index, input[(info.MinStart + 1)..info.MaxEnd]);
 				return true;
 			}
 
 			// Quotes start mid way through the string, add the first unquoted bit
 			if (info.MinStart != 0)
 			{
-				AddRange(result, ref index, span[0..info.MinStart], splitter);
+				AddRange(result, ref index, input[0..info.MinStart], splitter);
 			}
 
 			// All start indices are less than end indices indicates something similar to
@@ -116,7 +115,7 @@ namespace YACCS.Parsing
 			// can be treated as a single quoted string
 			if (info.MaxStart < info.MinEnd)
 			{
-				Add(result, ref index, span[(info.MinStart + 1)..info.MaxEnd]);
+				Add(result, ref index, input[(info.MinStart + 1)..info.MaxEnd]);
 			}
 			else
 			{
@@ -130,7 +129,7 @@ namespace YACCS.Parsing
 					// in between is ignored unless we manually add it, so do that
 					if (previousEnd < start)
 					{
-						AddRange(result, ref index, span[(previousEnd + 1)..start], splitter);
+						AddRange(result, ref index, input[(previousEnd + 1)..start], splitter);
 					}
 
 					// No starts before next end means simple quotes
@@ -163,7 +162,7 @@ namespace YACCS.Parsing
 
 					// Subtract 1 to account for removing the quote itself
 					previousEnd = end - 1;
-					Add(result, ref index, span[(iStart + 1)..previousEnd]);
+					Add(result, ref index, input[(iStart + 1)..previousEnd]);
 
 					// Iterate to the next start/end quotes
 					while (start < info.MaxStart && !splitter.ValidStartQuote(input, start))
@@ -178,9 +177,9 @@ namespace YACCS.Parsing
 			}
 
 			// Quotes stop mid way through the string, add the last unquoted bit
-			if (info.MaxEnd != span.Length - 1)
+			if (info.MaxEnd != input.Length - 1)
 			{
-				AddRange(result, ref index, span[(info.MaxEnd + 1)..^0], splitter);
+				AddRange(result, ref index, input[(info.MaxEnd + 1)..^0], splitter);
 			}
 
 			return true;
@@ -194,21 +193,13 @@ namespace YACCS.Parsing
 			return (prev, curr, next);
 		}
 
-		private static (char? Prev, char Curr, char? Next) GetChars(this string input, int i)
-		{
-			var prev = i == 0 ? default(char?) : input[i - 1];
-			var curr = input[i];
-			var next = i == input.Length - 1 ? default(char?) : input[i + 1];
-			return (prev, curr, next);
-		}
-
-		private static bool ValidEndQuote(this IArgumentHandler splitter, string input, int i)
+		private static bool ValidEndQuote(this IArgumentHandler splitter, ReadOnlySpan<char> input, int i)
 		{
 			var (prev, curr, next) = input.GetChars(i);
 			return splitter.ValidEndQuote(prev, curr, next);
 		}
 
-		private static bool ValidStartQuote(this IArgumentHandler splitter, string input, int i)
+		private static bool ValidStartQuote(this IArgumentHandler splitter, ReadOnlySpan<char> input, int i)
 		{
 			var (prev, curr, next) = input.GetChars(i);
 			return splitter.ValidStartQuote(prev, curr, next);
@@ -244,7 +235,7 @@ namespace YACCS.Parsing
 				StartCount = startCount;
 			}
 
-			public static QuoteInfo Create(string input, IArgumentHandler splitter)
+			public static QuoteInfo Create(ReadOnlySpan<char> input, IArgumentHandler splitter)
 			{
 				int maxDepth = 0, currentDepth = 0, size = 1,
 					minStart = DEFAULT, maxStart = DEFAULT, startCount = 0,

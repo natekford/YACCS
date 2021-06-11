@@ -7,10 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 using YACCS.Commands;
-using YACCS.Commands.Attributes;
 using YACCS.Commands.Interactivity.Input;
-using YACCS.Commands.Linq;
-using YACCS.Commands.Models;
 using YACCS.Help;
 using YACCS.Parsing;
 using YACCS.TypeReaders;
@@ -67,7 +64,7 @@ namespace YACCS.Examples
 			_Console.WriteLine("Enter a command and its arguments: ");
 
 			var input = await _Console.ReadLineAsync().ConfigureAwait(false);
-			if (input is null)
+			if (input is null || !input.HasPrefix("&&", out input))
 			{
 				return;
 			}
@@ -87,7 +84,7 @@ namespace YACCS.Examples
 			await _CommandService.AddRangeAsync(commands).ConfigureAwait(false);
 			_Console.WriteLine($"Successfully registered {_CommandService.Commands.Count} commands.");
 
-#if true
+#if false
 			void DelegateCommand(int i, double d, string s)
 				=> _Console.WriteLine($"i am the delegate command: {i} {d} {s}");
 

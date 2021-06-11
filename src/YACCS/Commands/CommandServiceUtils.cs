@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -163,6 +164,22 @@ namespace YACCS.Commands
 				return commands.SelectMany(x => x.ToImmutable());
 			}
 			return GetDirectCommandsAsync(type, commands);
+		}
+
+		public static bool HasPrefix(
+			this string input,
+			string prefix,
+			[NotNullWhen(true)] out string? output,
+			StringComparison comparisonType = StringComparison.OrdinalIgnoreCase)
+		{
+			if (input.Length <= prefix.Length || !input.StartsWith(prefix, comparisonType))
+			{
+				output = null;
+				return false;
+			}
+
+			output = input[prefix.Length..];
+			return true;
 		}
 
 		internal static List<ICommand> CreateMutableCommands(this Type type)

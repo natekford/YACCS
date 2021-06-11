@@ -7,7 +7,7 @@ namespace YACCS.Parsing
 	{
 		string Join(ReadOnlyMemory<string> args);
 
-		bool TryGetArgs(string input, [NotNullWhen(true)] out ReadOnlyMemory<string> args);
+		bool TryGetArgs(ReadOnlySpan<char> input, [NotNullWhen(true)] out ReadOnlyMemory<string> args);
 
 		bool ValidEndQuote(char? p, char c, char? n);
 

@@ -21,6 +21,15 @@ namespace YACCS.Examples
 		public void Echo([Remainder] string input)
 			=> Console.WriteLine(input);
 
+		[Command(nameof(EchoMultipleLines))]
+		public void EchoMultipleLines([Remainder] IEnumerable<string> input)
+		{
+			foreach (var item in input)
+			{
+				Console.WriteLine(item);
+			}
+		}
+
 		[Command(nameof(Exit))]
 		public void Exit()
 			=> Environment.Exit(0);
