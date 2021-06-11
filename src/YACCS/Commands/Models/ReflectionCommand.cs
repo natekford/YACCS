@@ -113,6 +113,9 @@ namespace YACCS.Commands.Models
 
 		private sealed class ImmutableReflectionCommand : ImmutableCommand
 		{
+			private static readonly MethodInfo _GetService = typeof(IServiceProvider)
+				.GetMethod(nameof(IServiceProvider.GetService));
+
 			private readonly Lazy<Func<ICommandGroup>> _ConstructorDelegate;
 			private readonly Type? _ContextType;
 			private readonly Type _GroupType;
@@ -153,9 +156,8 @@ namespace YACCS.Commands.Models
 
 			private Func<ICommandGroup> CreateConstructorDelegate()
 			{
-				var ctor = _GroupType.GetConstructor(Type.EmptyTypes);
-				var ctorExpr = Expression.New(ctor);
-				var lambda = Expression.Lambda<Func<ICommandGroup>>(ctorExpr);
+				var ctor = Expression.New(_GroupType.GetConstructor(Type.EmptyTypes));
+				var lambda = Expression.Lambda<Func<ICommandGroup>>(ctor);
 				return lambda.Compile();
 			}
 
@@ -177,51 +179,43 @@ namespace YACCS.Commands.Models
 				 *	}
 				 */
 
-				var (properties, fields) = _GroupType.GetWritableMembers();
-				var getService =
-					typeof(IServiceProvider)
-					.GetMethod(nameof(IServiceProvider.GetService));
+				var instance = Expression.Parameter(typeof(ICommandGroup), "Group");
+				var provider = Expression.Parameter(typeof(IServiceProvider), "Provider");
 
-				var instanceExpr = Expression.Parameter(typeof(ICommandGroup), "Group");
-				var providerExpr = Expression.Parameter(typeof(IServiceProvider), "Provider");
-				var instanceCastExpr = Expression.Convert(instanceExpr, _GroupType);
-				var nullExpr = Expression.Constant(null);
-
-				Expression CreateExpression(
-					Type type,
-					Func<UnaryExpression?, MemberExpression> memberGetter)
+				Expression CreateExpression<T>(
+					T memberInfo,
+					Type serviceType,
+					Func<UnaryExpression?, T, MemberExpression> memberExpressionFactory)
+					where T : MemberInfo
 				{
-					var typeExpr = Expression.Constant(type);
-					var serviceExpr = Expression.Call(providerExpr, getService, typeExpr);
-					var serviceCastExpr = Expression.Convert(serviceExpr, type);
+					var type = Expression.Constant(serviceType);
+					var service = Expression.Call(provider, _GetService, type);
+					var serviceCast = Expression.Convert(service, serviceType);
 
-					var memberExpr = memberGetter(instanceCastExpr);
-					var assignExpr = Expression.Assign(memberExpr, serviceCastExpr);
+					var instanceCast = Expression.Convert(instance, memberInfo.DeclaringType);
+					var member = memberExpressionFactory(instanceCast, memberInfo);
+					var assign = Expression.Assign(member, serviceCast);
 
-					var notNullExpr = Expression.NotEqual(nullExpr, serviceCastExpr);
-					return Expression.IfThen(notNullExpr, assignExpr);
+					var @null = Expression.Constant(null);
+					var notNull = Expression.NotEqual(@null, serviceCast);
+					return Expression.IfThen(notNull, assign);
 				}
 
-				var propertyExprs = properties.Select(x =>
+				var (properties, fields) = _GroupType.GetWritableMembers();
+				var assignProperties = properties.Select(x =>
 				{
-					return CreateExpression(x.PropertyType, u =>
-					{
-						return Expression.Property(u, x.SetMethod);
-					});
+					return CreateExpression(x, x.PropertyType, Expression.Property);
 				});
-				var fieldExprs = fields.Select(x =>
+				var assignFields = fields.Select(x =>
 				{
-					return CreateExpression(x.FieldType, u =>
-					{
-						return Expression.Field(u, x);
-					});
+					return CreateExpression(x, x.FieldType, Expression.Field);
 				});
-				var allAssignExpr = Expression.Block(propertyExprs.Concat(fieldExprs));
+				var body = Expression.Block(assignProperties.Concat(assignFields));
 
 				var lambda = Expression.Lambda<Action<ICommandGroup, IServiceProvider>>(
-					allAssignExpr,
-					instanceExpr,
-					providerExpr
+					body,
+					instance,
+					provider
 				);
 				return lambda.Compile();
 			}
@@ -235,34 +229,14 @@ namespace YACCS.Commands.Models
 				 *	}
 				 */
 
-				var instanceExpr = Expression.Parameter(typeof(ICommandGroup), "Group");
-				var argsExpr = Expression.Parameter(typeof(object?[]), "Args");
-
-				var instanceCastExpr = Expression.Convert(instanceExpr, _GroupType);
-				var argsCastExpr = _Method.GetParameters().Select((x, i) =>
-				{
-					var indexExpr = Expression.Constant(i);
-					var accessExpr = Expression.ArrayAccess(argsExpr, indexExpr);
-					return Expression.Convert(accessExpr, x.ParameterType);
-				});
-				var invokeExpr = Expression.Call(instanceCastExpr, _Method, argsCastExpr);
-
-				Expression bodyExpr = invokeExpr;
-				// With a return type of void to keep the Func<object?[], object> declaration
-				// we just need to return a null value at the end
-				if (ReturnType == typeof(void))
-				{
-					var nullExpr = Expression.Constant(null);
-					var returnLabel = Expression.Label(typeof(object));
-					var returnExpr = Expression.Return(returnLabel, nullExpr, typeof(object));
-					var returnLabelExpr = Expression.Label(returnLabel, nullExpr);
-					bodyExpr = Expression.Block(invokeExpr, returnExpr, returnLabelExpr);
-				}
+				var instance = Expression.Parameter(typeof(ICommandGroup), "Group");
+				var instanceCast = Expression.Convert(instance, _Method.DeclaringType);
+				var (body, args) = instanceCast.CreateInvokeDelegate(_Method);
 
 				var lambda = Expression.Lambda<Func<ICommandGroup, object?[], object>>(
-					bodyExpr,
-					instanceExpr,
-					argsExpr
+					body,
+					instance,
+					args
 				);
 				return lambda.Compile();
 			}

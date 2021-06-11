@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace YACCS
@@ -51,6 +52,36 @@ namespace YACCS
 			}
 			throw new ArgumentException(
 				$"{type.Name} does not implement {typeof(T).FullName}.", nameof(type));
+		}
+
+		public static (Expression Body, ParameterExpression Args) CreateInvokeDelegate(this Expression? instance, MethodInfo method)
+		{
+			var args = Expression.Parameter(typeof(object?[]), "Args");
+			var argsCast = method.GetParameters().Select((x, i) =>
+			{
+				var access = Expression.ArrayAccess(args, Expression.Constant(i));
+				return Expression.Convert(access, x.ParameterType);
+			});
+			Expression body = Expression.Call(instance, method, argsCast);
+
+			// With a return type of void to keep the Func<object?[], object> declaration
+			// we just need to return a null value at the end
+			if (method.ReturnType == typeof(void))
+			{
+				var @null = Expression.Constant(null);
+				var objectLabel = Expression.Label(typeof(object));
+				var @return = Expression.Return(objectLabel, @null, typeof(object));
+				var returnLabel = Expression.Label(objectLabel, @null);
+				body = Expression.Block(body, @return, returnLabel);
+			}
+			// Value types need to be boxed
+			// This has to go after the void check because void is a value type
+			else if (method.ReturnType.IsValueType)
+			{
+				body = Expression.Convert(body, typeof(object));
+			}
+
+			return (body, args);
 		}
 
 		public static Type? GetArrayType(this Type type)

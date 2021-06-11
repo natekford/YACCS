@@ -11,17 +11,15 @@ using YACCS.Results;
 
 namespace YACCS.Examples
 {
-	public class Commands : CommandGroup<IContext>
+	public class Commands : ConsoleCommands<IContext>
 	{
-		public ConsoleHandler Writer { get; set; } = null!;
-
 		[Command(nameof(Divide))]
-		public IResult Divide(int numerator, [NotZero] int divisor)
-			=> new ValueResult(numerator / divisor);
+		public int Divide(int numerator, [NotZero] int divisor)
+			=> numerator / divisor;
 
 		[Command(nameof(Echo))]
 		public void Echo([Remainder] string input)
-			=> Writer.WriteLine(input);
+			=> Console.WriteLine(input);
 
 		[Command(nameof(Exit))]
 		public void Exit()
@@ -37,15 +35,14 @@ namespace YACCS.Examples
 
 		[Command(nameof(Time))]
 		public void Time()
-			=> Writer.WriteLine($"The current time is: {DateTime.UtcNow}");
+			=> Console.WriteLine($"The current time is: {DateTime.UtcNow}");
 
 		[Command(nameof(Help))]
-		public class Help : CommandGroup<IContext>
+		public class Help : ConsoleCommands<IContext>
 		{
 			public ICommandService CommandService { get; set; } = null!;
 			public IHelpFormatter HelpFormatter { get; set; } = null!;
 			public IInput<IContext, string> Input { get; set; } = null!;
-			public ConsoleHandler Writer { get; set; } = null!;
 
 			[Command]
 			public void HelpCommand()
@@ -53,7 +50,7 @@ namespace YACCS.Examples
 				var i = 0;
 				foreach (var command in CommandService.Commands)
 				{
-					Writer.WriteLine($"\t{++i}. {command.Names[0]}");
+					Console.WriteLine($"\t{++i}. {command.Names[0]}");
 				}
 			}
 
@@ -63,11 +60,11 @@ namespace YACCS.Examples
 				var command = commands[0];
 				if (commands.Count > 1)
 				{
-					Writer.WriteLine("Enter the position of the command you want to see: ");
+					Console.WriteLine("Enter the position of the command you want to see: ");
 					var i = 0;
 					foreach (var c in commands)
 					{
-						Writer.WriteLine($"\t{++i}. {c.Names[0]}");
+						Console.WriteLine($"\t{++i}. {c.Names[0]}");
 					}
 
 					var options = new InputOptions<IContext, string, int>
@@ -87,9 +84,14 @@ namespace YACCS.Examples
 				}
 
 				var text = await HelpFormatter.FormatAsync(Context, command).ConfigureAwait(false);
-				Writer.WriteLine(text);
+				Console.WriteLine(text);
 				return SuccessResult.Instance.Sync;
 			}
 		}
+	}
+
+	public abstract class ConsoleCommands<T> : CommandGroup<T> where T : IContext
+	{
+		public ConsoleHandler Console { get; set; } = null!;
 	}
 }

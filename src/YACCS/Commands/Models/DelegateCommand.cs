@@ -80,33 +80,10 @@ namespace YACCS.Commands.Models
 				 *	}
 				 */
 
-				var method = _Delegate.Method;
-				var target = _Delegate.Target;
+				var instance = _Delegate.Target is null ? null : Expression.Constant(_Delegate.Target);
+				var (body, args) = instance.CreateInvokeDelegate(_Delegate.Method);
 
-				var argsExpr = Expression.Parameter(typeof(object?[]), "Args");
-
-				var targetExpr = target is null ? null : Expression.Constant(target);
-				var argsCastExpr = method.GetParameters().Select((x, i) =>
-				{
-					var indexExpr = Expression.Constant(i);
-					var accessExpr = Expression.ArrayAccess(argsExpr, indexExpr);
-					return Expression.Convert(accessExpr, x.ParameterType);
-				});
-				var invokeExpr = Expression.Call(targetExpr, method, argsCastExpr);
-
-				Expression bodyExpr = invokeExpr;
-				// With a return type of void to keep the Func<object?[], object> declaration
-				// we just need to return a null value at the end
-				if (ReturnType == typeof(void))
-				{
-					var nullExpr = Expression.Constant(null);
-					var returnLabel = Expression.Label(typeof(object));
-					var returnExpr = Expression.Return(returnLabel, nullExpr, typeof(object));
-					var returnLabelExpr = Expression.Label(returnLabel, nullExpr);
-					bodyExpr = Expression.Block(invokeExpr, returnExpr, returnLabelExpr);
-				}
-
-				var lambda = Expression.Lambda<Func<object?[], object>>(bodyExpr, argsExpr);
+				var lambda = Expression.Lambda<Func<object?[], object>>(body, args);
 				return lambda.Compile();
 			}
 		}

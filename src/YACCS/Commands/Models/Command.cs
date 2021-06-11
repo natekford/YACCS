@@ -185,12 +185,12 @@ namespace YACCS.Commands.Models
 				 *	}
 				 */
 
-				var instanceExpr = Expression.Parameter(typeof(Task), "Task");
-				var instanceCastExpr = Expression.Convert(instanceExpr, ReturnType);
-				var propertyExpr = Expression.Property(instanceCastExpr, nameof(Task<object>.Result));
-				var propertyCastExpr = Expression.Convert(propertyExpr, typeof(object));
+				var instance = Expression.Parameter(typeof(Task), "Task");
+				var instanceCast = Expression.Convert(instance, ReturnType);
+				var property = Expression.Property(instanceCast, nameof(Task<object>.Result));
+				var propertyCast = Expression.Convert(property, typeof(object));
 
-				var lambda = Expression.Lambda<Func<Task, object>>(propertyCastExpr, instanceExpr);
+				var lambda = Expression.Lambda<Func<Task, object>>(propertyCast, instance);
 				return lambda.Compile();
 			}
 		}
