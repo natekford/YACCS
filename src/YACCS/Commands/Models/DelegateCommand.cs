@@ -11,7 +11,7 @@ using YACCS.Results;
 
 namespace YACCS.Commands.Models
 {
-	public sealed class DelegateCommand : Command
+	public class DelegateCommand : Command
 	{
 		// Delegate commands don't use contexts so this can/should be null by default
 		public override Type? ContextType { get; }
@@ -52,7 +52,7 @@ namespace YACCS.Commands.Models
 				: new[] { immutable };
 		}
 
-		private sealed class ImmutableDelegateCommand : ImmutableCommand
+		protected class ImmutableDelegateCommand : ImmutableCommand
 		{
 			private readonly Delegate _Delegate;
 			private readonly Lazy<Func<object?[], object>> _InvokeDelegate;
@@ -71,7 +71,7 @@ namespace YACCS.Commands.Models
 				return ConvertValueAsync(value);
 			}
 
-			private Func<object?[], object> CreateInvokeDelegate()
+			protected virtual Func<object?[], object> CreateInvokeDelegate()
 			{
 				/*
 				 *	(object?[] Args) =>

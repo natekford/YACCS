@@ -12,7 +12,7 @@ using YACCS.Results;
 
 namespace YACCS.Commands.Models
 {
-	public sealed class ReflectionCommand : Command
+	public class ReflectionCommand : Command
 	{
 		public override Type? ContextType { get; }
 		public Type GroupType { get; }
@@ -111,13 +111,12 @@ namespace YACCS.Commands.Models
 			}
 		}
 
-		private sealed class ImmutableReflectionCommand : ImmutableCommand
+		protected class ImmutableReflectionCommand : ImmutableCommand
 		{
 			private static readonly MethodInfo _GetService = typeof(IServiceProvider)
 				.GetMethod(nameof(IServiceProvider.GetService));
 
 			private readonly Lazy<Func<ICommandGroup>> _ConstructorDelegate;
-			private readonly Type? _ContextType;
 			private readonly Type _GroupType;
 			private readonly Lazy<Action<ICommandGroup, IServiceProvider>> _InjectionDelegate;
 			private readonly Lazy<Func<ICommandGroup, object?[], object>> _InvokeDelegate;
@@ -126,7 +125,6 @@ namespace YACCS.Commands.Models
 			public ImmutableReflectionCommand(ReflectionCommand mutable)
 				: base(mutable, mutable.Method.ReturnType)
 			{
-				_ContextType = mutable.ContextType;
 				_GroupType = mutable.GroupType;
 				_Method = mutable.Method;
 
@@ -154,14 +152,14 @@ namespace YACCS.Commands.Models
 				return result;
 			}
 
-			private Func<ICommandGroup> CreateConstructorDelegate()
+			protected virtual Func<ICommandGroup> CreateConstructorDelegate()
 			{
 				var ctor = Expression.New(_GroupType.GetConstructor(Type.EmptyTypes));
 				var lambda = Expression.Lambda<Func<ICommandGroup>>(ctor);
 				return lambda.Compile();
 			}
 
-			private Action<ICommandGroup, IServiceProvider> CreateInjectionDelegate()
+			protected virtual Action<ICommandGroup, IServiceProvider> CreateInjectionDelegate()
 			{
 				/*
 				 *	(ICommandGroup Group, IServiceProvider Provider) =>
@@ -220,7 +218,7 @@ namespace YACCS.Commands.Models
 				return lambda.Compile();
 			}
 
-			private Func<ICommandGroup, object?[], object> CreateInvokeDelegate()
+			protected virtual Func<ICommandGroup, object?[], object> CreateInvokeDelegate()
 			{
 				/*
 				 *	(ICommandGroup Group, object?[] Args) =>
