@@ -181,7 +181,6 @@ namespace YACCS.Help
 					if (!added)
 					{
 						StringBuilder
-							.AppendLine()
 							.AppendDepth(CurrentDepth)
 							.AppendLine(header);
 						added = true;
@@ -192,7 +191,6 @@ namespace YACCS.Help
 					{
 						StringBuilder.Append(part);
 					}
-					StringBuilder.AppendLine();
 				}
 				return this;
 			}

@@ -40,6 +40,8 @@ namespace YACCS.Examples
 		[Command(nameof(Help))]
 		public class Help : ConsoleCommands<IContext>
 		{
+			private static readonly string _Separator = new('-', 10);
+
 			public ICommandService CommandService { get; set; } = null!;
 			public IHelpFormatter HelpFormatter { get; set; } = null!;
 			public IInput<IContext, string> Input { get; set; } = null!;
@@ -83,8 +85,11 @@ namespace YACCS.Examples
 					command = commands[result.Value - 1];
 				}
 
+				Console.WriteLine();
+				Console.WriteLine(_Separator);
 				var text = await HelpFormatter.FormatAsync(Context, command).ConfigureAwait(false);
 				Console.WriteLine(text);
+				Console.WriteLine(_Separator);
 				return SuccessResult.Instance.Sync;
 			}
 		}

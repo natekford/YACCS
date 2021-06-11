@@ -54,7 +54,7 @@ namespace YACCS.Commands
 			{
 				var best = await GetBestMatchAsync(context, args).ConfigureAwait(false);
 				// If a command is found and args are parsed, execute command in background
-				if (best.IsSuccess && best.Command != null && best.Args != null)
+				if (best.InnerResult.IsSuccess && best.Command != null && best.Args != null)
 				{
 					_ = HandleCommandAsync(context, best.Command, best.Args);
 				}
@@ -224,7 +224,7 @@ namespace YACCS.Commands
 
 				args[i] = value;
 			}
-			return CommandScore.FromCanExecute(command, context, args);
+			return CommandScore.FromCanExecute(command, context, args, startIndex + 1);
 		}
 
 		public ValueTask<IResult> ProcessParameterPreconditionsAsync(

@@ -32,8 +32,6 @@ namespace YACCS.Commands
 		public int Priority { get; }
 		public int Score { get; }
 		public CommandStage Stage { get; }
-		public bool IsSuccess => InnerResult.IsSuccess;
-		public string Response => InnerResult.Response;
 
 		private string DebuggerDisplay => $"Stage = {Stage}, Score = {Score}, Success = {InnerResult.IsSuccess}";
 
@@ -72,15 +70,29 @@ namespace YACCS.Commands
 				return 1;
 			}
 
+			// If a CanExecute but b cannot, a > b and vice versa
+			// The instant a single command can execute, all failed commands are irrelevant
+			if (a.Stage != b.Stage)
+			{
+				if (a.Stage == CommandStage.CanExecute)
+				{
+					return 1;
+				}
+				else if (b.Stage == CommandStage.CanExecute)
+				{
+					return -1;
+				}
+			}
+
 			static double GetModifier(CommandStage stage)
 			{
 				return stage switch
 				{
 					CommandStage.BadContext => 0,
 					CommandStage.BadArgCount => 0.1,
-					CommandStage.FailedPrecondition => 0.6,
-					CommandStage.FailedTypeReader => 0.7,
-					CommandStage.FailedParameterPrecondition => 0.8,
+					CommandStage.FailedPrecondition => 0.4,
+					CommandStage.FailedTypeReader => 0.5,
+					CommandStage.FailedParameterPrecondition => 0.6,
 					CommandStage.CanExecute => 1,
 					_ => throw new ArgumentOutOfRangeException(nameof(stage)),
 				};
@@ -89,19 +101,25 @@ namespace YACCS.Commands
 			var modifierA = GetModifier(a.Stage);
 			var modifierB = GetModifier(b.Stage);
 
-			var scoreA = modifierA * (a.Score + Math.Pow(a.Priority, modifierA));
-			var scoreB = modifierB * (b.Score + Math.Pow(b.Priority, modifierB));
+			var scoreA = modifierA * (a.Score + a.Priority);
+			var scoreB = modifierB * (b.Score + b.Priority);
 			return scoreA.CompareTo(scoreB);
 		}
 
 		public static CommandScore FromCanExecute(
 			IImmutableCommand command,
 			IContext context,
-			object?[] args)
+			object?[] args,
+			int score)
 		{
 			var result = SuccessResult.Instance.Sync;
 			const CommandStage STAGE = CommandStage.CanExecute;
-			return new CommandScore(command, null, context, result, STAGE, int.MaxValue, args);
+			// Subtract start index from int.MaxValue because the more args the less
+			// command name parts used, so the less specific the command is
+			// E.G. two commands:
+			// Echo Colored "text to echo" <-- Score = 2
+			// Echo "colored text to echo" <-- Score = 1
+			return new CommandScore(command, null, context, result, STAGE, score, args);
 		}
 
 		public static CommandScore FromFailedOptionalArgs(

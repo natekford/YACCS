@@ -516,7 +516,7 @@ namespace YACCS.Tests.Commands
 
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.AreEqual(CommandStage.CanExecute, result.Stage);
-			Assert.AreEqual(int.MaxValue, result.Score);
+			Assert.AreEqual(1, result.Score);
 
 			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
 			Assert.IsTrue(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
