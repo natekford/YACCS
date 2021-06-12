@@ -8,14 +8,18 @@ namespace YACCS.Commands.Attributes
 	public class CommandAttribute : Attribute, ICommandAttribute
 	{
 		public bool AllowInheritance { get; set; }
-		public IReadOnlyList<string> Names { get; }
+		public virtual IReadOnlyList<string> Names { get; }
 
-		public CommandAttribute(params string[] names)
+		public CommandAttribute(params string[] names) : this(names.ToImmutableArray())
 		{
-			Names = names.ToImmutableArray();
 		}
 
-		public CommandAttribute() : this(Array.Empty<string>())
+		public CommandAttribute(IReadOnlyList<string> names)
+		{
+			Names = names;
+		}
+
+		public CommandAttribute() : this(ImmutableArray<string>.Empty)
 		{
 		}
 	}

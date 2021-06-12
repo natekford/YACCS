@@ -11,7 +11,7 @@ namespace YACCS.Commands.Attributes
 	{
 		private static readonly TaggedString _Key = new(Tag.Key, "Id");
 
-		public string Id { get; }
+		public virtual string Id { get; }
 
 		public IdAttribute(string id)
 		{
