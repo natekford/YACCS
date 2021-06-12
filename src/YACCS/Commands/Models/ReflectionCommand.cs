@@ -204,7 +204,7 @@ namespace YACCS.Commands.Models
 
 					// Catch any exceptions and throw a more informative one
 					var message = $"Failed setting a service for {_GroupType.FullName}.";
-					return body.AddRethrow((Exception e) => new ArgumentException(message, x.Member.Name, e));
+					return body.AddThrow((Exception e) => new ArgumentException(message, x.Member.Name, e));
 				});
 				var body = Expression.Block(setters);
 
@@ -227,8 +227,7 @@ namespace YACCS.Commands.Models
 
 				var instance = Expression.Parameter(typeof(ICommandGroup), "Group");
 
-				var instanceCast = Expression.Convert(instance, _Method.DeclaringType);
-				var (body, args) = instanceCast.CreateInvokeDelegate(_Method);
+				var (body, args) = instance.CreateInvokeExpressionFromObjectArrayArgs(_Method);
 
 				var lambda = Expression.Lambda<Func<ICommandGroup, object?[], object>>(
 					body,

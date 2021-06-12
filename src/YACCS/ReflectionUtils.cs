@@ -19,7 +19,7 @@ namespace YACCS
 			typeof(IReadOnlyCollection<>),
 		};
 
-		public static TryExpression AddRethrow<T>(
+		public static TryExpression AddThrow<T>(
 			this Expression body,
 			Expression<Action<T>> createException)
 			where T : Exception
@@ -33,13 +33,13 @@ namespace YACCS
 			return Expression.TryCatch(body, @catch);
 		}
 
-		public static Lazy<T> CreateDelegate<T>(Func<T> createDelegateDelegate, string name)
+		public static Lazy<T> CreateDelegate<T>(Func<T> factory, string name)
 		{
 			return new Lazy<T>(() =>
 			{
 				try
 				{
-					return createDelegateDelegate();
+					return factory();
 				}
 				catch (Exception ex)
 				{
@@ -64,7 +64,7 @@ namespace YACCS
 			Expression instance,
 			Func<MemberExpression, T> createExpression) where T : Expression
 		{
-			T Convert(MemberInfo x) => createExpression(instance.CreateMemberAccess(x));
+			T Convert(MemberInfo x) => createExpression(instance.CreateMemberAccessExpression(x));
 			return type.CreateExpressionsForWritableMembers(Convert);
 		}
 
@@ -88,10 +88,16 @@ namespace YACCS
 				$"{type.Name} does not implement {typeof(T).FullName}.", nameof(type));
 		}
 
-		public static (Expression Body, ParameterExpression Args) CreateInvokeDelegate(
+		public static (Expression Body, ParameterExpression Args) CreateInvokeExpressionFromObjectArrayArgs(
 			this Expression? instance,
 			MethodInfo method)
 		{
+			// Make sure we're calling the method on something that actually implements it
+			if (instance is not null)
+			{
+				instance = Expression.Convert(instance, method.DeclaringType);
+			}
+
 			var args = Expression.Parameter(typeof(object?[]), "Args");
 			var argsCast = method.GetParameters().Select((x, i) =>
 			{
@@ -120,7 +126,9 @@ namespace YACCS
 			return (body, args);
 		}
 
-		public static MemberExpression CreateMemberAccess(this Expression instance, MemberInfo member)
+		public static MemberExpression CreateMemberAccessExpression(
+			this Expression instance,
+			MemberInfo member)
 		{
 			var instanceCast = Expression.Convert(instance, member.DeclaringType);
 			return Expression.MakeMemberAccess(instanceCast, member);
@@ -140,7 +148,8 @@ namespace YACCS
 			return null;
 		}
 
-		public static (IEnumerable<PropertyInfo>, IEnumerable<FieldInfo>) GetWritableMembers(this Type type)
+		public static (IEnumerable<PropertyInfo>, IEnumerable<FieldInfo>) GetWritableMembers(
+			this Type type)
 		{
 			const BindingFlags FLAGS = BindingFlags.Public | BindingFlags.Instance;
 			var properties = type
