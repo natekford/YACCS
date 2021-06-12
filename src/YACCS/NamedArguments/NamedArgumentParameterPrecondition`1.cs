@@ -26,7 +26,16 @@ namespace YACCS.NamedArguments
 		}
 
 		protected override object? Getter(T instance, string property)
-			=> _Getter.Invoke(instance, property);
+		{
+			try
+			{
+				return _Getter.Invoke(instance, property);
+			}
+			catch (Exception e)
+			{
+				throw new InvalidOperationException($"Unable to find the specified member name: {property}", e);
+			}
+		}
 
 		private static Func<T, string, object> Getter()
 		{
@@ -46,7 +55,7 @@ namespace YACCS.NamedArguments
 			 *			return Instance.MemberC;
 			 *		}
 			 *
-			 *		throw new ArgumentException();
+			 *		throw new InvalidOperationException();
 			 *		return null;
 			 *	}
 			 */
@@ -67,11 +76,11 @@ namespace YACCS.NamedArguments
 
 				return Expression.IfThen(isMember, @return);
 			});
-			var body = Expression.Block(
-				getters
-				.Append(Expression.Throw(Expression.Constant(new ArgumentException("Invalid member name.", "Name"))))
-				.Append(Expression.Label(returnLabel, Expression.Constant(null)))
-			);
+			var exception = Expression.Constant(new InvalidOperationException("Unable to find the specified member name."));
+			var @throw = Expression.Throw(exception);
+			var @null = Expression.Constant(null);
+			var @return = Expression.Label(returnLabel, @null);
+			var body = Expression.Block(getters.Append(@throw).Append(@return));
 
 			var lambda = Expression.Lambda<Func<T, string, object>>(
 				body,

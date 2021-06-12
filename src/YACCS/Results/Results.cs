@@ -94,22 +94,31 @@ namespace YACCS.Results
 
 	public class NamedArgDuplicateResult : Result
 	{
+		public string Name { get; }
+
 		public NamedArgDuplicateResult(string name) : base(false, $"Duplicate value for named argument {name}.")
 		{
+			Name = name;
 		}
 	}
 
 	public class NamedArgMissingValueResult : Result
 	{
+		public string Name { get; }
+
 		public NamedArgMissingValueResult(string name) : base(false, $"Missing a value for named argument {name}.")
 		{
+			Name = name;
 		}
 	}
 
 	public class NamedArgNonExistentResult : Result
 	{
+		public string Name { get; }
+
 		public NamedArgNonExistentResult(string name) : base(false, $"Named argument does not exist {name}.")
 		{
+			Name = name;
 		}
 	}
 

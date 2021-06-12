@@ -54,7 +54,6 @@ namespace YACCS.NamedArguments
 			var instance = Expression.Parameter(typeof(T), "Instance");
 			var name = Expression.Parameter(typeof(string), "Name");
 			var value = Expression.Parameter(typeof(object), "Value");
-			var returnLabel = Expression.Label();
 
 			var setters = typeof(T).CreateExpressionsForWritableMembers<Expression>(instance, x =>
 			{
@@ -65,12 +64,12 @@ namespace YACCS.NamedArguments
 				// Then set member and return
 				var valueCast = Expression.Convert(value, x.Type);
 				var assign = Expression.Assign(x, valueCast);
-				var @return = Expression.Return(returnLabel);
-				var body = Expression.Block(assign, @return);
+				var @null = Expression.Constant(null);
+				var body = Expression.Block(assign, @null);
 
 				return Expression.IfThen(isMember, body);
 			});
-			var body = Expression.Block(setters.Append(Expression.Label(returnLabel)));
+			var body = Expression.Block(setters);
 
 			var lambda = Expression.Lambda<Action<T, string, object?>>(
 				body,

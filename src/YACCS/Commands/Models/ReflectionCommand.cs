@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -28,7 +29,7 @@ namespace YACCS.Commands.Models
 			}
 			if (group.GetConstructor(Type.EmptyTypes) == null)
 			{
-				throw new ArgumentException("Missing a public parameterless constructor.", nameof(group));
+				throw new ArgumentException($"{group.FullName} is missing a public parameterless constructor.", nameof(group));
 			}
 
 			ContextType = group
@@ -113,13 +114,13 @@ namespace YACCS.Commands.Models
 
 		protected class ImmutableReflectionCommand : ImmutableCommand
 		{
+			private static readonly ConcurrentDictionary<Type, Func<IServiceProvider, ICommandGroup>> _ConstructorCache = new();
 			private static readonly MethodInfo _GetService = typeof(IServiceProvider)
 				.GetMethod(nameof(IServiceProvider.GetService));
 
-			private readonly Func<ICommandGroup> _Constructor;
+			private readonly Func<IServiceProvider, ICommandGroup> _Constructor;
+			private readonly Func<ICommandGroup, object?[], object> _Execute;
 			private readonly Type _GroupType;
-			private readonly Action<ICommandGroup, IServiceProvider> _Injection;
-			private readonly Func<ICommandGroup, object?[], object> _Invoke;
 			private readonly MethodInfo _Method;
 
 			public ImmutableReflectionCommand(ReflectionCommand mutable)
@@ -128,9 +129,8 @@ namespace YACCS.Commands.Models
 				_GroupType = mutable.GroupType;
 				_Method = mutable.Method;
 
-				_Constructor = ReflectionUtils.CreateDelegate(Constructor, "constructor");
-				_Injection = ReflectionUtils.CreateDelegate(Injection, "injection");
-				_Invoke = ReflectionUtils.CreateDelegate(Invoke, "invoke");
+				_Constructor = ReflectionUtils.CreateDelegate(Constructor, "constructor + injection");
+				_Execute = ReflectionUtils.CreateDelegate(Execute, "execute");
 			}
 
 			public override async Task<IResult> ExecuteAsync(IContext context, object?[] args)
@@ -138,82 +138,82 @@ namespace YACCS.Commands.Models
 				// Don't catch exceptions in here, it's easier for the command handler to
 				// catch them itself + this makes testing easier
 
-				var group = _Constructor.Invoke();
-				_Injection.Invoke(group, context.Services);
+				var group = _Constructor.Invoke(context.Services);
 				await group.BeforeExecutionAsync(this, context).ConfigureAwait(false);
 
-				var value = _Invoke.Invoke(group, args);
+				var value = _Execute.Invoke(group, args);
 				var result = await ConvertValueAsync(value).ConfigureAwait(false);
+				await group.AfterExecutionAsync(this, context, result).ConfigureAwait(false);
 
-				await group.AfterExecutionAsync(this, context).ConfigureAwait(false);
 				return result;
 			}
 
-			protected virtual Func<ICommandGroup> Constructor()
-			{
-				var ctor = Expression.New(_GroupType.GetConstructor(Type.EmptyTypes));
-
-				var lambda = Expression.Lambda<Func<ICommandGroup>>(
-					ctor
-				);
-				return lambda.Compile();
-			}
-
-			protected virtual Action<ICommandGroup, IServiceProvider> Injection()
+			protected virtual Func<IServiceProvider, ICommandGroup> Constructor()
 			{
 				/*
-				 *	(ICommandGroup Group, IServiceProvider Provider) =>
+				 *	(IServiceProvider Provider) =>
 				 *	{
-				 *		object? Var0 = Provider.GetService(typeof(ServiceA));
-				 *		if (Var0 is ServiceA)
+				 *		var group = new GroupType();
+				 *		try
 				 *		{
-				 *			((DeclaringType)Group).ServiceA = (ServiceA)Var0;
+				 *			var __var0 = Provider.GetService(typeof(ServiceA));
+				 *
+				 *			if (__var0 is ServiceA)
+				 *			{
+				 *				((DeclaringType)group).ServiceA = (ServiceA)__var0;
+				 *			}
 				 *		}
-				 *		object? Var1 = Provider.GetService(typeof(ServiceB));
-				 *		if (Var1 is ServiceB)
+				 *		catch (Exception e)
 				 *		{
-				 *			((DeclaringType)Group).ServiceB = (ServiceB)Var1;
+				 *			throw new ArgumentException(message, nameof(DeclaringType.ServiceA), e);
 				 *		}
+				 *
+				 *		return group;
 				 *	}
 				 */
 
-				var instance = Expression.Parameter(typeof(ICommandGroup), "Group");
-				var provider = Expression.Parameter(typeof(IServiceProvider), "Provider");
-
-				var memberCount = 0;
-				var setters = _GroupType.CreateExpressionsForWritableMembers<Expression>(instance, x =>
+				return _ConstructorCache.GetOrAdd(_GroupType, (groupType) =>
 				{
-					// Create temp variable
-					var typeArgument = Expression.Constant(x.Type);
-					var service = Expression.Call(provider, _GetService, typeArgument);
-					var temp = Expression.Variable(typeof(object), $"__var{memberCount++}");
-					var tempAssign = Expression.Assign(temp, service);
+					var provider = Expression.Parameter(typeof(IServiceProvider), "Provider");
 
-					// Make sure the temp variable is not null
-					var isType = Expression.TypeIs(temp, x.Type);
+					var group = Expression.Variable(groupType, "group");
+					var @new = Expression.New(groupType);
+					var assignGroup = Expression.Assign(group, @new);
 
-					// Set member to temp variable
-					var serviceCast = Expression.Convert(temp, x.Type);
-					var assign = Expression.Assign(x, serviceCast);
+					var memberCount = 0;
+					var setters = groupType.CreateExpressionsForWritableMembers<Expression>(group, x =>
+					{
+						// Create temp variable
+						var typeArgument = Expression.Constant(x.Type);
+						var getService = Expression.Call(provider, _GetService, typeArgument);
+						var temp = Expression.Variable(typeof(object), $"__var{memberCount++}");
+						var tempAssign = Expression.Assign(temp, getService);
 
-					var ifThen = Expression.IfThen(isType, assign);
-					var body = Expression.Block(new[] { temp }, tempAssign, ifThen);
+						// Make sure the temp variable is not null
+						var isType = Expression.TypeIs(temp, x.Type);
 
-					// Catch any exceptions and throw a more informative one
-					var message = $"Failed setting a service for {_GroupType.FullName}.";
-					return body.AddThrow((Exception e) => new ArgumentException(message, x.Member.Name, e));
+						// Set member to temp variable
+						var serviceCast = Expression.Convert(temp, x.Type);
+						var assignService = Expression.Assign(x, serviceCast);
+
+						var ifThen = Expression.IfThen(isType, assignService);
+						var body = Expression.Block(new[] { temp }, tempAssign, ifThen);
+
+						// Catch any exceptions and throw a more informative one
+						var message = $"Failed setting a service for {groupType.FullName}.";
+						return body.AddThrow((Exception e) => new ArgumentException(message, x.Member.Name, e));
+					});
+					var body = Expression.Block(new[] { group }, setters.Prepend(assignGroup).Append(group));
+
+					var lambda = Expression.Lambda<Func<IServiceProvider, ICommandGroup>>(
+						body,
+						provider
+					);
+					return lambda.Compile();
 				});
-				var body = Expression.Block(setters);
-
-				var lambda = Expression.Lambda<Action<ICommandGroup, IServiceProvider>>(
-					body,
-					instance,
-					provider
-				);
-				return lambda.Compile();
 			}
 
-			protected virtual Func<ICommandGroup, object?[], object> Invoke()
+			protected virtual Func<ICommandGroup, object?[], object> Execute()
 			{
 				/*
 				 *	(ICommandGroup Group, object?[] Args) =>

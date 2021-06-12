@@ -108,10 +108,7 @@ namespace YACCS
 			if (method.ReturnType == typeof(void))
 			{
 				var @null = Expression.Constant(null);
-				var objectLabel = Expression.Label(typeof(object));
-				var @return = Expression.Return(objectLabel, @null, typeof(object));
-				var returnLabel = Expression.Label(objectLabel, @null);
-				body = Expression.Block(body, @return, returnLabel);
+				body = Expression.Block(body, @null);
 			}
 			// Value types need to be boxed
 			// This has to go after the void check because void is a value type

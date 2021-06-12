@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -63,6 +64,22 @@ namespace YACCS.Tests.TypeReaders
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.InnerResult, typeof(ParseFailedResult<int>));
+		}
+
+		[TestMethod]
+		public async Task NonExistentName_Test()
+		{
+			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
+
+			const string FAKE_NAME = "joeba";
+			var input = nameof(CommandsGroup.Test2) +
+				$" {CommandsGroup.I}: {I}" +
+				$" {FAKE_NAME}: {S}" +
+				$" {CommandsGroup.D}: {D}";
+			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgNonExistentResult));
+			Assert.AreEqual(FAKE_NAME, ((NamedArgNonExistentResult)result.InnerResult).Name);
 		}
 
 		[TestMethod]

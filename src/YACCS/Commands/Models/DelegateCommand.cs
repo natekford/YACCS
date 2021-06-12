@@ -55,22 +55,22 @@ namespace YACCS.Commands.Models
 		protected class ImmutableDelegateCommand : ImmutableCommand
 		{
 			private readonly Delegate _Delegate;
-			private readonly Func<object?[], object> _Invoke;
+			private readonly Func<object?[], object> _Execute;
 
 			public ImmutableDelegateCommand(DelegateCommand mutable)
 				: base(mutable, mutable.Delegate.Method.ReturnType)
 			{
 				_Delegate = mutable.Delegate;
-				_Invoke = ReflectionUtils.CreateDelegate(Invoke, "invoke");
+				_Execute = ReflectionUtils.CreateDelegate(Execute, "execute");
 			}
 
 			public override Task<IResult> ExecuteAsync(IContext context, object?[] args)
 			{
-				var value = _Invoke.Invoke(args);
+				var value = _Execute.Invoke(args);
 				return ConvertValueAsync(value);
 			}
 
-			protected virtual Func<object?[], object> Invoke()
+			protected virtual Func<object?[], object> Execute()
 			{
 				/*
 				 *	(object?[] Args) =>

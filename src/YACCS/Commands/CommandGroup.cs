@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Models;
+using YACCS.Results;
 
 namespace YACCS.Commands
 {
@@ -11,7 +12,7 @@ namespace YACCS.Commands
 		public IImmutableCommand Command { get; private set; } = default!;
 		public TContext Context { get; private set; } = default!;
 
-		public virtual Task AfterExecutionAsync(IImmutableCommand command, TContext context)
+		public virtual Task AfterExecutionAsync(IImmutableCommand command, TContext context, IResult result)
 			=> Task.CompletedTask;
 
 		public virtual Task BeforeExecutionAsync(IImmutableCommand command, TContext context)
@@ -33,18 +34,18 @@ namespace YACCS.Commands
 		public virtual Task OnCommandBuildingAsync(IList<ICommand> commands)
 			=> Task.CompletedTask;
 
-		Task ICommandGroup.AfterExecutionAsync(IImmutableCommand command, IContext context)
+		Task ICommandGroup.AfterExecutionAsync(IImmutableCommand command, IContext context, IResult result)
 		{
 			if (context is null)
 			{
-				return AfterExecutionAsync(command, default!);
+				return AfterExecutionAsync(command, default!, result);
 			}
 			if (context is not TContext tContext)
 			{
 				var msg = $"Invalid context; expected {typeof(TContext).Name}, received {context.GetType().Name}.";
 				throw new ArgumentException(msg, nameof(context));
 			}
-			return AfterExecutionAsync(command, tContext);
+			return AfterExecutionAsync(command, tContext, result);
 		}
 
 		Task ICommandGroup.BeforeExecutionAsync(IImmutableCommand command, IContext context)
