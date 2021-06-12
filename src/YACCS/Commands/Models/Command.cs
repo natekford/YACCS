@@ -34,7 +34,7 @@ namespace YACCS.Commands.Models
 		[DebuggerDisplay("{DebuggerDisplay,nq}")]
 		protected abstract class ImmutableCommand : IImmutableCommand
 		{
-			private readonly Lazy<Func<Task, object>> _TaskResultDelegate;
+			private readonly Lazy<Func<Task, object>> _TaskResult;
 
 			public IReadOnlyList<object> Attributes { get; }
 			public Type? ContextType { get; }
@@ -54,8 +54,8 @@ namespace YACCS.Commands.Models
 			{
 				ReturnType = returnType;
 				ContextType = mutable.ContextType;
-				_TaskResultDelegate = ReflectionUtils.CreateDelegate(CreateTaskResultDelegate,
-					"task result delegate");
+				_TaskResult = new Lazy<Func<Task, object>>(
+					() => ReflectionUtils.CreateDelegate(TaskResult, "task result"));
 
 				{
 					var names = ImmutableArray.CreateBuilder<IReadOnlyList<string>>(mutable.Names.Count);
@@ -163,7 +163,7 @@ namespace YACCS.Commands.Models
 					}
 
 					// It has a value? Ok, let's get it
-					value = _TaskResultDelegate.Value.Invoke(task);
+					value = _TaskResult.Value.Invoke(task);
 				}
 
 				// We're given a result, we can just return that
@@ -176,7 +176,7 @@ namespace YACCS.Commands.Models
 				return new ValueResult(value);
 			}
 
-			private Func<Task, object> CreateTaskResultDelegate()
+			private Func<Task, object> TaskResult()
 			{
 				/*
 				 *	(Task Task) =>

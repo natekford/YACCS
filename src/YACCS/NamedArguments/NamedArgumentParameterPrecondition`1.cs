@@ -1,62 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Threading.Tasks;
 
-using YACCS.Commands;
 using YACCS.Commands.Models;
-using YACCS.Preconditions;
-using YACCS.Results;
 
 namespace YACCS.NamedArguments
 {
-	public class NamedArgumentParameterPrecondition<T> : ParameterPrecondition<IContext, T>
+	public class NamedArgumentParameterPrecondition<T> : NamedArgumentParameterPreconditionBase<T>
 	{
-		private readonly Lazy<Func<T, string, object>> _Getter;
+		private readonly Func<T, string, object> _Getter;
 		private readonly Lazy<IReadOnlyDictionary<string, IImmutableParameter>> _Parameters;
 
-		protected virtual IReadOnlyDictionary<string, IImmutableParameter> Parameters => _Parameters.Value;
+		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters => _Parameters.Value;
 
 		public NamedArgumentParameterPrecondition()
 		{
+			_Getter = ReflectionUtils.CreateDelegate(Getter, "getter");
 			_Parameters = new Lazy<IReadOnlyDictionary<string, IImmutableParameter>>(() =>
 			{
 				return NamedArgumentUtils
 					.CreateParametersForType(typeof(T))
 					.ToDictionary(x => x.OriginalParameterName, StringComparer.OrdinalIgnoreCase);
 			});
-			_Getter = ReflectionUtils.CreateDelegate(CreateGetterDelegate,
-				"getter delegate");
 		}
 
-		public override async Task<IResult> CheckAsync(
-			IImmutableParameter parameter,
-			IContext context,
-			[MaybeNull] T value)
-		{
-			foreach (var kvp in Parameters)
-			{
-				var (id, member) = kvp;
-				foreach (var precondition in member.Preconditions)
-				{
-					var memberValue = Getter(value, id);
-					var result = await precondition.CheckAsync(member, context, memberValue).ConfigureAwait(false);
-					if (!result.IsSuccess)
-					{
-						return result;
-					}
-				}
-			}
-			return SuccessResult.Instance.Sync;
-		}
+		protected override object? Getter(T instance, string property)
+			=> _Getter.Invoke(instance, property);
 
-		protected virtual object? Getter(T instance, string property)
-			=> _Getter.Value.Invoke(instance, property);
-
-		private static Func<T, string, object> CreateGetterDelegate()
+		private static Func<T, string, object> Getter()
 		{
 			/*
 			 *	(T Instance, string Name) =>

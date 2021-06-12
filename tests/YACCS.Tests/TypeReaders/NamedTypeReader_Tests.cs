@@ -258,7 +258,7 @@ namespace YACCS.Tests.TypeReaders
 			const int NUM = 1;
 			const string STR = "joe";
 			var input = new[]
-{
+			{
 				nameof(NamedClass.Number),
 				NUM.ToString(),
 				nameof(NamedClass.String),

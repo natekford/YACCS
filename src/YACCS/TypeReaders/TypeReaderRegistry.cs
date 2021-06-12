@@ -77,8 +77,19 @@ namespace YACCS.TypeReaders
 			{
 				return true;
 			}
+			if (!TryGetReaderType(type, out var readerType))
+			{
+				reader = null!;
+				return false;
+			}
 
-			Type readerType;
+			reader = readerType.CreateInstance<ITypeReader>();
+			Register(type, reader);
+			return true;
+		}
+
+		protected virtual bool TryGetReaderType(Type type, [NotNullWhen(true)] out Type? readerType)
+		{
 			if (type.IsEnum)
 			{
 				readerType = typeof(EnumTypeReader<>).MakeGenericType(type);
@@ -97,13 +108,9 @@ namespace YACCS.TypeReaders
 			}
 			else
 			{
-				reader = null!;
-				return false;
+				readerType = null;
 			}
-
-			reader = readerType.CreateInstance<ITypeReader>();
-			Register(type, reader);
-			return true;
+			return readerType != null;
 		}
 	}
 }

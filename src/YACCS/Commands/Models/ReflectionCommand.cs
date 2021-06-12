@@ -116,10 +116,10 @@ namespace YACCS.Commands.Models
 			private static readonly MethodInfo _GetService = typeof(IServiceProvider)
 				.GetMethod(nameof(IServiceProvider.GetService));
 
-			private readonly Lazy<Func<ICommandGroup>> _ConstructorDelegate;
+			private readonly Func<ICommandGroup> _Constructor;
 			private readonly Type _GroupType;
-			private readonly Lazy<Action<ICommandGroup, IServiceProvider>> _InjectionDelegate;
-			private readonly Lazy<Func<ICommandGroup, object?[], object>> _InvokeDelegate;
+			private readonly Action<ICommandGroup, IServiceProvider> _Injection;
+			private readonly Func<ICommandGroup, object?[], object> _Invoke;
 			private readonly MethodInfo _Method;
 
 			public ImmutableReflectionCommand(ReflectionCommand mutable)
@@ -128,12 +128,9 @@ namespace YACCS.Commands.Models
 				_GroupType = mutable.GroupType;
 				_Method = mutable.Method;
 
-				_ConstructorDelegate = ReflectionUtils.CreateDelegate(CreateConstructorDelegate,
-					"constructor delegate");
-				_InjectionDelegate = ReflectionUtils.CreateDelegate(CreateInjectionDelegate,
-					"injection delegate");
-				_InvokeDelegate = ReflectionUtils.CreateDelegate(CreateInvokeDelegate,
-					"invoke delegate");
+				_Constructor = ReflectionUtils.CreateDelegate(Constructor, "constructor");
+				_Injection = ReflectionUtils.CreateDelegate(Injection, "injection");
+				_Invoke = ReflectionUtils.CreateDelegate(Invoke, "invoke");
 			}
 
 			public override async Task<IResult> ExecuteAsync(IContext context, object?[] args)
@@ -141,18 +138,18 @@ namespace YACCS.Commands.Models
 				// Don't catch exceptions in here, it's easier for the command handler to
 				// catch them itself + this makes testing easier
 
-				var group = _ConstructorDelegate.Value.Invoke();
-				_InjectionDelegate.Value.Invoke(group, context.Services);
+				var group = _Constructor.Invoke();
+				_Injection.Invoke(group, context.Services);
 				await group.BeforeExecutionAsync(this, context).ConfigureAwait(false);
 
-				var value = _InvokeDelegate.Value.Invoke(group, args);
+				var value = _Invoke.Invoke(group, args);
 				var result = await ConvertValueAsync(value).ConfigureAwait(false);
 
 				await group.AfterExecutionAsync(this, context).ConfigureAwait(false);
 				return result;
 			}
 
-			protected virtual Func<ICommandGroup> CreateConstructorDelegate()
+			protected virtual Func<ICommandGroup> Constructor()
 			{
 				var ctor = Expression.New(_GroupType.GetConstructor(Type.EmptyTypes));
 
@@ -162,7 +159,7 @@ namespace YACCS.Commands.Models
 				return lambda.Compile();
 			}
 
-			protected virtual Action<ICommandGroup, IServiceProvider> CreateInjectionDelegate()
+			protected virtual Action<ICommandGroup, IServiceProvider> Injection()
 			{
 				/*
 				 *	(ICommandGroup Group, IServiceProvider Provider) =>
@@ -216,7 +213,7 @@ namespace YACCS.Commands.Models
 				return lambda.Compile();
 			}
 
-			protected virtual Func<ICommandGroup, object?[], object> CreateInvokeDelegate()
+			protected virtual Func<ICommandGroup, object?[], object> Invoke()
 			{
 				/*
 				 *	(ICommandGroup Group, object?[] Args) =>

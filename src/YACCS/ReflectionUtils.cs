@@ -33,19 +33,16 @@ namespace YACCS
 			return Expression.TryCatch(body, @catch);
 		}
 
-		public static Lazy<T> CreateDelegate<T>(Func<T> factory, string name)
+		public static T CreateDelegate<T>(Func<T> factory, string name)
 		{
-			return new Lazy<T>(() =>
+			try
 			{
-				try
-				{
-					return factory();
-				}
-				catch (Exception ex)
-				{
-					throw new ArgumentException($"Unable to create {name}.", ex);
-				}
-			});
+				return factory();
+			}
+			catch (Exception ex)
+			{
+				throw new ArgumentException($"Unable to create the delegate: {name}.", ex);
+			}
 		}
 
 		public static IEnumerable<T> CreateExpressionsForWritableMembers<T>(
