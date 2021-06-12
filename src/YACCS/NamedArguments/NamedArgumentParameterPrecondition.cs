@@ -81,28 +81,22 @@ namespace YACCS.NamedArguments
 
 			var instance = Expression.Parameter(typeof(T), "Instance");
 			var name = Expression.Parameter(typeof(string), "Name");
-			var returnLabel = Expression.Label(typeof(object));
 
-			Expression CreateExpression(MemberInfo member)
+			var returnLabel = Expression.Label(typeof(object));
+			var getters = typeof(T).CreateExpressionsForWritableMembers<Expression>(instance, x =>
 			{
 				// If Name == memberInfo.Name
-				var memberName = Expression.Constant(member.Name);
+				var memberName = Expression.Constant(x.Member.Name);
 				var isMember = Expression.Equal(memberName, name);
 
 				// Then get member and return
-				var access = Expression.MakeMemberAccess(instance, member);
-				var cast = Expression.Convert(access, typeof(object));
+				var cast = Expression.Convert(x, typeof(object));
 				var @return = Expression.Return(returnLabel, cast);
 
 				return Expression.IfThen(isMember, @return);
-			}
-
-			var (properties, fields) = typeof(T).GetWritableMembers();
-			var getProperties = properties.Select(CreateExpression);
-			var getFields = fields.Select(CreateExpression);
+			});
 			var body = Expression.Block(
-				getProperties
-				.Concat(getFields)
+				getters
 				.Append(Expression.Throw(Expression.Constant(new ArgumentException("Invalid member name.", "Name"))))
 				.Append(Expression.Label(returnLabel, Expression.Constant(null)))
 			);

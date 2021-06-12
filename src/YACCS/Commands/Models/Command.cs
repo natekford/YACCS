@@ -186,11 +186,15 @@ namespace YACCS.Commands.Models
 				 */
 
 				var instance = Expression.Parameter(typeof(Task), "Task");
+
 				var instanceCast = Expression.Convert(instance, ReturnType);
 				var property = Expression.Property(instanceCast, nameof(Task<object>.Result));
 				var propertyCast = Expression.Convert(property, typeof(object));
 
-				var lambda = Expression.Lambda<Func<Task, object>>(propertyCast, instance);
+				var lambda = Expression.Lambda<Func<Task, object>>(
+					propertyCast,
+					instance
+				);
 				return lambda.Compile();
 			}
 		}

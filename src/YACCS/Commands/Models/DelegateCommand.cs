@@ -81,9 +81,13 @@ namespace YACCS.Commands.Models
 				 */
 
 				var instance = _Delegate.Target is null ? null : Expression.Constant(_Delegate.Target);
+
 				var (body, args) = instance.CreateInvokeDelegate(_Delegate.Method);
 
-				var lambda = Expression.Lambda<Func<object?[], object>>(body, args);
+				var lambda = Expression.Lambda<Func<object?[], object>>(
+					body,
+					args
+				);
 				return lambda.Compile();
 			}
 		}

@@ -19,6 +19,20 @@ namespace YACCS
 			typeof(IReadOnlyCollection<>),
 		};
 
+		public static TryExpression AddRethrow<T>(
+			this Expression body,
+			Expression<Action<T>> createException)
+			where T : Exception
+		{
+			var createExceptionBody = (NewExpression)createException.Body;
+			var caughtException = createExceptionBody.Arguments
+				.OfType<ParameterExpression>()
+				.Single(x => x.Type == typeof(T));
+			var @throw = Expression.Throw(createExceptionBody);
+			var @catch = Expression.Catch(caughtException, @throw);
+			return Expression.TryCatch(body, @catch);
+		}
+
 		public static Lazy<T> CreateDelegate<T>(Func<T> createDelegateDelegate, string name)
 		{
 			return new Lazy<T>(() =>
@@ -32,6 +46,26 @@ namespace YACCS
 					throw new ArgumentException($"Unable to create {name}.", ex);
 				}
 			});
+		}
+
+		public static IEnumerable<T> CreateExpressionsForWritableMembers<T>(
+			this Type type,
+			Func<MemberInfo, T> createExpression)
+			where T : Expression
+		{
+			var (properties, fields) = type.GetWritableMembers();
+			var propertyExpressions = properties.Select(createExpression);
+			var fieldExpressions = fields.Select(createExpression);
+			return propertyExpressions.Concat(fieldExpressions);
+		}
+
+		public static IEnumerable<T> CreateExpressionsForWritableMembers<T>(
+			this Type type,
+			Expression instance,
+			Func<MemberExpression, T> createExpression) where T : Expression
+		{
+			T Convert(MemberInfo x) => createExpression(instance.CreateMemberAccess(x));
+			return type.CreateExpressionsForWritableMembers(Convert);
 		}
 
 		public static T CreateInstance<T>(this Type type, params object[] args)
@@ -54,7 +88,9 @@ namespace YACCS
 				$"{type.Name} does not implement {typeof(T).FullName}.", nameof(type));
 		}
 
-		public static (Expression Body, ParameterExpression Args) CreateInvokeDelegate(this Expression? instance, MethodInfo method)
+		public static (Expression Body, ParameterExpression Args) CreateInvokeDelegate(
+			this Expression? instance,
+			MethodInfo method)
 		{
 			var args = Expression.Parameter(typeof(object?[]), "Args");
 			var argsCast = method.GetParameters().Select((x, i) =>
@@ -82,6 +118,12 @@ namespace YACCS
 			}
 
 			return (body, args);
+		}
+
+		public static MemberExpression CreateMemberAccess(this Expression instance, MemberInfo member)
+		{
+			var instanceCast = Expression.Convert(instance, member.DeclaringType);
+			return Expression.MakeMemberAccess(instanceCast, member);
 		}
 
 		public static Type? GetArrayType(this Type type)

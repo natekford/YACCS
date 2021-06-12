@@ -155,7 +155,10 @@ namespace YACCS.Commands.Models
 			protected virtual Func<ICommandGroup> CreateConstructorDelegate()
 			{
 				var ctor = Expression.New(_GroupType.GetConstructor(Type.EmptyTypes));
-				var lambda = Expression.Lambda<Func<ICommandGroup>>(ctor);
+
+				var lambda = Expression.Lambda<Func<ICommandGroup>>(
+					ctor
+				);
 				return lambda.Compile();
 			}
 
@@ -179,46 +182,31 @@ namespace YACCS.Commands.Models
 
 				var instance = Expression.Parameter(typeof(ICommandGroup), "Group");
 				var provider = Expression.Parameter(typeof(IServiceProvider), "Provider");
-				var memberCount = 0;
 
-				Expression CreateExpression(MemberInfo memberInfo, Type serviceType)
+				var memberCount = 0;
+				var setters = _GroupType.CreateExpressionsForWritableMembers<Expression>(instance, x =>
 				{
-					// Assign temp variable
-					var type = Expression.Constant(serviceType);
-					var service = Expression.Call(provider, _GetService, type);
+					// Create temp variable
+					var typeArgument = Expression.Constant(x.Type);
+					var service = Expression.Call(provider, _GetService, typeArgument);
 					var temp = Expression.Variable(typeof(object), $"__var{memberCount++}");
 					var tempAssign = Expression.Assign(temp, service);
 
-					// If not null
-					var isType = Expression.TypeIs(temp, serviceType);
+					// Make sure the temp variable is not null
+					var isType = Expression.TypeIs(temp, x.Type);
 
-					// Then assign temp variable to command group
-					var instanceCast = Expression.Convert(instance, memberInfo.DeclaringType);
-					var member = Expression.MakeMemberAccess(instanceCast, memberInfo);
-					var serviceCast = Expression.Convert(temp, serviceType);
-					var assign = Expression.Assign(member, serviceCast);
+					// Set member to temp variable
+					var serviceCast = Expression.Convert(temp, x.Type);
+					var assign = Expression.Assign(x, serviceCast);
 
 					var ifThen = Expression.IfThen(isType, assign);
 					var body = Expression.Block(new[] { temp }, tempAssign, ifThen);
 
 					// Catch any exceptions and throw a more informative one
-					var exception = new ArgumentException($"Failed while setting a service ({serviceType.Name}) for the command group {_GroupType.Name}.");
-					var @throw = Expression.Throw(Expression.Constant(exception));
-					var @catch = Expression.Catch(typeof(Exception), @throw);
-
-					return Expression.TryCatch(body, @catch);
-				}
-
-				var (properties, fields) = _GroupType.GetWritableMembers();
-				var assignProperties = properties.Select(x =>
-				{
-					return CreateExpression(x, x.PropertyType);
+					var message = $"Failed setting a service for {_GroupType.FullName}.";
+					return body.AddRethrow((Exception e) => new ArgumentException(message, x.Member.Name, e));
 				});
-				var assignFields = fields.Select(x =>
-				{
-					return CreateExpression(x, x.FieldType);
-				});
-				var body = Expression.Block(assignProperties.Concat(assignFields));
+				var body = Expression.Block(setters);
 
 				var lambda = Expression.Lambda<Action<ICommandGroup, IServiceProvider>>(
 					body,
@@ -238,6 +226,7 @@ namespace YACCS.Commands.Models
 				 */
 
 				var instance = Expression.Parameter(typeof(ICommandGroup), "Group");
+
 				var instanceCast = Expression.Convert(instance, _Method.DeclaringType);
 				var (body, args) = instanceCast.CreateInvokeDelegate(_Method);
 
