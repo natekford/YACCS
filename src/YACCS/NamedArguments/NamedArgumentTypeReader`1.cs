@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 using MorseCode.ITask;
 
@@ -103,57 +104,48 @@ namespace YACCS.NamedArguments
 			 *	}
 			 */
 
-			var instanceExpr = Expression.Parameter(typeof(T), "Instance");
-			var nameExpr = Expression.Parameter(typeof(string), "Name");
-			var valueExpr = Expression.Parameter(typeof(object), "Value");
+			var instance = Expression.Parameter(typeof(T), "Instance");
+			var name = Expression.Parameter(typeof(string), "Name");
+			var value = Expression.Parameter(typeof(object), "Value");
 			var returnLabel = Expression.Label();
 
-			var (properties, fields) = typeof(T).GetWritableMembers();
-
-			Expression CreateExpression(
-				string name,
-				Type type,
-				Func<ParameterExpression?, MemberExpression> memberGetter)
+			Expression CreateExpression(MemberInfo memberInfo, Type memberType)
 			{
-				var typeExpr = Expression.Constant(type);
-				var valueCastExpr = Expression.Convert(valueExpr, type);
+				// If Name == memberInfo.Name
+				var memberName = Expression.Constant(memberInfo.Name);
+				var isMember = Expression.Equal(memberName, name);
 
-				var memberExpr = memberGetter(instanceExpr);
-				var assignExpr = Expression.Assign(memberExpr, valueCastExpr);
+				// Then set member and return
+				var member = Expression.MakeMemberAccess(instance, memberInfo);
+				var type = Expression.Constant(memberType);
+				var valueCast = Expression.Convert(value, memberType);
+				var assign = Expression.Assign(member, valueCast);
+				var @return = Expression.Return(returnLabel);
+				var body = Expression.Block(assign, @return);
 
-				var returnExpr = Expression.Return(returnLabel);
-				var bodyExpr = Expression.Block(assignExpr, returnExpr);
-
-				var memberNameExpr = Expression.Constant(name);
-				var isMemberExpr = Expression.Equal(memberNameExpr, nameExpr);
-				return Expression.IfThen(isMemberExpr, bodyExpr);
+				return Expression.IfThen(isMember, body);
 			}
 
-			var propertyExprs = properties.Select(x =>
+			var (properties, fields) = typeof(T).GetWritableMembers();
+			var assignProperties = properties.Select(x =>
 			{
-				return CreateExpression(x.Name, x.PropertyType, u =>
-				{
-					return Expression.Property(u, x.SetMethod);
-				});
+				return CreateExpression(x, x.PropertyType);
 			});
-			var fieldExprs = fields.Select(x =>
+			var assignFields = fields.Select(x =>
 			{
-				return CreateExpression(x.Name, x.FieldType, u =>
-				{
-					return Expression.Field(u, x);
-				});
+				return CreateExpression(x, x.FieldType);
 			});
-			var allAssignExpr = Expression.Block(
-				propertyExprs
-				.Concat(fieldExprs)
+			var body = Expression.Block(
+				assignProperties
+				.Concat(assignFields)
 				.Append(Expression.Label(returnLabel))
 			);
 
 			var lambda = Expression.Lambda<Action<T, string, object?>>(
-				allAssignExpr,
-				instanceExpr,
-				nameExpr,
-				valueExpr
+				body,
+				instance,
+				name,
+				value
 			);
 			return lambda.Compile();
 		}

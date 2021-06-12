@@ -79,36 +79,38 @@ namespace YACCS.NamedArguments
 			 *	}
 			 */
 
-			var instanceExpr = Expression.Parameter(typeof(T), "Instance");
-			var nameExpr = Expression.Parameter(typeof(string), "Name");
+			var instance = Expression.Parameter(typeof(T), "Instance");
+			var name = Expression.Parameter(typeof(string), "Name");
 			var returnLabel = Expression.Label(typeof(object));
-
-			var (properties, fields) = typeof(T).GetWritableMembers();
 
 			Expression CreateExpression(MemberInfo member)
 			{
-				var accessExpr = Expression.MakeMemberAccess(instanceExpr, member);
-				var castExpr = Expression.Convert(accessExpr, typeof(object));
+				// If Name == memberInfo.Name
+				var memberName = Expression.Constant(member.Name);
+				var isMember = Expression.Equal(memberName, name);
 
-				var returnExpr = Expression.Return(returnLabel, castExpr);
-				var memberNameExpr = Expression.Constant(member.Name);
-				var isMemberExpr = Expression.Equal(memberNameExpr, nameExpr);
-				return Expression.IfThen(isMemberExpr, returnExpr);
+				// Then get member and return
+				var access = Expression.MakeMemberAccess(instance, member);
+				var cast = Expression.Convert(access, typeof(object));
+				var @return = Expression.Return(returnLabel, cast);
+
+				return Expression.IfThen(isMember, @return);
 			}
 
-			var propertyExprs = properties.Select(CreateExpression);
-			var fieldExprs = fields.Select(CreateExpression);
-			var allGetExpr = Expression.Block(
-				propertyExprs
-				.Concat(fieldExprs)
+			var (properties, fields) = typeof(T).GetWritableMembers();
+			var getProperties = properties.Select(CreateExpression);
+			var getFields = fields.Select(CreateExpression);
+			var body = Expression.Block(
+				getProperties
+				.Concat(getFields)
 				.Append(Expression.Throw(Expression.Constant(new ArgumentException("Invalid member name.", "Name"))))
 				.Append(Expression.Label(returnLabel, Expression.Constant(null)))
 			);
 
 			var lambda = Expression.Lambda<Func<T, string, object>>(
-				allGetExpr,
-				instanceExpr,
-				nameExpr
+				body,
+				instance,
+				name
 			);
 			return lambda.Compile();
 		}
