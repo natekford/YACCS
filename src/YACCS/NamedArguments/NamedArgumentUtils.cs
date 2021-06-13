@@ -23,7 +23,7 @@ namespace YACCS.NamedArguments
 				.Select(x => x.ToImmutable(null));
 		}
 
-		public static IImmutableCommand GenerateNamedArgumentVersion(this IImmutableCommand command)
+		public static IEnumerable<IImmutableCommand> GenerateNamedArgumentVersion(this IImmutableCommand command)
 		{
 			const string CONTEXT_ID = "context_id";
 			const string VALUES_ID = "values_id";
@@ -58,7 +58,7 @@ namespace YACCS.NamedArguments
 
 			var @delegate = (Func<IContext, IDictionary<string, object?>, Task<IResult>>)ExecuteAsync;
 			var newCommand = new DelegateCommand(@delegate, command.ContextType, command.Names);
-			newCommand.AddAttribute(new GeneratedNamedArgumentsAttribute(command));
+			newCommand.AddAttribute(new GeneratedCommandAttribute(command));
 
 			var context = newCommand
 				.Parameters
@@ -76,7 +76,7 @@ namespace YACCS.NamedArguments
 				.AddParameterPrecondition(new GeneratedNamedParameterPrecondition(command))
 				.SetTypeReader(new GeneratedNamedTypeReader(command));
 
-			return newCommand.ToImmutable().Single();
+			return newCommand.ToImmutable();
 		}
 
 		private class GeneratedNamedParameterPrecondition

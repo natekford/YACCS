@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Linq;
 using YACCS.Preconditions;
 using YACCS.Results;
 
@@ -29,7 +30,21 @@ namespace YACCS.Commands.Models
 			Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IParameter>();
 		}
 
-		public abstract IEnumerable<IImmutableCommand> ToImmutable();
+		public virtual IEnumerable<IImmutableCommand> ToImmutable()
+		{
+			var immutable = MakeImmutable();
+			yield return immutable;
+
+			foreach (var generator in this.Get<ICommandGeneratorAttribute>())
+			{
+				foreach (var generated in generator.GenerateCommands(immutable))
+				{
+					yield return generated;
+				}
+			}
+		}
+
+		protected abstract IImmutableCommand MakeImmutable();
 
 		[DebuggerDisplay("{DebuggerDisplay,nq}")]
 		protected abstract class ImmutableCommand : IImmutableCommand

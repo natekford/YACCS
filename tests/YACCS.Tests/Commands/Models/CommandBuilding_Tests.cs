@@ -102,7 +102,7 @@ namespace YACCS.Tests.Commands.Models
 			var command = new DelegateCommand(@delegate, names);
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				command.ToImmutable();
+				_ = command.ToImmutable().Any();
 			});
 		}
 

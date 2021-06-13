@@ -24,8 +24,7 @@ namespace YACCS.TypeReaders
 			ReadOnlyMemory<string> input)
 		{
 			var checker = context.Services.GetService<INullChecker>() ?? Checker;
-			var item = input.Span[0];
-			if (checker.IsNull(item))
+			if (input.Length == 1 && checker.IsNull(input.Span[0]))
 			{
 				return NullResult;
 			}

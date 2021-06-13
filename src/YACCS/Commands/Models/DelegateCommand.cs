@@ -44,13 +44,8 @@ namespace YACCS.Commands.Models
 			Attributes.Add(new DelegateCommandAttribute(@delegate));
 		}
 
-		public override IEnumerable<IImmutableCommand> ToImmutable()
-		{
-			var immutable = new ImmutableDelegateCommand(this);
-			return this.Get<GenerateNamedArgumentsAttribute>().Any()
-				? new[] { immutable, immutable.GenerateNamedArgumentVersion() }
-				: new[] { immutable };
-		}
+		protected override IImmutableCommand MakeImmutable()
+			=> new ImmutableDelegateCommand(this);
 
 		protected class ImmutableDelegateCommand : ImmutableCommand
 		{

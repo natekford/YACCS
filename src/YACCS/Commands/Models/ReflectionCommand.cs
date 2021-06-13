@@ -49,13 +49,8 @@ namespace YACCS.Commands.Models
 			Attributes.Add(new MethodInfoCommandAttribute(Method));
 		}
 
-		public override IEnumerable<IImmutableCommand> ToImmutable()
-		{
-			var immutable = new ImmutableReflectionCommand(this);
-			return this.Get<GenerateNamedArgumentsAttribute>().Any()
-				? new[] { immutable, immutable.GenerateNamedArgumentVersion() }
-				: new[] { immutable };
-		}
+		protected override IImmutableCommand MakeImmutable()
+			=> new ImmutableReflectionCommand(this);
 
 		private static IEnumerable<IReadOnlyList<string>> GetFullNames(
 			Type group,
