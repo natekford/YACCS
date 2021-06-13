@@ -24,6 +24,11 @@ namespace YACCS.Help
 
 		public ValueTask<string> FormatAsync(IContext context, IImmutableCommand command)
 		{
+			while (command.Source != null)
+			{
+				command = command.Source;
+			}
+
 			var help = GetHelpCommand(command);
 			var builder = GetBuilder(context)
 				.AppendNames(help)

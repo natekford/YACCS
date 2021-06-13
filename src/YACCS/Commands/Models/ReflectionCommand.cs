@@ -7,8 +7,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
-using YACCS.Commands.Linq;
-using YACCS.NamedArguments;
 using YACCS.Results;
 
 namespace YACCS.Commands.Models
@@ -118,8 +116,10 @@ namespace YACCS.Commands.Models
 			private readonly Type _GroupType;
 			private readonly MethodInfo _Method;
 
+			public override IImmutableCommand? Source => null;
+
 			public ImmutableReflectionCommand(ReflectionCommand mutable)
-				: base(mutable, mutable.Method.ReturnType)
+							: base(mutable, mutable.Method.ReturnType)
 			{
 				_GroupType = mutable.GroupType;
 				_Method = mutable.Method;

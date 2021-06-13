@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
-using YACCS.Commands.Linq;
-using YACCS.NamedArguments;
 using YACCS.Results;
 
 namespace YACCS.Commands.Models
@@ -16,6 +13,7 @@ namespace YACCS.Commands.Models
 		// Delegate commands don't use contexts so this can/should be null by default
 		public override Type? ContextType { get; }
 		public Delegate Delegate { get; }
+		public IImmutableCommand? Source { get; }
 
 		public DelegateCommand(Delegate @delegate, IEnumerable<IReadOnlyList<string>> names)
 			: base(@delegate.Method)
@@ -30,18 +28,18 @@ namespace YACCS.Commands.Models
 			Attributes.Add(new DelegateCommandAttribute(@delegate));
 		}
 
-		public DelegateCommand(Delegate @delegate, Type? contextType, IEnumerable<IReadOnlyList<string>> names)
-			: base(@delegate.Method)
+		public DelegateCommand(Delegate @delegate, IEnumerable<IReadOnlyList<string>> names, Type? contextType)
+			: this(@delegate, names)
 		{
 			ContextType = contextType;
-			Delegate = @delegate;
+		}
 
-			foreach (var name in names)
-			{
-				Names.Add(name);
-			}
+		public DelegateCommand(Delegate @delegate, IImmutableCommand source)
+			: this(@delegate, source.Names, source.ContextType)
+		{
+			Source = source;
 
-			Attributes.Add(new DelegateCommandAttribute(@delegate));
+			Attributes.Add(new GeneratedCommandAttribute(Source));
 		}
 
 		protected override IImmutableCommand MakeImmutable()
@@ -52,9 +50,13 @@ namespace YACCS.Commands.Models
 			private readonly Delegate _Delegate;
 			private readonly Func<object?[], object> _Execute;
 
+			public override IImmutableCommand? Source { get; }
+
 			public ImmutableDelegateCommand(DelegateCommand mutable)
 				: base(mutable, mutable.Delegate.Method.ReturnType)
 			{
+				Source = mutable.Source;
+
 				_Delegate = mutable.Delegate;
 				_Execute = ReflectionUtils.CreateDelegate(Execute, "execute");
 			}

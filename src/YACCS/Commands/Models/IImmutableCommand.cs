@@ -14,6 +14,7 @@ namespace YACCS.Commands.Models
 		IReadOnlyList<IImmutableParameter> Parameters { get; }
 		IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions { get; }
 		int Priority { get; }
+		IImmutableCommand? Source { get; }
 
 		Task<IResult> ExecuteAsync(IContext context, object?[] args);
 	}

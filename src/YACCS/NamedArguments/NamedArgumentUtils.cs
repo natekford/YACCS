@@ -25,13 +25,17 @@ namespace YACCS.NamedArguments
 
 		public static IEnumerable<IImmutableCommand> GenerateNamedArgumentVersion(this IImmutableCommand command)
 		{
+#pragma warning disable CS0219 // Variable is assigned but its value is never used
 			const string CONTEXT_ID = "context_id";
 			const string VALUES_ID = "values_id";
+#pragma warning restore CS0219 // Variable is assigned but its value is never used
 
 			Task<IResult> ExecuteAsync(
 				[Id(CONTEXT_ID)]
+				[Context]
 				IContext context,
 				[Id(VALUES_ID)]
+				[Remainder]
 				IDictionary<string, object?> values)
 			{
 				var args = new object?[command.Parameters.Count];
@@ -57,22 +61,13 @@ namespace YACCS.NamedArguments
 			}
 
 			var @delegate = (Func<IContext, IDictionary<string, object?>, Task<IResult>>)ExecuteAsync;
-			var newCommand = new DelegateCommand(@delegate, command.ContextType, command.Names);
-			newCommand.AddAttribute(new GeneratedCommandAttribute(command));
+			var newCommand = new DelegateCommand(@delegate, command);
 
-			var context = newCommand
-				.Parameters
-				.ById(CONTEXT_ID)
-				.Single()
-				.AsType<IContext>();
-			context.AddAttribute(new ContextAttribute());
-
-			var values = newCommand
+			newCommand
 				.Parameters
 				.ById(VALUES_ID)
 				.Single()
-				.AsType<IDictionary<string, object?>>();
-			values.AddAttribute(new RemainderAttribute())
+				.AsType<IDictionary<string, object?>>()
 				.AddParameterPrecondition(new GeneratedNamedParameterPrecondition(command))
 				.SetTypeReader(new GeneratedNamedTypeReader(command));
 

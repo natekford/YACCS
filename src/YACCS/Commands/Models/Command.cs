@@ -60,6 +60,7 @@ namespace YACCS.Commands.Models
 			public IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions { get; }
 			public string PrimaryId { get; }
 			public int Priority { get; }
+			public abstract IImmutableCommand? Source { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 			IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
 			protected Type ReturnType { get; }
