@@ -46,10 +46,6 @@ namespace YACCS.Commands.Models
 		}
 		private string DebuggerDisplay => $"Name = {OriginalParameterName}, Type = {ParameterType}";
 
-		public Parameter() : this(typeof(void), "", null)
-		{
-		}
-
 		public Parameter(Type type, string name, ICustomAttributeProvider? provider)
 			: base(provider)
 		{
@@ -137,13 +133,13 @@ namespace YACCS.Commands.Models
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 			private string DebuggerDisplay => $"Name = {OriginalParameterName}, Type = {ParameterType}";
 
-			public ImmutableParameter(Parameter mutable, IImmutableCommand? owner)
+			public ImmutableParameter(Parameter mutable, IImmutableCommand? command)
 			{
+				Command = command;
 				DefaultValue = mutable.DefaultValue;
 				HasDefaultValue = mutable.HasDefaultValue;
 				OriginalParameterName = mutable.OriginalParameterName;
 				ParameterType = mutable.ParameterType;
-				Command = owner;
 
 				{
 					var attributes = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);

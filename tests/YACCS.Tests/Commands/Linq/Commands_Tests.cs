@@ -70,7 +70,7 @@ namespace YACCS.Tests.Commands.Linq
 
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				var parameter = new Parameter();
+				var parameter = new Parameter(typeof(string), "joe", typeof(string));
 				var command = parameter.AsCommand();
 			});
 
