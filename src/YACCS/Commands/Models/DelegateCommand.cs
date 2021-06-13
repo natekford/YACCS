@@ -10,13 +10,28 @@ namespace YACCS.Commands.Models
 {
 	public class DelegateCommand : Command
 	{
-		// Delegate commands don't use contexts so this can/should be null by default
-		public override Type? ContextType { get; }
 		public Delegate Delegate { get; }
-		public IImmutableCommand? Source { get; }
 
-		public DelegateCommand(Delegate @delegate, IEnumerable<IReadOnlyList<string>> names)
-			: base(@delegate.Method)
+		public DelegateCommand(
+			Delegate @delegate,
+			IEnumerable<IReadOnlyList<string>> names,
+			Type? contextType = null)
+			: this(@delegate, null, contextType ?? typeof(IContext), names)
+		{
+		}
+
+		public DelegateCommand(Delegate @delegate, IImmutableCommand source)
+			: this(@delegate, source, source.ContextType, source.Names)
+		{
+			Attributes.Add(new GeneratedCommandAttribute(source));
+		}
+
+		protected DelegateCommand(
+			Delegate @delegate,
+			IImmutableCommand? source,
+			Type? contextType,
+			IEnumerable<IReadOnlyList<string>> names)
+			: base(@delegate.Method, source, contextType)
 		{
 			Delegate = @delegate;
 
@@ -28,20 +43,6 @@ namespace YACCS.Commands.Models
 			Attributes.Add(new DelegateCommandAttribute(@delegate));
 		}
 
-		public DelegateCommand(Delegate @delegate, IEnumerable<IReadOnlyList<string>> names, Type? contextType)
-			: this(@delegate, names)
-		{
-			ContextType = contextType;
-		}
-
-		public DelegateCommand(Delegate @delegate, IImmutableCommand source)
-			: this(@delegate, source.Names, source.ContextType)
-		{
-			Source = source;
-
-			Attributes.Add(new GeneratedCommandAttribute(Source));
-		}
-
 		protected override IImmutableCommand MakeImmutable()
 			=> new ImmutableDelegateCommand(this);
 
@@ -50,13 +51,9 @@ namespace YACCS.Commands.Models
 			private readonly Delegate _Delegate;
 			private readonly Func<object?[], object> _Execute;
 
-			public override IImmutableCommand? Source { get; }
-
 			public ImmutableDelegateCommand(DelegateCommand mutable)
 				: base(mutable, mutable.Delegate.Method.ReturnType)
 			{
-				Source = mutable.Source;
-
 				_Delegate = mutable.Delegate;
 				_Execute = ReflectionUtils.CreateDelegate(Execute, "execute");
 			}

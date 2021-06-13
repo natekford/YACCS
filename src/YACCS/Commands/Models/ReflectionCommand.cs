@@ -13,36 +13,39 @@ namespace YACCS.Commands.Models
 {
 	public class ReflectionCommand : Command
 	{
-		public override Type? ContextType { get; }
 		public Type GroupType { get; }
 		public MethodInfo Method { get; }
 
-		public ReflectionCommand(MethodInfo method, IEnumerable<string>? extraNames = null)
-			: base(method)
+		public ReflectionCommand(
+			MethodInfo method,
+			IEnumerable<string>? extraNames = null)
+			: this(method, null, extraNames)
 		{
-			var group = method.ReflectedType;
-			if (!typeof(ICommandGroup).IsAssignableFrom(group))
-			{
-				throw new ArgumentException($"Must implement {typeof(ICommandGroup).FullName}.", nameof(group));
-			}
-			if (group.GetConstructor(Type.EmptyTypes) == null)
-			{
-				throw new ArgumentException($"{group.FullName} is missing a public parameterless constructor.", nameof(group));
-			}
+		}
 
-			ContextType = group
-				.GetInterfaces()
-				.SingleOrDefault(x => x.IsGenericOf(typeof(ICommandGroup<>)))
-				?.GetGenericArguments()
-				?.Single();
-			GroupType = group;
+		public ReflectionCommand(
+			MethodInfo method,
+			IImmutableCommand? source,
+			IEnumerable<string>? extraNames = null)
+			: this(method, source, method.ReflectedType, extraNames)
+		{
+		}
+
+		protected ReflectionCommand(
+			MethodInfo method,
+			IImmutableCommand? source,
+			Type groupType,
+			IEnumerable<string>? extraNames)
+			: base(method, source, GetContextType(groupType))
+		{
+			GroupType = groupType;
 			Method = method;
 
-			foreach (var name in GetFullNames(group, method, extraNames))
+			foreach (var name in GetFullNames(groupType, method, extraNames))
 			{
 				Names.Add(name);
 			}
-			AddAllParentsAttributes(group);
+			AddAllParentsAttributes(groupType);
 
 			Attributes.Add(new MethodInfoCommandAttribute(Method));
 		}
@@ -50,8 +53,26 @@ namespace YACCS.Commands.Models
 		protected override IImmutableCommand MakeImmutable()
 			=> new ImmutableReflectionCommand(this);
 
+		private static Type? GetContextType(Type groupType)
+		{
+			if (!typeof(ICommandGroup).IsAssignableFrom(groupType))
+			{
+				throw new ArgumentException($"Must implement {typeof(ICommandGroup).FullName}.", nameof(groupType));
+			}
+			if (groupType.GetConstructor(Type.EmptyTypes) == null)
+			{
+				throw new ArgumentException($"{groupType.FullName} is missing a public parameterless constructor.", nameof(groupType));
+			}
+
+			return groupType
+				.GetInterfaces()
+				.SingleOrDefault(x => x.IsGenericOf(typeof(ICommandGroup<>)))
+				?.GetGenericArguments()
+				?.Single();
+		}
+
 		private static IEnumerable<IReadOnlyList<string>> GetFullNames(
-			Type group,
+					Type group,
 			MethodInfo method,
 			IEnumerable<string>? extraNames)
 		{
@@ -116,10 +137,8 @@ namespace YACCS.Commands.Models
 			private readonly Type _GroupType;
 			private readonly MethodInfo _Method;
 
-			public override IImmutableCommand? Source => null;
-
 			public ImmutableReflectionCommand(ReflectionCommand mutable)
-							: base(mutable, mutable.Method.ReturnType)
+				: base(mutable, mutable.Method.ReturnType)
 			{
 				_GroupType = mutable.GroupType;
 				_Method = mutable.Method;

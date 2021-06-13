@@ -18,14 +18,18 @@ namespace YACCS.Commands.Models
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public abstract class Command : EntityBase, ICommand
 	{
-		public abstract Type? ContextType { get; }
+		public Type? ContextType { get; protected set; }
 		public IList<IReadOnlyList<string>> Names { get; set; }
 		public IList<IParameter> Parameters { get; set; }
+		public IImmutableCommand? Source { get; protected set; }
 		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
 		private string DebuggerDisplay => $"Name = {Names[0]}, Parameter Count = {Parameters.Count}";
 
-		protected Command(MethodInfo method) : base(method)
+		protected Command(MethodInfo method, IImmutableCommand? source, Type? contextType)
+			: base(method)
 		{
+			Source = source;
+			ContextType = contextType;
 			Names = new List<IReadOnlyList<string>>();
 			Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IParameter>();
 		}
@@ -60,7 +64,7 @@ namespace YACCS.Commands.Models
 			public IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions { get; }
 			public string PrimaryId { get; }
 			public int Priority { get; }
-			public abstract IImmutableCommand? Source { get; }
+			public IImmutableCommand? Source { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 			IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
 			protected Type ReturnType { get; }
@@ -70,6 +74,7 @@ namespace YACCS.Commands.Models
 			{
 				ReturnType = returnType;
 				ContextType = mutable.ContextType;
+				Source = mutable.Source;
 				_TaskResult = new Lazy<Func<Task, object>>(
 					() => ReflectionUtils.CreateDelegate(TaskResult, "task result"));
 
