@@ -93,7 +93,7 @@ namespace YACCS.Commands
 			return enumerable;
 		}
 
-		public static IReadOnlyList<T> GetAllItems<T>(this INode<T> node)
+		public static IReadOnlyList<T> GetAllItems<T>(this INode<T> node, Predicate<T>? predicate = null)
 		{
 			static int GetMaximumSize(INode<T> node)
 			{
@@ -120,10 +120,15 @@ namespace YACCS.Commands
 				}
 			}
 
+			predicate ??= _ => true;
+
 			var set = new HashSet<T>(GetMaximumSize(node));
 			foreach (var item in GetItems(node))
 			{
-				set.Add(item);
+				if (predicate(item))
+				{
+					set.Add(item);
+				}
 			}
 
 			var arr = ImmutableArray.CreateBuilder<T>(set.Count);

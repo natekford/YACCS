@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YACCS", "src\YACCS\YACCS.cs
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YACCS.Tests", "tests\YACCS.Tests\YACCS.Tests.csproj", "{D86D69CA-9443-40A8-B5B4-443B14796864}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YACCS.Examples", "src\YACCS.Examples\YACCS.Examples.csproj", "{0FBDBBDD-4758-4124-A42B-CAA97ABF7E70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YACCS.Examples", "src\YACCS.Examples\YACCS.Examples.csproj", "{0FBDBBDD-4758-4124-A42B-CAA97ABF7E70}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

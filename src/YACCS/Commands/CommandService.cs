@@ -80,7 +80,9 @@ namespace YACCS.Commands
 				}
 				if (i == args.Length - 1)
 				{
-					return node.GetAllItems();
+					// Generated items have a source and that source gives them the same
+					// names/properties, so they should be ignored since they are copies
+					return node.GetAllItems(x => x.Source is null);
 				}
 			}
 

@@ -10,6 +10,6 @@ namespace YACCS.Commands.Attributes
 	public class GenerateNamedArgumentsAttribute : Attribute, ICommandGeneratorAttribute
 	{
 		public IEnumerable<IImmutableCommand> GenerateCommands(IImmutableCommand original)
-			=> original.GenerateNamedArgumentVersion();
+			=> new[] { new NamedArgumentsCommand(original) };
 	}
 }
