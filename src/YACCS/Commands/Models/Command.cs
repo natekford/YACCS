@@ -97,6 +97,11 @@ namespace YACCS.Commands.Models
 						// Remainder will always be the last parameter
 						if (!immutable.Length.HasValue)
 						{
+							if (i != mutable.Parameters.Count - 1)
+							{
+								throw new ArgumentException("Remainder can only be the final parameter.", nameof(mutable));
+							}
+
 							MaxLength = int.MaxValue;
 							break;
 						}
