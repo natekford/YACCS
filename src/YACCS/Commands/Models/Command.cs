@@ -34,7 +34,9 @@ namespace YACCS.Commands.Models
 			Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IParameter>();
 		}
 
-		public virtual IEnumerable<IImmutableCommand> ToImmutable()
+		public abstract IImmutableCommand MakeImmutable();
+
+		public virtual IEnumerable<IImmutableCommand> MakeMultipleImmutable()
 		{
 			var immutable = MakeImmutable();
 			yield return immutable;
@@ -47,8 +49,6 @@ namespace YACCS.Commands.Models
 				}
 			}
 		}
-
-		protected abstract IImmutableCommand MakeImmutable();
 
 		[DebuggerDisplay("{DebuggerDisplay,nq}")]
 		protected abstract class ImmutableCommand : IImmutableCommand

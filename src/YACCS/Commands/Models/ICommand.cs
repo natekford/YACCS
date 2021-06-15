@@ -7,6 +7,8 @@ namespace YACCS.Commands.Models
 		new IList<IReadOnlyList<string>> Names { get; set; }
 		IList<IParameter> Parameters { get; set; }
 
-		IEnumerable<IImmutableCommand> ToImmutable();
+		IImmutableCommand MakeImmutable();
+
+		IEnumerable<IImmutableCommand> MakeMultipleImmutable();
 	}
 }

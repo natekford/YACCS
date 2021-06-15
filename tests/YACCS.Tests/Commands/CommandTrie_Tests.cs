@@ -24,7 +24,7 @@ namespace YACCS.Tests.Commands
 		{
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new[] { "1" })
-				.ToImmutable()
+				.MakeMultipleImmutable()
 				.Single();
 			Assert.AreEqual(1, _Trie.Add(c1));
 			Assert.AreEqual(1, _Trie.Count);
@@ -34,7 +34,7 @@ namespace YACCS.Tests.Commands
 			var c2 = FakeDelegateCommand.New()
 				.AddName(new[] { "2" })
 				.AddName(new[] { "3" })
-				.ToImmutable()
+				.MakeMultipleImmutable()
 				.Single();
 			Assert.AreEqual(2, _Trie.Add(c2));
 			Assert.AreEqual(2, _Trie.Count);
@@ -47,7 +47,7 @@ namespace YACCS.Tests.Commands
 				.AddName(new[] { "4", "1" })
 				.AddName(new[] { "4", "2" })
 				.AddName(new[] { "4", "3" })
-				.ToImmutable()
+				.MakeMultipleImmutable()
 				.Single();
 			Assert.AreEqual(3, _Trie.Add(c3));
 			Assert.AreEqual(3, _Trie.Count);
@@ -59,7 +59,7 @@ namespace YACCS.Tests.Commands
 
 			var c4 = FakeDelegateCommand.New()
 				.AddName(new[] { "4", "1" })
-				.ToImmutable()
+				.MakeMultipleImmutable()
 				.Single();
 			Assert.AreEqual(1, _Trie.Add(c4));
 			Assert.AreEqual(4, _Trie.Count);
@@ -72,7 +72,7 @@ namespace YACCS.Tests.Commands
 			var c5 = FakeDelegateCommand.New()
 				.AddAttribute(new IdAttribute(DUPE_ID))
 				.AddName(new[] { "5" })
-				.ToImmutable()
+				.MakeMultipleImmutable()
 				.Single();
 			((ICollection<IImmutableCommand>)_Trie).Add(c5);
 			Assert.AreEqual(5, _Trie.Count);
@@ -81,7 +81,7 @@ namespace YACCS.Tests.Commands
 
 			var c6 = FakeDelegateCommand.New()
 				.AddName(new[] { "4" })
-				.ToImmutable()
+				.MakeMultipleImmutable()
 				.Single();
 			Assert.AreEqual(1, _Trie.Remove(c4));
 			Assert.AreEqual(1, _Trie.Add(c6));
@@ -100,7 +100,7 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(1, _Trie.Root["4"].GetAllItems().Count);
 
 			var c7 = FakeDelegateCommand.New()
-				.ToImmutable()
+				.MakeMultipleImmutable()
 				.Single();
 			Assert.AreEqual(0, _Trie.Remove(c7));
 
@@ -117,7 +117,7 @@ namespace YACCS.Tests.Commands
 			{
 				command.AddName(new[] { i.ToString() });
 			}
-			var immutable = command.ToImmutable().Single();
+			var immutable = command.MakeImmutable();
 
 			Assert.IsFalse(_Trie.Contains(immutable));
 			Assert.AreEqual(COUNT, _Trie.Add(immutable));
@@ -130,7 +130,7 @@ namespace YACCS.Tests.Commands
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new[] { "a" })
 				.AddAttribute(new IdAttribute(DUPE_ID))
-				.ToImmutable()
+				.MakeMultipleImmutable()
 				.Single();
 			Assert.AreEqual(1, _Trie.Add(c1));
 			Assert.AreEqual(1, _Trie.Count);
@@ -140,7 +140,7 @@ namespace YACCS.Tests.Commands
 			var c2 = FakeDelegateCommand.New()
 				.AddName(new[] { "a" })
 				.AddAttribute(new IdAttribute(DUPE_ID))
-				.ToImmutable()
+				.MakeMultipleImmutable()
 				.Single();
 			Assert.IsFalse(_Trie.Contains(c2));
 			Assert.AreEqual(1, _Trie.Add(c2));
@@ -149,7 +149,7 @@ namespace YACCS.Tests.Commands
 			var c3 = FakeDelegateCommand.New()
 				.AddName(new[] { "b" })
 				.AddAttribute(new IdAttribute(DUPE_ID))
-				.ToImmutable()
+				.MakeMultipleImmutable()
 				.Single();
 			Assert.AreEqual(1, _Trie.Add(c3));
 			Assert.AreEqual(3, _Trie.Count);
@@ -159,7 +159,7 @@ namespace YACCS.Tests.Commands
 			var @delegate = (Action<string>)(x => { });
 			var c4 = new DelegateCommand(@delegate, new[] { new[] { "a" } })
 				.AddAttribute(new IdAttribute(DUPE_ID))
-				.ToImmutable()
+				.MakeMultipleImmutable()
 				.Single();
 			Assert.AreEqual(1, _Trie.Add(c4));
 			Assert.AreEqual(4, _Trie.Count);
@@ -172,7 +172,7 @@ namespace YACCS.Tests.Commands
 		{
 			var command = FakeDelegateCommand.New()
 				.AddName(new[] { "asdf asdf", "bob" })
-				.ToImmutable()
+				.MakeMultipleImmutable()
 				.Single();
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
@@ -184,7 +184,7 @@ namespace YACCS.Tests.Commands
 		public void NoName_Test()
 		{
 			var command = FakeDelegateCommand.New()
-				.ToImmutable()
+				.MakeMultipleImmutable()
 				.Single();
 			Assert.IsFalse(_Trie.Contains(command));
 			Assert.ThrowsException<ArgumentException>(() =>

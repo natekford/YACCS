@@ -50,7 +50,7 @@ namespace YACCS.Commands.Models
 			Attributes.Add(new MethodInfoCommandAttribute(Method));
 		}
 
-		protected override IImmutableCommand MakeImmutable()
+		public override IImmutableCommand MakeImmutable()
 			=> new ImmutableReflectionCommand(this);
 
 		private static Type? GetContextType(Type groupType)

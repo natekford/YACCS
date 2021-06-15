@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -18,7 +17,7 @@ namespace YACCS.Tests.Preconditions
 		public async Task InvalidContext_Test()
 		{
 			IPrecondition precondition = new FakePrecondition();
-			var command = FakeDelegateCommand.New().ToImmutable().Single();
+			var command = FakeDelegateCommand.New().MakeImmutable();
 			var context = new FakeContext2();
 
 			var result = await precondition.CheckAsync(command, context).ConfigureAwait(false);
@@ -33,7 +32,7 @@ namespace YACCS.Tests.Preconditions
 		public async Task ValidContext_Test()
 		{
 			var precondition = new FakePrecondition();
-			var command = FakeDelegateCommand.New().ToImmutable().Single();
+			var command = FakeDelegateCommand.New().MakeImmutable();
 			var context = new FakeContext();
 
 			var result = await precondition.CheckAsync(command, context).ConfigureAwait(false);

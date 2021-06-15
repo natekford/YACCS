@@ -50,7 +50,7 @@ namespace YACCS.NamedArguments
 				.AddParameterPrecondition(new GeneratedNamedParameterPrecondition(Source))
 				.SetTypeReader(new GeneratedNamedTypeReader(Source));
 
-			_Command = command.ToImmutable().Single();
+			_Command = command.MakeImmutable();
 		}
 
 		public Task<IResult> ExecuteAsync(IContext context, object?[] args)

@@ -15,7 +15,7 @@ namespace YACCS.SwapArguments
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public class SwappedArgumentsCommand : IImmutableCommand
 	{
-		private readonly ImmutableArray<int> _SwapIndices;
+		private readonly Swapper _Swapper;
 
 		public IReadOnlyList<IImmutableParameter> Parameters { get; }
 		public int Priority { get; }
@@ -33,47 +33,24 @@ namespace YACCS.SwapArguments
 
 		public SwappedArgumentsCommand(
 			IImmutableCommand source,
-			ImmutableArray<int> swapIndices,
+			Swapper swapper,
 			int priorityDifference)
 		{
+			_Swapper = swapper;
 			Source = source;
-			_SwapIndices = swapIndices;
-			Priority = source.Priority + (priorityDifference * (_SwapIndices.Length - 1));
+			Priority = source.Priority + (priorityDifference * _Swapper.Indices.Length);
 
 			var builder = ImmutableArray.CreateBuilder<IImmutableParameter>(Source.Parameters.Count);
 			builder.AddRange(source.Parameters);
-			Map(builder);
+			_Swapper.Swap(builder);
 			Parameters = builder.MoveToImmutable();
 		}
 
 		public Task<IResult> ExecuteAsync(IContext context, object?[] args)
 		{
 			var copy = args.ToArray();
-			Unmap(copy);
+			_Swapper.SwapBack(copy);
 			return Source.ExecuteAsync(context, copy);
-		}
-
-		private void Map<T>(IList<T> source)
-		{
-			for (var i = 1; i < _SwapIndices.Length; ++i)
-			{
-				Swap(source, i);
-			}
-		}
-
-		private void Swap<T>(IList<T> source, int i)
-		{
-			var temp = source[_SwapIndices[0]];
-			source[_SwapIndices[0]] = source[_SwapIndices[i]];
-			source[_SwapIndices[i]] = temp;
-		}
-
-		private void Unmap<T>(IList<T> source)
-		{
-			for (var i = _SwapIndices.Length - 1; i >= 1; --i)
-			{
-				Swap(source, i);
-			}
 		}
 	}
 }
