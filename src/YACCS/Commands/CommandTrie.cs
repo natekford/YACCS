@@ -34,6 +34,15 @@ namespace YACCS.Commands
 
 		public int Add(IImmutableCommand item)
 		{
+			// Commands cannot have remainder be any parameter aside from the final one
+			for (var i = 0; i < item.Parameters.Count - 1; ++i)
+			{
+				if (item.Parameters[i].Length is null)
+				{
+					throw new ArgumentException("Remainder must be the final parameter.", nameof(item));
+				}
+			}
+			// Commands cannot be added directly to ROOT
 			if (item.Names.Count == 0)
 			{
 				throw new ArgumentException("Cannot add a command with no name.", nameof(item));
