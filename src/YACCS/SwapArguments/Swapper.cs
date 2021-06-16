@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace YACCS.SwapArguments
 {
@@ -12,9 +13,9 @@ namespace YACCS.SwapArguments
 
 		public Swapper(IEnumerable<int> indices)
 		{
-			Indices = indices.ToImmutableArray();
+			var copy = indices.ToArray();
+			Indices = Unsafe.As<int[], ImmutableArray<int>>(ref copy);
 
-			var copy = Indices.ToArray();
 			var swaps = new List<(int, int)>();
 			for (var i = 0; i < copy.Length - 1; ++i)
 			{
@@ -36,7 +37,7 @@ namespace YACCS.SwapArguments
 			Swaps = swaps.ToImmutableArray();
 		}
 
-		public static IEnumerable<Swapper> CreateSwappers(IReadOnlyList<int> indices)
+		public static IEnumerable<Swapper> CreateSwappers(IEnumerable<int> indices)
 		{
 			static IEnumerable<IEnumerable<T>> GetPermutations<T>(
 				IEnumerable<T> sequence,
@@ -57,12 +58,13 @@ namespace YACCS.SwapArguments
 					.SelectMany(CollectionSelector, ResultSelector);
 			}
 
+			var ordered = indices.OrderBy(x => x).ToArray();
 			IEnumerable<int> RemoveOrderedIndices(IEnumerable<int> source)
 			{
 				var i = 0;
 				foreach (var index in source)
 				{
-					if (indices[i] != index)
+					if (ordered[i] != index)
 					{
 						yield return index;
 					}
@@ -70,7 +72,7 @@ namespace YACCS.SwapArguments
 				}
 			}
 
-			var permutations = GetPermutations(indices, indices.Count);
+			var permutations = GetPermutations(indices, ordered.Length);
 			return permutations
 				.Select(RemoveOrderedIndices)
 				.Where(x => x.Any())

@@ -27,7 +27,7 @@ namespace YACCS.Help.Models
 			TypeReader = item.TypeReader is ITypeReader tr ? new HelpItem<ITypeReader>(tr) : null;
 
 			{
-				var array = ImmutableArray.CreateBuilder<HelpItem<IParameterPrecondition>>(item.Preconditions.Count);
+				var builder = ImmutableArray.CreateBuilder<HelpItem<IParameterPrecondition>>(item.Preconditions.Count);
 				foreach (var precondition in item.Preconditions)
 				{
 					var help = new HelpItem<IParameterPrecondition>(precondition);
@@ -35,9 +35,9 @@ namespace YACCS.Help.Models
 					{
 						HasAsyncFormattablePreconditions = true;
 					}
-					array.Add(help);
+					builder.Add(help);
 				}
-				Preconditions = array.MoveToImmutable();
+				Preconditions = builder.MoveToImmutable();
 			}
 		}
 	}

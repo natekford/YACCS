@@ -140,12 +140,12 @@ namespace YACCS.Commands.Models
 				ParameterType = mutable.ParameterType;
 
 				{
-					var attributes = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);
+					var builder = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);
 					var preconditions = new List<IParameterPrecondition>();
 					int l = 0, n = 0, t = 0;
 					foreach (var attribute in mutable.Attributes)
 					{
-						attributes.Add(attribute);
+						builder.Add(attribute);
 						switch (attribute)
 						{
 							case IParameterPrecondition precondition:
@@ -170,7 +170,7 @@ namespace YACCS.Commands.Models
 								break;
 						}
 					}
-					Attributes = attributes.MoveToImmutable();
+					Attributes = builder.MoveToImmutable();
 					Preconditions = preconditions.ToImmutableArray();
 				}
 

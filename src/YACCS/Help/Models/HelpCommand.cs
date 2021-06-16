@@ -25,7 +25,7 @@ namespace YACCS.Help.Models
 			ContextType = item.ContextType is Type c ? HelpItemUtils.Create(c) : null;
 
 			{
-				var array = ImmutableArray.CreateBuilder<HelpParameter>(item.Parameters.Count);
+				var builder = ImmutableArray.CreateBuilder<HelpParameter>(item.Parameters.Count);
 				foreach (var parameter in item.Parameters)
 				{
 					var help = new HelpParameter(parameter);
@@ -33,13 +33,13 @@ namespace YACCS.Help.Models
 					{
 						HasAsyncFormattableParameters = true;
 					}
-					array.Add(help);
+					builder.Add(help);
 				}
-				Parameters = array.MoveToImmutable();
+				Parameters = builder.MoveToImmutable();
 			}
 
 			{
-				var array = ImmutableArray.CreateBuilder<HelpItem<IPrecondition>>(item.Preconditions.Count);
+				var builder = ImmutableArray.CreateBuilder<HelpItem<IPrecondition>>(item.Preconditions.Count);
 				foreach (var group in item.Preconditions)
 				{
 					foreach (var precondition in group.Value)
@@ -49,10 +49,10 @@ namespace YACCS.Help.Models
 						{
 							HasAsyncFormattablePreconditions = true;
 						}
-						array.Add(help);
+						builder.Add(help);
 					}
 				}
-				Preconditions = array.MoveToImmutable();
+				Preconditions = builder.MoveToImmutable();
 			}
 		}
 	}

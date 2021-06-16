@@ -79,20 +79,20 @@ namespace YACCS.Commands.Models
 					() => ReflectionUtils.CreateDelegate(TaskResult, "task result"));
 
 				{
-					var names = ImmutableArray.CreateBuilder<IReadOnlyList<string>>(mutable.Names.Count);
+					var builder = ImmutableArray.CreateBuilder<IReadOnlyList<string>>(mutable.Names.Count);
 					foreach (var name in mutable.Names)
 					{
-						names.Add(new ImmutableName(name));
+						builder.Add(new ImmutableName(name));
 					}
-					Names = names.MoveToImmutable();
+					Names = builder.MoveToImmutable();
 				}
 
 				{
-					var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(mutable.Parameters.Count);
+					var builder = ImmutableArray.CreateBuilder<IImmutableParameter>(mutable.Parameters.Count);
 					for (var i = 0; i < mutable.Parameters.Count; ++i)
 					{
 						var immutable = mutable.Parameters[i].ToImmutable();
-						parameters.Add(immutable);
+						builder.Add(immutable);
 
 						// Remainder will always be the last parameter
 						if (!immutable.Length.HasValue)
@@ -111,17 +111,17 @@ namespace YACCS.Commands.Models
 						}
 						MaxLength += immutable.Length.Value;
 					}
-					Parameters = parameters.MoveToImmutable();
+					Parameters = builder.MoveToImmutable();
 				}
 
 				{
-					var attributes = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);
+					var builder = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);
 					// Use ConcurrentDictionary because it has GetOrAdd by default, not threading reasons
 					var preconditions = new ConcurrentDictionary<string, List<IPrecondition>>();
 					var p = 0;
 					foreach (var attribute in mutable.Attributes)
 					{
-						attributes.Add(attribute);
+						builder.Add(attribute);
 						switch (attribute)
 						{
 							case IPrecondition precondition:
@@ -151,7 +151,7 @@ namespace YACCS.Commands.Models
 								break;
 						}
 					}
-					Attributes = attributes.MoveToImmutable();
+					Attributes = builder.MoveToImmutable();
 					Preconditions = preconditions.ToImmutableDictionary(
 						x => x.Key,
 						x => (IReadOnlyList<IPrecondition>)x.Value.ToImmutableArray()

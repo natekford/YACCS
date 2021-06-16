@@ -131,9 +131,7 @@ namespace YACCS.Commands
 				}
 			}
 
-			var arr = ImmutableArray.CreateBuilder<T>(set.Count);
-			arr.AddRange(set);
-			return arr.MoveToImmutable();
+			return set.ToImmutableArray();
 		}
 
 		public static async IAsyncEnumerable<IImmutableCommand> GetDirectCommandsAsync(
