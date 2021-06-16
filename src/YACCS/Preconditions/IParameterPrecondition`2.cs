@@ -12,6 +12,7 @@ namespace YACCS.Preconditions
 		where TContext : IContext
 	{
 		Task<IResult> CheckAsync(
+			IImmutableCommand command,
 			IImmutableParameter parameter,
 			TContext context,
 			[MaybeNull] TValue value);

@@ -14,7 +14,7 @@ namespace YACCS.NamedArguments
 			return properties
 				.Select(x => new Parameter(x))
 				.Concat(fields.Select(x => new Parameter(x)))
-				.Select(x => x.ToImmutable(null));
+				.Select(x => x.ToImmutable());
 		}
 	}
 }

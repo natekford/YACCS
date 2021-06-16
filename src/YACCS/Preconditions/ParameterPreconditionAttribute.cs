@@ -12,12 +12,14 @@ namespace YACCS.Preconditions
 		: GroupablePreconditionAttribute, IParameterPrecondition
 	{
 		Task<IResult> IParameterPrecondition.CheckAsync(
+			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IContext context,
 			object? value)
-			=> CheckAsync(parameter, context, value);
+			=> CheckAsync(command, parameter, context, value);
 
 		protected abstract Task<IResult> CheckAsync(
+			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IContext context,
 			object? value);

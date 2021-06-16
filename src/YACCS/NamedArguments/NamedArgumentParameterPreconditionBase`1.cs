@@ -15,6 +15,7 @@ namespace YACCS.NamedArguments
 		protected abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
 		public override async Task<IResult> CheckAsync(
+			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IContext context,
 			[MaybeNull] T value)
@@ -25,7 +26,7 @@ namespace YACCS.NamedArguments
 				foreach (var precondition in member.Preconditions)
 				{
 					var memberValue = Getter(value, id);
-					var result = await precondition.CheckAsync(member, context, memberValue).ConfigureAwait(false);
+					var result = await precondition.CheckAsync(command, member, context, memberValue).ConfigureAwait(false);
 					if (!result.IsSuccess)
 					{
 						return result;

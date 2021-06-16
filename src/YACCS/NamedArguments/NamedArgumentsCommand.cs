@@ -98,6 +98,7 @@ namespace YACCS.NamedArguments
 			}
 
 			public override Task<IResult> CheckAsync(
+				IImmutableCommand command,
 				IImmutableParameter parameter,
 				IContext context,
 				[MaybeNull] Dictionary<string, object?> value)
@@ -109,7 +110,7 @@ namespace YACCS.NamedArguments
 						return new NamedArgMissingValueResult(kvp.Key).AsTask();
 					}
 				}
-				return base.CheckAsync(parameter, context, value);
+				return base.CheckAsync(command, parameter, context, value);
 			}
 
 			protected override object? Getter(

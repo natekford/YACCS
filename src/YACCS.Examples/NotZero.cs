@@ -17,6 +17,7 @@ namespace YACCS.Examples
 		private static readonly TaggedString[] _Tags = new[] { new TaggedString(Tag.String, _Message) };
 
 		public static Task<IResult> CheckAsync(
+			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IContext context,
 			int value)
@@ -32,9 +33,10 @@ namespace YACCS.Examples
 			=> _Tags;
 
 		protected override Task<IResult> CheckAsync(
+			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IContext context,
 			object? value)
-			=> this.CheckAsync<IContext, int>(parameter, context, value, CheckAsync);
+			=> this.CheckAsync<IContext, int>(command, parameter, context, value, CheckAsync);
 	}
 }

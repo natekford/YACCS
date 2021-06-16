@@ -22,6 +22,7 @@ namespace YACCS.Commands
 		}
 
 		public ValueTask<IResult> GetResultAsync(
+			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IParameterPrecondition precondition,
 			object? value)
@@ -32,7 +33,7 @@ namespace YACCS.Commands
 				return new ValueTask<IResult>(result);
 			}
 			return new ValueTask<IResult>(
-				GetUncachedResultAsync(parameter, precondition, value, key));
+				GetUncachedResultAsync(command, parameter, precondition, value, key));
 		}
 
 		public ValueTask<IResult> GetResultAsync(
@@ -62,12 +63,14 @@ namespace YACCS.Commands
 		}
 
 		private async Task<IResult> GetUncachedResultAsync(
+			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IParameterPrecondition precondition,
 			object? value,
 			PPKey key)
 		{
 			var result = await precondition.CheckAsync(
+				command,
 				parameter,
 				_Context,
 				value

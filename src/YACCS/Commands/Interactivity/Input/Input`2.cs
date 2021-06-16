@@ -14,9 +14,12 @@ namespace YACCS.Commands.Interactivity.Input
 	{
 		public IReadOnlyDictionary<Type, ITypeReader> TypeReaders { get; }
 
-		protected static Delegate EmptyDelegate { get; } = (Action)(() => { });
-		protected static IEnumerable<IReadOnlyList<string>> EmptyNames { get; }
-			= new[] { new ImmutableName(new[] { "Input" }) };
+		protected static IImmutableCommand EmptyCommand { get; }
+			= new DelegateCommand(
+				(Action)(() => { }),
+				new[] { new ImmutableName(new[] { "Input" }) },
+				typeof(TContext)
+			).MakeImmutable();
 
 		protected Input(IReadOnlyDictionary<Type, ITypeReader> typeReaders)
 		{
@@ -47,10 +50,10 @@ namespace YACCS.Commands.Interactivity.Input
 
 				var value = trResult.Value!;
 				var parameterBuilder = new Parameter(typeof(TValue), "InputParameter", null);
-				var parameter = parameterBuilder.ToImmutable(null);
+				var parameter = parameterBuilder.ToImmutable();
 				foreach (var precondition in options.Preconditions)
 				{
-					var result = await precondition.CheckAsync(parameter, context, value).ConfigureAwait(false);
+					var result = await precondition.CheckAsync(EmptyCommand, parameter, context, value).ConfigureAwait(false);
 					if (!result.IsSuccess)
 					{
 						return result;

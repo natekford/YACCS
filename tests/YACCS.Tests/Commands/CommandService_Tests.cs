@@ -558,9 +558,10 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (commandService, context, parameter) = Create(DISALLOWED_VALUE);
+			var (commandService, context, command, parameter) = Create(DISALLOWED_VALUE);
 			var result = await commandService.ProcessParameterPreconditionsAsync(
 				new PreconditionCache(context),
+				command,
 				parameter,
 				new[] { DISALLOWED_VALUE, DISALLOWED_VALUE + 1, DISALLOWED_VALUE + 2 }
 			).ConfigureAwait(false);
@@ -573,9 +574,10 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (commandService, context, parameter) = Create(DISALLOWED_VALUE);
+			var (commandService, context, command, parameter) = Create(DISALLOWED_VALUE);
 			var result = await commandService.ProcessParameterPreconditionsAsync(
 				new PreconditionCache(context),
+				command,
 				parameter,
 				new[] { DISALLOWED_VALUE + 1, DISALLOWED_VALUE + 2, DISALLOWED_VALUE + 3 }
 			).ConfigureAwait(false);
@@ -588,9 +590,10 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (commandService, context, parameter) = Create(DISALLOWED_VALUE);
+			var (commandService, context, command, parameter) = Create(DISALLOWED_VALUE);
 			var result = await commandService.ProcessParameterPreconditionsAsync(
 				new PreconditionCache(context),
+				command,
 				parameter,
 				DISALLOWED_VALUE
 			).ConfigureAwait(false);
@@ -603,9 +606,10 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (commandService, context, parameter) = Create(DISALLOWED_VALUE);
+			var (commandService, context, command, parameter) = Create(DISALLOWED_VALUE);
 			var result = await commandService.ProcessParameterPreconditionsAsync(
 				new PreconditionCache(context),
+				command,
 				parameter,
 				DISALLOWED_VALUE + 1
 			).ConfigureAwait(false);
@@ -613,7 +617,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsTrue(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
-		private static (CommandService, FakeContext, IImmutableParameter) Create(int disallowedValue)
+		private static (CommandService, FakeContext, IImmutableCommand, IImmutableParameter) Create(int disallowedValue)
 		{
 			var context = new FakeContext
 			{
@@ -628,9 +632,9 @@ namespace YACCS.Tests.Commands
 			var commandBuilder = FakeDelegateCommand.New();
 			commandBuilder.Parameters.Add(parameterBuilder);
 			var command = commandBuilder.MakeImmutable();
-			var parameter = parameterBuilder.ToImmutable(command);
+			var parameter = parameterBuilder.ToImmutable();
 
-			return (context.Get<CommandService>(), context, parameter);
+			return (context.Get<CommandService>(), context, command, parameter);
 		}
 	}
 
@@ -930,8 +934,8 @@ namespace YACCS.Tests.Commands
 					new LengthAttribute(length),
 				},
 				TypeReader = reader,
-			}.ToImmutable(null);
-			return ((CommandService)context.Get<ICommandService>(), context, parameter);
+			}.ToImmutable();
+			return (context.Get<CommandService>(), context, parameter);
 		}
 
 		private class CoolCharTypeReader : TypeReader<char>
@@ -1041,6 +1045,7 @@ namespace YACCS.Tests.Commands
 		}
 
 		public override Task<IResult> CheckAsync(
+			IImmutableCommand command,
 			IImmutableParameter parameter,
 			FakeContext context,
 			[MaybeNull] int value)
@@ -1089,6 +1094,7 @@ namespace YACCS.Tests.Commands
 		public bool IWasReached { get; private set; }
 
 		public override Task<IResult> CheckAsync(
+			IImmutableCommand command,
 			IImmutableParameter parameter,
 			FakeContext context,
 			[MaybeNull] int value)

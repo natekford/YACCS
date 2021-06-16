@@ -18,7 +18,7 @@ namespace YACCS.Tests.Preconditions
 		public async Task InvalidContext_Test()
 		{
 			IParameterPrecondition precondition = new IsNullOrNotNegativeParameterPrecondition();
-			var result = await precondition.CheckAsync(default!, new InvalidContext(), 1).ConfigureAwait(false);
+			var result = await precondition.CheckAsync(default!, default!, new InvalidContext(), 1).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
 			Assert.IsInstanceOfType(result, typeof(InvalidContextResult));
 		}
@@ -27,7 +27,7 @@ namespace YACCS.Tests.Preconditions
 		public async Task InvalidValue_Test()
 		{
 			IParameterPrecondition precondition = new IsNullOrNotNegativeParameterPrecondition();
-			var result = await precondition.CheckAsync(default!, new FakeContext(), new object()).ConfigureAwait(false);
+			var result = await precondition.CheckAsync(default!, default!, new FakeContext(), new object()).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
 			Assert.IsInstanceOfType(result, typeof(InvalidParameterResult));
 		}
@@ -37,7 +37,7 @@ namespace YACCS.Tests.Preconditions
 		{
 			IParameterPrecondition precondition = new IsNullOrNotNegativeParameterPrecondition();
 			var values = new[] { 1, 2, 3, -1, 5 };
-			var result = await precondition.CheckAsync(default!, new FakeContext(), values).ConfigureAwait(false);
+			var result = await precondition.CheckAsync(default!, default!, new FakeContext(), values).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
 		}
 
@@ -46,7 +46,7 @@ namespace YACCS.Tests.Preconditions
 		{
 			IParameterPrecondition precondition = new IsNullOrNotNegativeParameterPrecondition();
 			var values = new[] { 1, 2, 3, 4, 5 };
-			var result = await precondition.CheckAsync(default!, new FakeContext(), values).ConfigureAwait(false);
+			var result = await precondition.CheckAsync(default!, default!, new FakeContext(), values).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
 		}
 
@@ -55,7 +55,7 @@ namespace YACCS.Tests.Preconditions
 		{
 			IParameterPrecondition precondition = new IsNullOrNotNegativeParameterPrecondition();
 			var values = new object[] { 1, 2, 3, 4, 5, "joe" };
-			var result = await precondition.CheckAsync(default!, new FakeContext(), values).ConfigureAwait(false);
+			var result = await precondition.CheckAsync(default!, default!, new FakeContext(), values).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
 		}
 
@@ -64,7 +64,7 @@ namespace YACCS.Tests.Preconditions
 		{
 			IParameterPrecondition precondition = new IsNullOrNotNegativeParameterPrecondition();
 			var values = new int?[] { 1, 2, 3, 4, 5, null };
-			var result = await precondition.CheckAsync(default!, new FakeContext(), values).ConfigureAwait(false);
+			var result = await precondition.CheckAsync(default!, default!, new FakeContext(), values).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
 		}
 
@@ -72,7 +72,7 @@ namespace YACCS.Tests.Preconditions
 		public async Task SingleNullValue_Test()
 		{
 			IParameterPrecondition precondition = new IsNullOrNotNegativeParameterPrecondition();
-			var result = await precondition.CheckAsync(default!, new FakeContext(), null!).ConfigureAwait(false);
+			var result = await precondition.CheckAsync(default!, default!, new FakeContext(), null!).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
 		}
 
@@ -80,7 +80,7 @@ namespace YACCS.Tests.Preconditions
 		public async Task SingleValueFailure_Test()
 		{
 			IParameterPrecondition precondition = new IsNullOrNotNegativeParameterPrecondition();
-			var result = await precondition.CheckAsync(default!, new FakeContext(), -1).ConfigureAwait(false);
+			var result = await precondition.CheckAsync(default!, default!, new FakeContext(), -1).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
 		}
 
@@ -89,13 +89,13 @@ namespace YACCS.Tests.Preconditions
 		{
 			{
 				IParameterPrecondition precondition = new IsNullOrNotNegativeParameterPrecondition();
-				var result = await precondition.CheckAsync(default!, new FakeContext(), 1).ConfigureAwait(false);
+				var result = await precondition.CheckAsync(default!, default!, new FakeContext(), 1).ConfigureAwait(false);
 				Assert.IsTrue(result.IsSuccess);
 			}
 
 			{
 				IParameterPrecondition<int?> precondition = new IsNullOrNotNegativeParameterPrecondition();
-				var result = await precondition.CheckAsync(default!, new FakeContext(), 1).ConfigureAwait(false);
+				var result = await precondition.CheckAsync(default!, default!, new FakeContext(), 1).ConfigureAwait(false);
 				Assert.IsTrue(result.IsSuccess);
 			}
 		}
@@ -109,6 +109,7 @@ namespace YACCS.Tests.Preconditions
 		private class IsNullOrNotNegativeParameterPrecondition : ParameterPrecondition<FakeContext, int?>
 		{
 			public override Task<IResult> CheckAsync(
+				IImmutableCommand command,
 				IImmutableParameter parameter,
 				FakeContext context,
 				[MaybeNull] int? value)

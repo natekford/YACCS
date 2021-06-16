@@ -216,6 +216,7 @@ namespace YACCS.Commands
 
 				var ppResult = await ProcessParameterPreconditionsAsync(
 					cache,
+					command,
 					parameter,
 					value
 				).ConfigureAwait(false);
@@ -231,6 +232,7 @@ namespace YACCS.Commands
 
 		public ValueTask<IResult> ProcessParameterPreconditionsAsync(
 			PreconditionCache cache,
+			IImmutableCommand command,
 			IImmutableParameter parameter,
 			object? value)
 		{
@@ -241,12 +243,13 @@ namespace YACCS.Commands
 
 			static async Task<IResult> ProcessParameterPreconditionsAsync(
 				PreconditionCache cache,
+				IImmutableCommand command,
 				IImmutableParameter parameter,
 				object? value)
 			{
 				foreach (var precondition in parameter.Preconditions)
 				{
-					var result = await cache.GetResultAsync(parameter, precondition, value).ConfigureAwait(false);
+					var result = await cache.GetResultAsync(command, parameter, precondition, value).ConfigureAwait(false);
 					if (!result.IsSuccess)
 					{
 						return result;
@@ -257,6 +260,7 @@ namespace YACCS.Commands
 
 			return new ValueTask<IResult>(ProcessParameterPreconditionsAsync(
 				cache,
+				command,
 				parameter,
 				value
 			));
