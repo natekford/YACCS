@@ -38,7 +38,7 @@ namespace YACCS.SwapArguments
 		{
 			_Swapper = swapper;
 			Source = source;
-			Priority = source.Priority + (priorityDifference * _Swapper.Indices.Length);
+			Priority = source.Priority + (priorityDifference * _Swapper.Swaps.Length);
 
 			var builder = ImmutableArray.CreateBuilder<IImmutableParameter>(Source.Parameters.Count);
 			builder.AddRange(source.Parameters);

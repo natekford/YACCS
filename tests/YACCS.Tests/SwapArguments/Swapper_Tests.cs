@@ -33,7 +33,7 @@ namespace YACCS.Tests.SwapArguments
 		[TestMethod]
 		public void IndexOutOfRange_Test()
 		{
-			var swapper = new Swapper(new[] { 1, 99 });
+			var swapper = new Swapper(new[] { 99, 1 });
 
 			Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
 			{
@@ -63,6 +63,7 @@ namespace YACCS.Tests.SwapArguments
 				swapper.SwapBack(copy2);
 				Assert.IsTrue(original.SequenceEqual(copy2));
 			}
+			Assert.AreEqual(120, orderings.Count);
 		}
 	}
 }

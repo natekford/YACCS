@@ -7,18 +7,56 @@ namespace YACCS.SwapArguments
 {
 	public sealed class Swapper
 	{
-		private readonly ImmutableArray<int> _OrderedIndices;
-
 		public ImmutableArray<int> Indices { get; }
+		public ImmutableArray<(int, int)> Swaps { get; }
 
 		public Swapper(IEnumerable<int> indices)
 		{
 			Indices = indices.ToImmutableArray();
-			_OrderedIndices = Indices.OrderBy(x => x).ToImmutableArray();
+
+			var copy = Indices.ToArray();
+			var swaps = new List<(int, int)>();
+			for (var i = 0; i < copy.Length - 1; ++i)
+			{
+				var minIndex = i;
+				for (var j = i + 1; j < copy.Length; ++j)
+				{
+					if (copy[j] < copy[minIndex])
+					{
+						minIndex = j;
+					}
+				}
+
+				if (copy[minIndex] != copy[i])
+				{
+					swaps.Add((copy[minIndex], copy[i]));
+					Swap(copy, minIndex, i);
+				}
+			}
+			Swaps = swaps.ToImmutableArray();
 		}
 
 		public static IEnumerable<Swapper> CreateSwappers(IReadOnlyList<int> indices)
 		{
+			static IEnumerable<IEnumerable<T>> GetPermutations<T>(
+				IEnumerable<T> sequence,
+				int length)
+			{
+				if (length == 1)
+				{
+					return sequence.Select(x => new[] { x });
+				}
+
+				IEnumerable<T> CollectionSelector(IEnumerable<T> x)
+					=> sequence.Where(e => !x.Contains(e));
+
+				IEnumerable<T> ResultSelector(IEnumerable<T> seq, T x)
+					=> seq.Append(x);
+
+				return GetPermutations(sequence, length - 1)
+					.SelectMany(CollectionSelector, ResultSelector);
+			}
+
 			IEnumerable<int> RemoveOrderedIndices(IEnumerable<int> source)
 			{
 				var i = 0;
@@ -40,39 +78,29 @@ namespace YACCS.SwapArguments
 		}
 
 		public void Swap<T>(IList<T> source)
-			=> Move(Indices, _OrderedIndices, source);
-
-		public void SwapBack<T>(IList<T> source)
-			=> Move(_OrderedIndices, Indices, source);
-
-		private static IEnumerable<IEnumerable<T>> GetPermutations<T>(IEnumerable<T> sequence, int length)
 		{
-			if (length == 1)
+			for (var i = 0; i < Swaps.Length; ++i)
 			{
-				return sequence.Select(x => new[] { x });
+				Swap(source, Swaps[i]);
 			}
-
-			IEnumerable<T> CollectionSelector(IEnumerable<T> x)
-				=> sequence.Where(e => !x.Contains(e));
-
-			IEnumerable<T> ResultSelector(IEnumerable<T> seq, T x)
-				=> seq.Append(x);
-
-			return GetPermutations(sequence, length - 1)
-				.SelectMany(CollectionSelector, ResultSelector);
 		}
 
-		private static void Move<T>(ImmutableArray<int> a, ImmutableArray<int> b, IList<T> source)
+		public void SwapBack<T>(IList<T> source)
 		{
-			var temp = new T[a.Length];
-			for (var i = 0; i < a.Length; ++i)
+			for (var i = Swaps.Length - 1; i >= 0; --i)
 			{
-				temp[i] = source[a[i]];
+				Swap(source, Swaps[i]);
 			}
-			for (var i = 0; i < b.Length; ++i)
-			{
-				source[b[i]] = temp[i];
-			}
+		}
+
+		private static void Swap<T>(IList<T> source, (int Left, int Right) indices)
+			=> Swap(source, indices.Left, indices.Right);
+
+		private static void Swap<T>(IList<T> source, int left, int right)
+		{
+			var temp = source[left];
+			source[left] = source[right];
+			source[right] = temp;
 		}
 	}
 }
