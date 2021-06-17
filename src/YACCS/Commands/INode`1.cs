@@ -3,12 +3,12 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace YACCS.Commands
 {
-	public interface INode<T>
+	public interface INode<TKey, TValue>
 	{
-		IReadOnlyCollection<INode<T>> Edges { get; }
-		IReadOnlyCollection<T> Items { get; }
-		INode<T> this[string key] { get; }
+		IReadOnlyCollection<INode<TKey, TValue>> Edges { get; }
+		IReadOnlyCollection<TValue> Items { get; }
+		INode<TKey, TValue> this[TKey key] { get; }
 
-		bool TryGetEdge(string key, [NotNullWhen(true)] out INode<T>? node);
+		bool TryGetEdge(TKey key, [NotNullWhen(true)] out INode<TKey, TValue>? node);
 	}
 }

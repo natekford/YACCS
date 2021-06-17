@@ -30,15 +30,13 @@ namespace YACCS.Tests.Commands
 
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new[] { "1" })
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			trie.Add(c1);
 			Assert.AreEqual(1, trie.Count);
 
 			var c2 = FakeDelegateCommand.New()
 				.AddName(new[] { "2" })
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			trie.Add(c2);
 			Assert.AreEqual(2, commandService.Commands.Count);
 
@@ -75,30 +73,26 @@ namespace YACCS.Tests.Commands
 		public void Find_Test()
 		{
 			var commandService = Utils.CreateServices().Get<ICommandService>();
-			var trie = (ITrie<IImmutableCommand>)commandService.Commands;
+			var trie = (ITrie<string, IImmutableCommand>)commandService.Commands;
 
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new[] { "1" })
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			trie.Add(c1);
 			var c2 = FakeDelegateCommand.New()
 				.AddName(new[] { "2" })
 				.AddName(new[] { "3" })
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			trie.Add(c2);
 			var c3 = FakeDelegateCommand.New()
 				.AddName(new[] { "4", "1" })
 				.AddName(new[] { "4", "2" })
 				.AddName(new[] { "4", "3" })
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			trie.Add(c3);
 			var c4 = FakeDelegateCommand.New()
 				.AddName(new[] { "4", "1" })
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			trie.Add(c4);
 
 			{
@@ -660,8 +654,7 @@ namespace YACCS.Tests.Commands
 				{
 					MutableOp = BoolOp.Or,
 				})
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			var result = await commandService.ProcessPreconditionsAsync(
 				new PreconditionCache(context),
 				command
@@ -681,8 +674,7 @@ namespace YACCS.Tests.Commands
 					MutableOp = BoolOp.Or,
 				})
 				.AddPrecondition(new WasIReachedPrecondition())
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			var result = await commandService.ProcessPreconditionsAsync(
 				new PreconditionCache(context),
 				command
@@ -731,8 +723,8 @@ namespace YACCS.Tests.Commands
 				.AsContext<IContext>()
 				.AddPrecondition(new FakePrecondition(success))
 				.AddPrecondition(new WasIReachedPrecondition())
-				.MakeMultipleImmutable();
-			return (commandService, context, command.Single());
+				.MakeImmutable();
+			return (commandService, context, command);
 		}
 	}
 

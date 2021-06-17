@@ -10,7 +10,7 @@ using YACCS.TypeReaders;
 namespace YACCS.Commands
 {
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
-	public sealed class CommandTrie : ITrie<IImmutableCommand>
+	public sealed class CommandTrie : ITrie<string, IImmutableCommand>
 	{
 		private readonly ICommandServiceConfig _Config;
 		private readonly IReadOnlyDictionary<Type, ITypeReader> _Readers;
@@ -18,7 +18,7 @@ namespace YACCS.Commands
 		private Node _Root;
 
 		public bool IsReadOnly => false;
-		public INode<IImmutableCommand> Root => _Root;
+		public INode<string, IImmutableCommand> Root => _Root;
 		public int Count => _Items.Count;
 		private string DebuggerDisplay => $"Count = {Count}";
 
@@ -183,7 +183,7 @@ namespace YACCS.Commands
 			=> Remove(item) > 0;
 
 		[DebuggerDisplay("{DebuggerDisplay,nq}")]
-		private sealed class Node : INode<IImmutableCommand>
+		private sealed class Node : INode<string, IImmutableCommand>
 		{
 			private readonly Dictionary<string, Node> _Edges;
 			private readonly HashSet<IImmutableCommand> _Items;
@@ -192,7 +192,7 @@ namespace YACCS.Commands
 
 			public IReadOnlyCollection<IImmutableCommand> Items => _Items;
 			public IReadOnlyCollection<Node> Edges => _Edges.Values;
-			IReadOnlyCollection<INode<IImmutableCommand>> INode<IImmutableCommand>.Edges => Edges;
+			IReadOnlyCollection<INode<string, IImmutableCommand>> INode<string, IImmutableCommand>.Edges => Edges;
 			private string DebuggerDisplay
 			{
 				get
@@ -215,7 +215,7 @@ namespace YACCS.Commands
 				get => _Edges[key];
 				set => _Edges[key] = value;
 			}
-			INode<IImmutableCommand> INode<IImmutableCommand>.this[string key]
+			INode<string, IImmutableCommand> INode<string, IImmutableCommand>.this[string key]
 				=> this[key];
 
 			public Node(string? key, Node? parent, IEqualityComparer<string> stringComparer)
@@ -255,7 +255,9 @@ namespace YACCS.Commands
 			public bool TryGetEdge(string key, [NotNullWhen(true)] out Node? node)
 				=> _Edges.TryGetValue(key, out node);
 
-			bool INode<IImmutableCommand>.TryGetEdge(string key, [NotNullWhen(true)] out INode<IImmutableCommand>? node)
+			bool INode<string, IImmutableCommand>.TryGetEdge(
+				string key,
+				[NotNullWhen(true)] out INode<string, IImmutableCommand>? node)
 			{
 				var result = TryGetEdge(key, out var temp);
 				node = temp!;

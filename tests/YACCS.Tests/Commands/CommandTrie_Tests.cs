@@ -24,8 +24,7 @@ namespace YACCS.Tests.Commands
 		{
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new[] { "1" })
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			Assert.AreEqual(1, _Trie.Add(c1));
 			Assert.AreEqual(1, _Trie.Count);
 			Assert.AreEqual(1, _Trie.Root["1"].GetAllItems().Count);
@@ -34,8 +33,7 @@ namespace YACCS.Tests.Commands
 			var c2 = FakeDelegateCommand.New()
 				.AddName(new[] { "2" })
 				.AddName(new[] { "3" })
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			Assert.AreEqual(2, _Trie.Add(c2));
 			Assert.AreEqual(2, _Trie.Count);
 			Assert.AreEqual(1, _Trie.Root["2"].GetAllItems().Count);
@@ -47,8 +45,7 @@ namespace YACCS.Tests.Commands
 				.AddName(new[] { "4", "1" })
 				.AddName(new[] { "4", "2" })
 				.AddName(new[] { "4", "3" })
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			Assert.AreEqual(3, _Trie.Add(c3));
 			Assert.AreEqual(3, _Trie.Count);
 			Assert.AreEqual(1, _Trie.Root["4"].GetAllItems().Count);
@@ -59,8 +56,7 @@ namespace YACCS.Tests.Commands
 
 			var c4 = FakeDelegateCommand.New()
 				.AddName(new[] { "4", "1" })
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			Assert.AreEqual(1, _Trie.Add(c4));
 			Assert.AreEqual(4, _Trie.Count);
 			Assert.AreEqual(2, _Trie.Root["4"].GetAllItems().Count);
@@ -72,8 +68,7 @@ namespace YACCS.Tests.Commands
 			var c5 = FakeDelegateCommand.New()
 				.AddAttribute(new IdAttribute(DUPE_ID))
 				.AddName(new[] { "5" })
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			((ICollection<IImmutableCommand>)_Trie).Add(c5);
 			Assert.AreEqual(5, _Trie.Count);
 			Assert.AreEqual(1, _Trie.Root["5"].GetAllItems().Count);
@@ -81,8 +76,7 @@ namespace YACCS.Tests.Commands
 
 			var c6 = FakeDelegateCommand.New()
 				.AddName(new[] { "4" })
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			Assert.AreEqual(1, _Trie.Remove(c4));
 			Assert.AreEqual(1, _Trie.Add(c6));
 			Assert.AreEqual(2, _Trie.Root["4"].GetAllItems().Count);
@@ -99,9 +93,7 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(1, _Trie.Root["4"]["3"].GetAllItems().Count);
 			Assert.AreEqual(1, _Trie.Root["4"].GetAllItems().Count);
 
-			var c7 = FakeDelegateCommand.New()
-				.MakeMultipleImmutable()
-				.Single();
+			var c7 = FakeDelegateCommand.New().MakeImmutable();
 			Assert.AreEqual(0, _Trie.Remove(c7));
 
 			_Trie.Clear();
@@ -130,8 +122,7 @@ namespace YACCS.Tests.Commands
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new[] { "a" })
 				.AddAttribute(new IdAttribute(DUPE_ID))
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			Assert.AreEqual(1, _Trie.Add(c1));
 			Assert.AreEqual(1, _Trie.Count);
 			Assert.AreEqual(1, _Trie.Root["a"].GetAllItems().Count);
@@ -140,8 +131,7 @@ namespace YACCS.Tests.Commands
 			var c2 = FakeDelegateCommand.New()
 				.AddName(new[] { "a" })
 				.AddAttribute(new IdAttribute(DUPE_ID))
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			Assert.IsFalse(_Trie.Contains(c2));
 			Assert.AreEqual(1, _Trie.Add(c2));
 			Assert.IsTrue(_Trie.Contains(c2));
@@ -149,8 +139,7 @@ namespace YACCS.Tests.Commands
 			var c3 = FakeDelegateCommand.New()
 				.AddName(new[] { "b" })
 				.AddAttribute(new IdAttribute(DUPE_ID))
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			Assert.AreEqual(1, _Trie.Add(c3));
 			Assert.AreEqual(3, _Trie.Count);
 			Assert.AreEqual(1, _Trie.Root["b"].GetAllItems().Count);
@@ -159,8 +148,7 @@ namespace YACCS.Tests.Commands
 			var @delegate = (Action<string>)(x => { });
 			var c4 = new DelegateCommand(@delegate, new[] { new[] { "a" } })
 				.AddAttribute(new IdAttribute(DUPE_ID))
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			Assert.AreEqual(1, _Trie.Add(c4));
 			Assert.AreEqual(4, _Trie.Count);
 			Assert.AreEqual(3, _Trie.Root["a"].GetAllItems().Count);
@@ -172,8 +160,7 @@ namespace YACCS.Tests.Commands
 		{
 			var command = FakeDelegateCommand.New()
 				.AddName(new[] { "asdf asdf", "bob" })
-				.MakeMultipleImmutable()
-				.Single();
+				.MakeImmutable();
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
 				_Trie.Add(command);
@@ -183,9 +170,7 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public void NoName_Test()
 		{
-			var command = FakeDelegateCommand.New()
-				.MakeMultipleImmutable()
-				.Single();
+			var command = FakeDelegateCommand.New().MakeImmutable();
 			Assert.IsFalse(_Trie.Contains(command));
 			Assert.ThrowsException<ArgumentException>(() =>
 			{

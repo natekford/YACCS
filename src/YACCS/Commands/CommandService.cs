@@ -13,7 +13,7 @@ namespace YACCS.Commands
 {
 	public class CommandService : ICommandService
 	{
-		public ITrie<IImmutableCommand> Commands { get; protected set; }
+		public ITrie<string, IImmutableCommand> Commands { get; protected set; }
 		IReadOnlyCollection<IImmutableCommand> ICommandService.Commands => Commands;
 		protected IAsyncEvent<CommandExecutedEventArgs> CommandExecutedEvent { get; set; }
 		protected ICommandServiceConfig Config { get; set; }

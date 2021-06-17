@@ -2,9 +2,9 @@
 
 namespace YACCS.Commands
 {
-	public interface ITrie<T> : IReadOnlyCollection<T>, ICollection<T>
+	public interface ITrie<TKey, TValue> : IReadOnlyCollection<TValue>, ICollection<TValue>
 	{
 		new int Count { get; }
-		INode<T> Root { get; }
+		INode<TKey, TValue> Root { get; }
 	}
 }
