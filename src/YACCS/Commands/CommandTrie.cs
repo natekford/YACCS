@@ -13,8 +13,8 @@ namespace YACCS.Commands
 	public sealed class CommandTrie : ITrie<string, IImmutableCommand>
 	{
 		private readonly ICommandServiceConfig _Config;
+		private readonly HashSet<IImmutableCommand> _Items;
 		private readonly IReadOnlyDictionary<Type, ITypeReader> _Readers;
-		private HashSet<IImmutableCommand> _Items;
 		private Node _Root;
 
 		public bool IsReadOnly => false;
@@ -29,19 +29,11 @@ namespace YACCS.Commands
 			_Readers = readers;
 			_Config = config;
 			_Root = new Node(null, null, _Config.CommandNameComparer);
-			_Items = new HashSet<IImmutableCommand>();
+			_Items = new();
 		}
 
 		public int Add(IImmutableCommand item)
 		{
-			// Commands cannot have remainder be any parameter aside from the final one
-			for (var i = 0; i < item.Parameters.Count - 1; ++i)
-			{
-				if (item.Parameters[i].Length is null)
-				{
-					throw new ArgumentException("Remainder must be the final parameter.", nameof(item));
-				}
-			}
 			// Commands cannot be added directly to ROOT
 			if (item.Names.Count == 0)
 			{
@@ -101,7 +93,7 @@ namespace YACCS.Commands
 		public void Clear()
 		{
 			_Root = new Node(null, null, _Config.CommandNameComparer);
-			_Items = new HashSet<IImmutableCommand>();
+			_Items.Clear();
 		}
 
 		public bool Contains(IImmutableCommand item)
