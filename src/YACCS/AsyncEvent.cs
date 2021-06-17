@@ -40,7 +40,7 @@ namespace YACCS
 				return;
 			}
 
-			var exceptions = new List<Exception>();
+			var exceptions = default(List<Exception>);
 			foreach (var handler in handlers)
 			{
 				try
@@ -58,11 +58,12 @@ namespace YACCS
 				}
 				catch (Exception ex)
 				{
+					exceptions ??= new();
 					exceptions.Add(ex);
 				}
 			}
 
-			if (exceptions.Count > 0 && _Exception.IsValueCreated)
+			if (exceptions != null && _Exception.IsValueCreated)
 			{
 				var args = new ExceptionEventArgs<T>(exceptions, e);
 				await Exception.InvokeAsync(args).ConfigureAwait(false);

@@ -50,17 +50,6 @@ namespace YACCS.Commands
 				return CommandScore.CommandNotFoundTask;
 			}
 
-			async Task<ICommandResult> PrivateExecuteAsync(IContext context, ReadOnlyMemory<string> args)
-			{
-				var best = await GetBestMatchAsync(context, args).ConfigureAwait(false);
-				// If a command is found and args are parsed, execute command in background
-				if (best.InnerResult.IsSuccess && best.Command != null && best.Args != null)
-				{
-					_ = HandleCommandAsync(context, best.Command, best.Args);
-				}
-				return best;
-			}
-
 			return PrivateExecuteAsync(context, args);
 		}
 
@@ -343,7 +332,10 @@ namespace YACCS.Commands
 			return Task.CompletedTask;
 		}
 
-		protected virtual async Task HandleCommandAsync(IContext context, IImmutableCommand command, object?[] args)
+		protected virtual async Task<CommandExecutedEventArgs> HandleCommandAsync(
+			IContext context,
+			IImmutableCommand command,
+			object?[] args)
 		{
 			var beforeExceptions = default(List<Exception>?);
 			var afterExceptions = default(List<Exception>?);
@@ -397,7 +389,7 @@ namespace YACCS.Commands
 				}
 			}
 
-			var e = new CommandExecutedEventArgs(
+			return new CommandExecutedEventArgs(
 				command,
 				context,
 				beforeExceptions,
@@ -405,6 +397,27 @@ namespace YACCS.Commands
 				duringException,
 				result
 			);
+		}
+
+		private async Task<ICommandResult> PrivateExecuteAsync(
+			IContext context,
+			ReadOnlyMemory<string> args)
+		{
+			var best = await GetBestMatchAsync(context, args).ConfigureAwait(false);
+			// If a command is found and args are parsed, execute command in background
+			if (best.InnerResult.IsSuccess && best.Command != null && best.Args != null)
+			{
+				_ = PrivateHandleCommandAsync(context, best.Command, best.Args);
+			}
+			return best;
+		}
+
+		private async Task PrivateHandleCommandAsync(
+			IContext context,
+			IImmutableCommand command,
+			object?[] args)
+		{
+			var e = await HandleCommandAsync(context, command, args).ConfigureAwait(false);
 			await CommandExecutedEvent.InvokeAsync(e).ConfigureAwait(false);
 			await DisposeCommandAsync(e).ConfigureAwait(false);
 		}
