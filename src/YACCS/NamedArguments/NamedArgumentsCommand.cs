@@ -40,7 +40,7 @@ namespace YACCS.NamedArguments
 		public NamedArgumentsCommand(IImmutableCommand source)
 		{
 			Source = source;
-			Attributes = source.Attributes.Append(new GeneratedCommandAttribute(source)).ToImmutableArray();
+			Attributes = source.CreateGeneratedCommandAttributeList();
 
 			var @delegate = (Func<IContext, IDictionary<string, object?>, Task<IResult>>)ExecuteAsync;
 			var command = new DelegateCommand(@delegate, this);

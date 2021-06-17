@@ -9,9 +9,9 @@ namespace YACCS.Commands.Attributes
 	{
 		public IImmutableCommand Source { get; }
 
-		public GeneratedCommandAttribute(IImmutableCommand parent)
+		public GeneratedCommandAttribute(IImmutableCommand source)
 		{
-			Source = parent;
+			Source = source;
 		}
 	}
 }

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
+using YACCS.Commands.Attributes;
+using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Preconditions;
 using YACCS.Results;
@@ -17,10 +19,10 @@ namespace YACCS.SwapArguments
 	{
 		private readonly Swapper _Swapper;
 
+		public IReadOnlyList<object> Attributes { get; }
 		public IReadOnlyList<IImmutableParameter> Parameters { get; }
 		public int Priority { get; }
 		public IImmutableCommand Source { get; }
-		public IReadOnlyList<object> Attributes => Source.Attributes;
 		IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 		public Type? ContextType => Source.ContextType;
 		public int MaxLength => Source.MaxLength;
@@ -39,6 +41,7 @@ namespace YACCS.SwapArguments
 			_Swapper = swapper;
 			Source = source;
 			Priority = source.Priority + (priorityDifference * _Swapper.Swaps.Length);
+			Attributes = source.CreateGeneratedCommandAttributeList();
 
 			var builder = ImmutableArray.CreateBuilder<IImmutableParameter>(Source.Parameters.Count);
 			builder.AddRange(source.Parameters);
