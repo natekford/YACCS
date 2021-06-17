@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using YACCS.Commands.Linq;
@@ -15,10 +16,17 @@ namespace YACCS.SwapArguments
 			var indices = new List<int>(command.Parameters.Count);
 			for (var i = 0; i < command.Parameters.Count; ++i)
 			{
-				if (command.Parameters[i].Get<ISwappableAttribute>().Any())
+				var parameter = command.Parameters[i];
+				if (!parameter.Get<ISwappableAttribute>().Any())
 				{
-					indices.Add(i);
+					continue;
 				}
+				if (parameter.Length is null)
+				{
+					throw new InvalidOperationException($"Cannot swap any parameter which is a remainder ({parameter.OriginalParameterName}).");
+				}
+
+				indices.Add(i);
 			}
 			return command.GenerateSwappedArgumentsVersions(indices, priorityDifference);
 		}
