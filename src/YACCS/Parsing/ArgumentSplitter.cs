@@ -6,22 +6,22 @@ using YACCS.Commands;
 
 namespace YACCS.Parsing
 {
-	public class ArgumentHandler : IArgumentHandler
+	public class ArgumentSplitter : IArgumentSplitter
 	{
 		private readonly IImmutableSet<char> _End;
 		private readonly char _Separator;
 		private readonly IImmutableSet<char> _Start;
 
-		public static IArgumentHandler Default { get; } = new ArgumentHandler();
+		public static IArgumentSplitter Default { get; } = new ArgumentSplitter();
 		public bool AllowEscaping { get; set; } = true;
 
-		public ArgumentHandler() : this(
+		public ArgumentSplitter() : this(
 			CommandServiceUtils.InternallyUsedSeparator,
 			CommandServiceUtils.InternallyUsedQuotes,
 			CommandServiceUtils.InternallyUsedQuotes)
 		{ }
 
-		public ArgumentHandler(char separator, IImmutableSet<char> start, IImmutableSet<char> end)
+		public ArgumentSplitter(char separator, IImmutableSet<char> start, IImmutableSet<char> end)
 		{
 			_Start = start;
 			_End = end;
@@ -41,7 +41,7 @@ namespace YACCS.Parsing
 			return string.Join(_Separator, args.ToArray());
 		}
 
-		public bool TryGetArgs(ReadOnlySpan<char> input, [NotNullWhen(true)] out ReadOnlyMemory<string> args)
+		public bool TrySplit(ReadOnlySpan<char> input, [NotNullWhen(true)] out ReadOnlyMemory<string> args)
 		{
 			var result = Args.TryParse(input, this, out var temp);
 			args = temp;

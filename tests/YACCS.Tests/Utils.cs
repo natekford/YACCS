@@ -13,13 +13,13 @@ namespace YACCS.Tests
 	{
 		public static IServiceCollection CreateServiceCollection(ICommandServiceConfig? config = null)
 		{
-			var splitter = ArgumentHandler.Default;
+			var splitter = ArgumentSplitter.Default;
 			config ??= CommandServiceConfig.Default;
 			var readers = new TypeReaderRegistry();
 			var commandService = new CommandService(config, splitter, readers);
 
 			return new ServiceCollection()
-				.AddSingleton<IArgumentHandler>(splitter)
+				.AddSingleton<IArgumentSplitter>(splitter)
 				.AddSingleton<ICommandServiceConfig>(config)
 				.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>>(readers)
 				.AddSingleton<TypeReaderRegistry>(readers)

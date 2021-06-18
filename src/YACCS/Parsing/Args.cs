@@ -31,7 +31,7 @@ namespace YACCS.Parsing
 		public static bool TryParse(
 			ReadOnlySpan<char> input,
 			[NotNullWhen(true)] out string[]? result)
-			=> TryParse(input, ArgumentHandler.Default, out result);
+			=> TryParse(input, ArgumentSplitter.Default, out result);
 
 		/// <summary>
 		/// Attempts to parse args from characters indicating the start of a quote and characters indicating the end of a quote.
@@ -42,13 +42,13 @@ namespace YACCS.Parsing
 		/// <returns></returns>
 		public static bool TryParse(
 			ReadOnlySpan<char> input,
-			IArgumentHandler splitter,
+			IArgumentSplitter splitter,
 			[NotNullWhen(true)] out string[]? result)
 		{
 			static void Add(string[] col, ref int index, ReadOnlySpan<char> input)
 				=> col[index++] = input.Trim().ToString();
 
-			static void AddRange(string[] col, ref int index, ReadOnlySpan<char> input, IArgumentHandler splitter)
+			static void AddRange(string[] col, ref int index, ReadOnlySpan<char> input, IArgumentSplitter splitter)
 			{
 				input = input.Trim();
 				if (input.Length == 0)
@@ -193,13 +193,13 @@ namespace YACCS.Parsing
 			return (prev, curr, next);
 		}
 
-		private static bool ValidEndQuote(this IArgumentHandler splitter, ReadOnlySpan<char> input, int i)
+		private static bool ValidEndQuote(this IArgumentSplitter splitter, ReadOnlySpan<char> input, int i)
 		{
 			var (prev, curr, next) = input.GetChars(i);
 			return splitter.ValidEndQuote(prev, curr, next);
 		}
 
-		private static bool ValidStartQuote(this IArgumentHandler splitter, ReadOnlySpan<char> input, int i)
+		private static bool ValidStartQuote(this IArgumentSplitter splitter, ReadOnlySpan<char> input, int i)
 		{
 			var (prev, curr, next) = input.GetChars(i);
 			return splitter.ValidStartQuote(prev, curr, next);
@@ -235,7 +235,7 @@ namespace YACCS.Parsing
 				StartCount = startCount;
 			}
 
-			public static QuoteInfo Create(ReadOnlySpan<char> input, IArgumentHandler splitter)
+			public static QuoteInfo Create(ReadOnlySpan<char> input, IArgumentSplitter splitter)
 			{
 				int maxDepth = 0, currentDepth = 0, size = 1,
 					minStart = DEFAULT, maxStart = DEFAULT, startCount = 0,

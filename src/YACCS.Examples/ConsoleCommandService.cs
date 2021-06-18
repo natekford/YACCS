@@ -14,7 +14,7 @@ namespace YACCS.Examples
 
 		public ConsoleCommandService(
 			ICommandServiceConfig config,
-			IArgumentHandler splitter,
+			IArgumentSplitter splitter,
 			IReadOnlyDictionary<Type, ITypeReader> readers,
 			ConsoleHandler console)
 			: base(config, splitter, readers)

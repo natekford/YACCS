@@ -15,7 +15,7 @@ namespace YACCS.TypeReaders
 			ReadOnlyMemory<string> input)
 		{
 			var readers = context.Services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
-			var handler = context.Services.GetRequiredService<IArgumentHandler>();
+			var handler = context.Services.GetRequiredService<IArgumentSplitter>();
 
 			var reader = readers.GetTypeReader<T>();
 			var values = new List<T>(input.Length);
@@ -29,7 +29,7 @@ namespace YACCS.TypeReaders
 				}
 
 				// Unseparated arguments need separation
-				if (!handler.TryGetArgs(input.Span[i], out var args) || args.Length < 2)
+				if (!handler.TrySplit(input.Span[i], out var args) || args.Length < 2)
 				{
 					return TypeReaderResult<T[]>.FromError(iResult.InnerResult);
 				}
