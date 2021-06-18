@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace YACCS.Commands.Interactivity.Pagination
+using YACCS.Commands;
+
+namespace YACCS.Interactivity.Pagination
 {
 	public interface IPaginator<TContext, TInput> where TContext : IContext
 	{

@@ -1,8 +1,9 @@
 ﻿using System.Threading.Tasks;
 
+using YACCS.Commands;
 using YACCS.TypeReaders;
 
-namespace YACCS.Commands.Interactivity.Input
+namespace YACCS.Interactivity.Input
 {
 	public interface IInput<TContext, TInput> where TContext : IContext
 	{

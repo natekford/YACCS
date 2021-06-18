@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
-using YACCS.Commands.Interactivity.Input;
 using YACCS.Commands.Models;
 using YACCS.Help;
+using YACCS.Interactivity.Input;
 using YACCS.Results;
 
 namespace YACCS.Examples

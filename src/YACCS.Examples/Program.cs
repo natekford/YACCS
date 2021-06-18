@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 using YACCS.Commands;
-using YACCS.Commands.Interactivity.Input;
 using YACCS.Help;
+using YACCS.Interactivity.Input;
 using YACCS.Parsing;
 using YACCS.TypeReaders;
 

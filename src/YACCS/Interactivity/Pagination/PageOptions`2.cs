@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace YACCS.Commands.Interactivity.Pagination
+using YACCS.Commands;
+
+namespace YACCS.Interactivity.Pagination
 {
 	public class PageOptions<TContext, TInput> : IPageOptions<TContext, TInput>
 		where TContext : IContext

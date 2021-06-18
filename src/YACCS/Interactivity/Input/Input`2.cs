@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using YACCS.Commands;
 using YACCS.Commands.Models;
 using YACCS.Results;
 using YACCS.TypeReaders;
 
-namespace YACCS.Commands.Interactivity.Input
+namespace YACCS.Interactivity.Input
 {
 	public abstract class Input<TContext, TInput>
 		: Interactivity<TContext, TInput>, IInput<TContext, TInput>

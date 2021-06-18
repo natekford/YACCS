@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 
+using YACCS.Commands;
 using YACCS.Results;
 
-namespace YACCS.Commands.Interactivity.Pagination
+namespace YACCS.Interactivity.Pagination
 {
 	public abstract class Paginator<TContext, TInput>
 		: Interactivity<TContext, TInput>, IPaginator<TContext, TInput>

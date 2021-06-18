@@ -2,10 +2,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 
+using YACCS.Commands;
 using YACCS.Results;
 using YACCS.TypeReaders;
 
-namespace YACCS.Commands.Interactivity
+namespace YACCS.Interactivity
 {
 	public abstract class Interactivity<TContext, TInput> where TContext : IContext
 	{

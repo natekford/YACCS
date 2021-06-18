@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace YACCS.Commands.Interactivity
+namespace YACCS.Interactivity
 {
 	public interface IInteractivityOptions
 	{

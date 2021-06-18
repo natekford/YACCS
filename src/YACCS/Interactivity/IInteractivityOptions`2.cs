@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace YACCS.Commands.Interactivity
+using YACCS.Commands;
+
+namespace YACCS.Interactivity
 {
 	public interface IInteractivityOptions<in TContext, in TInput>
 		: IInteractivityOptions

@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 
+using YACCS.Commands;
 using YACCS.Preconditions;
 using YACCS.TypeReaders;
 
-namespace YACCS.Commands.Interactivity.Input
+namespace YACCS.Interactivity.Input
 {
 	public interface IInputOptions<in TContext, in TInput, TValue>
 		: IInteractivityOptions<TContext, TInput>

@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Threading;
 
+using YACCS.Commands;
 using YACCS.Preconditions;
 using YACCS.TypeReaders;
 
-namespace YACCS.Commands.Interactivity.Input
+namespace YACCS.Interactivity.Input
 {
-	public class InputOptions<TContext, TInput, TValue> : IInputOptions<TContext, TInput, TValue>
+	public class InputOptions<TContext, TInput, TValue>
+		: IInputOptions<TContext, TInput, TValue>
 		where TContext : IContext
 	{
 		public IEnumerable<ICriterion<TContext, TInput>> Criteria { get; set; }
