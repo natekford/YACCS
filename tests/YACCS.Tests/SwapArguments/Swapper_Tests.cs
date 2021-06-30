@@ -14,16 +14,18 @@ namespace YACCS.Tests.SwapArguments
 		[TestMethod]
 		public void Basic_Test()
 		{
-			var swapper = new Swapper(new int[] { 4, 2, 3 });
-			var original = Enumerable.Range(0, 10).ToArray();
+			var indices = new int[] { 4, 2, 3 };
+			var swapper = new Swapper(indices);
+			Assert.IsTrue(indices.SequenceEqual(swapper.Indices));
 
+			var original = Enumerable.Range(0, 10).ToArray();
 			var copy = original.ToArray();
 			swapper.Swap(copy);
 
 			var expected = original.ToArray();
-			expected[2] = 4;
-			expected[3] = 2;
-			expected[4] = 3;
+			expected[2] = original[swapper.Indices[0]];
+			expected[3] = original[swapper.Indices[1]];
+			expected[4] = original[swapper.Indices[2]];
 			Assert.IsTrue(expected.SequenceEqual(copy));
 
 			swapper.SwapBack(copy);
@@ -46,13 +48,12 @@ namespace YACCS.Tests.SwapArguments
 		{
 			var indices = new int[] { 2, 3, 4, 7, 9 };
 			var original = Enumerable.Range(0, 10).ToArray();
-			var swappers = Swapper.CreateSwappers(indices).ToList();
 
 			var orderings = new List<int[]>
 			{
 				original
 			};
-			foreach (var swapper in swappers)
+			foreach (var swapper in Swapper.CreateSwappers(indices))
 			{
 				var copy = original.ToArray();
 				swapper.Swap(copy);

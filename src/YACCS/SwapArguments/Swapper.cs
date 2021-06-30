@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace YACCS.SwapArguments
 {
@@ -13,14 +12,14 @@ namespace YACCS.SwapArguments
 
 		public Swapper(IEnumerable<int> indices)
 		{
-			var copy = indices.ToArray();
-			Indices = Unsafe.As<int[], ImmutableArray<int>>(ref copy);
+			var copy = indices.ToList();
+			Indices = copy.ToImmutableArray();
 
 			var swaps = new List<(int, int)>();
-			for (var i = 0; i < copy.Length - 1; ++i)
+			for (var i = 0; i < copy.Count - 1; ++i)
 			{
 				var minIndex = i;
-				for (var j = i + 1; j < copy.Length; ++j)
+				for (var j = i + 1; j < copy.Count; ++j)
 				{
 					if (copy[j] < copy[minIndex])
 					{

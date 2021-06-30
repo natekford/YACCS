@@ -16,9 +16,9 @@ namespace YACCS.Tests.TypeReaders
 	[TestClass]
 	public class GeneratedNamedArguments_Tests
 	{
-		private const double D = 2.2;
-		private const int I = 1;
-		private const string S = "three";
+		private const double DOUBLE = 2.2;
+		private const int INT = 1;
+		private const string STRING = "three";
 
 		[TestMethod]
 		public async Task Class_Test()
@@ -26,15 +26,15 @@ namespace YACCS.Tests.TypeReaders
 			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
 			var input = nameof(CommandsGroup.Test2) +
-				$" {CommandsGroup.I}: {I}" +
-				$" {CommandsGroup.S}: {S}" +
-				$" {CommandsGroup.D}: {D}";
+				$" {CommandsGroup.I}: {INT}" +
+				$" {CommandsGroup.S}: {STRING}" +
+				$" {CommandsGroup.D}: {DOUBLE}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 
-			Assert.AreEqual(I, setMe.IntValue);
-			Assert.AreEqual(D, setMe.DoubleValue);
-			Assert.AreEqual(S, setMe.StringValue);
+			Assert.AreEqual(INT, setMe.IntValue);
+			Assert.AreEqual(DOUBLE, setMe.DoubleValue);
+			Assert.AreEqual(STRING, setMe.StringValue);
 		}
 
 		[TestMethod]
@@ -44,8 +44,8 @@ namespace YACCS.Tests.TypeReaders
 
 			var input = nameof(CommandsGroup.Test2) +
 				$" {CommandsGroup.I}: -1" +
-				$" {CommandsGroup.S}: {S}" +
-				$" {CommandsGroup.D}: {D}";
+				$" {CommandsGroup.S}: {STRING}" +
+				$" {CommandsGroup.D}: {DOUBLE}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.InnerResult, typeof(InvalidParameterResult));
@@ -58,8 +58,8 @@ namespace YACCS.Tests.TypeReaders
 
 			var input = nameof(CommandsGroup.Test2) +
 				$" {CommandsGroup.I}: asdf" +
-				$" {CommandsGroup.S}: {S}" +
-				$" {CommandsGroup.D}: {D}";
+				$" {CommandsGroup.S}: {STRING}" +
+				$" {CommandsGroup.D}: {DOUBLE}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.InnerResult, typeof(ParseFailedResult<int>));
@@ -72,9 +72,9 @@ namespace YACCS.Tests.TypeReaders
 
 			const string FAKE_NAME = "joeba";
 			var input = nameof(CommandsGroup.Test2) +
-				$" {CommandsGroup.I}: {I}" +
-				$" {FAKE_NAME}: {S}" +
-				$" {CommandsGroup.D}: {D}";
+				$" {CommandsGroup.I}: {INT}" +
+				$" {FAKE_NAME}: {STRING}" +
+				$" {CommandsGroup.D}: {DOUBLE}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgNonExistentResult));
@@ -94,17 +94,17 @@ namespace YACCS.Tests.TypeReaders
 			};
 
 			var input = nameof(CommandsGroup.Test) +
-				$" {CommandsGroup.I}: {I}" +
-				$" {CommandsGroup.S}: {S}" +
-				$" {CommandsGroup.D}: {D}";
+				$" {CommandsGroup.I}: {INT}" +
+				$" {CommandsGroup.S}: {STRING}" +
+				$" {CommandsGroup.D}: {DOUBLE}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 
 			await tcs.Task.ConfigureAwait(false);
 
-			Assert.AreEqual(I, setMe.IntValue);
-			Assert.AreEqual(D, setMe.DoubleValue);
-			Assert.AreEqual(S, setMe.StringValue);
+			Assert.AreEqual(INT, setMe.IntValue);
+			Assert.AreEqual(DOUBLE, setMe.DoubleValue);
+			Assert.AreEqual(STRING, setMe.StringValue);
 		}
 
 		[TestMethod]
@@ -120,15 +120,15 @@ namespace YACCS.Tests.TypeReaders
 			};
 
 			var input = nameof(CommandsGroup.Test) +
-				$" {CommandsGroup.I}: {I}" +
-				$" {CommandsGroup.D}: {D}";
+				$" {CommandsGroup.I}: {INT}" +
+				$" {CommandsGroup.D}: {DOUBLE}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 
 			await tcs.Task.ConfigureAwait(false);
 
-			Assert.AreEqual(I, setMe.IntValue);
-			Assert.AreEqual(D, setMe.DoubleValue);
+			Assert.AreEqual(INT, setMe.IntValue);
+			Assert.AreEqual(DOUBLE, setMe.DoubleValue);
 			Assert.AreEqual(CommandsGroup.S_DEFAULT, setMe.StringValue);
 		}
 
@@ -165,6 +165,8 @@ namespace YACCS.Tests.TypeReaders
 			public const string S = "val_s";
 			public const string S_DEFAULT = "73 xd";
 
+			public SetMe SetMe { get; set; } = null!;
+
 			[Command(nameof(Test))]
 			[GenerateNamedArguments]
 			public async Task<IResult> Test(
@@ -177,10 +179,9 @@ namespace YACCS.Tests.TypeReaders
 			{
 				await Task.Delay(50).ConfigureAwait(false);
 
-				var setMe = Context.Services.GetRequiredService<SetMe>();
-				setMe.DoubleValue = d;
-				setMe.IntValue = i;
-				setMe.StringValue = s;
+				SetMe.DoubleValue = d;
+				SetMe.IntValue = i;
+				SetMe.StringValue = s;
 
 				return SuccessResult.Instance.Sync;
 			}
@@ -188,19 +189,15 @@ namespace YACCS.Tests.TypeReaders
 			[Command(nameof(Test2))]
 			public void Test2(NamedArgs @class)
 			{
-				var setMe = Context.Services.GetRequiredService<SetMe>();
-				setMe.DoubleValue = @class.D;
-				setMe.IntValue = @class.I;
-				setMe.StringValue = @class.S;
+				SetMe.DoubleValue = @class.D;
+				SetMe.IntValue = @class.I;
+				SetMe.StringValue = @class.S;
 			}
 
 			[Command(nameof(Test3))]
 			[GenerateNamedArguments]
 			public void Test3([Name(D)] double d)
-			{
-				var setMe = Context.Services.GetRequiredService<SetMe>();
-				setMe.DoubleValue = d;
-			}
+				=> SetMe.DoubleValue = d;
 		}
 
 		[GenerateNamedArguments]
