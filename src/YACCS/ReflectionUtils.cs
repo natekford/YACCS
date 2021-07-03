@@ -41,7 +41,7 @@ namespace YACCS
 			}
 			catch (Exception ex)
 			{
-				throw new ArgumentException($"Unable to create the delegate: {name}.", ex);
+				throw new ArgumentException($"Unable to create the delegate '{name}'.", ex);
 			}
 		}
 

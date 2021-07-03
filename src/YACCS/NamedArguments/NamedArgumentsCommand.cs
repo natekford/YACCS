@@ -79,7 +79,9 @@ namespace YACCS.NamedArguments
 				{
 					// This should never really be reachable due to GeneratedNamedParameterPrecondition
 					// already checking for undefined values
-					throw new InvalidOperationException("Generated named argument commands cannot handle missing values.");
+					throw new InvalidOperationException(
+						$"Missing value for the parameter '{parameter.OriginalParameterName}' " +
+						$"from '{Source.Names?.FirstOrDefault()}'.");
 				}
 			}
 			return Source.ExecuteAsync(context, args);

@@ -68,7 +68,7 @@ namespace YACCS.Tests.Commands.Linq
 				var command = default(IQueryableEntity)!.AsCommand();
 			});
 
-			Assert.ThrowsException<ArgumentException>(() =>
+			Assert.ThrowsException<InvalidCastException>(() =>
 			{
 				var parameter = new Parameter(typeof(string), "joe", typeof(string));
 				var command = parameter.AsCommand();

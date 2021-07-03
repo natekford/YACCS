@@ -13,7 +13,8 @@ namespace YACCS
 			{
 				return t;
 			}
-			throw new InvalidOperationException($"{typeof(T).Name} does not have a registered service.");
+			throw new InvalidOperationException(
+				$"{typeof(T).Name} does not have a registered service.");
 		}
 
 		[return: MaybeNull]

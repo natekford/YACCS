@@ -23,7 +23,9 @@ namespace YACCS.SwapArguments
 				}
 				if (parameter.Length is null)
 				{
-					throw new InvalidOperationException($"Cannot swap any parameter which is a remainder ({parameter.OriginalParameterName}).");
+					throw new InvalidOperationException(
+						$"Cannot swap the parameter '{parameter.OriginalParameterName}' " +
+						$"from '{command.Names?.FirstOrDefault()}' because it is a remainder.");
 				}
 
 				indices.Add(i);

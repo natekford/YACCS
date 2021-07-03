@@ -26,13 +26,15 @@ namespace YACCS.TypeReaders
 		public static Task<ITypeReaderResult> AsTask(this ITypeReaderResult result)
 			=> Task.FromResult(result);
 
-		public static ITypeReader<T> GetTypeReader<T>(this IReadOnlyDictionary<Type, ITypeReader> registry)
+		public static ITypeReader<T> GetTypeReader<T>(
+			this IReadOnlyDictionary<Type, ITypeReader> registry)
 		{
 			if (registry.TryGetValue(typeof(T), out var temp) && temp is ITypeReader<T> reader)
 			{
 				return reader;
 			}
-			throw new ArgumentException($"Invalid type reader registered for {typeof(T).Name}.", nameof(T));
+			throw new ArgumentException(
+				$"Invalid type reader registered for {typeof(T).Name}.", nameof(T));
 		}
 
 		public static ITypeReader GetTypeReader(
@@ -86,7 +88,7 @@ namespace YACCS.TypeReaders
 			{
 				throw new ArgumentException(
 					$"A type reader with the output type {reader.OutputType.Name} " +
-					$"cannot be used for a the type {type.Name}.", nameof(reader));
+					$"cannot be used for the type {type.Name}.", nameof(reader));
 			}
 		}
 	}
