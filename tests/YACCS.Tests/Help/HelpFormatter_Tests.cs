@@ -107,7 +107,7 @@ namespace YACCS.Tests.Help
 			{
 				return await ADatabaseCall.ConfigureAwait(false)
 					? SuccessResult.Instance.Sync
-					: Result.FromError("ur on cooldown buddy");
+					: new FailureResult("ur on cooldown buddy");
 			}
 
 			public async ValueTask<IReadOnlyList<TaggedString>> FormatAsync(IContext context)

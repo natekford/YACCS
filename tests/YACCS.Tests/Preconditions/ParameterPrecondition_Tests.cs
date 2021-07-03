@@ -122,7 +122,7 @@ namespace YACCS.Tests.Preconditions
 				{
 					return SuccessResult.Instance.Task;
 				}
-				return Result.FromError("joe").AsTask();
+				return new FailureResult("joe").AsTask();
 			}
 		}
 	}

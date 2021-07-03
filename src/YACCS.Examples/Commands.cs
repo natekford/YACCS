@@ -36,7 +36,7 @@ namespace YACCS.Examples
 
 		[Command(nameof(Result))]
 		public IResult Result()
-			=> new Result(true, "i give a success result for no reason");
+			=> new SuccessResult("i give a success result for no reason");
 
 		[Command(nameof(Throws))]
 		public void Throws()

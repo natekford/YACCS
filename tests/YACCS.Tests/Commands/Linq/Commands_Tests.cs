@@ -186,7 +186,7 @@ namespace YACCS.Tests.Commands.Linq
 				{
 					return SuccessResult.Instance.Task;
 				}
-				return Result.FromError("It's seven PM.").AsTask();
+				return new FailureResult("It's seven PM.").AsTask();
 			}
 		}
 	}

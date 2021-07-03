@@ -8,8 +8,8 @@ namespace YACCS.TypeReaders
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public class TypeReaderResult<T> : ITypeReaderResult<T>
 	{
-		public static Result.ResultInstance<TypeReaderResult<T>, ITypeReaderResult> Failure { get; }
-			= FromError().AsTypeReaderResultInstance();
+		public static ResultInstance<TypeReaderResult<T>, ITypeReaderResult> Failure { get; }
+			= new(FromError());
 
 		public IResult InnerResult { get; }
 		[MaybeNull]

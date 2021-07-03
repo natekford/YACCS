@@ -57,7 +57,7 @@ namespace YACCS.Commands.Models
 		{
 			if (!typeof(ICommandGroup).IsAssignableFrom(groupType))
 			{
-				throw new ArgumentException($"Must implement {typeof(ICommandGroup).FullName}.", nameof(groupType));
+				throw new ArgumentException($"{groupType.FullName} must implement {typeof(ICommandGroup).FullName}.", nameof(groupType));
 			}
 			if (groupType.GetConstructor(Type.EmptyTypes) == null)
 			{
@@ -72,7 +72,7 @@ namespace YACCS.Commands.Models
 		}
 
 		private static IEnumerable<IReadOnlyList<string>> GetFullNames(
-					Type group,
+			Type group,
 			MethodInfo method,
 			IEnumerable<string>? extraNames)
 		{

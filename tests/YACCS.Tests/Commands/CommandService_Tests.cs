@@ -164,7 +164,7 @@ namespace YACCS.Tests.Commands
 			const string input = $"{CommandsGroup._Name} {CommandsGroup._Disabled}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
-			Assert.AreEqual(DisabledPrecondition._DisabledMessage, result.InnerResult.Response);
+			Assert.AreEqual(DisabledPrecondition._Message, result.InnerResult.Response);
 		}
 
 		[TestMethod]
@@ -971,7 +971,7 @@ namespace YACCS.Tests.Commands
 		public async Task<IResult> Delay()
 		{
 			await Task.Delay(DELAY).ConfigureAwait(false);
-			return Result.FromError(_DelayedMessage);
+			return new FailureResult(_DelayedMessage);
 		}
 
 		[Command(_Disabled)]
@@ -1021,10 +1021,11 @@ namespace YACCS.Tests.Commands
 
 	public class DisabledPrecondition : PreconditionAttribute
 	{
-		public const string _DisabledMessage = "lol disabled";
+		public const string _Message = "lol disabled";
+		private static readonly Task<IResult> _Task = new FailureResult(_Message).AsTask();
 
 		public override Task<IResult> CheckAsync(IImmutableCommand command, IContext context)
-			=> Result.FromError(_DisabledMessage).AsTask();
+			=> _Task;
 	}
 
 	public class FakeParameterPrecondition : ParameterPrecondition<FakeContext, int>
@@ -1041,7 +1042,7 @@ namespace YACCS.Tests.Commands
 			IImmutableParameter parameter,
 			FakeContext context,
 			[MaybeNull] int value)
-			=> value == DisallowedValue ? Result.FromError("lol").AsTask() : SuccessResult.Instance.Task;
+			=> value == DisallowedValue ? new FailureResult("lol").AsTask() : SuccessResult.Instance.Task;
 	}
 
 	public class FakePrecondition : Precondition<FakeContext>
@@ -1060,7 +1061,7 @@ namespace YACCS.Tests.Commands
 		}
 
 		public override Task<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
-			=> _Success ? SuccessResult.Instance.Task : Result.FromError("lol").AsTask();
+			=> _Success ? SuccessResult.Instance.Task : FailureResult.Instance.Task;
 	}
 
 	public class FakePreconditionWhichThrowsAfter : PreconditionAttribute

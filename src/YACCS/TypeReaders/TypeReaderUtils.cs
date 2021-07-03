@@ -26,9 +26,6 @@ namespace YACCS.TypeReaders
 		public static Task<ITypeReaderResult> AsTask(this ITypeReaderResult result)
 			=> Task.FromResult(result);
 
-		public static ResultInstance<T, ITypeReaderResult> AsTypeReaderResultInstance<T>(this T instance) where T : ITypeReaderResult
-			=> new(instance);
-
 		public static ITypeReader<T> GetTypeReader<T>(this IReadOnlyDictionary<Type, ITypeReader> registry)
 		{
 			if (registry.TryGetValue(typeof(T), out var temp) && temp is ITypeReader<T> reader)

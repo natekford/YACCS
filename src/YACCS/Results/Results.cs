@@ -2,91 +2,68 @@
 
 namespace YACCS.Results
 {
-	public class CanceledResult : Result
+	public class CanceledResult : ResultWithSingleton<CanceledResult, IResult>
 	{
-		public static ResultInstance<CanceledResult, IResult> Instance { get; }
-			= new CanceledResult().AsResultInstance();
-
-		protected CanceledResult() : base(false, "An operation was canceled.")
+		public CanceledResult() : base(false, "An operation was canceled.")
 		{
 		}
 	}
 
-	public class CommandNotFoundResult : Result
+	public class CommandNotFoundResult : ResultWithSingleton<CommandNotFoundResult, IResult>
 	{
-		public static ResultInstance<CommandNotFoundResult, IResult> Instance { get; }
-			= new CommandNotFoundResult().AsResultInstance();
-
-		protected CommandNotFoundResult() : base(false, "Unable to find a matching command.")
+		public CommandNotFoundResult() : base(false, "Unable to find a matching command.")
 		{
 		}
 	}
 
-	public class ExceptionAfterCommandResult : Result
+	public class ExceptionAfterCommandResult : ResultWithSingleton<ExceptionAfterCommandResult, IResult>
 	{
-		public static ResultInstance<ExceptionAfterCommandResult, IResult> Instance { get; }
-			= new ExceptionAfterCommandResult().AsResultInstance();
-
-		protected ExceptionAfterCommandResult() : base(false, "An exception occurred after a command was executed.")
+		public ExceptionAfterCommandResult() : base(false, "An exception occurred after a command was executed.")
 		{
 		}
 	}
 
-	public class ExceptionDuringCommandResult : Result
+	public class ExceptionDuringCommandResult : ResultWithSingleton<ExceptionDuringCommandResult, IResult>
 	{
-		public static ResultInstance<ExceptionDuringCommandResult, IResult> Instance { get; }
-			= new ExceptionDuringCommandResult().AsResultInstance();
-
-		protected ExceptionDuringCommandResult() : base(false, "An exception occurred while a command was executing.")
+		public ExceptionDuringCommandResult() : base(false, "An exception occurred while a command was executing.")
 		{
 		}
 	}
 
-	public class FailureResult : Result
+	public class FailureResult : ResultWithSingleton<FailureResult, IResult>
 	{
-		public static ResultInstance<FailureResult, IResult> Instance { get; }
-			= new FailureResult().AsResultInstance();
+		public FailureResult() : this("")
+		{
+		}
 
-		protected FailureResult() : base(false, "")
+		public FailureResult(string message) : base(false, message)
 		{
 		}
 	}
 
-	public class InvalidContextResult : Result
+	public class InvalidContextResult : ResultWithSingleton<InvalidContextResult, IResult>
 	{
-		public static ResultInstance<InvalidContextResult, IResult> Instance { get; }
-			= new InvalidContextResult().AsResultInstance();
-
-		protected InvalidContextResult() : base(false, "Invalid context type.")
+		public InvalidContextResult() : base(false, "Invalid context type.")
 		{
 		}
 	}
 
-	public class InvalidParameterResult : Result
+	public class InvalidParameterResult : ResultWithSingleton<InvalidParameterResult, IResult>
 	{
-		public static ResultInstance<InvalidParameterResult, IResult> Instance { get; }
-			= new InvalidParameterResult().AsResultInstance();
-
-		protected InvalidParameterResult() : base(false, "Invalid parameter type.")
+		public InvalidParameterResult() : base(false, "Invalid parameter type.")
 		{
 		}
 	}
 
-	public class MultiMatchHandlingErrorResult : Result
+	public class MultiMatchHandlingErrorResult : ResultWithSingleton<MultiMatchHandlingErrorResult, IResult>
 	{
-		public static ResultInstance<MultiMatchHandlingErrorResult, IResult> Instance { get; }
-			= new MultiMatchHandlingErrorResult().AsResultInstance();
-
-		protected MultiMatchHandlingErrorResult() : base(false, "Multiple commands match.")
+		public MultiMatchHandlingErrorResult() : base(false, "Multiple commands match.")
 		{
 		}
 	}
 
-	public class NamedArgBadCountResult : Result
+	public class NamedArgBadCountResult : ResultWithSingleton<NamedArgBadCountResult, IResult>
 	{
-		public static ResultInstance<NamedArgBadCountResult, IResult> Instance { get; }
-			= new NamedArgBadCountResult().AsResultInstance();
-
 		public NamedArgBadCountResult() : base(false, "There is not an even number of arguments supplied.")
 		{
 		}
@@ -122,22 +99,16 @@ namespace YACCS.Results
 		}
 	}
 
-	public class NotEnoughArgsResult : Result
+	public class NotEnoughArgsResult : ResultWithSingleton<NotEnoughArgsResult, IResult>
 	{
-		public static ResultInstance<NotEnoughArgsResult, IResult> Instance { get; }
-			= new NotEnoughArgsResult().AsResultInstance();
-
-		protected NotEnoughArgsResult() : base(false, "Not enough arguments provided.")
+		public NotEnoughArgsResult() : base(false, "Not enough arguments provided.")
 		{
 		}
 	}
 
-	public class NullParameterResult : Result
+	public class NullParameterResult : ResultWithSingleton<NullParameterResult, IResult>
 	{
-		public static ResultInstance<NullParameterResult, IResult> Instance { get; }
-			= new NullParameterResult().AsResultInstance();
-
-		protected NullParameterResult() : base(false, "Parameter is null.")
+		public NullParameterResult() : base(false, "Parameter is null.")
 		{
 		}
 	}
@@ -155,49 +126,41 @@ namespace YACCS.Results
 	public class ParseFailedResult<T> : ParseFailedResult
 	{
 		public static ResultInstance<ParseFailedResult<T>, IResult> Instance { get; }
-			= new ParseFailedResult<T>().AsResultInstance();
+			= new(new());
 
 		public ParseFailedResult() : base(typeof(T))
 		{
 		}
 	}
 
-	public class QuoteMismatchResult : Result
+	public class QuoteMismatchResult : ResultWithSingleton<QuoteMismatchResult, IResult>
 	{
-		public static ResultInstance<QuoteMismatchResult, IResult> Instance { get; }
-			= new QuoteMismatchResult().AsResultInstance();
-
-		protected QuoteMismatchResult() : base(false, "Unable to parse arguments: quote mismatch.")
+		public QuoteMismatchResult() : base(false, "Unable to parse arguments: quote mismatch.")
 		{
 		}
 	}
 
-	public class SuccessResult : Result
+	public class SuccessResult : ResultWithSingleton<SuccessResult, IResult>
 	{
-		public static ResultInstance<SuccessResult, IResult> Instance { get; }
-			= new SuccessResult().AsResultInstance();
+		public SuccessResult() : this("")
+		{
+		}
 
-		protected SuccessResult() : base(true, "")
+		public SuccessResult(string message) : base(true, message)
 		{
 		}
 	}
 
-	public class TimedOutResult : Result
+	public class TimedOutResult : ResultWithSingleton<TimedOutResult, IResult>
 	{
-		public static ResultInstance<TimedOutResult, IResult> Instance { get; }
-			= new TimedOutResult().AsResultInstance();
-
-		protected TimedOutResult() : base(false, "An operation timed out.")
+		public TimedOutResult() : base(false, "An operation timed out.")
 		{
 		}
 	}
 
-	public class TooManyArgsResult : Result
+	public class TooManyArgsResult : ResultWithSingleton<TooManyArgsResult, IResult>
 	{
-		public static ResultInstance<TooManyArgsResult, IResult> Instance { get; }
-			= new TooManyArgsResult().AsResultInstance();
-
-		protected TooManyArgsResult() : base(false, "Too many arguments provided.")
+		public TooManyArgsResult() : base(false, "Too many arguments provided.")
 		{
 		}
 	}

@@ -3,17 +3,12 @@ using System.Threading.Tasks;
 
 using MorseCode.ITask;
 
-using static YACCS.Results.Result;
-
 namespace YACCS.Results
 {
 	public static class ResultUtils
 	{
 		public static ITask<IResult> AsITask(this IResult result)
 			=> Task.FromResult(result).AsITask();
-
-		public static ResultInstance<T, IResult> AsResultInstance<T>(this T instance) where T : IResult
-			=> new(instance);
 
 		public static Task<IResult> AsTask(this IResult result)
 			=> Task.FromResult(result);

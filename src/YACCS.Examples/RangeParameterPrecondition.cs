@@ -18,9 +18,9 @@ namespace YACCS.Examples
 		public RangeParameterPrecondition(int min, int max)
 		{
 			_Max = max;
-			_MaxResult = Result.FromError($"Must be less than or equal to {_Max}.").AsTask();
+			_MaxResult = new FailureResult($"Must be less than or equal to {_Max}.").AsTask();
 			_Min = min;
-			_MinResult = Result.FromError($"Must be greater or equal to {_Min}.").AsTask();
+			_MinResult = new FailureResult($"Must be greater or equal to {_Min}.").AsTask();
 		}
 
 		public override Task<IResult> CheckAsync(
