@@ -51,7 +51,7 @@ namespace YACCS.Commands.Models
 		{
 			if (type == typeof(void))
 			{
-				throw new ArgumentException("Cannot have a parameter type of void.", nameof(type));
+				throw new ArgumentException($"'{name}' cannot have a parameter type of void.", nameof(type));
 			}
 
 			OriginalParameterName = name;

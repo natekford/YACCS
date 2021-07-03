@@ -99,7 +99,9 @@ namespace YACCS.Commands.Models
 						{
 							if (i != mutable.Parameters.Count - 1)
 							{
-								throw new ArgumentException("Remainder can only be the final parameter.", nameof(mutable));
+								throw new InvalidOperationException(
+									$"'{immutable.OriginalParameterName}' from '{Names?.FirstOrDefault()}' " +
+									"must be the final parameter because it is a remainder.");
 							}
 
 							MaxLength = int.MaxValue;

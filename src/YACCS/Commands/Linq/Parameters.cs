@@ -40,7 +40,8 @@ namespace YACCS.Commands.Linq
 		{
 			if (!parameter.IsValidParameter(typeof(TValue)))
 			{
-				throw new ArgumentException($"Is not and does not inherit or implement {parameter.ParameterType.Name}.", nameof(parameter));
+				throw new ArgumentException(
+					$"{typeof(TValue).FullName} is not and does not inherit or implement {parameter.ParameterType.Name}.", nameof(parameter));
 			}
 			return new Parameter<TValue>(parameter);
 		}

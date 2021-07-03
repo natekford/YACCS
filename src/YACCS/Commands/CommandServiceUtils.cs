@@ -166,7 +166,18 @@ namespace YACCS.Commands
 
 				// Commands have been modified by whoever implemented them
 				// We can now return them in an immutable state
-				return commands.SelectMany(x => x.MakeMultipleImmutable());
+				return commands.SelectMany(x =>
+				{
+					try
+					{
+						return x.MakeMultipleImmutable();
+					}
+					catch (Exception e)
+					{
+						throw new InvalidOperationException(
+							$"An exception occurred while building the command '{x.Names?.FirstOrDefault()}'.", e);
+					}
+				});
 			}
 			return GetDirectCommandsAsync(type, commands);
 		}

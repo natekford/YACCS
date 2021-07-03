@@ -33,7 +33,8 @@ namespace YACCS.NamedArguments
 			}
 			catch (Exception e)
 			{
-				throw new InvalidOperationException($"Unable to find the specified member name: {property}", e);
+				throw new InvalidOperationException(
+					$"Unable to find the specified member '{property}'.", e);
 			}
 		}
 

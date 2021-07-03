@@ -42,8 +42,7 @@ namespace YACCS.Commands
 			}
 			if (context is not TContext tContext)
 			{
-				var msg = $"Invalid context; expected {typeof(TContext).Name}, received {context.GetType().Name}.";
-				throw new ArgumentException(msg, nameof(context));
+				throw InvalidContext(context);
 			}
 			return AfterExecutionAsync(command, tContext, result);
 		}
@@ -56,10 +55,17 @@ namespace YACCS.Commands
 			}
 			if (context is not TContext tContext)
 			{
-				var msg = $"Invalid context; expected {typeof(TContext).Name}, received {context.GetType().Name}.";
-				throw new ArgumentException(msg, nameof(context));
+				throw InvalidContext(context);
 			}
 			return BeforeExecutionAsync(command, tContext);
+		}
+
+		private static ArgumentException InvalidContext(IContext context)
+		{
+			return new ArgumentException(
+				"Invalid context; " +
+				$"expected {typeof(TContext).Name}, " +
+				$"received {context.GetType().Name}.", nameof(context));
 		}
 	}
 }

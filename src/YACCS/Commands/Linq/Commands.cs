@@ -40,7 +40,7 @@ namespace YACCS.Commands.Linq
 			}
 			if (entity is not ICommand command)
 			{
-				throw new ArgumentException("Not a command.", nameof(entity));
+				throw new ArgumentException($"Not a {nameof(ICommand)}.", nameof(entity));
 			}
 			return command;
 		}
@@ -50,7 +50,9 @@ namespace YACCS.Commands.Linq
 		{
 			if (!command.IsValidContext(typeof(TContext)))
 			{
-				throw new ArgumentException($"Is not and does not inherit or implement {command.ContextType!.Name}.", nameof(command));
+				throw new ArgumentException(
+					"Is not and does not inherit or implement " +
+					$"{command.ContextType!.Name}. {command.Names?.FirstOrDefault()}", nameof(command));
 			}
 			return new Command<TContext>(command);
 		}

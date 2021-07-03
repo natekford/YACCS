@@ -226,7 +226,7 @@ namespace YACCS.Commands
 			{
 				return CompareTo(other);
 			}
-			throw new ArgumentException($"Object is not a {nameof(CommandScore)}.");
+			throw new ArgumentException($"Not a {nameof(CommandScore)}.", nameof(obj));
 		}
 
 		public int CompareTo(CommandScore other)

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 using YACCS.Commands;
+using YACCS.Commands.Models;
 using YACCS.Help;
 using YACCS.Interactivity.Input;
 using YACCS.Parsing;
@@ -18,12 +19,12 @@ namespace YACCS.Examples
 	{
 		private readonly ConsoleCommandService _CommandService;
 		private readonly ICommandServiceConfig _Config;
-		private readonly IArgumentSplitter _Splitter;
 		private readonly ConsoleHandler _Console;
 		private readonly HelpFormatter _HelpFormatter;
 		private readonly ConsoleInput _Input;
 		private readonly TypeNameRegistry _Names;
 		private readonly IServiceProvider _Services;
+		private readonly IArgumentSplitter _Splitter;
 		private readonly TagConverter _Tags;
 		private readonly TypeReaderRegistry _TypeReaders;
 
@@ -68,8 +69,8 @@ namespace YACCS.Examples
 			{
 				return;
 			}
-			var context = new ConsoleContext(_Services.CreateScope(), input);
 
+			var context = new ConsoleContext(_Services.CreateScope(), input);
 			var result = await _CommandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			if (!result.InnerResult.IsSuccess)
 			{
@@ -82,23 +83,17 @@ namespace YACCS.Examples
 		{
 			var commands = Assembly.GetExecutingAssembly().GetAllCommandsAsync();
 			await _CommandService.AddRangeAsync(commands).ConfigureAwait(false);
+
+			// Example delegate command registration
+			static int Add(int a, int b)
+				=> a + b;
+
+			var @delegate = (Func<int, int, int>)Add;
+			var names = new[] { new ImmutableName(new[] { nameof(Add) }) };
+			var add = new DelegateCommand(@delegate, names).MakeMultipleImmutable();
+			_CommandService.AddRange(add);
+
 			_Console.WriteLine($"Successfully registered {_CommandService.Commands.Count} commands.");
-
-#if false
-			void DelegateCommand(int i, double d, string s)
-				=> _Console.WriteLine($"i am the delegate command: {i} {d} {s}");
-
-			var @delegate = (Action<int, double, string>)DelegateCommand;
-			var names = new[] { new ImmutableName(new[] { "delegate" }) };
-			for (var i = 0; i < 1000; ++i)
-			{
-				var command = new DelegateCommand(@delegate, names)
-					.AddAttribute(new PriorityAttribute(i))
-					.ToImmutable()
-					.Single();
-				_CommandService.Commands.Add(command);
-			}
-#endif
 		}
 
 		private async Task RunAsync()

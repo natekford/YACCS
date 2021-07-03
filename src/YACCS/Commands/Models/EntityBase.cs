@@ -38,7 +38,8 @@ namespace YACCS.Commands.Models
 		{
 			if (count > 0)
 			{
-				throw new ArgumentException("Duplicate attribute.", typeof(TAttribute).Name);
+				throw new InvalidOperationException(
+					$"Duplicate {typeof(TAttribute).Name} attribute.");
 			}
 
 			++count;

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 using YACCS.Commands.Models;
 using YACCS.TypeReaders;
@@ -37,7 +38,8 @@ namespace YACCS.Commands
 			// Commands cannot be added directly to ROOT
 			if (item.Names.Count == 0)
 			{
-				throw new ArgumentException("Cannot add a command with no name.", nameof(item));
+				throw new ArgumentException(
+					"Cannot add a command with no name.", nameof(item));
 			}
 
 			// Verify that every name is valid
@@ -47,7 +49,8 @@ namespace YACCS.Commands
 				{
 					if (part.Contains(_Config.Separator))
 					{
-						throw new ArgumentException($"Command names cannot contain the separator ({name}).", nameof(item));
+						throw new ArgumentException(
+							$"'{name}' cannot contain the separator character.", nameof(item));
 					}
 				}
 			}
@@ -61,7 +64,10 @@ namespace YACCS.Commands
 				}
 				catch (Exception ex)
 				{
-					throw new ArgumentException($"{parameter.ParameterName} does not have a registered type reader for {parameter.ParameterType}.", ex);
+					throw new ArgumentException(
+						"Unregistered type reader for " +
+						$"'{parameter.ParameterType}' from '{item.Names?.FirstOrDefault()}'.",
+						nameof(item), ex);
 				}
 			}
 
