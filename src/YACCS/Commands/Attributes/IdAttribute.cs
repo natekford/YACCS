@@ -9,8 +9,6 @@ namespace YACCS.Commands.Attributes
 	[AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
 	public class IdAttribute : Attribute, IIdAttribute, IRuntimeFormattableAttribute
 	{
-		private static readonly TaggedString _Key = new(Tag.Key, "Id");
-
 		public virtual string Id { get; }
 
 		public IdAttribute(string id)
@@ -20,10 +18,10 @@ namespace YACCS.Commands.Attributes
 
 		public virtual IReadOnlyList<TaggedString> Format(IContext context)
 		{
-			return new[]
+			return new TaggedString[]
 			{
-				_Key,
-				new TaggedString(Tag.Value, Id),
+				new(Tag.Key, "Id"),
+				new(Tag.Value, Id),
 			};
 		}
 	}

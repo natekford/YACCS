@@ -122,9 +122,6 @@ namespace YACCS.Tests.Help
 		[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
 		private class EnabledByDefaultAttribute : Attribute, IRuntimeFormattableAttribute
 		{
-			private static readonly TaggedString _Key1 = new(Tag.Key, "Enabled by default");
-			private static readonly TaggedString _Key2 = new(Tag.Key, "Toggleable");
-
 			public bool EnabledByDefault { get; }
 			public bool Toggleable { get; set; }
 
@@ -135,13 +132,13 @@ namespace YACCS.Tests.Help
 
 			public IReadOnlyList<TaggedString> Format(IContext context)
 			{
-				return new[]
+				return new TaggedString[]
 				{
-					_Key1,
-					new TaggedString(Tag.Value, EnabledByDefault.ToString()),
+					new(Tag.Key, "Enabled by default"),
+					new(Tag.Value, EnabledByDefault.ToString()),
 					TaggedString.Newline,
-					_Key2,
-					new TaggedString(Tag.Value, Toggleable.ToString()),
+					new(Tag.Key, "Toggleable"),
+					new(Tag.Value, Toggleable.ToString()),
 				};
 			}
 		}

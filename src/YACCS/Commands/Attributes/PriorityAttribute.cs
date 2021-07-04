@@ -9,8 +9,6 @@ namespace YACCS.Commands.Attributes
 	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
 	public class PriorityAttribute : Attribute, IPriorityAttribute, IRuntimeFormattableAttribute
 	{
-		private static readonly TaggedString _Key = new(Tag.Key, "Priority");
-
 		public int Priority { get; }
 
 		public PriorityAttribute(int priority)
@@ -20,10 +18,10 @@ namespace YACCS.Commands.Attributes
 
 		public virtual IReadOnlyList<TaggedString> Format(IContext context)
 		{
-			return new[]
+			return new TaggedString[]
 			{
-				_Key,
-				new TaggedString(Tag.Value, Priority.ToString()),
+				new(Tag.Key, "Priority"),
+				new(Tag.Value, Priority.ToString()),
 			};
 		}
 	}

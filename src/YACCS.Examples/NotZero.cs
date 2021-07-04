@@ -13,8 +13,7 @@ namespace YACCS.Examples
 	public class NotZero : ParameterPreconditionAttribute, IRuntimeFormattableAttribute
 	{
 		private const string _Message = "Cannot be zero.";
-		private static readonly TaggedString[] _Tags = new[] { new TaggedString(Tag.String, _Message) };
-		private static readonly Task<IResult> _Task = new FailureResult(_Message).AsTask();
+		private static readonly Task<IResult> _Failure = new FailureResult(_Message).AsTask();
 
 		public static Task<IResult> CheckAsync(
 			IImmutableCommand command,
@@ -24,13 +23,18 @@ namespace YACCS.Examples
 		{
 			if (value == 0)
 			{
-				return _Task;
+				return _Failure;
 			}
 			return SuccessResult.Instance.Task;
 		}
 
 		public IReadOnlyList<TaggedString> Format(IContext context)
-			=> _Tags;
+		{
+			return new TaggedString[]
+			{
+				new(Tag.String, _Message),
+			};
+		}
 
 		protected override Task<IResult> CheckAsync(
 			IImmutableCommand command,

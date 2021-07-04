@@ -9,8 +9,6 @@ namespace YACCS.Commands.Attributes
 	[AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
 	public class LengthAttribute : Attribute, ILengthAttribute, IRuntimeFormattableAttribute
 	{
-		private static readonly TaggedString _Key = new(Tag.Key, "Length");
-
 		public int? Length { get; }
 
 		public LengthAttribute()
@@ -30,10 +28,10 @@ namespace YACCS.Commands.Attributes
 
 		public virtual IReadOnlyList<TaggedString> Format(IContext context)
 		{
-			return new[]
+			return new TaggedString[]
 			{
-				_Key,
-				new TaggedString(Tag.Value, Length?.ToString() ?? "Remainder"),
+				new(Tag.Key, "Length"),
+				new(Tag.Value, Length?.ToString() ?? "Remainder"),
 			};
 		}
 	}
