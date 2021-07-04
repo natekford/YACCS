@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Resources;
 
 using YACCS.Commands.Attributes;
 
 namespace YACCS.Localization
 {
 	[AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
-	public abstract class LocalizedNameAttribute : NameAttribute, IUsesResourceManager
+	public class LocalizedNameAttribute : NameAttribute, IUsesLocalizer
 	{
 		public string Key { get; }
-		public override string Name => ResourceManager.GetString(Key) ?? Key;
-		public abstract ResourceManager ResourceManager { get; }
+		public virtual ILocalizer? Localizer { get; set; }
+		public override string Name => Localizer?.Get(Key) ?? base.Name;
 
-		protected LocalizedNameAttribute(string key) : base(key)
+		public LocalizedNameAttribute(string key) : base(key)
 		{
 			Key = key;
 		}

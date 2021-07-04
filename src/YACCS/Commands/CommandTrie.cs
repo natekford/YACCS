@@ -19,6 +19,7 @@ namespace YACCS.Commands
 		private Node _Root;
 
 		public bool IsReadOnly => false;
+		public IReadOnlyCollection<IImmutableCommand> Items => _Items;
 		public INode<string, IImmutableCommand> Root => _Root;
 		public int Count => _Items.Count;
 		private string DebuggerDisplay => $"Count = {Count}";

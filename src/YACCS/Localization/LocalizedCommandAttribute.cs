@@ -1,40 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Resources;
 
 using YACCS.Commands.Attributes;
 
 namespace YACCS.Localization
 {
 	[AttributeUsage(AttributeTargets.Class | AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
-	public abstract class LocalizedCommandAttribute : CommandAttribute, IUsesResourceManager
+	public class LocalizedCommandAttribute : CommandAttribute, IUsesLocalizer
 	{
 		public IReadOnlyList<string> Keys { get; }
+		public virtual ILocalizer? Localizer { get; set; }
 		public override IReadOnlyList<string> Names
 		{
 			get
 			{
-				var names = new string[Keys.Count];
-				for (var i = 0; i < names.Length; ++i)
+				if (Localizer is null)
 				{
-					names[i] = ResourceManager.GetString(Keys[i]) ?? Keys[i];
+					return base.Names;
 				}
-				return names;
+
+				var names = ImmutableArray.CreateBuilder<string>(Keys.Count);
+				for (var i = 0; i < names.Count; ++i)
+				{
+					names.Add(Localizer.Get(Keys[i]) ?? Keys[i]);
+				}
+				return names.MoveToImmutable();
 			}
 		}
-		public abstract ResourceManager ResourceManager { get; }
 
-		protected LocalizedCommandAttribute(params string[] keys) : this(keys.ToImmutableArray())
+		public LocalizedCommandAttribute(params string[] keys) : this(keys.ToImmutableArray())
 		{
 		}
 
-		protected LocalizedCommandAttribute(IReadOnlyList<string> keys) : base(keys)
+		public LocalizedCommandAttribute(IReadOnlyList<string> keys) : base(keys)
 		{
 			Keys = keys;
 		}
 
-		protected LocalizedCommandAttribute() : this(ImmutableArray<string>.Empty)
+		public LocalizedCommandAttribute() : this(ImmutableArray<string>.Empty)
 		{
 		}
 	}

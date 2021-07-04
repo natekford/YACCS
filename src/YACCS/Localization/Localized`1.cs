@@ -20,7 +20,7 @@ namespace YACCS.Localization
 			_ValueFactory = valueFactory;
 		}
 
-		public T Get()
-			=> _Source.GetOrAdd(CultureInfo.CurrentUICulture, _ValueFactory);
+		public T Get(CultureInfo? culture = null)
+			=> _Source.GetOrAdd(culture ?? CultureInfo.CurrentUICulture, _ValueFactory);
 	}
 }

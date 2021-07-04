@@ -16,32 +16,25 @@ namespace YACCS.Commands.Models
 		public Type GroupType { get; }
 		public MethodInfo Method { get; }
 
-		public ReflectionCommand(
-			MethodInfo method,
-			IEnumerable<string>? extraNames = null)
-			: this(method, null, extraNames)
+		public ReflectionCommand(MethodInfo method) : this(method, null)
 		{
 		}
 
-		public ReflectionCommand(
-			MethodInfo method,
-			IImmutableCommand? source,
-			IEnumerable<string>? extraNames = null)
-			: this(method, source, method.ReflectedType, extraNames)
+		public ReflectionCommand(MethodInfo method, IImmutableCommand? source)
+			: this(method, source, method.ReflectedType)
 		{
 		}
 
 		protected ReflectionCommand(
 			MethodInfo method,
 			IImmutableCommand? source,
-			Type groupType,
-			IEnumerable<string>? extraNames)
+			Type groupType)
 			: base(method, source, GetContextType(groupType))
 		{
 			GroupType = groupType;
 			Method = method;
 
-			foreach (var name in GetFullNames(groupType, method, extraNames))
+			foreach (var name in GetFullNames(groupType, method))
 			{
 				Names.Add(name);
 			}
@@ -75,18 +68,13 @@ namespace YACCS.Commands.Models
 
 		private static IEnumerable<IReadOnlyList<string>> GetFullNames(
 			Type group,
-			MethodInfo method,
-			IEnumerable<string>? extraNames)
+			MethodInfo method)
 		{
 			var names = method
 				.GetCustomAttributes(true)
 				.OfType<ICommandAttribute>()
 				.SingleOrDefault()
 				?.Names ?? Enumerable.Empty<string>();
-			if (extraNames is not null)
-			{
-				names = names.Concat(extraNames);
-			}
 
 			var output = new List<IEnumerable<string>>(names.Select(x => new[] { x }));
 			if (output.Count == 0)
