@@ -523,18 +523,21 @@ namespace YACCS.Tests.Commands
 				Services = Utils.CreateServices(),
 			};
 
-			var command = FakeDelegateCommand.New(typeof(FakeContext))
+			static void Delegate(int arg)
+			{
+			}
+
+			var @delegate = (Action<int>)Delegate;
+			var commandBuilder = new DelegateCommand(@delegate, Array.Empty<ImmutableName>(), typeof(FakeContext))
 				.AsContext<FakeContext>()
 				.AddPrecondition(new FakePrecondition(success))
 				.AddPrecondition(new WasIReachedPrecondition());
-
-			var parameter = new Parameter(typeof(int), "", null)
+			commandBuilder.Parameters[0]
 				.AsType<int>()
 				.AddParameterPrecondition(new FakeParameterPrecondition(disallowedValue))
 				.AddParameterPrecondition(new WasIReachedParameterPrecondition());
-			command.Parameters.Add(parameter);
 
-			return (context.Get<CommandService>(), context, command, parameter);
+			return (context.Get<CommandService>(), context, commandBuilder, commandBuilder.Parameters[0]);
 		}
 
 		public class InvalidContext : IContext
@@ -618,17 +621,19 @@ namespace YACCS.Tests.Commands
 				Services = Utils.CreateServices(),
 			};
 
-			var parameterBuilder = new Parameter(typeof(int), "", null)
+			static void Delegate(int arg)
+			{
+			}
+
+			var @delegate = (Action<int>)Delegate;
+			var commandBuilder = new DelegateCommand(@delegate, Array.Empty<ImmutableName>());
+			commandBuilder.Parameters[0]
 				.AsType<int>()
 				.AddParameterPrecondition(new FakeParameterPrecondition(disallowedValue))
 				.AddParameterPrecondition(new WasIReachedParameterPrecondition());
 
-			var commandBuilder = FakeDelegateCommand.New();
-			commandBuilder.Parameters.Add(parameterBuilder);
 			var command = commandBuilder.MakeImmutable();
-			var parameter = parameterBuilder.ToImmutable();
-
-			return (context.Get<CommandService>(), context, command, parameter);
+			return (context.Get<CommandService>(), context, command, command.Parameters[0]);
 		}
 	}
 

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
+using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 using YACCS.Preconditions;
 
@@ -92,6 +94,7 @@ namespace YACCS.Commands.Linq
 		public static bool IsValidContext(this IQueryableCommand command, Type? type)
 			=> command.ContextType?.IsAssignableFrom(type) ?? true;
 
+		[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 		private sealed class Command<TContext> : ICommand<TContext> where TContext : IContext
 		{
 			private readonly ICommand _Actual;
@@ -106,7 +109,7 @@ namespace YACCS.Commands.Linq
 				get => _Actual.Names;
 				set => _Actual.Names = value;
 			}
-			public IList<IParameter> Parameters
+			public IReadOnlyList<IParameter> Parameters
 			{
 				get => _Actual.Parameters;
 				set => _Actual.Parameters = value;
@@ -114,6 +117,8 @@ namespace YACCS.Commands.Linq
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 			public Type? ContextType => _Actual.ContextType;
 			IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
+			IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
+			private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 			public Command(ICommand actual)
 			{

@@ -17,6 +17,7 @@ namespace YACCS.Commands
 		public const char InternallyUsedSeparator = ' ';
 		public static readonly IImmutableSet<char> InternallyUsedQuotes
 			= new[] { InternallyUsedQuote }.ToImmutableHashSet();
+		internal const string DEBUGGER_DISPLAY = "{DebuggerDisplay,nq}";
 
 		public static void AddRange(
 			this CommandService commandService,
@@ -232,6 +233,15 @@ namespace YACCS.Commands
 
 			return commands;
 		}
+
+		internal static string FormatForDebuggerDisplay(this IQueryableCommand item)
+		{
+			var name = item.Names?.FirstOrDefault()?.ToString() ?? "NULL";
+			return $"Name = {name}, Parameter Count = {item.Parameters.Count}";
+		}
+
+		internal static string FormatForDebuggerDisplay(this IQueryableParameter item)
+			=> $"Name = {item.OriginalParameterName}, Type = {item.ParameterType}";
 
 		internal static TValue ThrowIfDuplicate<TAttribute, TValue>(
 			this TAttribute attribute,

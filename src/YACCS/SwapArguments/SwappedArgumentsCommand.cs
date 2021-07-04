@@ -12,7 +12,7 @@ using YACCS.Results;
 
 namespace YACCS.SwapArguments
 {
-	[DebuggerDisplay("{DebuggerDisplay,nq}")]
+	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public class SwappedArgumentsCommand : IImmutableCommand
 	{
 		private readonly Swapper _Swapper;
@@ -27,9 +27,10 @@ namespace YACCS.SwapArguments
 		public int MinLength => Source.MinLength;
 		public IReadOnlyList<IReadOnlyList<string>> Names => Source.Names;
 		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
+		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
 		public IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions => Source.Preconditions;
 		public string PrimaryId => Source.PrimaryId;
-		private string DebuggerDisplay => $"Name = {Names?.FirstOrDefault()?.ToString() ?? "NULL"}, Parameter Count = {Parameters.Count}";
+		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 		public SwappedArgumentsCommand(
 			IImmutableCommand source,

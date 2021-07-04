@@ -14,7 +14,7 @@ using YACCS.Results;
 
 namespace YACCS.NamedArguments
 {
-	[DebuggerDisplay("{DebuggerDisplay,nq}")]
+	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public class NamedArgumentsCommand : IImmutableCommand
 	{
 		private const string CONTEXT_ID = "context_id";
@@ -30,11 +30,12 @@ namespace YACCS.NamedArguments
 		public int MinLength => _Command.MinLength;
 		public IReadOnlyList<IReadOnlyList<string>> Names => Source.Names;
 		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
+		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
 		public IReadOnlyList<IImmutableParameter> Parameters => _Command.Parameters;
 		public IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions => Source.Preconditions;
 		public string PrimaryId => Source.PrimaryId;
 		public int Priority => Source.Priority;
-		private string DebuggerDisplay => $"Name = {Names?.FirstOrDefault()?.ToString() ?? "NULL"}, Parameter Count = {Parameters.Count}";
+		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 		public NamedArgumentsCommand(IImmutableCommand source)
 		{

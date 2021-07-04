@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace YACCS.Commands.Models
 {
-	[DebuggerDisplay("{DebuggerDisplay,nq}")]
+	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public class ImmutableName : IReadOnlyList<string>
 	{
 		private readonly ImmutableArray<string> _Parts;

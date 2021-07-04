@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 
+using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Help.Attributes;
 
 namespace YACCS.Help.Models
 {
-	[DebuggerDisplay("{DebuggerDisplay,nq}")]
+	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public class HelpItem<T> : IHelpItem<T> where T : notnull
 	{
 		public IReadOnlyList<IHelpItem<object>> Attributes { get; }

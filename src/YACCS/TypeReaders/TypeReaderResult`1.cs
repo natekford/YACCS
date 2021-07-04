@@ -1,11 +1,12 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
+using YACCS.Commands;
 using YACCS.Results;
 
 namespace YACCS.TypeReaders
 {
-	[DebuggerDisplay("{DebuggerDisplay,nq}")]
+	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public class TypeReaderResult<T> : ITypeReaderResult<T>
 	{
 		public static ResultInstance<TypeReaderResult<T>, ITypeReaderResult> Failure { get; }

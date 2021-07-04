@@ -15,15 +15,16 @@ using YACCS.Results;
 
 namespace YACCS.Commands.Models
 {
-	[DebuggerDisplay("{DebuggerDisplay,nq}")]
+	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public abstract class Command : EntityBase, ICommand
 	{
 		public Type? ContextType { get; protected set; }
 		public IList<IReadOnlyList<string>> Names { get; set; }
-		public IList<IParameter> Parameters { get; set; }
+		public IReadOnlyList<IParameter> Parameters { get; set; }
 		public IImmutableCommand? Source { get; protected set; }
 		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
-		private string DebuggerDisplay => $"Name = {Names[0]}, Parameter Count = {Parameters.Count}";
+		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
+		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 		protected Command(MethodInfo method, IImmutableCommand? source, Type? contextType)
 			: base(method)
@@ -50,7 +51,7 @@ namespace YACCS.Commands.Models
 			}
 		}
 
-		[DebuggerDisplay("{DebuggerDisplay,nq}")]
+		[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 		protected abstract class ImmutableCommand : IImmutableCommand
 		{
 			private readonly Lazy<Func<Task, object>> _TaskResult;
@@ -67,8 +68,9 @@ namespace YACCS.Commands.Models
 			public IImmutableCommand? Source { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 			IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
+			IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
 			protected Type ReturnType { get; }
-			private string DebuggerDisplay => $"Name = {Names?.FirstOrDefault()?.ToString() ?? "NULL"}, Parameter Count = {Parameters.Count}";
+			private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 			protected ImmutableCommand(Command mutable, Type returnType)
 			{

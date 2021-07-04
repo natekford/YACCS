@@ -10,7 +10,7 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Commands
 {
-	[DebuggerDisplay("{DebuggerDisplay,nq}")]
+	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public sealed class CommandTrie : ITrie<string, IImmutableCommand>
 	{
 		private readonly ICommandServiceConfig _Config;
@@ -181,7 +181,7 @@ namespace YACCS.Commands
 		bool ICollection<IImmutableCommand>.Remove(IImmutableCommand item)
 			=> Remove(item) > 0;
 
-		[DebuggerDisplay("{DebuggerDisplay,nq}")]
+		[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 		private sealed class Node : INode<string, IImmutableCommand>
 		{
 			private readonly Dictionary<string, Node> _Edges;

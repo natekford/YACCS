@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics;
 
+using YACCS.Commands;
+
 namespace YACCS.Results
 {
-	[DebuggerDisplay("{DebuggerDisplay,nq}")]
+	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public abstract class Result : IResult
 	{
 		public bool IsSuccess { get; }

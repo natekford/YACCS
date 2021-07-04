@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 
+using YACCS.Commands;
 using YACCS.Commands.Models;
 using YACCS.Preconditions;
 using YACCS.TypeReaders;
 
 namespace YACCS.Help.Models
 {
-	[DebuggerDisplay("{DebuggerDisplay,nq}")]
+	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public class HelpParameter : HelpItem<IImmutableParameter>, IHelpParameter
 	{
 		public bool HasAsyncFormattablePreconditions { get; }
@@ -18,7 +19,7 @@ namespace YACCS.Help.Models
 		public IReadOnlyList<IHelpItem<IParameterPrecondition>> Preconditions { get; }
 		public IHelpItem<ITypeReader>? TypeReader { get; }
 		IReadOnlyList<IHelpItem<object>> IHasPreconditions.Preconditions => Preconditions;
-		private string DebuggerDisplay => $"Name = {Item.OriginalParameterName}, Type = {Item.ParameterType}";
+		private string DebuggerDisplay => Item.FormatForDebuggerDisplay();
 
 		public HelpParameter(IImmutableParameter item)
 			: base(item, item.Attributes, x => x is not IParameterPrecondition)

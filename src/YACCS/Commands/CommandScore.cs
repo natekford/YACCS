@@ -7,7 +7,7 @@ using YACCS.Results;
 
 namespace YACCS.Commands
 {
-	[DebuggerDisplay("{DebuggerDisplay,nq}")]
+	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public class CommandScore : IComparable<CommandScore>, IComparable, ICommandResult
 	{
 		// This class is a mess
@@ -32,7 +32,6 @@ namespace YACCS.Commands
 		public int Priority { get; }
 		public int Score { get; }
 		public CommandStage Stage { get; }
-
 		private string DebuggerDisplay => $"Stage = {Stage}, Score = {Score}, Success = {InnerResult.IsSuccess}";
 
 		protected CommandScore(

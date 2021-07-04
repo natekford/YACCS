@@ -13,7 +13,7 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Models
 {
-	[DebuggerDisplay("{DebuggerDisplay,nq}")]
+	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public sealed class Parameter : EntityBase, IParameter
 	{
 		private static readonly object NoDefaultValue = new();
@@ -44,7 +44,7 @@ namespace YACCS.Commands.Models
 				_OverriddenTypeReader = value;
 			}
 		}
-		private string DebuggerDisplay => $"Name = {OriginalParameterName}, Type = {ParameterType}";
+		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 		public Parameter(Type type, string name, ICustomAttributeProvider? provider)
 			: base(provider)
@@ -116,7 +116,7 @@ namespace YACCS.Commands.Models
 			Attributes.Add(new RemainderAttribute());
 		}
 
-		[DebuggerDisplay("{DebuggerDisplay,nq}")]
+		[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 		private sealed class ImmutableParameter : IImmutableParameter
 		{
 			public IReadOnlyList<object> Attributes { get; }
@@ -130,7 +130,7 @@ namespace YACCS.Commands.Models
 			public string PrimaryId { get; }
 			public ITypeReader? TypeReader { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
-			private string DebuggerDisplay => $"Name = {OriginalParameterName}, Type = {ParameterType}";
+			private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 			public ImmutableParameter(Parameter mutable)
 			{

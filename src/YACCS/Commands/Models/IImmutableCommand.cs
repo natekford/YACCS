@@ -11,7 +11,7 @@ namespace YACCS.Commands.Models
 		int MaxLength { get; }
 		int MinLength { get; }
 		new IReadOnlyList<IReadOnlyList<string>> Names { get; }
-		IReadOnlyList<IImmutableParameter> Parameters { get; }
+		new IReadOnlyList<IImmutableParameter> Parameters { get; }
 		IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions { get; }
 		int Priority { get; }
 		IImmutableCommand? Source { get; }

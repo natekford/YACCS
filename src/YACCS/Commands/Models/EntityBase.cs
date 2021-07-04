@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace YACCS.Commands.Models
 {
-	[DebuggerDisplay("{DebuggerDisplay,nq}")]
+	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public abstract class EntityBase : IEntityBase
 	{
 		public IList<object> Attributes { get; set; } = new List<object>();

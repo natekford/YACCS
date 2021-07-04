@@ -7,5 +7,6 @@ namespace YACCS.Commands.Models
 	{
 		Type? ContextType { get; }
 		IEnumerable<IReadOnlyList<string>> Names { get; }
+		IReadOnlyList<IQueryableParameter> Parameters { get; }
 	}
 }

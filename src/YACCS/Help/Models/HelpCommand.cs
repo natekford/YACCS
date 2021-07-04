@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 
+using YACCS.Commands;
 using YACCS.Commands.Models;
 using YACCS.Preconditions;
 
 namespace YACCS.Help.Models
 {
-	[DebuggerDisplay("{DebuggerDisplay,nq}")]
+	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public class HelpCommand : HelpItem<IImmutableCommand>, IHelpCommand
 	{
 		public IHelpItem<Type>? ContextType { get; }
@@ -17,7 +18,7 @@ namespace YACCS.Help.Models
 		public IReadOnlyList<IHelpParameter> Parameters { get; }
 		public IReadOnlyList<IHelpItem<IPrecondition>> Preconditions { get; }
 		IReadOnlyList<IHelpItem<object>> IHasPreconditions.Preconditions => Preconditions;
-		private string DebuggerDisplay => $"Name = {Item.Names[0]}, Parameter Count = {Item.Parameters.Count}";
+		private string DebuggerDisplay => Item.FormatForDebuggerDisplay();
 
 		public HelpCommand(IImmutableCommand item)
 			: base(item, item.Attributes, x => x is not IPrecondition)
