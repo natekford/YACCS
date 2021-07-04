@@ -38,6 +38,15 @@ namespace YACCS.Commands
 			}
 		}
 
+		public static ImmutableArray<object> CreateGeneratedCommandAttributeList(
+			this IImmutableCommand source)
+		{
+			var builder = ImmutableArray.CreateBuilder<object>(source.Attributes.Count + 1);
+			builder.AddRange(source.Attributes);
+			builder.Add(new GeneratedCommandAttribute(source));
+			return builder.MoveToImmutable();
+		}
+
 		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
 			this Type type)
 		{
@@ -149,7 +158,8 @@ namespace YACCS.Commands
 			}
 		}
 
-		public static Task<IEnumerable<IImmutableCommand>> GetDirectCommandsAsync(this Type type)
+		public static Task<IEnumerable<IImmutableCommand>> GetDirectCommandsAsync(
+			this Type type)
 		{
 			var commands = type.CreateMutableCommands();
 			if (commands.Count == 0)
@@ -221,6 +231,21 @@ namespace YACCS.Commands
 			}
 
 			return commands;
+		}
+
+		internal static TValue ThrowIfDuplicate<TAttribute, TValue>(
+			this TAttribute attribute,
+			Func<TAttribute, TValue> converter,
+			ref int count)
+		{
+			if (count > 0)
+			{
+				throw new InvalidOperationException(
+					$"Duplicate {typeof(TAttribute).Name} attribute.");
+			}
+
+			++count;
+			return converter.Invoke(attribute);
 		}
 	}
 }

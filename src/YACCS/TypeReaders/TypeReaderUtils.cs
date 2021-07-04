@@ -8,8 +8,6 @@ using MorseCode.ITask;
 using YACCS.Commands;
 using YACCS.Commands.Models;
 
-using static YACCS.Results.Result;
-
 namespace YACCS.TypeReaders
 {
 	public static class TypeReaderUtils

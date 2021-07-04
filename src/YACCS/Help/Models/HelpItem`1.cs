@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 
 using YACCS.Commands.Attributes;
-using YACCS.Commands.Models;
 using YACCS.Help.Attributes;
 
 namespace YACCS.Help.Models

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -26,24 +25,6 @@ namespace YACCS.Commands.Models
 					Attributes.Add(attribute);
 				}
 			}
-		}
-	}
-
-	internal static class EntityBaseUtils
-	{
-		internal static TValue ThrowIfDuplicate<TAttribute, TValue>(
-			this TAttribute attribute,
-			Func<TAttribute, TValue> converter,
-			ref int count)
-		{
-			if (count > 0)
-			{
-				throw new InvalidOperationException(
-					$"Duplicate {typeof(TAttribute).Name} attribute.");
-			}
-
-			++count;
-			return converter.Invoke(attribute);
 		}
 	}
 }

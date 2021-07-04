@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
-using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Preconditions;
 using YACCS.Results;

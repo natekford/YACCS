@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 
-using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 using YACCS.Preconditions;
 
@@ -55,15 +53,6 @@ namespace YACCS.Commands.Linq
 					$"{command.ContextType!.Name}. {command.Names?.FirstOrDefault()}", nameof(command));
 			}
 			return new Command<TContext>(command);
-		}
-
-		public static ImmutableArray<object> CreateGeneratedCommandAttributeList(
-			this IImmutableCommand source)
-		{
-			var builder = ImmutableArray.CreateBuilder<object>(source.Attributes.Count + 1);
-			builder.AddRange(source.Attributes);
-			builder.Add(new GeneratedCommandAttribute(source));
-			return builder.MoveToImmutable();
 		}
 
 		public static ICommand<TContext> GetCommandById<TContext>(
