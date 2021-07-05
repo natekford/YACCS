@@ -7,19 +7,18 @@ namespace YACCS.Localization
 {
 	public static class LocalizationUtils
 	{
-		public static void InjectInto(
-			this ILocalizer localizer,
-			IEnumerable<IImmutableCommand> commands)
+		public static string GetLocalizedString(
+			this IContext context,
+			string key,
+			string? @default = null)
 		{
-			foreach (var command in commands)
-			{
-				localizer.InjectInto(command);
-			}
+			var localizer = context.Services.GetService<ILocalizer>();
+			return localizer?.Get(key) ?? @default ?? key;
 		}
 
-		public static void InjectInto(
-			this ILocalizer localizer,
-			IImmutableCommand command)
+		public static void InjectLocalizer(
+			this IImmutableCommand command,
+			ILocalizer localizer)
 		{
 			localizer.InjectInto(command);
 			localizer.InjectInto(command.Attributes);
@@ -38,10 +37,15 @@ namespace YACCS.Localization
 			}
 		}
 
-		public static void InjectLocalizer(
-			this CommandService commands,
-			ILocalizer localizer)
-			=> localizer.InjectInto(commands.Commands.Items);
+		public static T InjectLocalizer<T>(this T commands, ILocalizer localizer)
+			where T : IEnumerable<IImmutableCommand>
+		{
+			foreach (var command in commands)
+			{
+				command.InjectLocalizer(localizer);
+			}
+			return commands;
+		}
 
 		private static void InjectInto(
 			this ILocalizer localizer,

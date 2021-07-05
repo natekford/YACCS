@@ -16,9 +16,9 @@ namespace YACCS.Parsing
 		public bool AllowEscaping { get; set; } = true;
 
 		public ArgumentSplitter() : this(
-			CommandServiceUtils.InternallyUsedSeparator,
-			CommandServiceUtils.InternallyUsedQuotes,
-			CommandServiceUtils.InternallyUsedQuotes)
+			CommandServiceUtils.SPACE,
+			CommandServiceUtils.Quotes,
+			CommandServiceUtils.Quotes)
 		{ }
 
 		public ArgumentSplitter(char separator, IImmutableSet<char> start, IImmutableSet<char> end)

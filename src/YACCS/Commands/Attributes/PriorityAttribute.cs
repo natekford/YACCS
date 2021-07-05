@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using YACCS.Help;
 using YACCS.Help.Attributes;
+using YACCS.Localization;
 
 namespace YACCS.Commands.Attributes
 {
@@ -10,7 +11,6 @@ namespace YACCS.Commands.Attributes
 	public class PriorityAttribute : Attribute, IPriorityAttribute, IRuntimeFormattableAttribute
 	{
 		public int Priority { get; }
-		protected virtual string PriorityString { get; } = "Priority";
 
 		public PriorityAttribute(int priority)
 		{
@@ -21,7 +21,7 @@ namespace YACCS.Commands.Attributes
 		{
 			return new TaggedString[]
 			{
-				new(Tag.Key, PriorityString),
+				new(Tag.Key, context.GetLocalizedString("Priority")),
 				new(Tag.Value, Priority.ToString()),
 			};
 		}

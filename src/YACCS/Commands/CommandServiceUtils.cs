@@ -13,10 +13,9 @@ namespace YACCS.Commands
 {
 	public static class CommandServiceUtils
 	{
-		public const char InternallyUsedQuote = '"';
-		public const char InternallyUsedSeparator = ' ';
-		public static readonly IImmutableSet<char> InternallyUsedQuotes
-			= new[] { InternallyUsedQuote }.ToImmutableHashSet();
+		public const char QUOTE = '"';
+		public const char SPACE = ' ';
+		public static readonly IImmutableSet<char> Quotes = new[] { QUOTE }.ToImmutableHashSet();
 		internal const string DEBUGGER_DISPLAY = "{DebuggerDisplay,nq}";
 
 		public static void AddRange(
@@ -37,15 +36,6 @@ namespace YACCS.Commands
 			{
 				commandService.Commands.Add(command);
 			}
-		}
-
-		public static ImmutableArray<object> CreateGeneratedCommandAttributeList(
-			this IImmutableCommand source)
-		{
-			var builder = ImmutableArray.CreateBuilder<object>(source.Attributes.Count + 1);
-			builder.AddRange(source.Attributes);
-			builder.Add(new GeneratedCommandAttribute(source));
-			return builder.MoveToImmutable();
 		}
 
 		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
@@ -242,20 +232,5 @@ namespace YACCS.Commands
 
 		internal static string FormatForDebuggerDisplay(this IQueryableParameter item)
 			=> $"Name = {item.OriginalParameterName}, Type = {item.ParameterType}";
-
-		internal static TValue ThrowIfDuplicate<TAttribute, TValue>(
-			this TAttribute attribute,
-			Func<TAttribute, TValue> converter,
-			ref int count)
-		{
-			if (count > 0)
-			{
-				throw new InvalidOperationException(
-					$"Duplicate {typeof(TAttribute).Name} attribute.");
-			}
-
-			++count;
-			return converter.Invoke(attribute);
-		}
 	}
 }

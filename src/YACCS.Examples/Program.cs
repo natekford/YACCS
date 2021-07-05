@@ -33,27 +33,38 @@ namespace YACCS.Examples
 		private Program()
 		{
 			_Config = CommandServiceConfig.Default;
-			_Splitter = ArgumentSplitter.Default;
-			_Names = new TypeNameRegistry();
 			_Localizer = new ResourceManagerLocalizer();
-			_TypeReaders = new TypeReaderRegistry(new[] { typeof(Program).Assembly });
+			_Names = new TypeNameRegistry();
+			_Splitter = ArgumentSplitter.Default;
 			_Tags = new TagConverter();
+			_TypeReaders = new TypeReaderRegistry(new[] { typeof(Program).Assembly });
 
 			_Console = new ConsoleHandler(_Names);
-			_HelpFormatter = new HelpFormatter(_Names, _Tags);
 			_CommandService = new ConsoleCommandService(_Config, _Splitter, _TypeReaders, _Console);
+			_CommandService.CommandExecuted += (e) =>
+			{
+				_Console.WriteResult(e.Result);
+				var exceptions = e.GetAllExceptions();
+				if (exceptions.Any())
+				{
+					_Console.WriteLine(string.Join(Environment.NewLine, exceptions), ConsoleColor.Red);
+				}
+				return Task.CompletedTask;
+			};
+			_HelpFormatter = new HelpFormatter(_Names, _Tags);
 			_Input = new ConsoleInput(_TypeReaders, _Console);
 
 			_Services = new ServiceCollection()
-				.AddSingleton<ILocalizer>(_Localizer)
 				.AddSingleton<ICommandService>(_CommandService)
-				.AddSingleton<IArgumentSplitter>(_Splitter)
+				.AddSingleton<ICommandServiceConfig>(_Config)
+				.AddSingleton<ConsoleHandler>(_Console)
 				.AddSingleton<IHelpFormatter>(_HelpFormatter)
 				.AddSingleton<IInput<IContext, string>>(_Input)
+				.AddSingleton<ILocalizer>(_Localizer)
 				.AddSingleton<IReadOnlyDictionary<Type, string>>(_Names)
+				.AddSingleton<IArgumentSplitter>(_Splitter)
 				.AddSingleton<ITagConverter>(_Tags)
 				.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>>(_TypeReaders)
-				.AddSingleton(_Console)
 				.BuildServiceProvider();
 		}
 
@@ -103,17 +114,6 @@ namespace YACCS.Examples
 		private async Task RunAsync()
 		{
 			await RegisterCommandsAsync().ConfigureAwait(false);
-			_CommandService.CommandExecuted += (e) =>
-			{
-				_Console.WriteResult(e.Result);
-				var exceptions = e.GetAllExceptions();
-				if (exceptions.Any())
-				{
-					_Console.WriteLine(string.Join(Environment.NewLine, exceptions), ConsoleColor.Red);
-				}
-				return Task.CompletedTask;
-			};
-
 			while (true)
 			{
 				await ExecuteAsync().ConfigureAwait(false);

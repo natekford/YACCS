@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using YACCS.Help;
 using YACCS.Help.Attributes;
+using YACCS.Localization;
 
 namespace YACCS.Commands.Attributes
 {
@@ -10,8 +11,6 @@ namespace YACCS.Commands.Attributes
 	public class LengthAttribute : Attribute, ILengthAttribute, IRuntimeFormattableAttribute
 	{
 		public int? Length { get; }
-		protected virtual string LengthString { get; } = "Length";
-		protected virtual string RemainderString { get; } = "Remainder";
 
 		public LengthAttribute()
 		{
@@ -32,8 +31,8 @@ namespace YACCS.Commands.Attributes
 		{
 			return new TaggedString[]
 			{
-				new(Tag.Key, LengthString),
-				new(Tag.Value, Length?.ToString() ?? RemainderString),
+				new(Tag.Key, context.GetLocalizedString("Length")),
+				new(Tag.Value, Length?.ToString() ?? context.GetLocalizedString("Remainder")),
 			};
 		}
 	}

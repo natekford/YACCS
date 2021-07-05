@@ -11,17 +11,9 @@ using YACCS.Results;
 
 namespace YACCS.Examples
 {
-	public class NotZero :
-		ParameterPreconditionAttribute,
-		IRuntimeFormattableAttribute,
-		IUsesLocalizer
+	public class NotZero : ParameterPreconditionAttribute, IRuntimeFormattableAttribute
 	{
-		private const string DEFAULT = "Cannot be zero.";
-
-		public virtual ILocalizer? Localizer { get; set; }
-		protected virtual string FailureMessage => Localizer?.Get("NotZero") ?? DEFAULT;
-
-		public Task<IResult> CheckAsync(
+		public static Task<IResult> CheckAsync(
 			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IContext context,
@@ -29,7 +21,7 @@ namespace YACCS.Examples
 		{
 			if (value == 0)
 			{
-				return new FailureResult(FailureMessage).AsTask();
+				return new FailureResult(GetFailureMessage(context)).AsTask();
 			}
 			return SuccessResult.Instance.Task;
 		}
@@ -38,7 +30,7 @@ namespace YACCS.Examples
 		{
 			return new TaggedString[]
 			{
-				new(Tag.String, FailureMessage),
+				new(Tag.String, GetFailureMessage(context)),
 			};
 		}
 
@@ -48,5 +40,8 @@ namespace YACCS.Examples
 			IContext context,
 			object? value)
 			=> this.CheckAsync<IContext, int>(command, parameter, context, value, CheckAsync);
+
+		private static string GetFailureMessage(IContext context)
+			=> context.GetLocalizedString("NotZero", "Cannot be zero.");
 	}
 }

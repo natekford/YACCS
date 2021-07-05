@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using YACCS.Help;
 using YACCS.Help.Attributes;
+using YACCS.Localization;
 
 namespace YACCS.Commands.Attributes
 {
@@ -10,7 +11,6 @@ namespace YACCS.Commands.Attributes
 	public class IdAttribute : Attribute, IIdAttribute, IRuntimeFormattableAttribute
 	{
 		public virtual string Id { get; }
-		protected virtual string IdString { get; } = "Id";
 
 		public IdAttribute(string id)
 		{
@@ -21,7 +21,7 @@ namespace YACCS.Commands.Attributes
 		{
 			return new TaggedString[]
 			{
-				new(Tag.Key, IdString),
+				new(Tag.Key, context.GetLocalizedString("Id")),
 				new(Tag.Value, Id),
 			};
 		}

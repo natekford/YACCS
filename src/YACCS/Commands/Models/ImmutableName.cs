@@ -40,7 +40,7 @@ namespace YACCS.Commands.Models
 			=> ((IEnumerable<string>)_Keys).GetEnumerator();
 
 		public override string ToString()
-			=> string.Join(CommandServiceUtils.InternallyUsedSeparator, this);
+			=> string.Join(CommandServiceUtils.SPACE, this);
 
 		IEnumerator IEnumerable.GetEnumerator()
 			=> GetEnumerator();

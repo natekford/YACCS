@@ -6,7 +6,8 @@ namespace YACCS.Localization
 {
 	public class ResourceManagerLocalizer : ILocalizer
 	{
-		public Localized<Dictionary<string, string>> Overrides { get; } = Localized.Create<Dictionary<string, string>>();
+		public Localized<Dictionary<string, string>> Overrides { get; }
+			= Localized.Create<Dictionary<string, string>>();
 		public List<ResourceManager> ResourceManagers { get; } = new();
 
 		public string? Get(string key, CultureInfo? culture = null)
