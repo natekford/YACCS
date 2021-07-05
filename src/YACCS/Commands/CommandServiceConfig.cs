@@ -6,8 +6,8 @@ namespace YACCS.Commands
 {
 	public class CommandServiceConfig : ICommandServiceConfig
 	{
-		public static ICommandServiceConfig Default { get; }
-			= new ImmutableCommandServiceConfig(new CommandServiceConfig());
+		public static ImmutableCommandServiceConfig Instance { get; }
+			= new(new CommandServiceConfig());
 
 		public HashSet<char> EndQuotes { get; set; } = new() { CommandServiceUtils.QUOTE };
 		public bool IgnoreExtraArgs { get; set; }
@@ -20,7 +20,7 @@ namespace YACCS.Commands
 		IImmutableSet<char> ICommandServiceConfig.EndQuotes => EndQuotes.ToImmutableHashSet();
 		IImmutableSet<char> ICommandServiceConfig.StartQuotes => StartQuotes.ToImmutableHashSet();
 
-		private sealed class ImmutableCommandServiceConfig : ICommandServiceConfig
+		public sealed class ImmutableCommandServiceConfig : ICommandServiceConfig
 		{
 			public IEqualityComparer<string> CommandNameComparer { get; }
 			public IImmutableSet<char> EndQuotes { get; }

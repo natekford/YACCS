@@ -40,7 +40,7 @@ namespace YACCS.Help
 					.AppendAttributes(help)
 					.AppendPreconditions(help)
 					.AppendParameters(help);
-				return new ValueTask<string>(builder.ToString());
+				return new(builder.ToString());
 			}
 
 			static async Task<string> FormatAsync(HelpBuilder builder, IHelpCommand help)
@@ -74,7 +74,7 @@ namespace YACCS.Help
 
 				return builder.ToString();
 			}
-			return new ValueTask<string>(FormatAsync(builder, help));
+			return new(FormatAsync(builder, help));
 		}
 
 		protected virtual HelpBuilder GetBuilder(IContext context)
@@ -128,7 +128,7 @@ namespace YACCS.Help
 				HeaderPreconditions = Tags.Convert(_TaggedPreconditions);
 				HeaderSummary = Tags.Convert(_TaggedSummary);
 
-				StringBuilder = new StringBuilder();
+				StringBuilder = new();
 			}
 
 			public HelpBuilder AppendAttributes(IHelpItem<object> item)

@@ -12,7 +12,7 @@ namespace YACCS.Parsing
 		private readonly char _Separator;
 		private readonly IImmutableSet<char> _Start;
 
-		public static IArgumentSplitter Default { get; } = new ArgumentSplitter();
+		public static ArgumentSplitter Instance { get; } = new();
 		public bool AllowEscaping { get; set; } = true;
 
 		public ArgumentSplitter() : this(

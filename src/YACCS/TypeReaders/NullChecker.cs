@@ -5,7 +5,7 @@ namespace YACCS.TypeReaders
 {
 	public class NullChecker : INullChecker
 	{
-		public HashSet<string> Values { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		public HashSet<string> Values { get; } = new(StringComparer.OrdinalIgnoreCase)
 		{
 			"nullptr",
 			"null",

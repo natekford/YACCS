@@ -16,7 +16,7 @@ namespace YACCS.Tests.Commands
 	{
 		private const string DUPE_ID = "dupe_id";
 		private readonly CommandTrie _Trie
-			= new(new TypeReaderRegistry(), CommandServiceConfig.Default);
+			= new(new TypeReaderRegistry(), CommandServiceConfig.Instance);
 
 		[TestMethod]
 		public void AddAndRemove_Tests()

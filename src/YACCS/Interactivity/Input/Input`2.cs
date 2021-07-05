@@ -31,7 +31,7 @@ namespace YACCS.Interactivity.Input
 			TContext context,
 			IInputOptions<TContext, TInput, TValue> options)
 		{
-			return HandleInteraction<TValue>(context, options, e => new OnInput(async i =>
+			return HandleInteraction<TValue>(context, options, e => new(async i =>
 			{
 				foreach (var criterion in options.Criteria)
 				{

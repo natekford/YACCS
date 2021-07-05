@@ -16,7 +16,7 @@ namespace YACCS.NamedArguments
 
 		public NamedArgumentTypeReader()
 		{
-			_Parameters = new Lazy<IReadOnlyDictionary<string, IImmutableParameter>>(() =>
+			_Parameters = new(() =>
 			{
 				return NamedArgumentUtils
 					.CreateParametersForType(typeof(T))

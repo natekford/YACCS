@@ -10,7 +10,7 @@ namespace YACCS
 	public class AsyncEvent<T> : IAsyncEvent<T> where T : HandledEventArgs
 	{
 		private readonly Lazy<AsyncEvent<ExceptionEventArgs<T>>> _Exception
-			= new(() => new AsyncEvent<ExceptionEventArgs<T>>());
+			= new(() => new());
 		private readonly List<AsyncEventHandler<T>> _Handlers = new();
 		private readonly object _Lock = new();
 
@@ -28,7 +28,7 @@ namespace YACCS
 			}
 		}
 
-		public async Task InvokeAsync(T e)
+		public async Task InvokeAsync(T args)
 		{
 			AsyncEventHandler<T>[] handlers;
 			lock (_Lock)
@@ -45,28 +45,28 @@ namespace YACCS
 			{
 				try
 				{
-					var task = handler.Invoke(e);
+					var task = handler.Invoke(args);
 					if (task is not null)
 					{
 						await task.ConfigureAwait(false);
 					}
 
-					if (e.Handled)
+					if (args.Handled)
 					{
 						break;
 					}
 				}
-				catch (Exception ex)
+				catch (Exception e)
 				{
 					exceptions ??= new();
-					exceptions.Add(ex);
+					exceptions.Add(e);
 				}
 			}
 
 			if (exceptions != null && _Exception.IsValueCreated)
 			{
-				var args = new ExceptionEventArgs<T>(exceptions, e);
-				await Exception.InvokeAsync(args).ConfigureAwait(false);
+				var exceptionArgs = new ExceptionEventArgs<T>(exceptions, args);
+				await Exception.InvokeAsync(exceptionArgs).ConfigureAwait(false);
 			}
 		}
 

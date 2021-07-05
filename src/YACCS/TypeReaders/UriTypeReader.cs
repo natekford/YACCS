@@ -23,7 +23,7 @@ namespace YACCS.TypeReaders
 					s = s[1..^1];
 				}
 
-				result = new Uri(s);
+				result = new(s);
 				return true;
 			}
 			catch
