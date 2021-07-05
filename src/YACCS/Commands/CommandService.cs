@@ -389,7 +389,7 @@ namespace YACCS.Commands
 				}
 			}
 
-			return new CommandExecutedEventArgs(
+			return new(
 				command,
 				context,
 				beforeExceptions,

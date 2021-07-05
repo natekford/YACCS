@@ -12,15 +12,15 @@ namespace YACCS.Commands
 	{
 		// This class is a mess
 		public static CommandScore CommandNotFound { get; }
-			= new CommandScore(null, null, null!, CommandNotFoundResult.Instance.Sync, 0, 0, null);
+			= new(null, null, null!, CommandNotFoundResult.Instance.Sync, 0, 0, null);
 		public static Task<ICommandResult> CommandNotFoundTask { get; }
 			= Task.FromResult<ICommandResult>(CommandNotFound);
 		public static CommandScore MultiMatch { get; }
-			= new CommandScore(null, null, null!, MultiMatchHandlingErrorResult.Instance.Sync, 0, 0, null);
+			= new(null, null, null!, MultiMatchHandlingErrorResult.Instance.Sync, 0, 0, null);
 		public static Task<ICommandResult> MultiMatchTask { get; }
 			= Task.FromResult<ICommandResult>(MultiMatch);
 		public static CommandScore QuoteMismatch { get; }
-			= new CommandScore(null, null, null!, QuoteMismatchResult.Instance.Sync, 0, 0, null);
+			= new(null, null, null!, QuoteMismatchResult.Instance.Sync, 0, 0, null);
 		public static Task<ICommandResult> QuoteMismatchTask { get; }
 			= Task.FromResult<ICommandResult>(QuoteMismatch);
 
@@ -118,7 +118,7 @@ namespace YACCS.Commands
 			// E.G. two commands:
 			// Echo Colored "text to echo" <-- Score = 2
 			// Echo "colored text to echo" <-- Score = 1
-			return new CommandScore(command, null, context, result, STAGE, score, args);
+			return new(command, null, context, result, STAGE, score, args);
 		}
 
 		public static CommandScore FromFailedOptionalArgs(
@@ -129,7 +129,7 @@ namespace YACCS.Commands
 		{
 			var result = NotEnoughArgsResult.Instance.Sync;
 			const CommandStage STAGE = CommandStage.FailedTypeReader;
-			return new CommandScore(command, parameter, context, result, STAGE, score, null);
+			return new(command, parameter, context, result, STAGE, score, null);
 		}
 
 		public static CommandScore FromFailedParameterPrecondition(
@@ -140,7 +140,7 @@ namespace YACCS.Commands
 			int score)
 		{
 			const CommandStage STAGE = CommandStage.FailedParameterPrecondition;
-			return new CommandScore(command, parameter, context, result, STAGE, score, null);
+			return new(command, parameter, context, result, STAGE, score, null);
 		}
 
 		public static CommandScore FromFailedPrecondition(
@@ -150,7 +150,7 @@ namespace YACCS.Commands
 			int score)
 		{
 			const CommandStage STAGE = CommandStage.FailedPrecondition;
-			return new CommandScore(command, null, context, result, STAGE, score, null);
+			return new(command, null, context, result, STAGE, score, null);
 		}
 
 		public static CommandScore FromFailedTypeReader(
@@ -161,7 +161,7 @@ namespace YACCS.Commands
 			int score)
 		{
 			const CommandStage STAGE = CommandStage.FailedTypeReader;
-			return new CommandScore(command, parameter, context, result, STAGE, score, null);
+			return new(command, parameter, context, result, STAGE, score, null);
 		}
 
 		public static CommandScore FromInvalidContext(
@@ -171,7 +171,7 @@ namespace YACCS.Commands
 		{
 			var result = InvalidContextResult.Instance.Sync;
 			const CommandStage STAGE = CommandStage.BadContext;
-			return new CommandScore(command, null, context, result, STAGE, score, null);
+			return new(command, null, context, result, STAGE, score, null);
 		}
 
 		public static CommandScore FromNotEnoughArgs(
@@ -181,7 +181,7 @@ namespace YACCS.Commands
 		{
 			var result = NotEnoughArgsResult.Instance.Sync;
 			const CommandStage STAGE = CommandStage.BadArgCount;
-			return new CommandScore(command, null, context, result, STAGE, score, null);
+			return new(command, null, context, result, STAGE, score, null);
 		}
 
 		public static CommandScore FromTooManyArgs(
@@ -191,7 +191,7 @@ namespace YACCS.Commands
 		{
 			var result = TooManyArgsResult.Instance.Sync;
 			const CommandStage STAGE = CommandStage.BadArgCount;
-			return new CommandScore(command, null, context, result, STAGE, score, null);
+			return new(command, null, context, result, STAGE, score, null);
 		}
 
 		public static CommandScore? Max(CommandScore? a, CommandScore? b)

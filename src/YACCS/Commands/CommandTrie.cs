@@ -16,7 +16,7 @@ namespace YACCS.Commands
 		private readonly ICommandServiceConfig _Config;
 		private readonly HashSet<IImmutableCommand> _Items;
 		private readonly IReadOnlyDictionary<Type, ITypeReader> _Readers;
-		private Node _Root;
+		private readonly Node _Root;
 
 		public bool IsReadOnly => false;
 		public IReadOnlyCollection<IImmutableCommand> Items => _Items;
@@ -99,7 +99,7 @@ namespace YACCS.Commands
 
 		public void Clear()
 		{
-			_Root = new(null, null, _Config.CommandNameComparer);
+			_Root.Clear();
 			_Items.Clear();
 		}
 
@@ -227,6 +227,12 @@ namespace YACCS.Commands
 
 			public bool Add(IImmutableCommand command)
 				=> _Items.Add(command);
+
+			public void Clear()
+			{
+				_Edges.Clear();
+				_Items.Clear();
+			}
 
 			public bool Contains(IImmutableCommand command)
 				// Only direct commands since the node has already been found via name
