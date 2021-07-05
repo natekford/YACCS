@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -33,24 +35,14 @@ namespace YACCS.Examples
 		private Program()
 		{
 			_Config = CommandServiceConfig.Instance;
-			_Localizer = new ResourceManagerLocalizer();
+			_Localizer = Localize.Instance;
 			_Names = new TypeNameRegistry();
 			_Splitter = ArgumentSplitter.Instance;
-			_Tags = new TagConverter();
 			_TypeReaders = new TypeReaderRegistry(new[] { typeof(Program).Assembly });
 
 			_Console = new ConsoleHandler(_Names);
+			_Tags = new TagConverter(_Localizer);
 			_CommandService = new ConsoleCommandService(_Config, _Splitter, _TypeReaders, _Console);
-			_CommandService.CommandExecuted += (e) =>
-			{
-				_Console.WriteResult(e.Result);
-				var exceptions = e.GetAllExceptions();
-				if (exceptions.Any())
-				{
-					_Console.WriteLine(string.Join(Environment.NewLine, exceptions), ConsoleColor.Red);
-				}
-				return Task.CompletedTask;
-			};
 			_HelpFormatter = new HelpFormatter(_Names, _Tags);
 			_Input = new ConsoleInput(_TypeReaders, _Console);
 
@@ -66,6 +58,19 @@ namespace YACCS.Examples
 				.AddSingleton<ITagConverter>(_Tags)
 				.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>>(_TypeReaders)
 				.BuildServiceProvider();
+
+			_CommandService.CommandExecuted += (e) =>
+			{
+				_Console.WriteResult(e.Result);
+				var exceptions = e.GetAllExceptions();
+				if (exceptions.Any())
+				{
+					_Console.WriteLine(string.Join(Environment.NewLine, exceptions), ConsoleColor.Red);
+				}
+				return Task.CompletedTask;
+			};
+			Localize.Instance.KeyNotFound += (key, cul)
+				=> Debug.WriteLine($"Unable to find the localization for '{key}' in '{cul}'.");
 		}
 
 		public static Task Main()

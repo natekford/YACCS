@@ -8,21 +8,13 @@ using YACCS.Localization;
 namespace YACCS.Commands.Models
 {
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-	public class ImmutableName : IReadOnlyList<string>, IUsesLocalizer
+	public class ImmutableName : IReadOnlyList<string>
 	{
 		private readonly ImmutableArray<string> _Keys;
 		public int Count => _Keys.Length;
-		public virtual ILocalizer? Localizer { get; set; }
 		private string DebuggerDisplay => $"Name = {ToString()}, Count = {_Keys.Length}";
 
-		public string this[int index]
-		{
-			get
-			{
-				var key = _Keys[index];
-				return Localizer?.Get(key) ?? key;
-			}
-		}
+		public string this[int index] => Localize.This(_Keys[index]);
 
 		public ImmutableName(IEnumerable<string> keys)
 		{
@@ -37,7 +29,12 @@ namespace YACCS.Commands.Models
 		}
 
 		public IEnumerator<string> GetEnumerator()
-			=> ((IEnumerable<string>)_Keys).GetEnumerator();
+		{
+			foreach (var key in _Keys)
+			{
+				yield return Localize.This(key);
+			}
+		}
 
 		public override string ToString()
 			=> string.Join(CommandServiceUtils.SPACE, this);

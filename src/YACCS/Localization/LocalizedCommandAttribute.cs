@@ -7,15 +7,14 @@ using YACCS.Commands.Attributes;
 namespace YACCS.Localization
 {
 	[AttributeUsage(AttributeTargets.Class | AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
-	public class LocalizedCommandAttribute : CommandAttribute, IUsesLocalizer
+	public class LocalizedCommandAttribute : CommandAttribute
 	{
 		public IReadOnlyList<string> Keys { get; }
-		public virtual ILocalizer? Localizer { get; set; }
 		public override IReadOnlyList<string> Names
 		{
 			get
 			{
-				if (Localizer is null)
+				if (Localize.Instance.IsEmpty)
 				{
 					return base.Names;
 				}
@@ -23,7 +22,7 @@ namespace YACCS.Localization
 				var names = ImmutableArray.CreateBuilder<string>(Keys.Count);
 				for (var i = 0; i < names.Count; ++i)
 				{
-					names.Add(Localizer.Get(Keys[i]) ?? Keys[i]);
+					names.Add(Localize.This(Keys[i]));
 				}
 				return names.MoveToImmutable();
 			}

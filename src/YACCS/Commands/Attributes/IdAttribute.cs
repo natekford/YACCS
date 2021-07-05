@@ -21,7 +21,7 @@ namespace YACCS.Commands.Attributes
 		{
 			return new TaggedString[]
 			{
-				new(Tag.Key, context.GetLocalizedString("Id")),
+				new(Tag.Key, Localize.This("Id")),
 				new(Tag.Value, Id),
 			};
 		}

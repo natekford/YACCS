@@ -5,11 +5,10 @@ using YACCS.Commands.Attributes;
 namespace YACCS.Localization
 {
 	[AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
-	public class LocalizedNameAttribute : NameAttribute, IUsesLocalizer
+	public class LocalizedNameAttribute : NameAttribute
 	{
 		public string Key { get; }
-		public virtual ILocalizer? Localizer { get; set; }
-		public override string Name => Localizer?.Get(Key) ?? base.Name;
+		public override string Name => Localize.This(Key, base.Name);
 
 		public LocalizedNameAttribute(string key) : base(key)
 		{

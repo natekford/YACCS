@@ -12,6 +12,7 @@ using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Help;
 using YACCS.Help.Attributes;
+using YACCS.Localization;
 using YACCS.Preconditions;
 using YACCS.Results;
 
@@ -50,7 +51,7 @@ namespace YACCS.Tests.Help
 		private static async Task<(IEnumerable<IImmutableCommand>, IHelpFormatter, IContext)> CreateAsync()
 		{
 			var commands = await typeof(CommandGroup).GetDirectCommandsAsync().ConfigureAwait(false);
-			var formatter = new HelpFormatter(new TypeNameRegistry(), new TagConverter());
+			var formatter = new HelpFormatter(new TypeNameRegistry(), new TagConverter(Localize.Instance));
 			var context = new FakeContext();
 			return (commands, formatter, context);
 		}
