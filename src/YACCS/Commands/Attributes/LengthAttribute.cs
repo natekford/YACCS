@@ -31,8 +31,8 @@ namespace YACCS.Commands.Attributes
 		{
 			return new TaggedString[]
 			{
-				new(Tag.Key, context.GetLocalizedString("Length")),
-				new(Tag.Value, Length?.ToString() ?? context.GetLocalizedString("Remainder")),
+				new(Tag.Key, Localize.This("Length")),
+				new(Tag.Value, Length?.ToString() ?? Localize.This("Remainder")),
 			};
 		}
 	}

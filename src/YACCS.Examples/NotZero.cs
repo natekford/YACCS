@@ -21,7 +21,7 @@ namespace YACCS.Examples
 		{
 			if (value == 0)
 			{
-				return new FailureResult(GetFailureMessage(context)).AsTask();
+				return new FailureResult(GetFailureMessage()).AsTask();
 			}
 			return SuccessResult.Instance.Task;
 		}
@@ -30,7 +30,7 @@ namespace YACCS.Examples
 		{
 			return new TaggedString[]
 			{
-				new(Tag.String, GetFailureMessage(context)),
+				new(Tag.String, GetFailureMessage()),
 			};
 		}
 
@@ -41,7 +41,7 @@ namespace YACCS.Examples
 			object? value)
 			=> this.CheckAsync<IContext, int>(command, parameter, context, value, CheckAsync);
 
-		private static string GetFailureMessage(IContext context)
-			=> context.GetLocalizedString("NotZero", "Cannot be zero.");
+		private static string GetFailureMessage()
+			=> Localize.This("NotZero", "Cannot be zero.");
 	}
 }
