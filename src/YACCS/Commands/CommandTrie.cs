@@ -81,7 +81,7 @@ namespace YACCS.Commands
 					var key = name[i];
 					if (!node.TryGetEdge(key, out var next))
 					{
-						node[key] = next = new Node(key, node, _Config.CommandNameComparer);
+						node[key] = next = new(key, node, _Config.CommandNameComparer);
 					}
 					if (i == name.Count - 1 && next.Add(item))
 					{
@@ -219,8 +219,8 @@ namespace YACCS.Commands
 
 			public Node(string? key, Node? parent, IEqualityComparer<string> stringComparer)
 			{
-				_Items = new HashSet<IImmutableCommand>();
-				_Edges = new Dictionary<string, Node>(stringComparer);
+				_Items = new();
+				_Edges = new(stringComparer);
 				_Key = key;
 				_Parent = parent;
 			}

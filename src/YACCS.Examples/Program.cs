@@ -32,10 +32,10 @@ namespace YACCS.Examples
 
 		private Program()
 		{
-			_Config = CommandServiceConfig.Default;
+			_Config = CommandServiceConfig.Instance;
 			_Localizer = new ResourceManagerLocalizer();
 			_Names = new TypeNameRegistry();
-			_Splitter = ArgumentSplitter.Default;
+			_Splitter = ArgumentSplitter.Instance;
 			_Tags = new TagConverter();
 			_TypeReaders = new TypeReaderRegistry(new[] { typeof(Program).Assembly });
 

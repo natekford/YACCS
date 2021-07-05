@@ -51,7 +51,7 @@ namespace YACCS.TypeReaders
 				}
 
 				var typeReader = type.CreateInstance<ITypeReader>();
-				yield return new TypeReaderInfo(attr.TargetTypes, typeReader);
+				yield return new(attr.TargetTypes, typeReader);
 			}
 		}
 

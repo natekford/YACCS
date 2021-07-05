@@ -31,7 +31,7 @@ namespace YACCS.Parsing
 		public static bool TryParse(
 			ReadOnlySpan<char> input,
 			[NotNullWhen(true)] out string[]? result)
-			=> TryParse(input, ArgumentSplitter.Default, out result);
+			=> TryParse(input, ArgumentSplitter.Instance, out result);
 
 		/// <summary>
 		/// Attempts to parse args from characters indicating the start of a quote and characters indicating the end of a quote.
@@ -275,7 +275,7 @@ namespace YACCS.Parsing
 						}
 					}
 				}
-				return new QuoteInfo(
+				return new(
 					currentDepth, endCount, maxDepth, maxEnd, maxStart,
 					minEnd, minStart, size, startCount);
 			}

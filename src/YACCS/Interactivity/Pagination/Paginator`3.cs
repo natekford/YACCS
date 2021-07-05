@@ -22,7 +22,7 @@ namespace YACCS.Interactivity.Pagination
 			{
 				await displayer.DisplayAsync(context, page).ConfigureAwait(false);
 
-				var result = await HandleInteraction<int?>(context, options, e => new OnInput(async i =>
+				var result = await HandleInteraction<int?>(context, options, e => new(async i =>
 				{
 					foreach (var criterion in options.Criteria)
 					{

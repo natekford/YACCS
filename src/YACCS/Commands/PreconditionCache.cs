@@ -30,10 +30,9 @@ namespace YACCS.Commands
 			var key = new PPKey(precondition, value);
 			if (_ParameterPreconditions.TryGetValue(key, out var result))
 			{
-				return new ValueTask<IResult>(result);
+				return new(result);
 			}
-			return new ValueTask<IResult>(
-				GetUncachedResultAsync(command, parameter, precondition, value, key));
+			return new(GetUncachedResultAsync(command, parameter, precondition, value, key));
 		}
 
 		public ValueTask<IResult> GetResultAsync(
@@ -43,10 +42,9 @@ namespace YACCS.Commands
 			var key = new PKey(precondition, command);
 			if (_Preconditions.TryGetValue(key, out var result))
 			{
-				return new ValueTask<IResult>(result);
+				return new(result);
 			}
-			return new ValueTask<IResult>(
-				GetUncachedResultAsync(command, precondition, key));
+			return new(GetUncachedResultAsync(command, precondition, key));
 		}
 
 		public ValueTask<ITypeReaderResult> GetResultAsync(
@@ -56,10 +54,9 @@ namespace YACCS.Commands
 			var key = new TRKey(reader, value);
 			if (_TypeReaders.TryGetValue(key, out var result))
 			{
-				return new ValueTask<ITypeReaderResult>(result);
+				return new(result);
 			}
-			return new ValueTask<ITypeReaderResult>(
-				GetUncachedResultAsync(reader, value, key));
+			return new(GetUncachedResultAsync(reader, value, key));
 		}
 
 		private async Task<IResult> GetUncachedResultAsync(

@@ -4,7 +4,7 @@ namespace YACCS
 {
 	public sealed class EmptyServiceProvider : IServiceProvider
 	{
-		public static EmptyServiceProvider Instance { get; } = new EmptyServiceProvider();
+		public static EmptyServiceProvider Instance { get; } = new();
 
 		private EmptyServiceProvider()
 		{

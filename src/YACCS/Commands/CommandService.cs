@@ -120,20 +120,20 @@ namespace YACCS.Commands
 			if (!command.IsValidContext(context.GetType()))
 			{
 				var score = CommandScore.FromInvalidContext(command, context, startIndex);
-				return new ValueTask<CommandScore>(score);
+				return new(score);
 			}
 			else if (input.Length - startIndex < command.MinLength)
 			{
 				var score = CommandScore.FromNotEnoughArgs(command, context, startIndex);
-				return new ValueTask<CommandScore>(score);
+				return new(score);
 			}
 			else if (input.Length - startIndex > command.MaxLength)
 			{
 				var score = CommandScore.FromTooManyArgs(command, context, startIndex);
-				return new ValueTask<CommandScore>(score);
+				return new(score);
 			}
 
-			return new ValueTask<CommandScore>(ProcessAllPreconditionsAsync(
+			return new(ProcessAllPreconditionsAsync(
 				cache,
 				context,
 				command,
@@ -227,7 +227,7 @@ namespace YACCS.Commands
 		{
 			if (parameter.Preconditions.Count == 0)
 			{
-				return new ValueTask<IResult>(SuccessResult.Instance.Sync);
+				return new(SuccessResult.Instance.Sync);
 			}
 
 			static async Task<IResult> ProcessParameterPreconditionsAsync(
@@ -247,7 +247,7 @@ namespace YACCS.Commands
 				return SuccessResult.Instance.Sync;
 			}
 
-			return new ValueTask<IResult>(ProcessParameterPreconditionsAsync(
+			return new(ProcessParameterPreconditionsAsync(
 				cache,
 				command,
 				parameter,
@@ -261,7 +261,7 @@ namespace YACCS.Commands
 		{
 			if (command.Preconditions.Count == 0)
 			{
-				return new ValueTask<IResult>(SuccessResult.Instance.Sync);
+				return new(SuccessResult.Instance.Sync);
 			}
 
 			static async Task<IResult> ProcessPreconditionsAsync(
@@ -303,7 +303,7 @@ namespace YACCS.Commands
 				return SuccessResult.Instance.Sync;
 			}
 
-			return new ValueTask<IResult>(ProcessPreconditionsAsync(
+			return new(ProcessPreconditionsAsync(
 				cache,
 				command
 			));

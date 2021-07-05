@@ -8,7 +8,7 @@ namespace YACCS.TypeReaders
 {
 	public class NullableTypeReader<T> : TypeReader<T?> where T : struct
 	{
-		private static readonly INullChecker Checker = new NullChecker();
+		private static readonly NullChecker Checker = new();
 		private static readonly ITypeReaderResult<T?> NullResult
 			= TypeReaderResult<T?>.FromSuccess(null);
 

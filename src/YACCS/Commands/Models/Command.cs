@@ -77,8 +77,7 @@ namespace YACCS.Commands.Models
 				ReturnType = returnType;
 				ContextType = mutable.ContextType;
 				Source = mutable.Source;
-				_TaskResult = new Lazy<Func<Task, object>>(
-					() => ReflectionUtils.CreateDelegate(TaskResult, "task result"));
+				_TaskResult = new(() => ReflectionUtils.CreateDelegate(TaskResult, "task result"));
 
 				{
 					var builder = ImmutableArray.CreateBuilder<IReadOnlyList<string>>(mutable.Names.Count);
@@ -132,7 +131,7 @@ namespace YACCS.Commands.Models
 								if (precondition.Groups.Count == 0)
 								{
 									preconditions
-										.GetOrAdd(string.Empty, _ => new List<IPrecondition>())
+										.GetOrAdd(string.Empty, _ => new())
 										.Add(precondition);
 								}
 								else
@@ -140,7 +139,7 @@ namespace YACCS.Commands.Models
 									foreach (var group in precondition.Groups)
 									{
 										preconditions
-											.GetOrAdd(group, _ => new List<IPrecondition>())
+											.GetOrAdd(group, _ => new())
 											.Add(precondition);
 									}
 								}

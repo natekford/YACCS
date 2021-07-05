@@ -17,7 +17,7 @@ namespace YACCS.NamedArguments
 		public NamedArgumentParameterPrecondition()
 		{
 			_Getter = ReflectionUtils.CreateDelegate(Getter, "getter");
-			_Parameters = new Lazy<IReadOnlyDictionary<string, IImmutableParameter>>(() =>
+			_Parameters = new(() =>
 			{
 				return NamedArgumentUtils
 					.CreateParametersForType(typeof(T))
