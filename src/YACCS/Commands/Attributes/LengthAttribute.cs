@@ -10,6 +10,8 @@ namespace YACCS.Commands.Attributes
 	public class LengthAttribute : Attribute, ILengthAttribute, IRuntimeFormattableAttribute
 	{
 		public int? Length { get; }
+		protected virtual string LengthString { get; } = "Length";
+		protected virtual string RemainderString { get; } = "Remainder";
 
 		public LengthAttribute()
 		{
@@ -30,8 +32,8 @@ namespace YACCS.Commands.Attributes
 		{
 			return new TaggedString[]
 			{
-				new(Tag.Key, "Length"),
-				new(Tag.Value, Length?.ToString() ?? "Remainder"),
+				new(Tag.Key, LengthString),
+				new(Tag.Value, Length?.ToString() ?? RemainderString),
 			};
 		}
 	}

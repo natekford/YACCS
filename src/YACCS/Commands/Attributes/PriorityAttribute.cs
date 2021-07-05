@@ -10,6 +10,7 @@ namespace YACCS.Commands.Attributes
 	public class PriorityAttribute : Attribute, IPriorityAttribute, IRuntimeFormattableAttribute
 	{
 		public int Priority { get; }
+		protected virtual string PriorityString { get; } = "Priority";
 
 		public PriorityAttribute(int priority)
 		{
@@ -20,7 +21,7 @@ namespace YACCS.Commands.Attributes
 		{
 			return new TaggedString[]
 			{
-				new(Tag.Key, "Priority"),
+				new(Tag.Key, PriorityString),
 				new(Tag.Value, Priority.ToString()),
 			};
 		}

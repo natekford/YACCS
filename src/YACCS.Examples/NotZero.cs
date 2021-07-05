@@ -5,17 +5,23 @@ using YACCS.Commands;
 using YACCS.Commands.Models;
 using YACCS.Help;
 using YACCS.Help.Attributes;
+using YACCS.Localization;
 using YACCS.Preconditions;
 using YACCS.Results;
 
 namespace YACCS.Examples
 {
-	public class NotZero : ParameterPreconditionAttribute, IRuntimeFormattableAttribute
+	public class NotZero :
+		ParameterPreconditionAttribute,
+		IRuntimeFormattableAttribute,
+		IUsesLocalizer
 	{
-		private const string _Message = "Cannot be zero.";
-		private static readonly Task<IResult> _Failure = new FailureResult(_Message).AsTask();
+		private const string DEFAULT = "Cannot be zero.";
 
-		public static Task<IResult> CheckAsync(
+		public virtual ILocalizer? Localizer { get; set; }
+		protected virtual string FailureMessage => Localizer?.Get("NotZero") ?? DEFAULT;
+
+		public Task<IResult> CheckAsync(
 			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IContext context,
@@ -23,7 +29,7 @@ namespace YACCS.Examples
 		{
 			if (value == 0)
 			{
-				return _Failure;
+				return new FailureResult(FailureMessage).AsTask();
 			}
 			return SuccessResult.Instance.Task;
 		}
@@ -32,7 +38,7 @@ namespace YACCS.Examples
 		{
 			return new TaggedString[]
 			{
-				new(Tag.String, _Message),
+				new(Tag.String, FailureMessage),
 			};
 		}
 

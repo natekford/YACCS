@@ -30,7 +30,7 @@ namespace YACCS.Commands
 		{
 			_Readers = readers;
 			_Config = config;
-			_Root = new Node(null, null, _Config.CommandNameComparer);
+			_Root = new(null, null, _Config.CommandNameComparer);
 			_Items = new();
 		}
 
@@ -99,7 +99,7 @@ namespace YACCS.Commands
 
 		public void Clear()
 		{
-			_Root = new Node(null, null, _Config.CommandNameComparer);
+			_Root = new(null, null, _Config.CommandNameComparer);
 			_Items.Clear();
 		}
 

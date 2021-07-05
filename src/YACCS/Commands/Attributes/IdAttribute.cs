@@ -10,6 +10,7 @@ namespace YACCS.Commands.Attributes
 	public class IdAttribute : Attribute, IIdAttribute, IRuntimeFormattableAttribute
 	{
 		public virtual string Id { get; }
+		protected virtual string IdString { get; } = "Id";
 
 		public IdAttribute(string id)
 		{
@@ -20,7 +21,7 @@ namespace YACCS.Commands.Attributes
 		{
 			return new TaggedString[]
 			{
-				new(Tag.Key, "Id"),
+				new(Tag.Key, IdString),
 				new(Tag.Value, Id),
 			};
 		}

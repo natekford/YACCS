@@ -28,7 +28,7 @@ namespace YACCS.TypeReaders
 			}
 		}
 
-		public TypeReaderRegistry() : base(new Dictionary<Type, ITypeReader>())
+		public TypeReaderRegistry(IEnumerable<Assembly>? assemblies = null) : base(new Dictionary<Type, ITypeReader>())
 		{
 			Register(typeof(string), new StringTypeReader());
 			Register(typeof(Uri), new UriTypeReader());
@@ -50,6 +50,13 @@ namespace YACCS.TypeReaders
 			RegisterWithNullable(new TimeSpanTypeReader<TimeSpan>(TimeSpan.TryParse));
 
 			this.RegisterTypeReaders(typeof(TypeReaderRegistry).Assembly.GetTypeReaders());
+			if (assemblies != null)
+			{
+				foreach (var assembly in assemblies)
+				{
+					this.RegisterTypeReaders(assembly.GetTypeReaders());
+				}
+			}
 		}
 
 		public void Register(Type type, ITypeReader item)

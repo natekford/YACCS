@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 using MorseCode.ITask;
 
@@ -6,7 +7,7 @@ using YACCS.Commands;
 
 namespace YACCS.TypeReaders
 {
-	public delegate bool TryParseDelegate<T>(string input, out T result);
+	public delegate bool TryParseDelegate<T>(string input, [MaybeNullWhen(false)] out T result);
 
 	public class TryParseTypeReader<T> : TypeReader<T>
 	{

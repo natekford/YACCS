@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
@@ -13,6 +14,15 @@ namespace YACCS.Examples
 {
 	public class Commands : ConsoleCommands<IContext>
 	{
+		[Command(nameof(ChangeUICulture))]
+		public string ChangeUICulture(CultureInfo culture)
+		{
+			// This command effectively does nothing due to the way that
+			// CultureInfo.CurrentX and async interact together
+			CultureInfo.CurrentUICulture = culture;
+			return $"Successfully changed the current UI culture to {culture}.";
+		}
+
 		[Command(nameof(Divide))]
 		public int Divide(int numerator, [NotZero] int divisor)
 			=> numerator / divisor;

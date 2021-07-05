@@ -10,6 +10,7 @@ using YACCS.Commands;
 using YACCS.Commands.Models;
 using YACCS.Help;
 using YACCS.Interactivity.Input;
+using YACCS.Localization;
 using YACCS.Parsing;
 using YACCS.TypeReaders;
 
@@ -22,6 +23,7 @@ namespace YACCS.Examples
 		private readonly ConsoleHandler _Console;
 		private readonly HelpFormatter _HelpFormatter;
 		private readonly ConsoleInput _Input;
+		private readonly ILocalizer _Localizer;
 		private readonly TypeNameRegistry _Names;
 		private readonly IServiceProvider _Services;
 		private readonly IArgumentSplitter _Splitter;
@@ -33,7 +35,8 @@ namespace YACCS.Examples
 			_Config = CommandServiceConfig.Default;
 			_Splitter = ArgumentSplitter.Default;
 			_Names = new TypeNameRegistry();
-			_TypeReaders = new TypeReaderRegistry();
+			_Localizer = new ResourceManagerLocalizer();
+			_TypeReaders = new TypeReaderRegistry(new[] { typeof(Program).Assembly });
 			_Tags = new TagConverter();
 
 			_Console = new ConsoleHandler(_Names);
@@ -42,6 +45,7 @@ namespace YACCS.Examples
 			_Input = new ConsoleInput(_TypeReaders, _Console);
 
 			_Services = new ServiceCollection()
+				.AddSingleton<ILocalizer>(_Localizer)
 				.AddSingleton<ICommandService>(_CommandService)
 				.AddSingleton<IArgumentSplitter>(_Splitter)
 				.AddSingleton<IHelpFormatter>(_HelpFormatter)
@@ -65,7 +69,7 @@ namespace YACCS.Examples
 			_Console.WriteLine("Enter a command and its arguments: ");
 
 			var input = await _Console.ReadLineAsync().ConfigureAwait(false);
-			if (input is null || !input.HasPrefix("&&", out input))
+			if (input is null)
 			{
 				return;
 			}

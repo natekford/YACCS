@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 
-using YACCS.Commands.Attributes;
-
 namespace YACCS.Commands.Models
 {
 	public interface ICommand : IEntityBase, IQueryableCommand

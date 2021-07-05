@@ -21,28 +21,45 @@ namespace YACCS.Localization
 			this ILocalizer localizer,
 			IImmutableCommand command)
 		{
+			localizer.InjectInto(command);
 			localizer.InjectInto(command.Attributes);
+			localizer.InjectInto(command.Names);
+			foreach (var (_, preconditions) in command.Preconditions)
+			{
+				localizer.InjectInto(preconditions);
+			}
 			foreach (var parameter in command.Parameters)
 			{
+				localizer.InjectInto(parameter);
 				localizer.InjectInto(parameter.Attributes);
+				localizer.InjectInto(parameter.DefaultValue);
+				localizer.InjectInto(parameter.Preconditions);
+				localizer.InjectInto(parameter.TypeReader);
 			}
 		}
 
-		public static void InjectResourceManager(
+		public static void InjectLocalizer(
 			this CommandService commands,
 			ILocalizer localizer)
 			=> localizer.InjectInto(commands.Commands.Items);
 
 		private static void InjectInto(
 			this ILocalizer localizer,
-			IReadOnlyList<object> attributes)
+			IEnumerable<object> objects)
 		{
-			foreach (var attribute in attributes)
+			foreach (var attribute in objects)
 			{
-				if (attribute is IUsesLocalizer iurm)
-				{
-					iurm.Localizer = localizer;
-				}
+				localizer.InjectInto(attribute);
+			}
+		}
+
+		private static void InjectInto(
+			this ILocalizer localizer,
+			object? @object)
+		{
+			if (@object is IUsesLocalizer canLocalize)
+			{
+				canLocalize.Localizer = localizer;
 			}
 		}
 	}
