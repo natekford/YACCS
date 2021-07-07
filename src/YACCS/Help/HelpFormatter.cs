@@ -7,6 +7,7 @@ using YACCS.Commands;
 using YACCS.Commands.Models;
 using YACCS.Help.Attributes;
 using YACCS.Help.Models;
+using YACCS.Localization;
 
 namespace YACCS.Help
 {
@@ -92,15 +93,15 @@ namespace YACCS.Help
 		protected class HelpBuilder
 		{
 			private static readonly TaggedString _TaggedAttributes
-				= new(Tag.Header, "Attributes");
+				= new(Tag.Header, Keys.ATTRIBUTES);
 			private static readonly TaggedString _TaggedNames
-				= new(Tag.Header, "Names");
+				= new(Tag.Header, Keys.NAMES);
 			private static readonly TaggedString _TaggedParameters
-				= new(Tag.Header, "Parameters");
+				= new(Tag.Header, Keys.PARAMETERS);
 			private static readonly TaggedString _TaggedPreconditions
-				= new(Tag.Header, "Preconditions");
+				= new(Tag.Header, Keys.PRECONDITIONS);
 			private static readonly TaggedString _TaggedSummary
-				= new(Tag.Header, "Summary");
+				= new(Tag.Header, Keys.SUMMARY);
 
 			protected IContext Context { get; }
 			protected int CurrentDepth { get; set; }

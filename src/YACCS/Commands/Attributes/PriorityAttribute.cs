@@ -21,8 +21,8 @@ namespace YACCS.Commands.Attributes
 		{
 			return new TaggedString[]
 			{
-				new(Tag.Key, Localize.This("Priority")),
-				new(Tag.Value, Priority.ToString()),
+				new(Tag.Key, Keys.PRIORITY),
+				new(Tag.Value, Priority.ToString(), hasBeenLocalized: true),
 			};
 		}
 	}

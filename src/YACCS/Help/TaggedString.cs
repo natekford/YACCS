@@ -10,11 +10,13 @@ namespace YACCS.Help
 			get
 			{
 				var separator = CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ";
-				return new(Tag.ListSeparator, separator, true);
+				return new(Tag.ListSeparator, separator, hasBeenLocalized: true);
 			}
 		}
-		public static TaggedString Newline { get; } = new(Tag.Newline, Environment.NewLine, true);
-		public static TaggedString Space { get; } = new(Tag.Space, " ", false);
+		public static TaggedString Newline { get; }
+			= new(Tag.Newline, Environment.NewLine, hasBeenLocalized: true);
+		public static TaggedString Space { get; }
+			= new(Tag.Space, " ");
 
 		public bool HasBeenLocalized { get; }
 		public string String { get; }

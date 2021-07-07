@@ -263,7 +263,7 @@ namespace YACCS.Parsing
 							minStart = i;
 						}
 					}
-					if (splitter.ValidEndQuote(prev, curr, next))
+					else if (splitter.ValidEndQuote(prev, curr, next))
 					{
 						--currentDepth;
 

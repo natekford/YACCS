@@ -8,7 +8,7 @@ namespace YACCS.Localization
 	public class LocalizedNameAttribute : NameAttribute
 	{
 		public string Key { get; }
-		public override string Name => Localize.This(Key, base.Name);
+		public override string Name => Localize.This(Key);
 
 		public LocalizedNameAttribute(string key) : base(key)
 		{

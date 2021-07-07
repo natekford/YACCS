@@ -30,7 +30,7 @@ namespace YACCS.Examples
 		{
 			return new TaggedString[]
 			{
-				new(Tag.String, GetFailureMessage()),
+				new(Tag.String, GetFailureMessage(), hasBeenLocalized: true),
 			};
 		}
 
