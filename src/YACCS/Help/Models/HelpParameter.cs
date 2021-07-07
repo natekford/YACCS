@@ -13,7 +13,6 @@ namespace YACCS.Help.Models
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public class HelpParameter : HelpItem<IImmutableParameter>, IHelpParameter
 	{
-		public bool HasAsyncFormattablePreconditions { get; }
 		public bool IsRemainder => Item.Length == null;
 		public IHelpItem<Type> ParameterType { get; }
 		public IReadOnlyList<IHelpItem<IParameterPrecondition>> Preconditions { get; }
@@ -31,12 +30,7 @@ namespace YACCS.Help.Models
 				var builder = ImmutableArray.CreateBuilder<HelpItem<IParameterPrecondition>>(item.Preconditions.Count);
 				foreach (var precondition in item.Preconditions)
 				{
-					var help = new HelpItem<IParameterPrecondition>(precondition);
-					if (help.HasAsyncFormattableAttributes)
-					{
-						HasAsyncFormattablePreconditions = true;
-					}
-					builder.Add(help);
+					builder.Add(new HelpItem<IParameterPrecondition>(precondition));
 				}
 				Preconditions = builder.MoveToImmutable();
 			}

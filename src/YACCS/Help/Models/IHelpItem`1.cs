@@ -8,7 +8,6 @@ namespace YACCS.Help.Models
 	public interface IHelpItem<out T> where T : notnull
 	{
 		IReadOnlyList<IHelpItem<object>> Attributes { get; }
-		bool HasAsyncFormattableAttributes { get; }
 		T Item { get; }
 		INameAttribute? Name { get; }
 		ISummaryAttribute? Summary { get; }

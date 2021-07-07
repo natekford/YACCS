@@ -13,7 +13,6 @@ namespace YACCS.Help.Models
 	public class HelpItem<T> : IHelpItem<T> where T : notnull
 	{
 		public IReadOnlyList<IHelpItem<object>> Attributes { get; }
-		public virtual bool HasAsyncFormattableAttributes { get; }
 		public T Item { get; }
 		public INameAttribute? Name { get; }
 		public ISummaryAttribute? Summary { get; }
@@ -50,10 +49,6 @@ namespace YACCS.Help.Models
 
 					case INameAttribute name:
 						Name = name.ThrowIfDuplicate(x => x, ref n);
-						break;
-
-					case IAsyncRuntimeFormattableAttribute:
-						HasAsyncFormattableAttributes = true;
 						break;
 				}
 			}

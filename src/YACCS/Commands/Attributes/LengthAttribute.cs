@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using YACCS.Help;
 using YACCS.Help.Attributes;
@@ -26,7 +27,7 @@ namespace YACCS.Commands.Attributes
 			Length = length;
 		}
 
-		public virtual string Format(IContext context, IFormatProvider? formatProvider = null)
-			=> formatProvider.Format($"{Keys.LENGTH:k} {Length?.ToString() ?? Keys.REMAINDER:v}");
+		public virtual ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
+			=> new(formatProvider.Format($"{Keys.LENGTH:k} {Length?.ToString() ?? Keys.REMAINDER:v}"));
 	}
 }

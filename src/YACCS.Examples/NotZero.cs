@@ -25,8 +25,8 @@ namespace YACCS.Examples
 			return SuccessResult.Instance.Task;
 		}
 
-		public string Format(IContext context, IFormatProvider? formatProvider = null)
-			=> GetFailureMessage();
+		public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
+			=> new(GetFailureMessage());
 
 		protected override Task<IResult> CheckAsync(
 			IImmutableCommand command,

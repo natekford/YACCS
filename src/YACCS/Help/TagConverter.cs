@@ -22,17 +22,18 @@ namespace YACCS.Help
 			{
 				return "";
 			}
-			return Convert(GetTags(format), arg.ToString());
+
+			var tag = GetTags(format);
+			var @string = arg.ToString();
+			if (Localizer != null && (tag & Tag.IsLocalized) == 0)
+			{
+				@string = Localizer.GetSafely(@string);
+			}
+			return Convert(tag, @string);
 		}
 
 		public object? GetFormat(Type formatType)
-		{
-			if (formatType == typeof(ICustomFormatter))
-			{
-				return this;
-			}
-			return null;
-		}
+			=> formatType == typeof(ICustomFormatter) ? this : null;
 
 		protected static Tag GetTags(string? format)
 		{
@@ -73,15 +74,6 @@ namespace YACCS.Help
 				@string = $"{@string} =";
 			}
 			return @string;
-		}
-
-		protected string ConvertWithLocalization(Tag tag, string @string)
-		{
-			if (Localizer != null && (tag & Tag.IsLocalized) == 0)
-			{
-				@string = Localizer.GetSafely(@string);
-			}
-			return Convert(tag, @string);
 		}
 
 		[Flags]

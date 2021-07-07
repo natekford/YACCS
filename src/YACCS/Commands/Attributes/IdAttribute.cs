@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using YACCS.Help;
 using YACCS.Help.Attributes;
@@ -16,7 +17,7 @@ namespace YACCS.Commands.Attributes
 			Id = id;
 		}
 
-		public virtual string Format(IContext context, IFormatProvider? formatProvider = null)
-			=> formatProvider.Format($"{Keys.ID:k} {Id:v}");
+		public virtual ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
+			=> new(formatProvider.Format($"{Keys.ID:k} {Id:v}"));
 	}
 }

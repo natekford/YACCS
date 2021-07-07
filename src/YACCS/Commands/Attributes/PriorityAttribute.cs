@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using YACCS.Help;
 using YACCS.Help.Attributes;
@@ -16,7 +17,7 @@ namespace YACCS.Commands.Attributes
 			Priority = priority;
 		}
 
-		public virtual string Format(IContext context, IFormatProvider? formatProvider = null)
-			=> formatProvider.Format($"{Keys.PRIORITY:k} {Priority:v}");
+		public virtual ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
+			=> new(formatProvider.Format($"{Keys.PRIORITY:k} {Priority:v}"));
 	}
 }

@@ -96,7 +96,7 @@ namespace YACCS.Tests.Help
 		}
 
 		[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
-		private class CooldownAttribute : PreconditionAttribute, IAsyncRuntimeFormattableAttribute
+		private class CooldownAttribute : PreconditionAttribute, IRuntimeFormattableAttribute
 		{
 			private static Task<bool> ADatabaseCall => Task.Run(async () =>
 			{
@@ -130,10 +130,10 @@ namespace YACCS.Tests.Help
 				EnabledByDefault = enabledByDefault;
 			}
 
-			public string Format(IContext context, IFormatProvider? formatProvider = null)
+			public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
 			{
 				FormattableString @string = $"{"Enabled by default":k} {EnabledByDefault:v}{Environment.NewLine}{"Toggleable":k} {Toggleable:v}";
-				return @string.ToString(formatProvider);
+				return new(@string.ToString(formatProvider));
 			}
 		}
 
