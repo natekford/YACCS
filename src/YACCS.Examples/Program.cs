@@ -28,7 +28,7 @@ namespace YACCS.Examples
 		private readonly TypeNameRegistry _Names;
 		private readonly IServiceProvider _Services;
 		private readonly IArgumentSplitter _Splitter;
-		private readonly TagConverter _Tags;
+		private readonly TagConverter _TagConverter;
 		private readonly TypeReaderRegistry _TypeReaders;
 
 		private Program()
@@ -40,9 +40,9 @@ namespace YACCS.Examples
 			_TypeReaders = new TypeReaderRegistry(new[] { typeof(Program).Assembly });
 
 			_Console = new ConsoleHandler(_Names);
-			_Tags = new TagConverter(_Localizer);
+			_TagConverter = new TagConverter(_Localizer);
 			_CommandService = new ConsoleCommandService(_Config, _Splitter, _TypeReaders, _Console);
-			_HelpFormatter = new HelpFormatter(_Names, _Tags);
+			_HelpFormatter = new HelpFormatter(_Names, _TagConverter);
 			_Input = new ConsoleInput(_TypeReaders, _Console);
 
 			_Services = new ServiceCollection()
@@ -54,7 +54,6 @@ namespace YACCS.Examples
 				.AddSingleton<ILocalizer>(_Localizer)
 				.AddSingleton<IReadOnlyDictionary<Type, string>>(_Names)
 				.AddSingleton<IArgumentSplitter>(_Splitter)
-				.AddSingleton<ITagConverter>(_Tags)
 				.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>>(_TypeReaders)
 				.BuildServiceProvider();
 

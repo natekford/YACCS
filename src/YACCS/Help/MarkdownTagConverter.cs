@@ -1,25 +1,28 @@
-﻿using System.Globalization;
+﻿using YACCS.Localization;
 
 namespace YACCS.Help
 {
-	public class MarkdownTagConverter : ITagConverter
+	public class MarkdownTagConverter : TagConverter
 	{
-		public string Separator { get; }
-			= CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ";
-
-		public string Convert(TaggedString tagged)
+		public MarkdownTagConverter(ILocalizer? localizer) : base(localizer)
 		{
-			return tagged.Tag switch
+		}
+
+		protected override string Convert(Tag tag, string @string)
+		{
+			if ((tag & Tag.Header) != 0)
 			{
-				Tag.String => tagged.String,
-				Tag.Header => "**" + tagged.String + "**: ",
-				Tag.Key => "**" + tagged.String + "** = ",
-				Tag.Value => "`" + tagged.String + "`",
-				Tag.Space => " ",
-				Tag.Newline => "\n",
-				Tag.ListSeparator => Separator,
-				_ => tagged.String,
-			};
+				@string = $"**{@string}**:";
+			}
+			if ((tag & Tag.Key) != 0)
+			{
+				@string = $"**{@string}** =";
+			}
+			if ((tag & Tag.Value) != 0)
+			{
+				@string = $"`{@string}`";
+			}
+			return @string;
 		}
 	}
 }

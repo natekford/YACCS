@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 using YACCS.Help;
 using YACCS.Help.Attributes;
@@ -17,13 +16,7 @@ namespace YACCS.Commands.Attributes
 			Priority = priority;
 		}
 
-		public virtual IReadOnlyList<TaggedString> Format(IContext context)
-		{
-			return new TaggedString[]
-			{
-				new(Tag.Key, Keys.PRIORITY),
-				new(Tag.Value, Priority.ToString(), hasBeenLocalized: true),
-			};
-		}
+		public virtual string Format(IContext context, IFormatProvider? formatProvider = null)
+			=> formatProvider.Format($"{Keys.PRIORITY:k} {Priority:v}");
 	}
 }

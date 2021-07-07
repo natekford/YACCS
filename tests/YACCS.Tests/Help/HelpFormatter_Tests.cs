@@ -111,12 +111,11 @@ namespace YACCS.Tests.Help
 					: new FailureResult("ur on cooldown buddy");
 			}
 
-			public async ValueTask<IReadOnlyList<TaggedString>> FormatAsync(IContext context)
+			public async ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
 			{
-				var text = await ADatabaseCall.ConfigureAwait(false)
+				return await ADatabaseCall.ConfigureAwait(false)
 					? "ur good"
 					: "ur on cooldown buddy";
-				return new[] { new TaggedString(Tag.String, text) };
 			}
 		}
 
@@ -131,16 +130,10 @@ namespace YACCS.Tests.Help
 				EnabledByDefault = enabledByDefault;
 			}
 
-			public IReadOnlyList<TaggedString> Format(IContext context)
+			public string Format(IContext context, IFormatProvider? formatProvider = null)
 			{
-				return new TaggedString[]
-				{
-					new(Tag.Key, "Enabled by default"),
-					new(Tag.Value, EnabledByDefault.ToString()),
-					TaggedString.Newline,
-					new(Tag.Key, "Toggleable"),
-					new(Tag.Value, Toggleable.ToString()),
-				};
+				FormattableString @string = $"{"Enabled by default":k} {EnabledByDefault:v}{Environment.NewLine}{"Toggleable":k} {Toggleable:v}";
+				return @string.ToString(formatProvider);
 			}
 		}
 

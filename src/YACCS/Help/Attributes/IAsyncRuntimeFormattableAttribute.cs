@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
@@ -7,6 +7,6 @@ namespace YACCS.Help.Attributes
 {
 	public interface IAsyncRuntimeFormattableAttribute
 	{
-		ValueTask<IReadOnlyList<TaggedString>> FormatAsync(IContext context);
+		ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null);
 	}
 }

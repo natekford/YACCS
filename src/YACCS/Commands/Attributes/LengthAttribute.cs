@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 using YACCS.Help;
 using YACCS.Help.Attributes;
@@ -27,13 +26,7 @@ namespace YACCS.Commands.Attributes
 			Length = length;
 		}
 
-		public virtual IReadOnlyList<TaggedString> Format(IContext context)
-		{
-			return new TaggedString[]
-			{
-				new(Tag.Key, Keys.LENGTH),
-				new(Tag.Value, Length?.ToString() ?? Keys.REMAINDER, hasBeenLocalized: Length is not null),
-			};
-		}
+		public virtual string Format(IContext context, IFormatProvider? formatProvider = null)
+			=> formatProvider.Format($"{Keys.LENGTH:k} {Length?.ToString() ?? Keys.REMAINDER:v}");
 	}
 }

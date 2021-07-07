@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,13 +15,15 @@ namespace YACCS.Help
 	public class HelpFormatter : IHelpFormatter
 	{
 		protected Dictionary<IImmutableCommand, HelpCommand> Commands { get; } = new();
+		protected IFormatProvider? FormatProvider { get; }
 		protected IReadOnlyDictionary<Type, string> Names { get; }
-		protected ITagConverter Tags { get; }
 
-		public HelpFormatter(IReadOnlyDictionary<Type, string> names, ITagConverter tags)
+		public HelpFormatter(
+			IReadOnlyDictionary<Type, string> names,
+			IFormatProvider? formatProvider = null)
 		{
 			Names = names;
-			Tags = tags;
+			FormatProvider = formatProvider;
 		}
 
 		public ValueTask<string> FormatAsync(IContext context, IImmutableCommand command)
@@ -33,7 +36,8 @@ namespace YACCS.Help
 			var help = GetHelpCommand(command);
 			var builder = GetBuilder(context)
 				.AppendNames(help)
-				.AppendSummary(help);
+				.AppendSummary(help)
+				.AppendLine();
 
 			if (!help.IsAsyncFormattable())
 			{
@@ -79,7 +83,7 @@ namespace YACCS.Help
 		}
 
 		protected virtual HelpBuilder GetBuilder(IContext context)
-			=> new(context, Names, Tags);
+			=> new(context, Names, FormatProvider);
 
 		protected virtual IHelpCommand GetHelpCommand(IImmutableCommand command)
 		{
@@ -92,19 +96,9 @@ namespace YACCS.Help
 
 		protected class HelpBuilder
 		{
-			private static readonly TaggedString _TaggedAttributes
-				= new(Tag.Header, Keys.ATTRIBUTES);
-			private static readonly TaggedString _TaggedNames
-				= new(Tag.Header, Keys.NAMES);
-			private static readonly TaggedString _TaggedParameters
-				= new(Tag.Header, Keys.PARAMETERS);
-			private static readonly TaggedString _TaggedPreconditions
-				= new(Tag.Header, Keys.PRECONDITIONS);
-			private static readonly TaggedString _TaggedSummary
-				= new(Tag.Header, Keys.SUMMARY);
-
 			protected IContext Context { get; }
 			protected int CurrentDepth { get; set; }
+			protected IFormatProvider? FormatProvider { get; }
 			protected virtual string HeaderAttributes { get; }
 			protected virtual string HeaderNames { get; }
 			protected virtual string HeaderParameters { get; }
@@ -112,22 +106,21 @@ namespace YACCS.Help
 			protected virtual string HeaderSummary { get; }
 			protected IReadOnlyDictionary<Type, string> Names { get; }
 			protected StringBuilder StringBuilder { get; }
-			protected ITagConverter Tags { get; }
 
 			public HelpBuilder(
 				IContext context,
 				IReadOnlyDictionary<Type, string> names,
-				ITagConverter tags)
+				IFormatProvider? formatProvider = null)
 			{
 				Context = context;
 				Names = names;
-				Tags = tags;
+				FormatProvider = formatProvider;
 
-				HeaderAttributes = Tags.Convert(_TaggedAttributes);
-				HeaderNames = Tags.Convert(_TaggedNames);
-				HeaderParameters = Tags.Convert(_TaggedParameters);
-				HeaderPreconditions = Tags.Convert(_TaggedPreconditions);
-				HeaderSummary = Tags.Convert(_TaggedSummary);
+				HeaderAttributes = FormatProvider.Format($"{Keys.ATTRIBUTES:h} ");
+				HeaderNames = FormatProvider.Format($"{Keys.NAMES:h} ");
+				HeaderParameters = FormatProvider.Format($"{Keys.PARAMETERS:h} ");
+				HeaderPreconditions = FormatProvider.Format($"{Keys.PRECONDITIONS:h} ");
+				HeaderSummary = FormatProvider.Format($"{Keys.SUMMARY:h} ");
 
 				StringBuilder = new();
 			}
@@ -138,51 +131,63 @@ namespace YACCS.Help
 			public Task<HelpBuilder> AppendAttributesAsync(IHelpItem<object> item)
 				=> AppendItemsAsync(HeaderAttributes, item.Attributes);
 
-			public virtual HelpBuilder AppendItems(string header, IEnumerable<IHelpItem<object>> items)
+			public virtual HelpBuilder AppendItems(
+				string header,
+				IReadOnlyList<IHelpItem<object>> items)
 			{
 				var added = false;
 				foreach (var item in items)
 				{
-					var text = Array.Empty<string>();
+					var text = default(string?);
 					if (item.Item is IRuntimeFormattableAttribute rfa)
 					{
-						text = Convert(rfa.Format(Context));
+						text = rfa.Format(Context, FormatProvider);
 					}
 					else if (item.Summary?.Summary is string summary)
 					{
-						text = new[] { summary };
+						text = summary;
 					}
 					AppendItemsText(ref added, header, text);
+				}
+				if (added)
+				{
+					AppendLine();
 				}
 				return this;
 			}
 
-			public virtual async Task<HelpBuilder> AppendItemsAsync(string header, IEnumerable<IHelpItem<object>> items)
+			public virtual async Task<HelpBuilder> AppendItemsAsync(
+				string header,
+				IReadOnlyList<IHelpItem<object>> items)
 			{
 				var added = false;
 				foreach (var item in items)
 				{
-					var text = Array.Empty<string>();
+					var text = default(string?);
 					if (item.Item is IAsyncRuntimeFormattableAttribute arfa)
 					{
-						text = Convert(await arfa.FormatAsync(Context).ConfigureAwait(false));
+						text = await arfa.FormatAsync(Context, FormatProvider).ConfigureAwait(false);
 					}
 					else if (item.Item is IRuntimeFormattableAttribute rfa)
 					{
-						text = Convert(rfa.Format(Context));
+						text = rfa.Format(Context, FormatProvider);
 					}
 					else if (item.Summary?.Summary is string summary)
 					{
-						text = new[] { summary };
+						text = summary;
 					}
 					AppendItemsText(ref added, header, text);
+				}
+				if (added)
+				{
+					AppendLine();
 				}
 				return this;
 			}
 
-			public virtual HelpBuilder AppendItemsText(ref bool added, string header, IReadOnlyList<string> text)
+			public virtual HelpBuilder AppendItemsText(ref bool added, string header, string? text)
 			{
-				if (text is not null && text.Count != 0)
+				if (text is not null)
 				{
 					if (!added)
 					{
@@ -193,11 +198,14 @@ namespace YACCS.Help
 					}
 
 					StringBuilder.AppendDepth(CurrentDepth);
-					foreach (var part in text)
-					{
-						StringBuilder.Append(part);
-					}
+					StringBuilder.AppendLine(text);
 				}
+				return this;
+			}
+
+			public virtual HelpBuilder AppendLine()
+			{
+				StringBuilder.AppendLine();
 				return this;
 			}
 
@@ -206,7 +214,7 @@ namespace YACCS.Help
 				StringBuilder
 					.AppendDepth(CurrentDepth)
 					.Append(HeaderNames)
-					.AppendJoin(Tags.Separator, command.Item.Names)
+					.AppendJoin(CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ", command.Item.Names)
 					.AppendLine();
 				return this;
 			}
@@ -216,6 +224,7 @@ namespace YACCS.Help
 				AppendType(parameter);
 				++CurrentDepth;
 				AppendSummary(parameter);
+				AppendLine();
 				AppendAttributes(parameter);
 				AppendPreconditions(parameter);
 				--CurrentDepth;
@@ -227,6 +236,7 @@ namespace YACCS.Help
 				AppendType(parameter);
 				++CurrentDepth;
 				AppendSummary(parameter);
+				AppendLine();
 				if (parameter.HasAsyncFormattableAttributes)
 				{
 					await AppendAttributesAsync(parameter).ConfigureAwait(false);
@@ -281,7 +291,7 @@ namespace YACCS.Help
 				StringBuilder.AppendDepth(CurrentDepth);
 				if (!added)
 				{
-					StringBuilder.AppendLine().AppendLine(HeaderParameters);
+					StringBuilder.AppendLine(HeaderParameters);
 					added = true;
 				}
 				else
@@ -318,16 +328,6 @@ namespace YACCS.Help
 					.Append(": ")
 					.AppendLine(pType.Name?.Name ?? Names[pType.Item]);
 				return this;
-			}
-
-			public string[] Convert(IReadOnlyList<TaggedString> tagged)
-			{
-				var untagged = new string[tagged.Count];
-				for (var i = 0; i < tagged.Count; ++i)
-				{
-					untagged[i] = Tags.Convert(tagged[i]);
-				}
-				return untagged;
 			}
 
 			public override string ToString()

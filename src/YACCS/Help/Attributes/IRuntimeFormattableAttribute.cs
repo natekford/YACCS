@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 
 using YACCS.Commands;
 
@@ -6,6 +6,6 @@ namespace YACCS.Help.Attributes
 {
 	public interface IRuntimeFormattableAttribute
 	{
-		IReadOnlyList<TaggedString> Format(IContext context);
+		string Format(IContext context, IFormatProvider? formatProvider = null);
 	}
 }

@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
-using YACCS.Help;
 using YACCS.Help.Attributes;
 using YACCS.Localization;
 using YACCS.Preconditions;
@@ -26,13 +25,8 @@ namespace YACCS.Examples
 			return SuccessResult.Instance.Task;
 		}
 
-		public IReadOnlyList<TaggedString> Format(IContext context)
-		{
-			return new TaggedString[]
-			{
-				new(Tag.String, GetFailureMessage(), hasBeenLocalized: true),
-			};
-		}
+		public string Format(IContext context, IFormatProvider? formatProvider = null)
+			=> GetFailureMessage();
 
 		protected override Task<IResult> CheckAsync(
 			IImmutableCommand command,
