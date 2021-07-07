@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 
 using YACCS.Localization;
 
@@ -7,8 +6,6 @@ namespace YACCS.Help
 {
 	public class TagConverter : IFormatProvider, ICustomFormatter
 	{
-		public virtual string Separator
-			=> CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ";
 		protected ILocalizer? Localizer { get; }
 
 		public TagConverter(ILocalizer? localizer)
