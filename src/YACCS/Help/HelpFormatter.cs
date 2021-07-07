@@ -16,23 +16,18 @@ namespace YACCS.Help
 	{
 		protected Dictionary<IImmutableCommand, HelpCommand> Commands { get; } = new();
 		protected IFormatProvider? FormatProvider { get; }
-		protected IReadOnlyDictionary<Type, string> Names { get; }
+		protected IReadOnlyDictionary<Type, string> TypeNames { get; }
 
 		public HelpFormatter(
-			IReadOnlyDictionary<Type, string> names,
+			IReadOnlyDictionary<Type, string> typeNames,
 			IFormatProvider? formatProvider = null)
 		{
-			Names = names;
+			TypeNames = typeNames;
 			FormatProvider = formatProvider;
 		}
 
 		public async ValueTask<string> FormatAsync(IContext context, IImmutableCommand command)
 		{
-			while (command.Source != null)
-			{
-				command = command.Source;
-			}
-
 			var help = GetHelpCommand(command);
 			var builder = GetBuilder(context)
 				.AppendNames(help)
@@ -46,10 +41,15 @@ namespace YACCS.Help
 		}
 
 		protected virtual HelpBuilder GetBuilder(IContext context)
-			=> new(context, Names, FormatProvider);
+			=> new(context, TypeNames, FormatProvider);
 
 		protected virtual IHelpCommand GetHelpCommand(IImmutableCommand command)
 		{
+			while (command.Source != null)
+			{
+				command = command.Source;
+			}
+
 			if (!Commands.TryGetValue(command, out var help))
 			{
 				Commands.Add(command, help = new HelpCommand(command));
@@ -62,33 +62,32 @@ namespace YACCS.Help
 			protected IContext Context { get; }
 			protected int CurrentDepth { get; set; }
 			protected IFormatProvider? FormatProvider { get; }
-			protected virtual string HeaderAttributes { get; }
-			protected virtual string HeaderNames { get; }
-			protected virtual string HeaderParameters { get; }
-			protected virtual string HeaderPreconditions { get; }
-			protected virtual string HeaderSummary { get; }
-			protected IReadOnlyDictionary<Type, string> Names { get; }
+			protected virtual string HeaderAttributes
+				=> FormatProvider.Format($"{Keys.Attributes:header} ");
+			protected virtual string HeaderNames
+				=> FormatProvider.Format($"{Keys.Names:header} ");
+			protected virtual string HeaderParameters
+				=> FormatProvider.Format($"{Keys.Parameters:header} ");
+			protected virtual string HeaderPreconditions
+				=> FormatProvider.Format($"{Keys.Preconditions:header} ");
+			protected virtual string HeaderSummary
+				=> FormatProvider.Format($"{Keys.Summary:header} ");
 			protected StringBuilder StringBuilder { get; }
+			protected IReadOnlyDictionary<Type, string> TypeNames { get; }
 
 			public HelpBuilder(
 				IContext context,
-				IReadOnlyDictionary<Type, string> names,
+				IReadOnlyDictionary<Type, string> typeNames,
 				IFormatProvider? formatProvider = null)
 			{
 				Context = context;
-				Names = names;
+				TypeNames = typeNames;
 				FormatProvider = formatProvider;
-
-				HeaderAttributes = FormatProvider.Format($"{Keys.ATTRIBUTES:h} ");
-				HeaderNames = FormatProvider.Format($"{Keys.NAMES:h} ");
-				HeaderParameters = FormatProvider.Format($"{Keys.PARAMETERS:h} ");
-				HeaderPreconditions = FormatProvider.Format($"{Keys.PRECONDITIONS:h} ");
-				HeaderSummary = FormatProvider.Format($"{Keys.SUMMARY:h} ");
 
 				StringBuilder = new();
 			}
 
-			public Task<HelpBuilder> AppendAttributesAsync(IHelpItem<object> item)
+			public virtual Task<HelpBuilder> AppendAttributesAsync(IHelpItem<object> item)
 				=> AppendItemsAsync(HeaderAttributes, item.Attributes);
 
 			public virtual async Task<HelpBuilder> AppendItemsAsync(
@@ -150,7 +149,7 @@ namespace YACCS.Help
 				return this;
 			}
 
-			public async Task<HelpBuilder> AppendParameterAsync(IHelpParameter parameter)
+			public virtual async Task<HelpBuilder> AppendParameterAsync(IHelpParameter parameter)
 			{
 				AppendType(parameter);
 				++CurrentDepth;
@@ -162,7 +161,7 @@ namespace YACCS.Help
 				return this;
 			}
 
-			public async Task<HelpBuilder> AppendParametersAsync(IHelpCommand command)
+			public virtual async Task<HelpBuilder> AppendParametersAsync(IHelpCommand command)
 			{
 				var added = false;
 				foreach (var parameter in command.Parameters)
@@ -188,7 +187,7 @@ namespace YACCS.Help
 				return this;
 			}
 
-			public Task<HelpBuilder> AppendPreconditionsAsync(IHasPreconditions preconditions)
+			public virtual Task<HelpBuilder> AppendPreconditionsAsync(IHasPreconditions preconditions)
 				=> AppendItemsAsync(HeaderPreconditions, preconditions.Preconditions);
 
 			public virtual HelpBuilder AppendSummary(IHelpItem<object> item)
@@ -210,24 +209,12 @@ namespace YACCS.Help
 					.AppendDepth(CurrentDepth)
 					.Append(parameter.Item.ParameterName)
 					.Append(": ")
-					.AppendLine(pType.Name?.Name ?? Names[pType.Item]);
+					.AppendLine(pType.Name?.Name ?? TypeNames[pType.Item]);
 				return this;
 			}
 
 			public override string ToString()
 				=> StringBuilder.ToString();
-		}
-	}
-
-	internal static class HelpBuilderUtils
-	{
-		public static StringBuilder AppendDepth(this StringBuilder sb, int depth)
-		{
-			for (var i = 0; i < depth; ++i)
-			{
-				sb.Append('\t');
-			}
-			return sb;
 		}
 	}
 }

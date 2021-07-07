@@ -51,7 +51,7 @@ namespace YACCS.Tests.Help
 		private static async Task<(IEnumerable<IImmutableCommand>, IHelpFormatter, IContext)> CreateAsync()
 		{
 			var commands = await typeof(CommandGroup).GetDirectCommandsAsync().ConfigureAwait(false);
-			var formatter = new HelpFormatter(new TypeNameRegistry(), new TagConverter(Localize.Instance));
+			var formatter = new HelpFormatter(new TypeNameRegistry(), new TagConverter());
 			var context = new FakeContext();
 			return (commands, formatter, context);
 		}

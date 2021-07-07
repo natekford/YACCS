@@ -37,10 +37,10 @@ namespace YACCS.Examples
 			_Localizer = Localize.Instance;
 			_Names = new TypeNameRegistry();
 			_Splitter = ArgumentSplitter.Instance;
+			_TagConverter = new TagConverter();
 			_TypeReaders = new TypeReaderRegistry(new[] { typeof(Program).Assembly });
 
 			_Console = new ConsoleHandler(_Names);
-			_TagConverter = new MarkdownTagConverter(_Localizer);
 			_CommandService = new ConsoleCommandService(_Config, _Splitter, _TypeReaders, _Console);
 			_HelpFormatter = new HelpFormatter(_Names, _TagConverter);
 			_Input = new ConsoleInput(_TypeReaders, _Console);

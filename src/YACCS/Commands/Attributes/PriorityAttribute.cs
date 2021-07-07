@@ -18,6 +18,6 @@ namespace YACCS.Commands.Attributes
 		}
 
 		public virtual ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
-			=> new(formatProvider.Format($"{Keys.PRIORITY:k} {Priority:v}"));
+			=> new(formatProvider.Format($"{Keys.Priority:key} {Priority:value}"));
 	}
 }

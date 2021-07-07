@@ -1,28 +1,12 @@
-﻿using YACCS.Localization;
-
-namespace YACCS.Help
+﻿namespace YACCS.Help
 {
 	public class MarkdownTagConverter : TagConverter
 	{
-		public MarkdownTagConverter(ILocalizer? localizer) : base(localizer)
+		public MarkdownTagConverter()
 		{
-		}
-
-		protected override string Convert(Tag tag, string @string)
-		{
-			if ((tag & Tag.Header) != 0)
-			{
-				@string = $"**{@string}**:";
-			}
-			if ((tag & Tag.Key) != 0)
-			{
-				@string = $"**{@string}** =";
-			}
-			if ((tag & Tag.Value) != 0)
-			{
-				@string = $"`{@string}`";
-			}
-			return @string;
+			Formatters[Tag.Header] = x => $"**{x}**:";
+			Formatters[Tag.Key] = x => $"**{x}** =";
+			Formatters[Tag.Value] = x => $"`{x}`";
 		}
 	}
 }

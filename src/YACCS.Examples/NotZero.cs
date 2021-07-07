@@ -12,7 +12,9 @@ namespace YACCS.Examples
 {
 	public class NotZero : ParameterPreconditionAttribute, IRuntimeFormattableAttribute
 	{
-		public static Task<IResult> CheckAsync(
+		public virtual string FallbackErrorMessage { get; set; } = "Cannot be zero.";
+
+		public Task<IResult> CheckAsync(
 			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IContext context,
@@ -20,13 +22,13 @@ namespace YACCS.Examples
 		{
 			if (value == 0)
 			{
-				return new FailureResult(GetFailureMessage()).AsTask();
+				return new FailureResult(GetErrorMessage()).AsTask();
 			}
 			return SuccessResult.Instance.Task;
 		}
 
 		public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
-			=> new(GetFailureMessage());
+			=> new(GetErrorMessage());
 
 		protected override Task<IResult> CheckAsync(
 			IImmutableCommand command,
@@ -35,7 +37,7 @@ namespace YACCS.Examples
 			object? value)
 			=> this.CheckAsync<IContext, int>(command, parameter, context, value, CheckAsync);
 
-		private static string GetFailureMessage()
-			=> Localize.This("NotZero", "Cannot be zero.");
+		private string GetErrorMessage()
+			=> Localize.This("NotZero", FallbackErrorMessage);
 	}
 }

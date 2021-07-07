@@ -28,6 +28,9 @@ namespace YACCS.Commands.Attributes
 		}
 
 		public virtual ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
-			=> new(formatProvider.Format($"{Keys.LENGTH:k} {Length?.ToString() ?? Keys.REMAINDER:v}"));
+		{
+			var value = Length ?? (object?)Keys.Remainder;
+			return new(formatProvider.Format($"{Keys.Length:key} {value:value}"));
+		}
 	}
 }
