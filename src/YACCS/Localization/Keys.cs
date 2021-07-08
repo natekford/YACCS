@@ -69,6 +69,43 @@ namespace YACCS.Localization
 			= new(nameof(UShortType), $"integer ({ushort.MinValue} to {ushort.MaxValue})");
 		#endregion Types
 
+		#region Results
+		public static NeedsLocalization CanceledResult { get; }
+			= new(nameof(CanceledResult), "An operation was canceled.");
+		public static NeedsLocalization CommandNotFoundResult { get; }
+			= new(nameof(CommandNotFoundResult), "Unable to find a matching command.");
+		public static NeedsLocalization ExceptionAfterCommandResult { get; }
+			= new(nameof(ExceptionAfterCommandResult), "An exception occurred after a command was executed.");
+		public static NeedsLocalization ExceptionDuringCommandResult { get; }
+			= new(nameof(ExceptionDuringCommandResult), "An exception occurred while a command was executing.");
+		public static NeedsLocalization InvalidContextResult { get; }
+			= new(nameof(InvalidContextResult), "Invalid context type.");
+		public static NeedsLocalization InvalidParameterResult { get; }
+			= new(nameof(InvalidParameterResult), "Invalid parameter type.");
+		public static NeedsLocalization MultiMatchHandlingErrorResult { get; }
+			= new(nameof(MultiMatchHandlingErrorResult), "Multiple commands match.");
+		public static NeedsLocalization NamedArgBadCountResult { get; }
+			= new(nameof(NamedArgBadCountResult), "There is not an even number of arguments supplied.");
+		public static NeedsLocalization NamedArgDuplicateResult { get; }
+			= new(nameof(NamedArgDuplicateResult), "Duplicate value for named argument {0}.");
+		public static NeedsLocalization NamedArgMissingValueResult { get; }
+			= new(nameof(NamedArgMissingValueResult), "Missing a value for named argument {0}.");
+		public static NeedsLocalization NamedArgNonExistentResult { get; }
+			= new(nameof(NamedArgNonExistentResult), "Nonexistent named argument {0}.");
+		public static NeedsLocalization NotEnoughArgsResult { get; }
+			= new(nameof(NotEnoughArgsResult), "Not enough arguments provided.");
+		public static NeedsLocalization NullParameterResult { get; }
+			= new(nameof(NullParameterResult), "Parameter is null.");
+		public static NeedsLocalization ParseFailedResult { get; }
+			= new(nameof(ParseFailedResult), "Failed to parse {0}.");
+		public static NeedsLocalization QuoteMismatchResult { get; }
+			= new(nameof(QuoteMismatchResult), "There is a quote mismatch.");
+		public static NeedsLocalization TimedOutResult { get; }
+			= new(nameof(TimedOutResult), "An operation timed out.");
+		public static NeedsLocalization TooManyArgsResult { get; }
+			= new(nameof(TooManyArgsResult), "Too many arguments provided.");
+		#endregion Results
+
 		#region Formats
 		public static NeedsLocalization ListNameFormat { get; }
 			= new(nameof(ListNameFormat), "{0} list");

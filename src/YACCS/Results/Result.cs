@@ -8,7 +8,7 @@ namespace YACCS.Results
 	public abstract class Result : IResult
 	{
 		public bool IsSuccess { get; }
-		public string Response { get; }
+		public virtual string Response { get; }
 		private string DebuggerDisplay => $"IsSuccess = {IsSuccess}, Response = {Response}";
 
 		protected Result(bool isSuccess, string response)

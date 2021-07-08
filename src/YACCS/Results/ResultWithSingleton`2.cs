@@ -1,4 +1,6 @@
-﻿namespace YACCS.Results
+﻿using YACCS.Localization;
+
+namespace YACCS.Results
 {
 	public abstract class ResultWithSingleton<T, TBase> : Result
 		where T : TBase, new()
@@ -7,8 +9,12 @@
 		public static ResultInstance<T, TBase> Instance { get; }
 			= new(new());
 
-		protected ResultWithSingleton(bool isSuccess, string response) : base(isSuccess, response)
+		public override string Response => UnlocalizedResponse.Localized;
+		protected NeedsLocalization UnlocalizedResponse { get; }
+
+		protected ResultWithSingleton(bool isSuccess, NeedsLocalization response) : base(isSuccess, response)
 		{
+			UnlocalizedResponse = response;
 		}
 	}
 }

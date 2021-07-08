@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
+using YACCS.Localization;
 using YACCS.Results;
 
 namespace YACCS.Examples
@@ -112,7 +113,7 @@ namespace YACCS.Examples
 		{
 			return result switch
 			{
-				ParseFailedResult pfr => $"Failed to parse {_Names[pfr.Type]}.",
+				ParseFailedResult pfr => string.Format(Keys.ParseFailedResult, _Names[pfr.Type]),
 				_ => result.Response,
 			};
 		}
