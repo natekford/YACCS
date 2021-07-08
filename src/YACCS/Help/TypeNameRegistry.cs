@@ -64,7 +64,7 @@ namespace YACCS.Help
 		protected virtual string GenerateNullableName(Type type)
 		{
 			var name = Items.TryGetValue(type, out var item) ? item : type.Name;
-			return string.Format(Localization.Keys.NullableNameFormat, name);
+			return name + " or null";
 		}
 	}
 }

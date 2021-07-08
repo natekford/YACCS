@@ -19,6 +19,6 @@
 			=> localized.ToString();
 
 		public override string ToString()
-			=> Localized;
+			=> Localize.This(Key);
 	}
 }
