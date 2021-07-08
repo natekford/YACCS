@@ -24,10 +24,10 @@ namespace YACCS.Examples
 		private readonly ConsoleHandler _Console;
 		private readonly HelpFormatter _HelpFormatter;
 		private readonly ConsoleInput _Input;
-		private readonly ILocalizer _Localizer;
+		private readonly AggregateLocalizer _Localizer;
 		private readonly TypeNameRegistry _Names;
 		private readonly IServiceProvider _Services;
-		private readonly IArgumentSplitter _Splitter;
+		private readonly ArgumentSplitter _Splitter;
 		private readonly TagConverter _TagConverter;
 		private readonly TypeReaderRegistry _TypeReaders;
 
