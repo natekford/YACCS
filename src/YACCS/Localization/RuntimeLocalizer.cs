@@ -9,6 +9,6 @@ namespace YACCS.Localization
 			= Localized.Create<Dictionary<string, string>>();
 
 		public string? Get(string key, CultureInfo? culture = null)
-			=> Overrides.Get(culture).TryGetValue(key, out var value) ? value : null;
+			=> Overrides[culture].TryGetValue(key, out var value) ? value : null;
 	}
 }

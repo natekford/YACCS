@@ -1,18 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using YACCS.Localization;
+
 namespace YACCS.TypeReaders
 {
 	public class NullChecker : INullChecker
 	{
-		public HashSet<string> Values { get; } = new(StringComparer.OrdinalIgnoreCase)
+		protected Localized<ISet<string>> Localized { get; } = new(_ =>
 		{
-			"nullptr",
-			"null",
-			"nil",
-			"void",
-			"nothing",
-		};
+			return new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+			{
+				Keys.Nil,
+				Keys.Nothing,
+				Keys.Null,
+				Keys.NullPtr,
+				Keys.Void,
+			};
+		});
+
+		protected ISet<string> Values => Localized[null];
 
 		public NullChecker(IEnumerable<string> values)
 		{

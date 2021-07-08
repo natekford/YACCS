@@ -196,7 +196,7 @@ namespace YACCS.Commands
 			{
 				get
 				{
-					var path = "";
+					var path = string.Empty;
 					for (var node = this; node is not null; node = node._Parent)
 					{
 						path = node._Key + " " + path;

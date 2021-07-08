@@ -20,7 +20,7 @@ namespace YACCS.Help
 		{
 			if (arg is null)
 			{
-				return "";
+				return string.Empty;
 			}
 			if (format is not null)
 			{

@@ -24,6 +24,14 @@ namespace YACCS.Localization
 		public static NeedsLocalization Summary { get; } = nameof(Summary);
 		#endregion Words
 
+		#region Nulls
+		public static NeedsLocalization Nil { get; } = nameof(Nil);
+		public static NeedsLocalization Nothing { get; } = nameof(Nothing);
+		public static NeedsLocalization Null { get; } = nameof(Null);
+		public static NeedsLocalization NullPtr { get; } = nameof(NullPtr);
+		public static NeedsLocalization Void { get; } = nameof(Void);
+		#endregion Nulls
+
 		#region Types
 		public static NeedsLocalization BoolType { get; }
 			= new(nameof(BoolType), "true or false");

@@ -32,7 +32,7 @@ namespace YACCS.Results
 
 	public class FailureResult : ResultWithSingleton<FailureResult, IResult>
 	{
-		public FailureResult() : this("")
+		public FailureResult() : this(string.Empty)
 		{
 		}
 
@@ -142,7 +142,7 @@ namespace YACCS.Results
 
 	public class SuccessResult : ResultWithSingleton<SuccessResult, IResult>
 	{
-		public SuccessResult() : this("")
+		public SuccessResult() : this(string.Empty)
 		{
 		}
 
@@ -169,7 +169,7 @@ namespace YACCS.Results
 	{
 		public object? Value { get; }
 
-		public ValueResult(object? value) : base(true, value?.ToString() ?? "")
+		public ValueResult(object? value) : base(true, value?.ToString() ?? string.Empty)
 		{
 			Value = value;
 		}
