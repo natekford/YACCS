@@ -20,6 +20,9 @@ namespace YACCS.Commands
 		IImmutableSet<char> ICommandServiceConfig.EndQuotes => EndQuotes.ToImmutableHashSet();
 		IImmutableSet<char> ICommandServiceConfig.StartQuotes => StartQuotes.ToImmutableHashSet();
 
+		public ImmutableCommandServiceConfig ToImmutable()
+			=> new(this);
+
 		public sealed class ImmutableCommandServiceConfig : ICommandServiceConfig
 		{
 			public IEqualityComparer<string> CommandNameComparer { get; }

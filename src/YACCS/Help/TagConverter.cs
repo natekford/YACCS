@@ -33,7 +33,6 @@ namespace YACCS.Help
 					return formattable.ToString(format, CultureInfo.CurrentCulture);
 				}
 			}
-
 			return arg.ToString();
 		}
 

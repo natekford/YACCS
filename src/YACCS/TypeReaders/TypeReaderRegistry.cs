@@ -18,17 +18,10 @@ namespace YACCS.TypeReaders
 			.DeclaredMethods
 			.Single(x => x.Name == nameof(RegisterWithNullable));
 
-		public override ITypeReader this[Type key]
-		{
-			get => base[key];
-			set
-			{
-				value.ThrowIfInvalidTypeReader(key);
-				base[key] = value;
-			}
-		}
+		protected override IDictionary<Type, ITypeReader> Items { get; }
+			= new Dictionary<Type, ITypeReader>();
 
-		public TypeReaderRegistry(IEnumerable<Assembly>? assemblies = null) : base(new Dictionary<Type, ITypeReader>())
+		public TypeReaderRegistry(IEnumerable<Assembly>? assemblies = null)
 		{
 			Register(typeof(string), new StringTypeReader());
 			Register(typeof(Uri), new UriTypeReader());
@@ -49,12 +42,12 @@ namespace YACCS.TypeReaders
 			RegisterWithNullable(new DateTimeTypeReader<DateTimeOffset>(DateTimeOffset.TryParse));
 			RegisterWithNullable(new TimeSpanTypeReader<TimeSpan>(TimeSpan.TryParse));
 
-			this.RegisterTypeReaders(typeof(TypeReaderRegistry).Assembly.GetTypeReaders());
+			Items.RegisterTypeReaders(typeof(TypeReaderRegistry).Assembly.GetTypeReaders());
 			if (assemblies != null)
 			{
 				foreach (var assembly in assemblies)
 				{
-					this.RegisterTypeReaders(assembly.GetTypeReaders());
+					Items.RegisterTypeReaders(assembly.GetTypeReaders());
 				}
 			}
 		}

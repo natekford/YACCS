@@ -3,7 +3,7 @@ using System.Text;
 
 namespace YACCS.Help
 {
-	public static class HelpUtils
+	internal static class HelpUtils
 	{
 		internal static StringBuilder AppendDepth(this StringBuilder sb, int depth)
 		{
