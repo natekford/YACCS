@@ -62,8 +62,7 @@ namespace YACCS.Commands
 
 		private static ArgumentException InvalidContext(IContext context)
 		{
-			return new ArgumentException(
-				"Invalid context; " +
+			return new ArgumentException("Invalid context; " +
 				$"expected {typeof(TContext).Name}, " +
 				$"received {context.GetType().Name}.", nameof(context));
 		}

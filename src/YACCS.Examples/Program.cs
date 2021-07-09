@@ -20,7 +20,7 @@ namespace YACCS.Examples
 	public sealed class Program
 	{
 		private readonly ConsoleCommandService _CommandService;
-		private readonly ICommandServiceConfig _Config;
+		private readonly ImmutableCommandServiceConfig _Config;
 		private readonly ConsoleHandler _Console;
 		private readonly HelpFormatter _HelpFormatter;
 		private readonly ConsoleInput _Input;

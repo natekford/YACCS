@@ -31,8 +31,7 @@ namespace YACCS.Help
 			var help = GetHelpCommand(command);
 			var builder = GetBuilder(context)
 				.AppendNames(help)
-				.AppendSummary(help)
-				.AppendLine();
+				.AppendSummary(help);
 
 			await builder.AppendAttributesAsync(help).ConfigureAwait(false);
 			await builder.AppendPreconditionsAsync(help).ConfigureAwait(false);
@@ -90,99 +89,31 @@ namespace YACCS.Help
 			public virtual Task<HelpBuilder> AppendAttributesAsync(IHelpItem<object> item)
 				=> AppendItemsAsync(HeaderAttributes, item.Attributes);
 
-			public virtual async Task<HelpBuilder> AppendItemsAsync(
-				string header,
-				IReadOnlyList<IHelpItem<object>> items)
-			{
-				var added = false;
-				foreach (var item in items)
-				{
-					var text = default(string?);
-					if (item.Item is IRuntimeFormattableAttribute f)
-					{
-						text = await f.FormatAsync(Context, FormatProvider).ConfigureAwait(false);
-					}
-					else if (item.Summary?.Summary is string summary)
-					{
-						text = summary;
-					}
-					AppendItemsText(ref added, header, text);
-				}
-				if (added)
-				{
-					AppendLine();
-				}
-				return this;
-			}
-
-			public virtual HelpBuilder AppendItemsText(ref bool added, string header, string? text)
-			{
-				if (text is not null)
-				{
-					if (!added)
-					{
-						StringBuilder
-							.AppendDepth(CurrentDepth)
-							.AppendLine(header);
-						added = true;
-					}
-
-					StringBuilder.AppendDepth(CurrentDepth);
-					StringBuilder.AppendLine(text);
-				}
-				return this;
-			}
-
-			public virtual HelpBuilder AppendLine()
-			{
-				StringBuilder.AppendLine();
-				return this;
-			}
-
 			public virtual HelpBuilder AppendNames(IHelpCommand command)
 			{
-				StringBuilder
-					.AppendDepth(CurrentDepth)
-					.Append(HeaderNames)
-					.AppendJoin(CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ", command.Item.Names)
-					.AppendLine();
-				return this;
-			}
-
-			public virtual async Task<HelpBuilder> AppendParameterAsync(IHelpParameter parameter)
-			{
-				AppendType(parameter);
-				++CurrentDepth;
-				AppendSummary(parameter);
+				Append(HeaderNames);
+				var separator = CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ";
+				StringBuilder.AppendJoin(separator, command.Item.Names);
 				AppendLine();
-				await AppendAttributesAsync(parameter).ConfigureAwait(false);
-				await AppendPreconditionsAsync(parameter).ConfigureAwait(false);
-				--CurrentDepth;
 				return this;
 			}
 
 			public virtual async Task<HelpBuilder> AppendParametersAsync(IHelpCommand command)
 			{
-				var added = false;
+				AppendLine(HeaderParameters);
 				foreach (var parameter in command.Parameters)
 				{
-					AppendParametersHeader(ref added);
-					await AppendParameterAsync(parameter).ConfigureAwait(false);
-				}
-				return this;
-			}
+					var pType = parameter.ParameterType;
+					var typeName = pType.Name?.Name ?? TypeNames[pType.Item];
+					Append(parameter.Item.ParameterName);
+					StringBuilder.Append(": ");
+					AppendLine(typeName);
 
-			public virtual HelpBuilder AppendParametersHeader(ref bool added)
-			{
-				StringBuilder.AppendDepth(CurrentDepth);
-				if (!added)
-				{
-					StringBuilder.AppendLine(HeaderParameters);
-					added = true;
-				}
-				else
-				{
-					StringBuilder.AppendLine();
+					++CurrentDepth;
+					AppendSummary(parameter);
+					await AppendAttributesAsync(parameter).ConfigureAwait(false);
+					await AppendPreconditionsAsync(parameter).ConfigureAwait(false);
+					--CurrentDepth;
 				}
 				return this;
 			}
@@ -194,27 +125,76 @@ namespace YACCS.Help
 			{
 				if (item.Summary is not null)
 				{
-					StringBuilder
-						.AppendDepth(CurrentDepth)
-						.Append(HeaderSummary)
-						.AppendLine(item.Summary?.Summary);
+					Append(HeaderSummary);
+					AppendLine(item.Summary?.Summary);
+					AppendLine();
 				}
-				return this;
-			}
-
-			public virtual HelpBuilder AppendType(IHelpParameter parameter)
-			{
-				var pType = parameter.ParameterType;
-				StringBuilder
-					.AppendDepth(CurrentDepth)
-					.Append(parameter.Item.ParameterName)
-					.Append(": ")
-					.AppendLine(pType.Name?.Name ?? TypeNames[pType.Item]);
 				return this;
 			}
 
 			public override string ToString()
 				=> StringBuilder.ToString();
+
+			protected virtual HelpBuilder Append(string value)
+			{
+				AppendDepth(value);
+				StringBuilder.Append(value);
+				return this;
+			}
+
+			protected virtual HelpBuilder AppendDepth(string? value)
+			{
+				if (value is not null && (StringBuilder.Length == 0 || StringBuilder[^1] == '\n'))
+				{
+					for (var i = 0; i < CurrentDepth; ++i)
+					{
+						StringBuilder.Append('\t');
+					}
+				}
+				return this;
+			}
+
+			protected virtual async Task<HelpBuilder> AppendItemsAsync(
+				string header,
+				IReadOnlyList<IHelpItem<object>> items)
+			{
+				var hasHeader = false;
+				foreach (var item in items)
+				{
+					var text = default(string?);
+					if (item.Item is IRuntimeFormattableAttribute f)
+					{
+						text = await f.FormatAsync(Context, FormatProvider).ConfigureAwait(false);
+					}
+					else if (item.Summary?.Summary is string summary)
+					{
+						text = summary;
+					}
+
+					if (text is not null)
+					{
+						if (!hasHeader)
+						{
+							AppendLine(header);
+							hasHeader = true;
+						}
+
+						AppendLine(text);
+					}
+				}
+				if (hasHeader)
+				{
+					AppendLine();
+				}
+				return this;
+			}
+
+			protected virtual HelpBuilder AppendLine(string? value = null)
+			{
+				AppendDepth(value);
+				StringBuilder.AppendLine(value);
+				return this;
+			}
 		}
 	}
 }

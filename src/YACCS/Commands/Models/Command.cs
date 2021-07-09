@@ -79,87 +79,82 @@ namespace YACCS.Commands.Models
 				Source = mutable.Source;
 				_TaskResult = new(() => ReflectionUtils.CreateDelegate(TaskResult, "task result"));
 
+				var names = ImmutableArray.CreateBuilder<IReadOnlyList<string>>(mutable.Names.Count);
+				foreach (var name in mutable.Names)
 				{
-					var builder = ImmutableArray.CreateBuilder<IReadOnlyList<string>>(mutable.Names.Count);
-					foreach (var name in mutable.Names)
-					{
-						builder.Add(new ImmutableName(name));
-					}
-					Names = builder.MoveToImmutable();
+					names.Add(new ImmutableName(name));
 				}
+				Names = names.MoveToImmutable();
 
+				var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(mutable.Parameters.Count);
+				for (var i = 0; i < mutable.Parameters.Count; ++i)
 				{
-					var builder = ImmutableArray.CreateBuilder<IImmutableParameter>(mutable.Parameters.Count);
-					for (var i = 0; i < mutable.Parameters.Count; ++i)
+					var immutable = mutable.Parameters[i].ToImmutable();
+					parameters.Add(immutable);
+
+					// Remainder will always be the last parameter
+					if (!immutable.Length.HasValue)
 					{
-						var immutable = mutable.Parameters[i].ToImmutable();
-						builder.Add(immutable);
-
-						// Remainder will always be the last parameter
-						if (!immutable.Length.HasValue)
+						if (i == mutable.Parameters.Count - 1)
 						{
-							if (i != mutable.Parameters.Count - 1)
-							{
-								throw new InvalidOperationException(
-									$"'{immutable.OriginalParameterName}' from '{Names?.FirstOrDefault()}' " +
-									"must be the final parameter because it is a remainder.");
-							}
-
 							MaxLength = int.MaxValue;
 							break;
 						}
-						if (!immutable.HasDefaultValue)
-						{
-							MinLength += immutable.Length.Value;
-						}
-						MaxLength += immutable.Length.Value;
-					}
-					Parameters = builder.MoveToImmutable();
-				}
 
-				{
-					var builder = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);
-					// Use ConcurrentDictionary because it has GetOrAdd by default, not threading reasons
-					var preconditions = new ConcurrentDictionary<string, List<IPrecondition>>();
-					var p = 0;
-					foreach (var attribute in mutable.Attributes)
+						var orig = immutable.OriginalParameterName;
+						var name = Names?.FirstOrDefault();
+						throw new InvalidOperationException($"'{orig}' from '{name}' " +
+							"must be the final parameter because it is a remainder.");
+					}
+					if (!immutable.HasDefaultValue)
 					{
-						builder.Add(attribute);
-						switch (attribute)
-						{
-							case IPrecondition precondition:
-								if (precondition.Groups.Count == 0)
+						MinLength += immutable.Length.Value;
+					}
+					MaxLength += immutable.Length.Value;
+				}
+				Parameters = parameters.MoveToImmutable();
+
+				var attributes = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);
+				// Use ConcurrentDictionary because it has GetOrAdd by default, not threading reasons
+				var preconditions = new ConcurrentDictionary<string, List<IPrecondition>>();
+				var p = 0;
+				foreach (var attribute in mutable.Attributes)
+				{
+					attributes.Add(attribute);
+					switch (attribute)
+					{
+						case IPrecondition precondition:
+							if (precondition.Groups.Count == 0)
+							{
+								preconditions
+									.GetOrAdd(string.Empty, _ => new())
+									.Add(precondition);
+							}
+							else
+							{
+								foreach (var group in precondition.Groups)
 								{
 									preconditions
-										.GetOrAdd(string.Empty, _ => new())
+										.GetOrAdd(group, _ => new())
 										.Add(precondition);
 								}
-								else
-								{
-									foreach (var group in precondition.Groups)
-									{
-										preconditions
-											.GetOrAdd(group, _ => new())
-											.Add(precondition);
-									}
-								}
-								break;
+							}
+							break;
 
-							case IPriorityAttribute priority:
-								Priority = priority.ThrowIfDuplicate(x => x.Priority, ref p);
-								break;
+						case IPriorityAttribute priority:
+							Priority = priority.ThrowIfDuplicate(x => x.Priority, ref p);
+							break;
 
-							case IIdAttribute id:
-								PrimaryId ??= id.Id;
-								break;
-						}
+						case IIdAttribute id:
+							PrimaryId ??= id.Id;
+							break;
 					}
-					Attributes = builder.MoveToImmutable();
-					Preconditions = preconditions.ToImmutableDictionary(
-						x => x.Key,
-						x => (IReadOnlyList<IPrecondition>)x.Value.ToImmutableArray()
-					)!;
 				}
+				Attributes = attributes.MoveToImmutable();
+				Preconditions = preconditions.ToImmutableDictionary(
+					x => x.Key,
+					x => (IReadOnlyList<IPrecondition>)x.Value.ToImmutableArray()
+				)!;
 
 				PrimaryId ??= Guid.NewGuid().ToString();
 			}

@@ -31,8 +31,8 @@ namespace YACCS.Commands.Attributes
 		{
 			if (count > 0)
 			{
-				throw new InvalidOperationException(
-					$"Duplicate {typeof(TAttribute).Name} attribute.");
+				var name = typeof(TAttribute).Name;
+				throw new InvalidOperationException($"Duplicate {name} attribute.");
 			}
 
 			++count;

@@ -49,8 +49,7 @@ namespace YACCS.Commands.Linq
 		{
 			if (!command.IsValidContext(typeof(TContext)))
 			{
-				throw new ArgumentException(
-					"Is not and does not inherit or implement " +
+				throw new ArgumentException("Is not and does not inherit or implement " +
 					$"{command.ContextType!.Name}. {command.Names?.FirstOrDefault()}", nameof(command));
 			}
 			return new Command<TContext>(command);

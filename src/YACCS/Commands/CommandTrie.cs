@@ -39,8 +39,7 @@ namespace YACCS.Commands
 			// Commands cannot be added directly to ROOT
 			if (item.Names.Count == 0)
 			{
-				throw new ArgumentException(
-					"Cannot add a command with no name.", nameof(item));
+				throw new ArgumentException("Cannot add a command with no name.", nameof(item));
 			}
 
 			// Verify that every name is valid
@@ -50,8 +49,7 @@ namespace YACCS.Commands
 				{
 					if (part.Contains(_Config.Separator))
 					{
-						throw new ArgumentException(
-							$"'{name}' cannot contain the separator character.", nameof(item));
+						throw new ArgumentException($"'{name}' cannot contain the separator character.", nameof(item));
 					}
 				}
 			}
@@ -65,8 +63,7 @@ namespace YACCS.Commands
 				}
 				catch (Exception ex)
 				{
-					throw new ArgumentException(
-						"Unregistered type reader for " +
+					throw new ArgumentException("Unregistered type reader for " +
 						$"'{parameter.ParameterType}' from '{item.Names?.FirstOrDefault()}'.",
 						nameof(item), ex);
 				}

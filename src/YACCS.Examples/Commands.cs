@@ -7,6 +7,7 @@ using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 using YACCS.Help;
+using YACCS.Help.Attributes;
 using YACCS.Interactivity.Input;
 using YACCS.Results;
 
@@ -24,7 +25,13 @@ namespace YACCS.Examples
 		}
 
 		[Command(nameof(Divide))]
-		public int Divide(int numerator, [NotZero] int divisor)
+		[Summary("Divides two numbers and returns the result (rounded down).")]
+		public int Divide(
+			[Summary("The number being divided.")]
+			int numerator,
+			[Summary("The number to divide by.")]
+			[NotZero]
+			int divisor)
 			=> numerator / divisor;
 
 		[Command(nameof(Echo))]

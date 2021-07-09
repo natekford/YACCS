@@ -22,25 +22,25 @@ namespace YACCS.Commands
 
 		public ImmutableCommandServiceConfig ToImmutable()
 			=> new(this);
+	}
 
-		public sealed class ImmutableCommandServiceConfig : ICommandServiceConfig
+	public sealed class ImmutableCommandServiceConfig : ICommandServiceConfig
+	{
+		public IEqualityComparer<string> CommandNameComparer { get; }
+		public IImmutableSet<char> EndQuotes { get; }
+		public bool IgnoreExtraArgs { get; }
+		public MultiMatchHandling MultiMatchHandling { get; }
+		public char Separator { get; }
+		public IImmutableSet<char> StartQuotes { get; }
+
+		public ImmutableCommandServiceConfig(ICommandServiceConfig other)
 		{
-			public IEqualityComparer<string> CommandNameComparer { get; }
-			public IImmutableSet<char> EndQuotes { get; }
-			public bool IgnoreExtraArgs { get; }
-			public MultiMatchHandling MultiMatchHandling { get; }
-			public char Separator { get; }
-			public IImmutableSet<char> StartQuotes { get; }
-
-			public ImmutableCommandServiceConfig(ICommandServiceConfig other)
-			{
-				CommandNameComparer = other.CommandNameComparer;
-				EndQuotes = other.EndQuotes;
-				IgnoreExtraArgs = other.IgnoreExtraArgs;
-				MultiMatchHandling = other.MultiMatchHandling;
-				Separator = other.Separator;
-				StartQuotes = other.StartQuotes;
-			}
+			CommandNameComparer = other.CommandNameComparer;
+			EndQuotes = other.EndQuotes;
+			IgnoreExtraArgs = other.IgnoreExtraArgs;
+			MultiMatchHandling = other.MultiMatchHandling;
+			Separator = other.Separator;
+			StartQuotes = other.StartQuotes;
 		}
 	}
 }
