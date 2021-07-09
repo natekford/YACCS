@@ -36,7 +36,7 @@ namespace YACCS.Help
 			await builder.AppendAttributesAsync(help).ConfigureAwait(false);
 			await builder.AppendPreconditionsAsync(help).ConfigureAwait(false);
 			await builder.AppendParametersAsync(help).ConfigureAwait(false);
-			return new(builder.ToString());
+			return builder.ToString();
 		}
 
 		protected virtual HelpBuilder GetBuilder(IContext context)
