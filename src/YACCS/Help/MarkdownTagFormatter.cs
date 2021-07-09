@@ -1,8 +1,8 @@
 ﻿namespace YACCS.Help
 {
-	public class MarkdownTagConverter : TagConverter
+	public class MarkdownTagFormatter : TagFormatter
 	{
-		public MarkdownTagConverter()
+		public MarkdownTagFormatter()
 		{
 			Formatters[Tag.Header] = x => $"**{x}**:";
 			Formatters[Tag.Key] = x => $"**{x}** =";

@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace YACCS.Help
 {
-	public class TagConverter : IFormatProvider, ICustomFormatter
+	public class TagFormatter : IFormatProvider, ICustomFormatter
 	{
 		protected virtual Dictionary<string, Func<string, string>> Formatters { get; } = new(StringComparer.OrdinalIgnoreCase)
 		{

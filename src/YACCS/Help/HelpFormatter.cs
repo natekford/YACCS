@@ -77,7 +77,7 @@ namespace YACCS.Help
 			public HelpBuilder(
 				IContext context,
 				IReadOnlyDictionary<Type, string> typeNames,
-				IFormatProvider? formatProvider = null)
+				IFormatProvider? formatProvider)
 			{
 				Context = context;
 				TypeNames = typeNames;

@@ -22,23 +22,26 @@ namespace YACCS.Localization
 		public IEnumerable<T> Values => _Dict.Values;
 
 		public T this[CultureInfo? key]
-			=> _Dict.GetOrAdd(key ?? CultureInfo.CurrentUICulture, _ValueFactory);
+			=> _Dict.GetOrAdd(EnsureKey(key), _ValueFactory);
 
 		public Localized(Func<CultureInfo, T> valueFactory)
 		{
 			_ValueFactory = valueFactory;
 		}
 
-		public bool ContainsKey(CultureInfo key)
-			=> _Dict.ContainsKey(key);
+		public bool ContainsKey(CultureInfo? key)
+			=> _Dict.ContainsKey(EnsureKey(key));
 
 		public IEnumerator<KeyValuePair<CultureInfo, T>> GetEnumerator()
 			=> _Dict.GetEnumerator();
 
-		public bool TryGetValue(CultureInfo key, out T value)
-			=> _Dict.TryGetValue(key, out value);
+		public bool TryGetValue(CultureInfo? key, out T value)
+			=> _Dict.TryGetValue(EnsureKey(key), out value);
 
 		IEnumerator IEnumerable.GetEnumerator()
 			=> GetEnumerator();
+
+		private CultureInfo EnsureKey(CultureInfo? key)
+			=> key ?? CultureInfo.CurrentUICulture;
 	}
 }
