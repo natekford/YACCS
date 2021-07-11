@@ -60,6 +60,14 @@ namespace YACCS.Examples
 
 		private async Task PrivateInitialize()
 		{
+			foreach (var assembly in _CommandAssemblies)
+			{
+				var commands = assembly.GetAllCommandsAsync();
+				await this.AddRangeAsync(commands).ConfigureAwait(false);
+			}
+			AddDelegateCommands();
+			Debug.WriteLine($"Registered {Commands.Count} commands for '{CultureInfo.CurrentUICulture}'.");
+
 			CommandExecuted += (e) =>
 			{
 				_Console.WriteResult(e.Result);
@@ -71,14 +79,6 @@ namespace YACCS.Examples
 				return Task.CompletedTask;
 			};
 
-			foreach (var assembly in _CommandAssemblies)
-			{
-				var commands = assembly.GetAllCommandsAsync();
-				await this.AddRangeAsync(commands).ConfigureAwait(false);
-			}
-			AddDelegateCommands();
-
-			Debug.WriteLine($"Registered {Commands.Count} commands for '{CultureInfo.CurrentUICulture}'.");
 			_IsInitialized = true;
 		}
 	}

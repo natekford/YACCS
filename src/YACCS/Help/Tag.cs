@@ -1,6 +1,4 @@
-﻿using YACCS.Localization;
-
-namespace YACCS.Help
+﻿namespace YACCS.Help
 {
 	public static class Tag
 	{

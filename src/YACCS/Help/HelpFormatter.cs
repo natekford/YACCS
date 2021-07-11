@@ -146,10 +146,7 @@ namespace YACCS.Help
 			{
 				if (value is not null && (StringBuilder.Length == 0 || StringBuilder[^1] == '\n'))
 				{
-					for (var i = 0; i < CurrentDepth; ++i)
-					{
-						StringBuilder.Append('\t');
-					}
+					StringBuilder.Append('\t', CurrentDepth);
 				}
 				return this;
 			}

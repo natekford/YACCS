@@ -52,6 +52,24 @@ namespace YACCS.Tests.SwapArguments
 			}
 		}
 
+		[TestMethod]
+		public async Task ThrowsWhenTryingToSwapRemainder()
+		{
+			var commands = typeof(CommandsGroupThrow).GetAllCommandsAsync();
+
+			var i = 0;
+			await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+			{
+				await foreach (var command in commands)
+				{
+					++i;
+				}
+			}).ConfigureAwait(false);
+			// The first command should be built fine, the first swap should throw due to
+			// trying to swap a remainder
+			Assert.AreEqual(1, i);
+		}
+
 		private async Task<(CommandService, SetMe, FakeContext)> CreateAsync()
 		{
 			var setMe = new SetMe();
@@ -86,6 +104,23 @@ namespace YACCS.Tests.SwapArguments
 				SetMe.User = user;
 				SetMe.Channel = channel;
 				SetMe.Time = time;
+			}
+		}
+
+		private class CommandsGroupThrow : CommandGroup<IContext>
+		{
+			[Command(nameof(ShouldThrow))]
+			[GenerateSwappedArguments]
+			public void ShouldThrow(
+				int amount,
+				[Swappable]
+				char? user = null,
+				[Swappable]
+				bool? channel = null,
+				[Swappable]
+				[Remainder]
+				DateTime? time = null)
+			{
 			}
 		}
 

@@ -61,11 +61,11 @@ namespace YACCS.Commands
 				{
 					_ = _Readers.GetTypeReader(parameter);
 				}
-				catch (Exception ex)
+				catch (Exception e)
 				{
 					throw new ArgumentException("Unregistered type reader for " +
 						$"'{parameter.ParameterType}' from '{item.Names?.FirstOrDefault()}'.",
-						nameof(item), ex);
+						nameof(item), e);
 				}
 			}
 
