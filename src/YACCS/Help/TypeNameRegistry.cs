@@ -33,7 +33,7 @@ namespace YACCS.Help
 			};
 		});
 
-		protected override IDictionary<Type, string> Items => Localized[null];
+		protected override IDictionary<Type, string> Items => Localized.GetCurrent();
 
 		public override bool TryGetValue(Type key, [NotNullWhen(true)] out string value)
 		{

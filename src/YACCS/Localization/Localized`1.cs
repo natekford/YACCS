@@ -32,6 +32,9 @@ namespace YACCS.Localization
 		public bool ContainsKey(CultureInfo? key)
 			=> _Dict.ContainsKey(EnsureKey(key));
 
+		public T GetCurrent()
+			=> this[null];
+
 		public IEnumerator<KeyValuePair<CultureInfo, T>> GetEnumerator()
 			=> _Dict.GetEnumerator();
 

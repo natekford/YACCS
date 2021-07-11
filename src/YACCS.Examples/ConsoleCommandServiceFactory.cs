@@ -35,6 +35,6 @@ namespace YACCS.Examples
 		}
 
 		public ConsoleCommandService GetCommandService()
-			=> _Localized[null];
+			=> _Localized.GetCurrent();
 	}
 }
