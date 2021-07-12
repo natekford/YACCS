@@ -136,7 +136,7 @@ namespace YACCS.Commands.Models
 				_Execute = ReflectionUtils.CreateDelegate(Execute, "execute");
 			}
 
-			public override async Task<IResult> ExecuteAsync(IContext context, object?[] args)
+			public override async ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
 			{
 				// Don't catch exceptions in here, it's easier for the command handler to
 				// catch them itself + this makes testing easier

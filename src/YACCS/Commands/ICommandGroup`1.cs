@@ -7,8 +7,8 @@ namespace YACCS.Commands
 {
 	public interface ICommandGroup<in TContext> : ICommandGroup where TContext : IContext
 	{
-		Task AfterExecutionAsync(IImmutableCommand command, TContext context, IResult result);
+		ValueTask AfterExecutionAsync(IImmutableCommand command, TContext context, IResult result);
 
-		Task BeforeExecutionAsync(IImmutableCommand command, TContext context);
+		ValueTask BeforeExecutionAsync(IImmutableCommand command, TContext context);
 	}
 }

@@ -16,6 +16,6 @@ namespace YACCS.Commands.Models
 		int Priority { get; }
 		IImmutableCommand? Source { get; }
 
-		Task<IResult> ExecuteAsync(IContext context, object?[] args);
+		ValueTask<IResult> ExecuteAsync(IContext context, object?[] args);
 	}
 }

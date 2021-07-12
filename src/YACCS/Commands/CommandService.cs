@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Parsing;
-using YACCS.Preconditions;
 using YACCS.Results;
 using YACCS.TypeReaders;
 
@@ -39,15 +38,15 @@ namespace YACCS.Commands
 			Commands = new CommandTrie(readers, config);
 		}
 
-		public virtual Task<ICommandResult> ExecuteAsync(IContext context, string input)
+		public virtual ValueTask<ICommandResult> ExecuteAsync(IContext context, string input)
 		{
 			if (!Splitter.TrySplit(input, out var args))
 			{
-				return CommandScore.QuoteMismatchTask;
+				return new(CommandScore.QuoteMismatchTask);
 			}
 			if (args.Length == 0)
 			{
-				return CommandScore.CommandNotFoundTask;
+				return new(CommandScore.CommandNotFoundTask);
 			}
 			return PrivateExecuteAsync(context, args);
 		}
@@ -77,7 +76,7 @@ namespace YACCS.Commands
 			return Array.Empty<IImmutableCommand>();
 		}
 
-		public virtual async Task<CommandScore> GetBestMatchAsync(
+		public virtual async ValueTask<CommandScore> GetBestMatchAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
@@ -118,30 +117,27 @@ namespace YACCS.Commands
 			// Trivial cases, invalid context or arg length
 			if (!command.IsValidContext(context.GetType()))
 			{
-				var score = CommandScore.FromInvalidContext(command, context, startIndex);
-				return new(score);
+				return new(CommandScore.FromInvalidContext(command, context, startIndex));
 			}
 			else if (input.Length - startIndex < command.MinLength)
 			{
-				var score = CommandScore.FromNotEnoughArgs(command, context, startIndex);
-				return new(score);
+				return new(CommandScore.FromNotEnoughArgs(command, context, startIndex));
 			}
 			else if (input.Length - startIndex > command.MaxLength)
 			{
-				var score = CommandScore.FromTooManyArgs(command, context, startIndex);
-				return new(score);
+				return new(CommandScore.FromTooManyArgs(command, context, startIndex));
 			}
 
-			return new(ProcessAllPreconditionsAsync(
+			return ProcessAllPreconditionsAsync(
 				cache,
 				context,
 				command,
 				input,
 				startIndex
-			));
+			);
 		}
 
-		public async Task<CommandScore> ProcessAllPreconditionsAsync(
+		public async ValueTask<CommandScore> ProcessAllPreconditionsAsync(
 			PreconditionCache cache,
 			IContext context,
 			IImmutableCommand command,
@@ -228,16 +224,16 @@ namespace YACCS.Commands
 			return cache.GetResultAsync(reader, sliced);
 		}
 
-		protected virtual Task DisposeCommandAsync(CommandExecutedEventArgs e)
+		protected virtual ValueTask DisposeCommandAsync(CommandExecutedEventArgs e)
 		{
 			if (e.Context is IDisposable disposable)
 			{
 				disposable.Dispose();
 			}
-			return Task.CompletedTask;
+			return new();
 		}
 
-		protected virtual async Task<CommandExecutedEventArgs> HandleCommandAsync(
+		protected virtual async ValueTask<CommandExecutedEventArgs> HandleCommandAsync(
 			IContext context,
 			IImmutableCommand command,
 			object?[] args)
@@ -304,7 +300,7 @@ namespace YACCS.Commands
 			);
 		}
 
-		private async Task<ICommandResult> PrivateExecuteAsync(
+		private async ValueTask<ICommandResult> PrivateExecuteAsync(
 			IContext context,
 			ReadOnlyMemory<string> args)
 		{

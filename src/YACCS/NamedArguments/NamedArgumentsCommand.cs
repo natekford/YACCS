@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -12,26 +13,23 @@ using YACCS.Commands.Models;
 using YACCS.Preconditions;
 using YACCS.Results;
 
+using ParameterFactory = YACCS.Commands.Linq.Parameters;
+
 namespace YACCS.NamedArguments
 {
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public class NamedArgumentsCommand : IImmutableCommand
 	{
-		private const string CONTEXT_ID = "context_id";
-		private const string VALUES_ID = "values_id";
-
-		private readonly IImmutableCommand _Command;
-
 		public IReadOnlyList<object> Attributes { get; }
+		public int MaxLength => int.MaxValue;
+		public int MinLength => 0;
+		public IReadOnlyList<IImmutableParameter> Parameters { get; }
 		public IImmutableCommand Source { get; }
 		IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 		public Type ContextType => Source.ContextType;
-		public int MaxLength => _Command.MaxLength;
-		public int MinLength => _Command.MinLength;
 		public IReadOnlyList<IReadOnlyList<string>> Names => Source.Names;
 		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
 		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
-		public IReadOnlyList<IImmutableParameter> Parameters => _Command.Parameters;
 		public IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions => Source.Preconditions;
 		public string PrimaryId => Source.PrimaryId;
 		public int Priority => Source.Priority;
@@ -42,39 +40,48 @@ namespace YACCS.NamedArguments
 			Source = source;
 			Attributes = source.CreateGeneratedCommandAttributeList();
 
-			var @delegate = (Func<IContext, IDictionary<string, object?>, Task<IResult>>)ExecuteAsync;
-			var command = new DelegateCommand(@delegate, this);
-			var parameter = command.Parameters.ById(VALUES_ID).Single();
-			parameter
-				.AsType<IDictionary<string, object?>>()
-				.AddParameterPrecondition(new GeneratedNamedParameterPrecondition(Source))
-				.SetTypeReader(new GeneratedNamedTypeReader(Source));
-
-			_Command = command.MakeImmutable();
+			var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(1);
+			try
+			{
+				var parameter = ParameterFactory.Create<IDictionary<string, object?>>("NamedArgDictionary")
+					.AddParameterPrecondition(new GeneratedNamedParameterPrecondition(Source))
+					.SetTypeReader(new GeneratedNamedTypeReader(Source))
+					.AddAttribute(new RemainderAttribute())
+					.ToImmutable();
+				parameters.Add(parameter);
+			}
+			catch (Exception e)
+			{
+				throw new InvalidOperationException("Unable to build named arguments " +
+					$"dictionary parameter for '{Source.Names?.FirstOrDefault()}'.", e);
+			}
+			Parameters = parameters.MoveToImmutable();
 		}
 
-		public Task<IResult> ExecuteAsync(IContext context, object?[] args)
-			=> _Command.ExecuteAsync(context, args);
-
-		private Task<IResult> ExecuteAsync(
-			[Id(CONTEXT_ID)]
-			[Context]
-			IContext context,
-			[Id(VALUES_ID)]
-			[Remainder]
-			IDictionary<string, object?> values)
+		public ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
 		{
-			var args = new object?[Source.Parameters.Count];
-			for (var i = 0; i < args.Length; ++i)
+			IDictionary<string, object?> values;
+			try
+			{
+				values = (IDictionary<string, object?>)args[0]!;
+			}
+			catch (Exception e)
+			{
+				throw new ArgumentException("Expected named argument dictionary " +
+					$"for '{Source.Names?.FirstOrDefault()}'.", e);
+			}
+
+			var realArgs = new object?[Source.Parameters.Count];
+			for (var i = 0; i < realArgs.Length; ++i)
 			{
 				var parameter = Source.Parameters[i];
 				if (values.TryGetValue(parameter.OriginalParameterName, out var value))
 				{
-					args[i] = value;
+					realArgs[i] = value;
 				}
 				else if (parameter.HasDefaultValue)
 				{
-					args[i] = parameter.DefaultValue;
+					realArgs[i] = parameter.DefaultValue;
 				}
 				else
 				{
@@ -85,7 +92,7 @@ namespace YACCS.NamedArguments
 						$"from '{Source.Names?.FirstOrDefault()}'.");
 				}
 			}
-			return Source.ExecuteAsync(context, args);
+			return Source.ExecuteAsync(context, realArgs);
 		}
 
 		private class GeneratedNamedParameterPrecondition

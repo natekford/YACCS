@@ -12,10 +12,10 @@ namespace YACCS.Commands
 		public IImmutableCommand Command { get; private set; } = default!;
 		public TContext Context { get; private set; } = default!;
 
-		public virtual Task AfterExecutionAsync(IImmutableCommand command, TContext context, IResult result)
-			=> Task.CompletedTask;
+		public virtual ValueTask AfterExecutionAsync(IImmutableCommand command, TContext context, IResult result)
+			=> new();
 
-		public virtual Task BeforeExecutionAsync(IImmutableCommand command, TContext context)
+		public virtual ValueTask BeforeExecutionAsync(IImmutableCommand command, TContext context)
 		{
 			if (command is null)
 			{
@@ -28,13 +28,13 @@ namespace YACCS.Commands
 
 			Command = command;
 			Context = context;
-			return Task.CompletedTask;
+			return new();
 		}
 
-		public virtual Task OnCommandBuildingAsync(IList<ICommand> commands)
-			=> Task.CompletedTask;
+		public virtual ValueTask OnCommandBuildingAsync(IList<ICommand> commands)
+			=> new();
 
-		Task ICommandGroup.AfterExecutionAsync(IImmutableCommand command, IContext context, IResult result)
+		ValueTask ICommandGroup.AfterExecutionAsync(IImmutableCommand command, IContext context, IResult result)
 		{
 			if (context is null)
 			{
@@ -47,7 +47,7 @@ namespace YACCS.Commands
 			return AfterExecutionAsync(command, tContext, result);
 		}
 
-		Task ICommandGroup.BeforeExecutionAsync(IImmutableCommand command, IContext context)
+		ValueTask ICommandGroup.BeforeExecutionAsync(IImmutableCommand command, IContext context)
 		{
 			if (context is null)
 			{

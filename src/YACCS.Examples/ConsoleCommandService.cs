@@ -40,7 +40,7 @@ namespace YACCS.Examples
 			return PrivateInitialize();
 		}
 
-		protected override Task DisposeCommandAsync(CommandExecutedEventArgs e)
+		protected override ValueTask DisposeCommandAsync(CommandExecutedEventArgs e)
 		{
 			_Console.ReleaseIOLocks();
 			return base.DisposeCommandAsync(e);

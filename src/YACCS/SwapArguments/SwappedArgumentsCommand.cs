@@ -49,7 +49,7 @@ namespace YACCS.SwapArguments
 			Parameters = builder.MoveToImmutable();
 		}
 
-		public Task<IResult> ExecuteAsync(IContext context, object?[] args)
+		public ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
 		{
 			var copy = args.ToArray();
 			_Swapper.SwapBack(copy);

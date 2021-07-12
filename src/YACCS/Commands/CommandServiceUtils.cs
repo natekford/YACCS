@@ -151,16 +151,16 @@ namespace YACCS.Commands
 			}
 		}
 
-		public static Task<IEnumerable<IImmutableCommand>> GetDirectCommandsAsync(
+		public static ValueTask<IEnumerable<IImmutableCommand>> GetDirectCommandsAsync(
 			this Type type)
 		{
 			var commands = type.CreateMutableCommands();
 			if (commands.Count == 0)
 			{
-				return Task.FromResult<IEnumerable<IImmutableCommand>>(Array.Empty<IImmutableCommand>());
+				return new(Array.Empty<IImmutableCommand>());
 			}
 
-			static async Task<IEnumerable<IImmutableCommand>> GetDirectCommandsAsync(
+			static async ValueTask<IEnumerable<IImmutableCommand>> GetDirectCommandsAsync(
 				Type type,
 				List<ICommand> commands)
 			{

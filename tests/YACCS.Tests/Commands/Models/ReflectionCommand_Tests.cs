@@ -70,14 +70,14 @@ namespace YACCS.Tests.Commands.Models
 			public string? WontBeInjectedBecauseNoSetter { get; }
 			public Guid? WontBeInjectedBecauseNotRegistered { get; set; }
 
-			public override Task AfterExecutionAsync(IImmutableCommand command, FakeContext context, IResult result)
+			public override ValueTask AfterExecutionAsync(IImmutableCommand command, FakeContext context, IResult result)
 			{
 				Assert.AreEqual(INJECTED_VALUE, InjectMeField);
 				Assert.AreEqual(INJECTED_VALUE, InjectMeProperty);
 				Assert.IsNull(WontBeInjectedBecauseNotRegistered);
 				Assert.IsNull(WontBeInjectedBecauseNoSetter);
 
-				return Task.CompletedTask;
+				return base.AfterExecutionAsync(command, context, result);
 			}
 		}
 

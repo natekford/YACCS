@@ -154,13 +154,13 @@ namespace YACCS.Tests.Commands.Linq
 				public IResult CommandTwo(string arg)
 					=> SuccessResult.Instance;
 
-				public override Task OnCommandBuildingAsync(IList<ICommand> commands)
+				public override ValueTask OnCommandBuildingAsync(IList<ICommand> commands)
 				{
 					var parameters = commands.SelectMany(x => x.Parameters);
 					var position = parameters.GetParameterById<int>(_PositionId);
 					Assert.IsNotNull(position);
 
-					return Task.CompletedTask;
+					return base.OnCommandBuildingAsync(commands);
 				}
 			}
 		}

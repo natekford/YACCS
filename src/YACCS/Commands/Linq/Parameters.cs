@@ -46,6 +46,9 @@ namespace YACCS.Commands.Linq
 			return new Parameter<TValue>(parameter);
 		}
 
+		public static IParameter<T> Create<T>(string name)
+			=> new Parameter(typeof(T), name, null).AsType<T>();
+
 		public static IParameter<TValue> GetParameterById<TValue>(
 			this IEnumerable<IParameter> parameters,
 			string id)

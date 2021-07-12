@@ -159,40 +159,46 @@ namespace YACCS.Commands.Models
 				PrimaryId ??= Guid.NewGuid().ToString();
 			}
 
-			public abstract Task<IResult> ExecuteAsync(IContext context, object?[] args);
+			public abstract ValueTask<IResult> ExecuteAsync(IContext context, object?[] args);
 
-			protected async Task<IResult> ConvertValueAsync(object? value)
+			protected virtual ValueTask<IResult> ConvertValueAsync(object? value)
 			{
 				// Void method. No value to return, we're done
 				if (ReturnType == typeof(void))
 				{
-					return SuccessResult.Instance;
-				}
-
-				// We're given a task
-				if (value is Task task)
-				{
-					// Let's await it to actually complete it
-					await task.ConfigureAwait(false);
-
-					// Not generic? No value to return, we're done
-					if (!ReturnType.IsGenericType)
-					{
-						return SuccessResult.Instance;
-					}
-
-					// It has a value? Ok, let's get it
-					value = _TaskResult.Value.Invoke(task);
+					return new(SuccessResult.Instance);
 				}
 
 				// We're given a result, we can just return that
 				if (value is IResult result)
 				{
-					return result;
+					return new(result);
 				}
 
-				// What do I do with random values?
-				return new ValueResult(value);
+				// We're given a task
+				if (value is Task task)
+				{
+					return new(ConvertValueAsync(task));
+				}
+
+				// Essentially box random values
+				return new(new ValueResult(value));
+			}
+
+			protected virtual async Task<IResult> ConvertValueAsync(Task task)
+			{
+				// Let's await it to actually complete it
+				await task.ConfigureAwait(false);
+
+				// Not generic? No value to return, we're done
+				if (!ReturnType.IsGenericType)
+				{
+					return SuccessResult.Instance;
+				}
+
+				// It has a value? Ok, let's get it
+				var value = _TaskResult.Value.Invoke(task);
+				return await ConvertValueAsync(value).ConfigureAwait(false);
 			}
 
 			private Func<Task, object> TaskResult()

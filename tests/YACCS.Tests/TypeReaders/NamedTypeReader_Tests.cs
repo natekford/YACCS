@@ -140,7 +140,7 @@ namespace YACCS.Tests.TypeReaders
 			const string INPUT = nameof(CommandsGroup.Test3);
 			var result = await commandService.ExecuteAsync(context, INPUT).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
-			Assert.IsInstanceOfType(result.InnerResult, typeof(NotEnoughArgsResult));
+			Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgMissingValueResult));
 		}
 
 		private async Task<(CommandService, SetMe, FakeContext)> CreateAsync()

@@ -58,7 +58,7 @@ namespace YACCS.Commands.Models
 				_Execute = ReflectionUtils.CreateDelegate(Execute, "execute");
 			}
 
-			public override Task<IResult> ExecuteAsync(IContext context, object?[] args)
+			public override ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
 			{
 				var value = _Execute.Invoke(args);
 				return ConvertValueAsync(value);

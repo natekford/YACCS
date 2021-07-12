@@ -10,7 +10,7 @@ namespace YACCS.Commands
 	{
 		IReadOnlyCollection<IImmutableCommand> Commands { get; }
 
-		Task<ICommandResult> ExecuteAsync(IContext context, string input);
+		ValueTask<ICommandResult> ExecuteAsync(IContext context, string input);
 
 		IReadOnlyList<IImmutableCommand> Find(string input);
 	}
