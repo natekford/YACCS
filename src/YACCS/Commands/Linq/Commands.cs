@@ -113,7 +113,7 @@ namespace YACCS.Commands.Linq
 				set => _Actual.Parameters = value;
 			}
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
-			public Type? ContextType => _Actual.ContextType;
+			public Type ContextType => _Actual.ContextType;
 			IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
 			IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
 			private string DebuggerDisplay => this.FormatForDebuggerDisplay();

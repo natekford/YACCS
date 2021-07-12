@@ -49,7 +49,6 @@ namespace YACCS.Commands
 			{
 				return CommandScore.CommandNotFoundTask;
 			}
-
 			return PrivateExecuteAsync(context, args);
 		}
 
@@ -150,10 +149,9 @@ namespace YACCS.Commands
 			int startIndex)
 		{
 			// Any precondition fails, command is not valid
-			var pResult = await ProcessPreconditionsAsync(
-				cache,
-				command
-			).ConfigureAwait(false);
+			var pResult = await command.Preconditions
+				.ProcessAsync(x => cache.GetResultAsync(command, x))
+				.ConfigureAwait(false);
 			if (!pResult.IsSuccess)
 			{
 				return CommandScore.FromFailedPrecondition(command, context, pResult, startIndex);
@@ -203,12 +201,9 @@ namespace YACCS.Commands
 					return CommandScore.FromFailedOptionalArgs(command, parameter, context, currentIndex - 1);
 				}
 
-				var ppResult = await ProcessParameterPreconditionsAsync(
-					cache,
-					command,
-					parameter,
-					value
-				).ConfigureAwait(false);
+				var ppResult = await parameter.Preconditions
+					.ProcessAsync(x => cache.GetResultAsync(command, parameter, x, value))
+					.ConfigureAwait(false);
 				if (!ppResult.IsSuccess)
 				{
 					return CommandScore.FromFailedParameterPrecondition(command, parameter, context, ppResult, currentIndex - 1);
@@ -217,96 +212,6 @@ namespace YACCS.Commands
 				args[i] = value;
 			}
 			return CommandScore.FromCanExecute(command, context, args, startIndex + 1);
-		}
-
-		public ValueTask<IResult> ProcessParameterPreconditionsAsync(
-			PreconditionCache cache,
-			IImmutableCommand command,
-			IImmutableParameter parameter,
-			object? value)
-		{
-			if (parameter.Preconditions.Count == 0)
-			{
-				return new(SuccessResult.Instance.Sync);
-			}
-
-			static async Task<IResult> ProcessParameterPreconditionsAsync(
-				PreconditionCache cache,
-				IImmutableCommand command,
-				IImmutableParameter parameter,
-				object? value)
-			{
-				foreach (var precondition in parameter.Preconditions)
-				{
-					var result = await cache.GetResultAsync(command, parameter, precondition, value).ConfigureAwait(false);
-					if (!result.IsSuccess)
-					{
-						return result;
-					}
-				}
-				return SuccessResult.Instance.Sync;
-			}
-
-			return new(ProcessParameterPreconditionsAsync(
-				cache,
-				command,
-				parameter,
-				value
-			));
-		}
-
-		public ValueTask<IResult> ProcessPreconditionsAsync(
-			PreconditionCache cache,
-			IImmutableCommand command)
-		{
-			if (command.Preconditions.Count == 0)
-			{
-				return new(SuccessResult.Instance.Sync);
-			}
-
-			static async Task<IResult> ProcessPreconditionsAsync(
-				PreconditionCache cache,
-				IImmutableCommand command)
-			{
-				// Preconditions are grouped but cannot be subgrouped
-				// So treat logic as group is surrounded by parantheses but inside isn't
-				// Each group must succeed for a command to be valid
-				foreach (var group in command.Preconditions)
-				{
-					IResult groupResult = SuccessResult.Instance.Sync;
-					foreach (var precondition in group.Value)
-					{
-						// An AND has already failed, no need to check other ANDs
-						if (precondition.Op == BoolOp.And && !groupResult.IsSuccess)
-						{
-							continue;
-						}
-
-						var result = await cache.GetResultAsync(command, precondition).ConfigureAwait(false);
-						// OR: Any success = instant success, go to next group
-						if (precondition.Op == BoolOp.Or && result.IsSuccess)
-						{
-							groupResult = SuccessResult.Instance.Sync;
-							break;
-						}
-						// AND: Any failure = skip other ANDs, only check further ORs
-						else if (precondition.Op == BoolOp.And && !result.IsSuccess)
-						{
-							groupResult = result;
-						}
-					}
-					if (!groupResult.IsSuccess)
-					{
-						return groupResult;
-					}
-				}
-				return SuccessResult.Instance.Sync;
-			}
-
-			return new(ProcessPreconditionsAsync(
-				cache,
-				command
-			));
 		}
 
 		public ValueTask<ITypeReaderResult> ProcessTypeReadersAsync(

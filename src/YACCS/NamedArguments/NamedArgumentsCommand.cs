@@ -25,7 +25,7 @@ namespace YACCS.NamedArguments
 		public IReadOnlyList<object> Attributes { get; }
 		public IImmutableCommand Source { get; }
 		IEnumerable<object> IQueryableEntity.Attributes => Attributes;
-		public Type? ContextType => Source.ContextType;
+		public Type ContextType => Source.ContextType;
 		public int MaxLength => _Command.MaxLength;
 		public int MinLength => _Command.MinLength;
 		public IReadOnlyList<IReadOnlyList<string>> Names => Source.Names;
@@ -99,7 +99,7 @@ namespace YACCS.NamedArguments
 					.ToDictionary(x => x.OriginalParameterName, StringComparer.OrdinalIgnoreCase);
 			}
 
-			public override Task<IResult> CheckAsync(
+			public override ValueTask<IResult> CheckAsync(
 				IImmutableCommand command,
 				IImmutableParameter parameter,
 				IContext context,
@@ -109,7 +109,7 @@ namespace YACCS.NamedArguments
 				{
 					if (!value.ContainsKey(kvp.Key) && !kvp.Value.HasDefaultValue)
 					{
-						return new NamedArgMissingValueResult(kvp.Key).AsTask();
+						return new(new NamedArgMissingValueResult(kvp.Key));
 					}
 				}
 				return base.CheckAsync(command, parameter, context, value);

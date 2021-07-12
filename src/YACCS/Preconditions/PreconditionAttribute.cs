@@ -10,12 +10,12 @@ namespace YACCS.Preconditions
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
 	public abstract class PreconditionAttribute : GroupablePreconditionAttribute, IPrecondition
 	{
-		public virtual Task AfterExecutionAsync(IImmutableCommand command, IContext context, Exception? exception)
-			=> Task.CompletedTask;
+		public virtual ValueTask AfterExecutionAsync(IImmutableCommand command, IContext context, Exception? exception)
+			=> new();
 
-		public virtual Task BeforeExecutionAsync(IImmutableCommand command, IContext context)
-			=> Task.CompletedTask;
+		public virtual ValueTask BeforeExecutionAsync(IImmutableCommand command, IContext context)
+			=> new();
 
-		public abstract Task<IResult> CheckAsync(IImmutableCommand command, IContext context);
+		public abstract ValueTask<IResult> CheckAsync(IImmutableCommand command, IContext context);
 	}
 }

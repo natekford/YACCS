@@ -108,7 +108,7 @@ namespace YACCS.Tests.Preconditions
 
 		private class IsNullOrNotNegativeParameterPrecondition : ParameterPrecondition<FakeContext, int?>
 		{
-			public override Task<IResult> CheckAsync(
+			public override ValueTask<IResult> CheckAsync(
 				IImmutableCommand command,
 				IImmutableParameter parameter,
 				FakeContext context,
@@ -116,13 +116,13 @@ namespace YACCS.Tests.Preconditions
 			{
 				if (value is null)
 				{
-					return SuccessResult.Instance.Task;
+					return new(SuccessResult.Instance.Sync);
 				}
 				if (value > -1)
 				{
-					return SuccessResult.Instance.Task;
+					return new(SuccessResult.Instance.Sync);
 				}
-				return new FailureResult("joe").AsTask();
+				return new(new FailureResult("joe"));
 			}
 		}
 	}

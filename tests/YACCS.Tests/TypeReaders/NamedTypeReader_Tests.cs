@@ -214,7 +214,7 @@ namespace YACCS.Tests.TypeReaders
 
 		private class NotNegative : ParameterPreconditionAttribute
 		{
-			protected override Task<IResult> CheckAsync(
+			protected override ValueTask<IResult> CheckAsync(
 				IImmutableCommand command,
 				IImmutableParameter parameter,
 				IContext context,
@@ -224,9 +224,9 @@ namespace YACCS.Tests.TypeReaders
 				{
 					if (v > -1)
 					{
-						return SuccessResult.Instance.Task;
+						return new(SuccessResult.Instance.Sync);
 					}
-					return InvalidParameterResult.Instance.Task;
+					return new(InvalidParameterResult.Instance.Task);
 				});
 			}
 		}

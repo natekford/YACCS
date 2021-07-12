@@ -198,9 +198,9 @@ namespace YACCS.Tests.Commands.Linq
 		private sealed class NotNegative : ParameterPrecondition<FakeContext, int>
 		{
 			private const string _Message = "Is negative.";
-			private static readonly Task<IResult> _Task = new FailureResult(_Message).AsTask();
+			private static readonly IResult _Failure = new FailureResult(_Message);
 
-			public override Task<IResult> CheckAsync(
+			public override ValueTask<IResult> CheckAsync(
 				IImmutableCommand command,
 				IImmutableParameter parameter,
 				FakeContext context,
@@ -208,9 +208,9 @@ namespace YACCS.Tests.Commands.Linq
 			{
 				if (value >= 0)
 				{
-					return SuccessResult.Instance.Task;
+					return new(SuccessResult.Instance.Sync);
 				}
-				return _Task;
+				return new(_Failure);
 			}
 		}
 	}

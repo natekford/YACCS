@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Reflection;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
@@ -18,7 +19,8 @@ namespace YACCS.Help.Models
 		public ISummaryAttribute? Summary { get; }
 		private string DebuggerDisplay => $"Type = {Item.GetType()}, Attribute Count = {Attributes.Count}";
 
-		public HelpItem(T item) : this(item, item.GetType().GetCustomAttributes(true))
+		public HelpItem(T item)
+			: this(item, item.GetType().GetCustomAttributes(true))
 		{
 		}
 
@@ -27,7 +29,7 @@ namespace YACCS.Help.Models
 		{
 		}
 
-		public HelpItem(T item, IReadOnlyList<object> attributes, Func<object, bool> canAdd)
+		public HelpItem(T item, IReadOnlyList<object> attributes, Func<object, bool> allowedAttributes)
 		{
 			Item = item;
 
@@ -36,7 +38,7 @@ namespace YACCS.Help.Models
 			foreach (var attribute in attributes)
 			{
 				// Don't allow attributes to keep adding themselves over and over
-				if (canAdd(attribute) && item.GetType() != attribute.GetType())
+				if (allowedAttributes(attribute) && item.GetType() != attribute.GetType())
 				{
 					items.Add(new HelpItem<object>(attribute));
 				}
@@ -54,5 +56,8 @@ namespace YACCS.Help.Models
 			}
 			Attributes = items.ToImmutableArray();
 		}
+
+		internal HelpItem<T2> Create<T2>(T2 item) where T2 : ICustomAttributeProvider
+			=> new(item, item.GetCustomAttributes(true));
 	}
 }

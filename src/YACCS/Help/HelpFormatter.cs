@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,6 +10,7 @@ using YACCS.Commands.Models;
 using YACCS.Help.Attributes;
 using YACCS.Help.Models;
 using YACCS.Localization;
+using YACCS.Preconditions;
 
 namespace YACCS.Help
 {
@@ -34,15 +36,12 @@ namespace YACCS.Help
 				.AppendSummary(help);
 
 			await builder.AppendAttributesAsync(help).ConfigureAwait(false);
-			await builder.AppendPreconditionsAsync(help).ConfigureAwait(false);
+			await builder.AppendPreconditionsAsync(help.Preconditions).ConfigureAwait(false);
 			await builder.AppendParametersAsync(help).ConfigureAwait(false);
 			return builder.ToString();
 		}
 
-		protected virtual HelpBuilder GetBuilder(IContext context)
-			=> new(context, TypeNames, FormatProvider);
-
-		protected virtual IHelpCommand GetHelpCommand(IImmutableCommand command)
+		public virtual IHelpCommand GetHelpCommand(IImmutableCommand command)
 		{
 			while (command.Source != null)
 			{
@@ -56,21 +55,24 @@ namespace YACCS.Help
 			return help;
 		}
 
+		protected virtual HelpBuilder GetBuilder(IContext context)
+			=> new(context, TypeNames, FormatProvider);
+
 		protected class HelpBuilder
 		{
 			protected IContext Context { get; }
 			protected int CurrentDepth { get; set; }
 			protected IFormatProvider? FormatProvider { get; }
 			protected virtual string HeaderAttributes
-				=> FormatProvider.Format($"{Keys.Attributes:header} ");
+				=> FormatProvider.Format(ToHeader(Keys.Attributes));
 			protected virtual string HeaderNames
-				=> FormatProvider.Format($"{Keys.Names:header} ");
+				=> FormatProvider.Format(ToHeader(Keys.Names));
 			protected virtual string HeaderParameters
-				=> FormatProvider.Format($"{Keys.Parameters:header} ");
+				=> FormatProvider.Format(ToHeader(Keys.Parameters));
 			protected virtual string HeaderPreconditions
-				=> FormatProvider.Format($"{Keys.Preconditions:header} ");
+				=> FormatProvider.Format(ToHeader(Keys.Preconditions));
 			protected virtual string HeaderSummary
-				=> FormatProvider.Format($"{Keys.Summary:header} ");
+				=> FormatProvider.Format(ToHeader(Keys.Summary));
 			protected StringBuilder StringBuilder { get; }
 			protected IReadOnlyDictionary<Type, string> TypeNames { get; }
 
@@ -101,6 +103,7 @@ namespace YACCS.Help
 			public virtual async Task<HelpBuilder> AppendParametersAsync(IHelpCommand command)
 			{
 				AppendLine(HeaderParameters);
+				++CurrentDepth;
 				foreach (var parameter in command.Parameters)
 				{
 					var pType = parameter.ParameterType;
@@ -109,17 +112,42 @@ namespace YACCS.Help
 					StringBuilder.Append(": ");
 					AppendLine(typeName);
 
-					++CurrentDepth;
 					AppendSummary(parameter);
 					await AppendAttributesAsync(parameter).ConfigureAwait(false);
-					await AppendPreconditionsAsync(parameter).ConfigureAwait(false);
-					--CurrentDepth;
+					await AppendPreconditionsAsync(parameter.Preconditions).ConfigureAwait(false);
 				}
+				--CurrentDepth;
 				return this;
 			}
 
-			public virtual Task<HelpBuilder> AppendPreconditionsAsync(IHasPreconditions preconditions)
-				=> AppendItemsAsync(HeaderPreconditions, preconditions.Preconditions);
+			public virtual async Task<HelpBuilder> AppendPreconditionsAsync<T>(
+				IReadOnlyDictionary<string, ILookup<BoolOp, IHelpItem<T>>> preconditions)
+				where T : notnull
+			{
+				if (preconditions.Count == 0)
+				{
+					return this;
+				}
+
+				AppendLine(HeaderPreconditions);
+				++CurrentDepth;
+				foreach (var (group, lookup) in preconditions)
+				{
+					var groupHeader = group;
+					if (!string.IsNullOrWhiteSpace(groupHeader))
+					{
+						groupHeader = FormatProvider.Format(ToHeader(groupHeader));
+					}
+
+					foreach (var items in lookup)
+					{
+						var opHeader = items.Key.ToString();
+						await AppendItemsAsync(opHeader, items).ConfigureAwait(false);
+					}
+				}
+				--CurrentDepth;
+				return this;
+			}
 
 			public virtual HelpBuilder AppendSummary(IHelpItem<object> item)
 			{
@@ -151,9 +179,10 @@ namespace YACCS.Help
 				return this;
 			}
 
-			protected virtual async Task<HelpBuilder> AppendItemsAsync(
+			protected virtual async Task<HelpBuilder> AppendItemsAsync<T>(
 				string header,
-				IReadOnlyList<IHelpItem<object>> items)
+				IEnumerable<IHelpItem<T>> items)
+				where T : notnull
 			{
 				var hasHeader = false;
 				foreach (var item in items)
@@ -167,17 +196,21 @@ namespace YACCS.Help
 					{
 						text = summary;
 					}
-
-					if (text is not null)
+					else
 					{
-						if (!hasHeader)
+						continue;
+					}
+
+					if (!hasHeader)
+					{
+						if (!string.IsNullOrWhiteSpace(header))
 						{
 							AppendLine(header);
-							hasHeader = true;
 						}
-
-						AppendLine(text);
+						hasHeader = true;
 					}
+
+					AppendLine(text);
 				}
 				if (hasHeader)
 				{
@@ -192,6 +225,9 @@ namespace YACCS.Help
 				StringBuilder.AppendLine(value);
 				return this;
 			}
+
+			private static FormattableString ToHeader(string value)
+				=> $"{value:header} ";
 		}
 	}
 }

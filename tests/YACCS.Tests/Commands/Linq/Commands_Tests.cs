@@ -180,13 +180,13 @@ namespace YACCS.Tests.Commands.Linq
 
 		private sealed class NotSevenPM : Precondition<FakeContext>
 		{
-			public override Task<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
+			public override ValueTask<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
 			{
 				if (DateTime.UtcNow.Hour != 19)
 				{
-					return SuccessResult.Instance.Task;
+					return new(SuccessResult.Instance.Sync);
 				}
-				return new FailureResult("It's seven PM.").AsTask();
+				return new(new FailureResult("It's seven PM."));
 			}
 		}
 	}

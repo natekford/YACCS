@@ -6,7 +6,7 @@ namespace YACCS.Tests
 {
 	public static class FakeDelegateCommand
 	{
-		public static DelegateCommand New(Type? type = null)
-			=> new((Action)(() => { }), Array.Empty<ImmutableName>(), type);
+		public static DelegateCommand New(Type? contextType = null)
+			=> new((Action)(() => { }), Array.Empty<ImmutableName>(), contextType);
 	}
 }

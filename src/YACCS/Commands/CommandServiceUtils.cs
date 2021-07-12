@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
+using YACCS.Preconditions;
+using YACCS.Results;
 
 namespace YACCS.Commands
 {
@@ -197,6 +199,58 @@ namespace YACCS.Commands
 
 			output = input[prefix.Length..];
 			return true;
+		}
+
+		public static ValueTask<IResult> ProcessAsync<T>(
+			this IReadOnlyDictionary<string, IReadOnlyList<T>> preconditions,
+			Func<T, ValueTask<IResult>> converter)
+			where T : IGroupablePrecondition
+		{
+			if (preconditions.Count == 0)
+			{
+				return new(SuccessResult.Instance.Sync);
+			}
+
+			static async Task<IResult> PrivateProcessAsync(
+				IReadOnlyDictionary<string, IReadOnlyList<T>> preconditions,
+				Func<T, ValueTask<IResult>> converter)
+			{
+				// Preconditions are grouped but cannot be subgrouped
+				// So treat logic as group is surrounded by parantheses but inside isn't
+				// Each group must succeed for a command to be valid
+				foreach (var group in preconditions)
+				{
+					IResult groupResult = SuccessResult.Instance.Sync;
+					foreach (var precondition in group.Value)
+					{
+						// An AND has already failed, no need to check other ANDs
+						if (precondition.Op == BoolOp.And && !groupResult.IsSuccess)
+						{
+							continue;
+						}
+
+						var result = await converter(precondition).ConfigureAwait(false);
+						// OR: Any success = instant success, go to next group
+						if (precondition.Op == BoolOp.Or && result.IsSuccess)
+						{
+							groupResult = SuccessResult.Instance.Sync;
+							break;
+						}
+						// AND: Any failure = skip other ANDs, only check further ORs
+						else if (precondition.Op == BoolOp.And && !result.IsSuccess)
+						{
+							groupResult = result;
+						}
+					}
+					if (!groupResult.IsSuccess)
+					{
+						return groupResult;
+					}
+				}
+				return SuccessResult.Instance.Sync;
+			}
+
+			return new(PrivateProcessAsync(preconditions, converter));
 		}
 
 		internal static List<ICommand> CreateMutableCommands(this Type type)

@@ -23,7 +23,7 @@ namespace YACCS.SwapArguments
 		public int Priority { get; }
 		public IImmutableCommand Source { get; }
 		IEnumerable<object> IQueryableEntity.Attributes => Attributes;
-		public Type? ContextType => Source.ContextType;
+		public Type ContextType => Source.ContextType;
 		public int MaxLength => Source.MaxLength;
 		public int MinLength => Source.MinLength;
 		public IReadOnlyList<IReadOnlyList<string>> Names => Source.Names;

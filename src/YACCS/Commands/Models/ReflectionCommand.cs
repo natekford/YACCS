@@ -21,15 +21,15 @@ namespace YACCS.Commands.Models
 		}
 
 		public ReflectionCommand(MethodInfo method, IImmutableCommand? source)
-			: this(method, source, method.ReflectedType)
+			: this(method, method.ReflectedType, source)
 		{
 		}
 
 		protected ReflectionCommand(
 			MethodInfo method,
-			IImmutableCommand? source,
-			Type groupType)
-			: base(method, source, GetContextType(groupType))
+			Type groupType,
+			IImmutableCommand? source)
+			: base(method, GetContextType(groupType), source)
 		{
 			GroupType = groupType;
 			Method = method;
@@ -46,24 +46,23 @@ namespace YACCS.Commands.Models
 		public override IImmutableCommand MakeImmutable()
 			=> new ImmutableReflectionCommand(this);
 
-		private static Type? GetContextType(Type groupType)
+		private static Type GetContextType(Type groupType)
 		{
-			if (!typeof(ICommandGroup).IsAssignableFrom(groupType))
-			{
-				throw new ArgumentException(
-					$"{groupType.FullName} must implement {typeof(ICommandGroup).FullName}.", nameof(groupType));
-			}
 			if (groupType.GetConstructor(Type.EmptyTypes) == null)
 			{
 				throw new ArgumentException(
 					$"{groupType.FullName} is missing a public parameterless constructor", nameof(groupType));
 			}
 
-			return groupType
-				.GetInterfaces()
-				.SingleOrDefault(x => x.IsGenericOf(typeof(ICommandGroup<>)))
-				?.GetGenericArguments()
-				?.Single();
+			foreach (var @interface in groupType.GetInterfaces())
+			{
+				if (@interface.IsGenericOf(typeof(ICommandGroup<>)))
+				{
+					return @interface.GetGenericArguments().Single();
+				}
+			}
+			throw new ArgumentException(
+				$"{groupType.FullName} must implement {typeof(ICommandGroup<>).FullName}.", nameof(groupType));
 		}
 
 		private static IEnumerable<IReadOnlyList<string>> GetFullNames(

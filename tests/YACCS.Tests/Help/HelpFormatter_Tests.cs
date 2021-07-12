@@ -15,8 +15,6 @@ using YACCS.Help.Attributes;
 using YACCS.Preconditions;
 using YACCS.Results;
 
-using PriorityAttribute = YACCS.Commands.Attributes.PriorityAttribute;
-
 namespace YACCS.Tests.Help
 {
 	[TestClass]
@@ -42,14 +40,16 @@ Id = {CommandGroup.ID}
 Priority = {CommandGroup.PRIORITY}
 
 Preconditions:{TRAILING}
-{CooldownAttribute.OUTPUT}
+	{BoolOp.And}
+	{CooldownAttribute.OUTPUT}
 
 Parameters:{TRAILING}
-value: integer (-2147483648 to 2147483647)
+	value: integer (-2147483648 to 2147483647)
 	Summary: {CommandGroup.PARAMETER_SUMMARY}
 
 	Preconditions:{TRAILING}
-	{LessThanOrEqualTo100Attribute.SUMMARY}
+		{BoolOp.And}
+		{LessThanOrEqualTo100Attribute.SUMMARY}
 
 ";
 			var length = Math.Max(expected.Length, output.Length);
@@ -136,7 +136,7 @@ value: integer (-2147483648 to 2147483647)
 			[EnabledByDefault(ENABLED_BY_DEFAULT, Toggleable = TOGGLEABLE)]
 			[Summary(COMMAND_SUMMARY)]
 			[Id(ID)]
-			[Priority(PRIORITY)]
+			[YACCS.Commands.Attributes.Priority(PRIORITY)]
 			[Cooldown]
 			public void Throws(
 				[LessThanOrEqualTo100]
@@ -155,7 +155,7 @@ value: integer (-2147483648 to 2147483647)
 		{
 			public const string OUTPUT = "ur on cooldown buddy";
 
-			public override async Task<IResult> CheckAsync(IImmutableCommand command, IContext context)
+			public override async ValueTask<IResult> CheckAsync(IImmutableCommand command, IContext context)
 			{
 				await Task.Delay(250).ConfigureAwait(false);
 				return new FailureResult(OUTPUT);
@@ -206,7 +206,7 @@ value: integer (-2147483648 to 2147483647)
 		{
 			public const string SUMMARY = "The passed in value is less than or equal to 100.";
 
-			protected override Task<IResult> CheckAsync(
+			protected override ValueTask<IResult> CheckAsync(
 				IImmutableCommand command,
 				IImmutableParameter parameter,
 				IContext context,
@@ -216,9 +216,9 @@ value: integer (-2147483648 to 2147483647)
 				{
 					if (v > 100)
 					{
-						return InvalidParameterResult.Instance.Task;
+						return new(InvalidParameterResult.Instance.Sync);
 					}
-					return SuccessResult.Instance.Task;
+					return new(SuccessResult.Instance.Sync);
 				});
 			}
 		}

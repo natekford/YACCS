@@ -11,7 +11,7 @@ namespace YACCS.Commands.Models
 		bool HasDefaultValue { get; }
 		int? Length { get; }
 		string ParameterName { get; }
-		IReadOnlyList<IParameterPrecondition> Preconditions { get; }
+		IReadOnlyDictionary<string, IReadOnlyList<IParameterPrecondition>> Preconditions { get; }
 		ITypeReader? TypeReader { get; }
 	}
 }

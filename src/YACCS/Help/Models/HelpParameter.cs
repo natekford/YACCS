@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
@@ -15,25 +16,22 @@ namespace YACCS.Help.Models
 	{
 		public bool IsRemainder => Item.Length == null;
 		public IHelpItem<Type> ParameterType { get; }
-		public IReadOnlyList<IHelpItem<IParameterPrecondition>> Preconditions { get; }
+		public IReadOnlyDictionary<string, ILookup<BoolOp, IHelpItem<IParameterPrecondition>>> Preconditions { get; }
 		public IHelpItem<ITypeReader>? TypeReader { get; }
-		IReadOnlyList<IHelpItem<object>> IHasPreconditions.Preconditions => Preconditions;
 		private string DebuggerDisplay => Item.FormatForDebuggerDisplay();
 
 		public HelpParameter(IImmutableParameter item)
 			: base(item, item.Attributes, x => x is not IParameterPrecondition)
 		{
-			ParameterType = HelpItemUtils.Create(item.ParameterType);
+			ParameterType = Create(item.ParameterType);
 			TypeReader = item.TypeReader is ITypeReader tr ? new HelpItem<ITypeReader>(tr) : null;
 
-			{
-				var builder = ImmutableArray.CreateBuilder<HelpItem<IParameterPrecondition>>(item.Preconditions.Count);
-				foreach (var precondition in item.Preconditions)
-				{
-					builder.Add(new HelpItem<IParameterPrecondition>(precondition));
-				}
-				Preconditions = builder.MoveToImmutable();
-			}
+			Preconditions = item.Preconditions.ToImmutableDictionary(
+				x => x.Key,
+				x => x.Value
+					.Select(x => (IHelpItem<IParameterPrecondition>)new HelpItem<IParameterPrecondition>(x))
+					.ToLookup(x => x.Item.Op)
+			);
 		}
 	}
 }

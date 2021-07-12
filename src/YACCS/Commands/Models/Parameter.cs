@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -126,7 +127,7 @@ namespace YACCS.Commands.Models
 			public string OriginalParameterName { get; }
 			public string ParameterName { get; }
 			public Type ParameterType { get; }
-			public IReadOnlyList<IParameterPrecondition> Preconditions { get; }
+			public IReadOnlyDictionary<string, IReadOnlyList<IParameterPrecondition>> Preconditions { get; }
 			public string PrimaryId { get; }
 			public ITypeReader? TypeReader { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
@@ -139,40 +140,56 @@ namespace YACCS.Commands.Models
 				OriginalParameterName = mutable.OriginalParameterName;
 				ParameterType = mutable.ParameterType;
 
+				var attributes = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);
+				// Use ConcurrentDictionary because it has GetOrAdd by default, not threading reasons
+				var preconditions = new ConcurrentDictionary<string, List<IParameterPrecondition>>();
+				int l = 0, n = 0, t = 0;
+				foreach (var attribute in mutable.Attributes)
 				{
-					var builder = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);
-					var preconditions = new List<IParameterPrecondition>();
-					int l = 0, n = 0, t = 0;
-					foreach (var attribute in mutable.Attributes)
+					attributes.Add(attribute);
+					switch (attribute)
 					{
-						builder.Add(attribute);
-						switch (attribute)
-						{
-							case IParameterPrecondition precondition:
-								preconditions.Add(precondition);
-								break;
+						case IParameterPrecondition precondition:
+							if (precondition.Groups.Count == 0)
+							{
+								preconditions
+									.GetOrAdd(string.Empty, _ => new())
+									.Add(precondition);
+							}
+							else
+							{
+								foreach (var group in precondition.Groups)
+								{
+									preconditions
+										.GetOrAdd(group, _ => new())
+										.Add(precondition);
+								}
+							}
+							break;
 
-							case ILengthAttribute length:
-								Length = length.ThrowIfDuplicate(x => x.Length, ref l);
-								break;
+						case ILengthAttribute length:
+							Length = length.ThrowIfDuplicate(x => x.Length, ref l);
+							break;
 
-							case INameAttribute name:
-								ParameterName = name.ThrowIfDuplicate(x => x.Name, ref n);
-								break;
+						case INameAttribute name:
+							ParameterName = name.ThrowIfDuplicate(x => x.Name, ref n);
+							break;
 
-							case IOverrideTypeReaderAttribute typeReader:
-								typeReader.Reader.ThrowIfInvalidTypeReader(ParameterType);
-								TypeReader = typeReader.ThrowIfDuplicate(x => x.Reader, ref t);
-								break;
+						case IOverrideTypeReaderAttribute typeReader:
+							typeReader.Reader.ThrowIfInvalidTypeReader(ParameterType);
+							TypeReader = typeReader.ThrowIfDuplicate(x => x.Reader, ref t);
+							break;
 
-							case IIdAttribute id:
-								PrimaryId ??= id.Id;
-								break;
-						}
+						case IIdAttribute id:
+							PrimaryId ??= id.Id;
+							break;
 					}
-					Attributes = builder.MoveToImmutable();
-					Preconditions = preconditions.ToImmutableArray();
 				}
+				Attributes = attributes.MoveToImmutable();
+				Preconditions = preconditions.ToImmutableDictionary(
+					x => x.Key,
+					x => (IReadOnlyList<IParameterPrecondition>)x.Value.ToImmutableArray()
+				);
 
 				TypeReader ??= mutable.TypeReader;
 				ParameterName ??= mutable.OriginalParameterName;

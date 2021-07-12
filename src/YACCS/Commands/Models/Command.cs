@@ -18,7 +18,7 @@ namespace YACCS.Commands.Models
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public abstract class Command : EntityBase, ICommand
 	{
-		public Type? ContextType { get; protected set; }
+		public Type ContextType { get; protected set; }
 		public IList<IReadOnlyList<string>> Names { get; set; }
 		public IReadOnlyList<IParameter> Parameters { get; set; }
 		public IImmutableCommand? Source { get; protected set; }
@@ -26,7 +26,7 @@ namespace YACCS.Commands.Models
 		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
 		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
-		protected Command(MethodInfo method, IImmutableCommand? source, Type? contextType)
+		protected Command(MethodInfo method, Type contextType, IImmutableCommand? source)
 			: base(method)
 		{
 			Source = source;
@@ -57,7 +57,7 @@ namespace YACCS.Commands.Models
 			private readonly Lazy<Func<Task, object>> _TaskResult;
 
 			public IReadOnlyList<object> Attributes { get; }
-			public Type? ContextType { get; }
+			public Type ContextType { get; }
 			public int MaxLength { get; }
 			public int MinLength { get; }
 			public IReadOnlyList<IReadOnlyList<string>> Names { get; }
@@ -154,7 +154,7 @@ namespace YACCS.Commands.Models
 				Preconditions = preconditions.ToImmutableDictionary(
 					x => x.Key,
 					x => (IReadOnlyList<IPrecondition>)x.Value.ToImmutableArray()
-				)!;
+				);
 
 				PrimaryId ??= Guid.NewGuid().ToString();
 			}

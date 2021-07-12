@@ -13,10 +13,12 @@ namespace YACCS.Localization
 			.ToImmutableArray();
 
 		#region Words
+		public static NeedsLocalization And { get; } = nameof(And);
 		public static NeedsLocalization Attributes { get; } = nameof(Attributes);
 		public static NeedsLocalization Id { get; } = nameof(Id);
 		public static NeedsLocalization Length { get; } = nameof(Length);
 		public static NeedsLocalization Names { get; } = nameof(Names);
+		public static NeedsLocalization Or { get; } = nameof(Or);
 		public static NeedsLocalization Parameters { get; } = nameof(Parameters);
 		public static NeedsLocalization Preconditions { get; } = nameof(Preconditions);
 		public static NeedsLocalization Priority { get; } = nameof(Priority);

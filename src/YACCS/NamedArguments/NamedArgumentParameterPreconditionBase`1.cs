@@ -14,7 +14,7 @@ namespace YACCS.NamedArguments
 	{
 		protected abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
-		public override async Task<IResult> CheckAsync(
+		public override async ValueTask<IResult> CheckAsync(
 			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IContext context,
@@ -23,14 +23,12 @@ namespace YACCS.NamedArguments
 			foreach (var kvp in Parameters)
 			{
 				var (id, member) = kvp;
-				foreach (var precondition in member.Preconditions)
+				var result = await member.Preconditions
+					.ProcessAsync(x => x.CheckAsync(command, member, context, Getter(value, id)))
+					.ConfigureAwait(false);
+				if (!result.IsSuccess)
 				{
-					var memberValue = Getter(value, id);
-					var result = await precondition.CheckAsync(command, member, context, memberValue).ConfigureAwait(false);
-					if (!result.IsSuccess)
-					{
-						return result;
-					}
+					return result;
 				}
 			}
 			return SuccessResult.Instance.Sync;

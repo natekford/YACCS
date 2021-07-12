@@ -8,7 +8,7 @@ namespace YACCS.Preconditions
 {
 	public interface IParameterPrecondition : IGroupablePrecondition
 	{
-		Task<IResult> CheckAsync(
+		ValueTask<IResult> CheckAsync(
 			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IContext context,

@@ -11,14 +11,14 @@ namespace YACCS.Preconditions
 	public abstract class ParameterPreconditionAttribute
 		: GroupablePreconditionAttribute, IParameterPrecondition
 	{
-		Task<IResult> IParameterPrecondition.CheckAsync(
+		ValueTask<IResult> IParameterPrecondition.CheckAsync(
 			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IContext context,
 			object? value)
 			=> CheckAsync(command, parameter, context, value);
 
-		protected abstract Task<IResult> CheckAsync(
+		protected abstract ValueTask<IResult> CheckAsync(
 			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IContext context,

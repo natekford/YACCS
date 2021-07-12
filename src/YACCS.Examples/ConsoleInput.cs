@@ -65,7 +65,6 @@ namespace YACCS.Examples
 			{
 				token.Cancel();
 			}
-			Console.WriteLine();
 			return Task.CompletedTask;
 		}
 	}

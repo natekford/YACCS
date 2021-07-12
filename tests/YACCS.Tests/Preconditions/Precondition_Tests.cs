@@ -20,33 +20,32 @@ namespace YACCS.Tests.Preconditions
 			var command = FakeDelegateCommand.New().MakeImmutable();
 			var context = new FakeContext2();
 
+			var before = precondition.BeforeExecutionAsync(command, context);
+			Assert.AreEqual(InvalidContextResult.Instance.Task, before.AsTask());
+
 			var result = await precondition.CheckAsync(command, context).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
 			Assert.IsInstanceOfType(result, typeof(InvalidContextResult));
 
-			var after = precondition.BeforeExecutionAsync(command, context);
-			Assert.AreEqual(InvalidContextResult.Instance.Task, after);
+			var after = precondition.AfterExecutionAsync(command, context, null);
+			Assert.AreEqual(InvalidContextResult.Instance.Task, after.AsTask());
 		}
 
 		[TestMethod]
 		public async Task ValidContext_Test()
 		{
-			var precondition = new FakePrecondition();
+			IPrecondition precondition = new FakePrecondition();
 			var command = FakeDelegateCommand.New().MakeImmutable();
 			var context = new FakeContext();
+
+			var before = precondition.BeforeExecutionAsync(command, context);
+			Assert.AreEqual(ValueTask.CompletedTask, before);
 
 			var result = await precondition.CheckAsync(command, context).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
 
 			var after = precondition.AfterExecutionAsync(command, context, null);
-			Assert.AreEqual(Task.CompletedTask, after);
-
-			var precondition2 = (IPrecondition)precondition;
-			var result2 = await precondition2.CheckAsync(command, context).ConfigureAwait(false);
-			Assert.IsTrue(result2.IsSuccess);
-
-			var after2 = precondition2.BeforeExecutionAsync(command, context);
-			Assert.AreEqual(Task.CompletedTask, after2);
+			Assert.AreEqual(ValueTask.CompletedTask, after);
 		}
 
 		private class FakeContext2 : IContext
@@ -57,8 +56,8 @@ namespace YACCS.Tests.Preconditions
 
 		private class FakePrecondition : Precondition<FakeContext>
 		{
-			public override Task<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
-				=> SuccessResult.Instance.Task;
+			public override ValueTask<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
+				=> new(SuccessResult.Instance.Sync);
 		}
 	}
 }

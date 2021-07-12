@@ -28,8 +28,10 @@ namespace YACCS.Examples
 				.AddSingleton<ConsoleHandler>()
 				.AddSingleton<ConsoleCommandServiceFactory>()
 				.AddSingleton<IEnumerable<Assembly>>(new[] { typeof(Program).Assembly })
-				.AddScoped<ICommandService>(x => x.GetRequiredService<ConsoleCommandService>())
-				.AddScoped<ConsoleCommandService>(x =>
+				// These 2 need to be transient so if the culture is changed
+				// the correct localized command service is retrieved
+				.AddTransient<ICommandService>(x => x.GetRequiredService<ConsoleCommandService>())
+				.AddTransient<ConsoleCommandService>(x =>
 				{
 					return x.GetRequiredService<ConsoleCommandServiceFactory>()
 						.GetCommandService();
@@ -41,8 +43,10 @@ namespace YACCS.Examples
 				.AddSingleton<IReadOnlyDictionary<Type, string>, TypeNameRegistry>()
 				.BuildServiceProvider();
 
+#if DEBUG
 			Localize.Instance.KeyNotFound += (key, culture)
 				=> Debug.WriteLine($"Unable to find the localization for '{key}' in '{culture}'.");
+#endif
 		}
 
 		public static Task Main()
@@ -58,14 +62,12 @@ namespace YACCS.Examples
 
 				await console.WaitForBothIOLocksAsync().ConfigureAwait(false);
 				console.ReleaseIOLocks();
-
-				console.WriteLine();
 				console.WriteLine("Enter a command and its arguments: ");
 
 				var input = await console.ReadLineAsync().ConfigureAwait(false);
-				if (input is null)
+				if (string.IsNullOrWhiteSpace(input))
 				{
-					return;
+					continue;
 				}
 
 				var context = new ConsoleContext(_Services.CreateScope(), input);
@@ -75,6 +77,7 @@ namespace YACCS.Examples
 					console.ReleaseIOLocks();
 				}
 				console.WriteResult(result);
+				console.WriteLine();
 			}
 		}
 	}

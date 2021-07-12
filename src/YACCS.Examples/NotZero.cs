@@ -14,7 +14,7 @@ namespace YACCS.Examples
 	{
 		public virtual string FallbackErrorMessage { get; set; } = "Cannot be zero.";
 
-		public Task<IResult> CheckAsync(
+		public ValueTask<IResult> CheckAsync(
 			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IContext context,
@@ -22,15 +22,15 @@ namespace YACCS.Examples
 		{
 			if (value == 0)
 			{
-				return new FailureResult(GetErrorMessage()).AsTask();
+				return new(new FailureResult(GetErrorMessage()));
 			}
-			return SuccessResult.Instance.Task;
+			return new(SuccessResult.Instance.Sync);
 		}
 
 		public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
 			=> new(GetErrorMessage());
 
-		protected override Task<IResult> CheckAsync(
+		protected override ValueTask<IResult> CheckAsync(
 			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IContext context,

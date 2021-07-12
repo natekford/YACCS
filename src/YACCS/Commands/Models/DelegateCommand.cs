@@ -16,22 +16,22 @@ namespace YACCS.Commands.Models
 			Delegate @delegate,
 			IEnumerable<IReadOnlyList<string>> names,
 			Type? contextType = null)
-			: this(@delegate, null, contextType ?? typeof(IContext), names)
+			: this(@delegate, contextType ?? typeof(IContext), null, names)
 		{
 		}
 
 		public DelegateCommand(Delegate @delegate, IImmutableCommand source)
-			: this(@delegate, source, source.ContextType, source.Names)
+			: this(@delegate, source.ContextType, source, source.Names)
 		{
 			Attributes.Add(new GeneratedCommandAttribute(source));
 		}
 
 		protected DelegateCommand(
 			Delegate @delegate,
+			Type contextType,
 			IImmutableCommand? source,
-			Type? contextType,
 			IEnumerable<IReadOnlyList<string>> names)
-			: base(@delegate.Method, source, contextType)
+			: base(@delegate.Method, contextType, source)
 		{
 			Delegate = @delegate;
 
