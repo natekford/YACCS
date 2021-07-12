@@ -34,11 +34,11 @@ namespace YACCS.Interactivity
 
 			if (task == cancel)
 			{
-				return TypeReaderResult<TValue>.FromError(CanceledResult.Instance.Sync);
+				return TypeReaderResult<TValue>.FromError(CanceledResult.Instance);
 			}
 			if (task == delay)
 			{
-				return TypeReaderResult<TValue>.FromError(TimedOutResult.Instance.Sync);
+				return TypeReaderResult<TValue>.FromError(TimedOutResult.Instance);
 			}
 
 			var value = await @event.ConfigureAwait(false);

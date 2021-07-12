@@ -62,7 +62,7 @@ namespace YACCS.Interactivity.Input
 				}
 
 				e.SetResult(trResult.Value!);
-				return SuccessResult.Instance.Sync;
+				return SuccessResult.Instance;
 			}));
 		}
 

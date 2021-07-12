@@ -216,9 +216,9 @@ Parameters:{TRAILING}
 				{
 					if (v > 100)
 					{
-						return new(InvalidParameterResult.Instance.Sync);
+						return new(InvalidParameterResult.Instance);
 					}
-					return new(SuccessResult.Instance.Sync);
+					return new(SuccessResult.Instance);
 				});
 			}
 		}

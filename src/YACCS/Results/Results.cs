@@ -4,36 +4,46 @@ using YACCS.Localization;
 
 namespace YACCS.Results
 {
-	public class CanceledResult : ResultWithSingleton<CanceledResult, IResult>
+	public class CanceledResult : LocalizedResult
 	{
+		public static CanceledResult Instance { get; } = new();
+
 		public CanceledResult() : base(false, Keys.CanceledResult)
 		{
 		}
 	}
 
-	public class CommandNotFoundResult : ResultWithSingleton<CommandNotFoundResult, IResult>
+	public class CommandNotFoundResult : LocalizedResult
 	{
+		public static CommandNotFoundResult Instance { get; } = new();
+
 		public CommandNotFoundResult() : base(false, Keys.CommandNotFoundResult)
 		{
 		}
 	}
 
-	public class ExceptionAfterCommandResult : ResultWithSingleton<ExceptionAfterCommandResult, IResult>
+	public class ExceptionAfterCommandResult : LocalizedResult
 	{
+		public static ExceptionAfterCommandResult Instance { get; } = new();
+
 		public ExceptionAfterCommandResult() : base(false, Keys.ExceptionAfterCommandResult)
 		{
 		}
 	}
 
-	public class ExceptionDuringCommandResult : ResultWithSingleton<ExceptionDuringCommandResult, IResult>
+	public class ExceptionDuringCommandResult : LocalizedResult
 	{
+		public static ExceptionDuringCommandResult Instance { get; } = new();
+
 		public ExceptionDuringCommandResult() : base(false, Keys.ExceptionDuringCommandResult)
 		{
 		}
 	}
 
-	public class FailureResult : ResultWithSingleton<FailureResult, IResult>
+	public class FailureResult : LocalizedResult
 	{
+		public static FailureResult Instance { get; } = new();
+
 		public FailureResult() : this(string.Empty)
 		{
 		}
@@ -43,29 +53,37 @@ namespace YACCS.Results
 		}
 	}
 
-	public class InvalidContextResult : ResultWithSingleton<InvalidContextResult, IResult>
+	public class InvalidContextResult : LocalizedResult
 	{
+		public static InvalidContextResult Instance { get; } = new();
+
 		public InvalidContextResult() : base(false, Keys.InvalidContextResult)
 		{
 		}
 	}
 
-	public class InvalidParameterResult : ResultWithSingleton<InvalidParameterResult, IResult>
+	public class InvalidParameterResult : LocalizedResult
 	{
+		public static InvalidParameterResult Instance { get; } = new();
+
 		public InvalidParameterResult() : base(false, Keys.InvalidParameterResult)
 		{
 		}
 	}
 
-	public class MultiMatchHandlingErrorResult : ResultWithSingleton<MultiMatchHandlingErrorResult, IResult>
+	public class MultiMatchHandlingErrorResult : LocalizedResult
 	{
+		public static MultiMatchHandlingErrorResult Instance { get; } = new();
+
 		public MultiMatchHandlingErrorResult() : base(false, Keys.MultiMatchHandlingErrorResult)
 		{
 		}
 	}
 
-	public class NamedArgBadCountResult : ResultWithSingleton<NamedArgBadCountResult, IResult>
+	public class NamedArgBadCountResult : LocalizedResult
 	{
+		public static NamedArgBadCountResult Instance { get; } = new();
+
 		public NamedArgBadCountResult() : base(false, Keys.NamedArgBadCountResult)
 		{
 		}
@@ -104,15 +122,19 @@ namespace YACCS.Results
 		}
 	}
 
-	public class NotEnoughArgsResult : ResultWithSingleton<NotEnoughArgsResult, IResult>
+	public class NotEnoughArgsResult : LocalizedResult
 	{
+		public static NotEnoughArgsResult Instance { get; } = new();
+
 		public NotEnoughArgsResult() : base(false, Keys.NotEnoughArgsResult)
 		{
 		}
 	}
 
-	public class NullParameterResult : ResultWithSingleton<NullParameterResult, IResult>
+	public class NullParameterResult : LocalizedResult
 	{
+		public static NullParameterResult Instance { get; } = new();
+
 		public NullParameterResult() : base(false, Keys.NullParameterResult)
 		{
 		}
@@ -131,23 +153,26 @@ namespace YACCS.Results
 
 	public class ParseFailedResult<T> : ParseFailedResult
 	{
-		public static ResultInstance<ParseFailedResult<T>, IResult> Instance { get; }
-			= new(new());
+		public static ParseFailedResult<T> Instance { get; } = new();
 
 		public ParseFailedResult() : base(typeof(T))
 		{
 		}
 	}
 
-	public class QuoteMismatchResult : ResultWithSingleton<QuoteMismatchResult, IResult>
+	public class QuoteMismatchResult : LocalizedResult
 	{
+		public static QuoteMismatchResult Instance { get; } = new();
+
 		public QuoteMismatchResult() : base(false, Keys.QuoteMismatchResult)
 		{
 		}
 	}
 
-	public class SuccessResult : ResultWithSingleton<SuccessResult, IResult>
+	public class SuccessResult : LocalizedResult
 	{
+		public static SuccessResult Instance { get; } = new();
+
 		public SuccessResult() : this(string.Empty)
 		{
 		}
@@ -157,15 +182,19 @@ namespace YACCS.Results
 		}
 	}
 
-	public class TimedOutResult : ResultWithSingleton<TimedOutResult, IResult>
+	public class TimedOutResult : LocalizedResult
 	{
+		public static TimedOutResult Instance { get; } = new();
+
 		public TimedOutResult() : base(false, Keys.TimedOutResult)
 		{
 		}
 	}
 
-	public class TooManyArgsResult : ResultWithSingleton<TooManyArgsResult, IResult>
+	public class TooManyArgsResult : LocalizedResult
 	{
+		public static TooManyArgsResult Instance { get; } = new();
+
 		public TooManyArgsResult() : base(false, Keys.TooManyArgsResult)
 		{
 		}

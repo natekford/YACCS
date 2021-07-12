@@ -30,7 +30,7 @@ namespace YACCS.TypeReaders
 			{
 				return TypeReaderResult<T>.FromSuccess(result).AsITask();
 			}
-			return TypeReaderResult<T>.Failure.ITask;
+			return TypeReaderResult<T>.FailureInstance;
 		}
 	}
 }

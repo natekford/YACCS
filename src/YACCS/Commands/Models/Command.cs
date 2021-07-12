@@ -166,7 +166,7 @@ namespace YACCS.Commands.Models
 				// Void method. No value to return, we're done
 				if (ReturnType == typeof(void))
 				{
-					return SuccessResult.Instance.Sync;
+					return SuccessResult.Instance;
 				}
 
 				// We're given a task
@@ -178,7 +178,7 @@ namespace YACCS.Commands.Models
 					// Not generic? No value to return, we're done
 					if (!ReturnType.IsGenericType)
 					{
-						return SuccessResult.Instance.Sync;
+						return SuccessResult.Instance;
 					}
 
 					// It has a value? Ok, let's get it

@@ -12,15 +12,15 @@ namespace YACCS.Commands
 	{
 		// This class is a mess
 		public static CommandScore CommandNotFound { get; }
-			= new(null, null, null!, CommandNotFoundResult.Instance.Sync, 0, 0, null);
+			= new(null, null, null!, CommandNotFoundResult.Instance, 0, 0, null);
 		public static Task<ICommandResult> CommandNotFoundTask { get; }
 			= Task.FromResult<ICommandResult>(CommandNotFound);
 		public static CommandScore MultiMatch { get; }
-			= new(null, null, null!, MultiMatchHandlingErrorResult.Instance.Sync, 0, 0, null);
+			= new(null, null, null!, MultiMatchHandlingErrorResult.Instance, 0, 0, null);
 		public static Task<ICommandResult> MultiMatchTask { get; }
 			= Task.FromResult<ICommandResult>(MultiMatch);
 		public static CommandScore QuoteMismatch { get; }
-			= new(null, null, null!, QuoteMismatchResult.Instance.Sync, 0, 0, null);
+			= new(null, null, null!, QuoteMismatchResult.Instance, 0, 0, null);
 		public static Task<ICommandResult> QuoteMismatchTask { get; }
 			= Task.FromResult<ICommandResult>(QuoteMismatch);
 
@@ -111,7 +111,7 @@ namespace YACCS.Commands
 			object?[] args,
 			int score)
 		{
-			var result = SuccessResult.Instance.Sync;
+			var result = SuccessResult.Instance;
 			const CommandStage STAGE = CommandStage.CanExecute;
 			// Subtract start index from int.MaxValue because the more args the less
 			// command name parts used, so the less specific the command is
@@ -127,7 +127,7 @@ namespace YACCS.Commands
 			IContext context,
 			int score)
 		{
-			var result = NotEnoughArgsResult.Instance.Sync;
+			var result = NotEnoughArgsResult.Instance;
 			const CommandStage STAGE = CommandStage.FailedTypeReader;
 			return new(command, parameter, context, result, STAGE, score, null);
 		}
@@ -169,7 +169,7 @@ namespace YACCS.Commands
 			IContext context,
 			int score)
 		{
-			var result = InvalidContextResult.Instance.Sync;
+			var result = InvalidContextResult.Instance;
 			const CommandStage STAGE = CommandStage.BadContext;
 			return new(command, null, context, result, STAGE, score, null);
 		}
@@ -179,7 +179,7 @@ namespace YACCS.Commands
 			IContext context,
 			int score)
 		{
-			var result = NotEnoughArgsResult.Instance.Sync;
+			var result = NotEnoughArgsResult.Instance;
 			const CommandStage STAGE = CommandStage.BadArgCount;
 			return new(command, null, context, result, STAGE, score, null);
 		}
@@ -189,7 +189,7 @@ namespace YACCS.Commands
 			IContext context,
 			int score)
 		{
-			var result = TooManyArgsResult.Instance.Sync;
+			var result = TooManyArgsResult.Instance;
 			const CommandStage STAGE = CommandStage.BadArgCount;
 			return new(command, null, context, result, STAGE, score, null);
 		}

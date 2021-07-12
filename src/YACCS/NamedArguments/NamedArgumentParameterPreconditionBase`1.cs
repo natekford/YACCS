@@ -31,7 +31,7 @@ namespace YACCS.NamedArguments
 					return result;
 				}
 			}
-			return SuccessResult.Instance.Sync;
+			return SuccessResult.Instance;
 		}
 
 		protected abstract object? Getter(T instance, string property);

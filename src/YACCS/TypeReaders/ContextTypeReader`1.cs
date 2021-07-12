@@ -14,7 +14,7 @@ namespace YACCS.TypeReaders
 		{
 			if (context is not T tContext)
 			{
-				return TypeReaderResult<T>.Failure.ITask;
+				return TypeReaderResult<T>.FailureInstance;
 			}
 			return TypeReaderResult<T>.FromSuccess(tContext).AsITask();
 		}

@@ -22,7 +22,7 @@ namespace YACCS.Tests.Commands.Linq
 			var commands = await CreateCommandsAsync().ConfigureAwait(false);
 
 			var t = new Querying_TestsGroup.Help();
-			var @delegate = (Func<IReadOnlyList<string>, Task<IResult>>)t.CommandFour;
+			var @delegate = (Func<IReadOnlyList<string>, IResult>)t.CommandFour;
 
 			{
 				var result = commands.ByDelegate(@delegate, includeMethod: true).ToArray();
@@ -137,21 +137,22 @@ namespace YACCS.Tests.Commands.Linq
 			public sealed class Help : CommandGroup<IContext>
 			{
 				[Command]
-				public Task<IResult> CommandFour(IReadOnlyList<string> list)
-					=> SuccessResult.Instance.Task;
+				public IResult CommandFour(IReadOnlyList<string> list)
+					=> SuccessResult.Instance;
 
 				[Command(_7, _8, _9)]
 				[Id(_CommandOneId)]
-				public Task<IResult> CommandOne()
-					=> SuccessResult.Instance.Task;
+				public IResult CommandOne()
+					=> SuccessResult.Instance;
 
 				[Command]
-				public Task<IResult> CommandThree([Id(_PositionId)] int position, string arg)
-					=> SuccessResult.Instance.Task;
+				public IResult CommandThree([Id(_PositionId)] int position, string arg)
+					=> SuccessResult.Instance;
 
 				[Command]
 				[Id(_CommandTwoId)]
-				public Task<IResult> CommandTwo(string arg) => SuccessResult.Instance.Task;
+				public IResult CommandTwo(string arg)
+					=> SuccessResult.Instance;
 
 				public override Task OnCommandBuildingAsync(IList<ICommand> commands)
 				{

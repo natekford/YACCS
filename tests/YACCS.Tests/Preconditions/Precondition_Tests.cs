@@ -20,15 +20,15 @@ namespace YACCS.Tests.Preconditions
 			var command = FakeDelegateCommand.New().MakeImmutable();
 			var context = new FakeContext2();
 
-			var before = precondition.BeforeExecutionAsync(command, context);
-			Assert.AreEqual(InvalidContextResult.Instance.Task, before.AsTask());
-
 			var result = await precondition.CheckAsync(command, context).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
 			Assert.IsInstanceOfType(result, typeof(InvalidContextResult));
 
+			var before = precondition.BeforeExecutionAsync(command, context);
+			Assert.AreEqual(ValueTask.CompletedTask, before);
+
 			var after = precondition.AfterExecutionAsync(command, context, null);
-			Assert.AreEqual(InvalidContextResult.Instance.Task, after.AsTask());
+			Assert.AreEqual(ValueTask.CompletedTask, after);
 		}
 
 		[TestMethod]
@@ -38,11 +38,11 @@ namespace YACCS.Tests.Preconditions
 			var command = FakeDelegateCommand.New().MakeImmutable();
 			var context = new FakeContext();
 
-			var before = precondition.BeforeExecutionAsync(command, context);
-			Assert.AreEqual(ValueTask.CompletedTask, before);
-
 			var result = await precondition.CheckAsync(command, context).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
+
+			var before = precondition.BeforeExecutionAsync(command, context);
+			Assert.AreEqual(ValueTask.CompletedTask, before);
 
 			var after = precondition.AfterExecutionAsync(command, context, null);
 			Assert.AreEqual(ValueTask.CompletedTask, after);
@@ -57,7 +57,7 @@ namespace YACCS.Tests.Preconditions
 		private class FakePrecondition : Precondition<FakeContext>
 		{
 			public override ValueTask<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
-				=> new(SuccessResult.Instance.Sync);
+				=> new(SuccessResult.Instance);
 		}
 	}
 }

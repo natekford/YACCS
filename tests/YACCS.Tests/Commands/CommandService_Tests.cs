@@ -1033,7 +1033,7 @@ namespace YACCS.Tests.Commands
 			IImmutableParameter parameter,
 			FakeContext context,
 			[MaybeNull] int value)
-			=> value == DisallowedValue ? new(new FailureResult("lol")) : new(SuccessResult.Instance.Sync);
+			=> new(value == DisallowedValue ? new FailureResult("lol") : SuccessResult.Instance);
 	}
 
 	public class FakePrecondition : Precondition<FakeContext>
@@ -1052,7 +1052,7 @@ namespace YACCS.Tests.Commands
 		}
 
 		public override ValueTask<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
-			=> new(_Success ? SuccessResult.Instance.Sync : FailureResult.Instance.Sync);
+			=> new(_Success ? SuccessResult.Instance : FailureResult.Instance);
 	}
 
 	public class FakePreconditionWhichThrowsAfter : PreconditionAttribute
@@ -1061,7 +1061,7 @@ namespace YACCS.Tests.Commands
 			=> throw new InvalidOperationException();
 
 		public override ValueTask<IResult> CheckAsync(IImmutableCommand command, IContext context)
-			=> new(SuccessResult.Instance.Sync);
+			=> new(SuccessResult.Instance);
 	}
 
 	public class FakePreconditionWhichThrowsBefore : PreconditionAttribute
@@ -1070,7 +1070,7 @@ namespace YACCS.Tests.Commands
 			=> throw new InvalidOperationException();
 
 		public override ValueTask<IResult> CheckAsync(IImmutableCommand command, IContext context)
-			=> new(SuccessResult.Instance.Sync);
+			=> new(SuccessResult.Instance);
 	}
 
 	public class WasIReachedParameterPrecondition : ParameterPrecondition<FakeContext, int>
@@ -1084,7 +1084,7 @@ namespace YACCS.Tests.Commands
 			[MaybeNull] int value)
 		{
 			IWasReached = true;
-			return new(SuccessResult.Instance.Sync);
+			return new(SuccessResult.Instance);
 		}
 	}
 
@@ -1095,7 +1095,7 @@ namespace YACCS.Tests.Commands
 		public override ValueTask<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
 		{
 			IWasReached = true;
-			return new(SuccessResult.Instance.Sync);
+			return new(SuccessResult.Instance);
 		}
 	}
 }

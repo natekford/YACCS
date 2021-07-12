@@ -183,7 +183,7 @@ namespace YACCS.Tests.TypeReaders
 				SetMe.IntValue = i;
 				SetMe.StringValue = s;
 
-				return SuccessResult.Instance.Sync;
+				return SuccessResult.Instance;
 			}
 
 			[Command(nameof(Test2))]
@@ -224,9 +224,9 @@ namespace YACCS.Tests.TypeReaders
 				{
 					if (v > -1)
 					{
-						return new(SuccessResult.Instance.Sync);
+						return new(SuccessResult.Instance);
 					}
-					return new(InvalidParameterResult.Instance.Task);
+					return new(InvalidParameterResult.Instance);
 				});
 			}
 		}

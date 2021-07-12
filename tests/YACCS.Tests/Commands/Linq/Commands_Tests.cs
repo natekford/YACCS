@@ -184,7 +184,7 @@ namespace YACCS.Tests.Commands.Linq
 			{
 				if (DateTime.UtcNow.Hour != 19)
 				{
-					return new(SuccessResult.Instance.Sync);
+					return new(SuccessResult.Instance);
 				}
 				return new(new FailureResult("It's seven PM."));
 			}

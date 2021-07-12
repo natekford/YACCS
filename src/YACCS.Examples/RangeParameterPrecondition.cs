@@ -37,7 +37,7 @@ namespace YACCS.Examples
 			{
 				return new(_MaxResult);
 			}
-			return new(SuccessResult.Instance.Sync);
+			return new(SuccessResult.Instance);
 		}
 	}
 }

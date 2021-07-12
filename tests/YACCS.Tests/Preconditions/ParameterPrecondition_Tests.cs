@@ -116,11 +116,11 @@ namespace YACCS.Tests.Preconditions
 			{
 				if (value is null)
 				{
-					return new(SuccessResult.Instance.Sync);
+					return new(SuccessResult.Instance);
 				}
 				if (value > -1)
 				{
-					return new(SuccessResult.Instance.Sync);
+					return new(SuccessResult.Instance);
 				}
 				return new(new FailureResult("joe"));
 			}

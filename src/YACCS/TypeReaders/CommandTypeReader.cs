@@ -32,7 +32,7 @@ namespace YACCS.TypeReaders
 			{
 				return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.FromSuccess(found).AsITask();
 			}
-			return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.Failure.ITask;
+			return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.FailureInstance;
 		}
 	}
 }

@@ -22,7 +22,7 @@ namespace YACCS.Preconditions
 		{
 			if (context is not TContext tContext)
 			{
-				return new(InvalidContextResult.Instance.Sync);
+				return new(InvalidContextResult.Instance);
 			}
 			if (value is TValue tValue)
 			{
@@ -50,7 +50,7 @@ namespace YACCS.Preconditions
 			{
 				return CheckAsync(command, parameter, tContext, tUntypedValues, checkAsync);
 			}
-			return new(InvalidParameterResult.Instance.Sync);
+			return new(InvalidParameterResult.Instance);
 		}
 
 		public static ValueTask HandleAsync<TContext>(
@@ -65,7 +65,7 @@ namespace YACCS.Preconditions
 				// We don't need to throw an exception here because CheckAsync should
 				// return a result indicating an invalid context type and this should not
 				// be called before CheckAsync
-				return new(InvalidContextResult.Instance.Task);
+				return new();
 			}
 			return afterExecutionAsync(command, tContext);
 		}
@@ -79,7 +79,7 @@ namespace YACCS.Preconditions
 		{
 			if (context is not TContext tContext)
 			{
-				return new(InvalidContextResult.Instance.Sync);
+				return new(InvalidContextResult.Instance);
 			}
 			return checkAsync(command, tContext);
 		}
@@ -99,7 +99,7 @@ namespace YACCS.Preconditions
 					return result;
 				}
 			}
-			return SuccessResult.Instance.Sync;
+			return SuccessResult.Instance;
 		}
 
 		private static async ValueTask<IResult> CheckAsync<TContext, TValue>(
@@ -114,7 +114,7 @@ namespace YACCS.Preconditions
 				var tValue = value is TValue temp ? temp : default;
 				if (value is not null && tValue is null)
 				{
-					return InvalidParameterResult.Instance.Sync;
+					return InvalidParameterResult.Instance;
 				}
 
 				var result = await checkAsync(command, parameter, context, tValue!).ConfigureAwait(false);
@@ -123,7 +123,7 @@ namespace YACCS.Preconditions
 					return result;
 				}
 			}
-			return SuccessResult.Instance.Sync;
+			return SuccessResult.Instance;
 		}
 	}
 }

@@ -34,7 +34,7 @@ namespace YACCS.Interactivity.Pagination
 					}
 
 					e.SetResult(displayer.Convert(i));
-					return SuccessResult.Instance.Sync;
+					return SuccessResult.Instance;
 				})).ConfigureAwait(false);
 				if (!result.InnerResult.IsSuccess || !result.Value.HasValue)
 				{

@@ -208,7 +208,7 @@ namespace YACCS.Tests.Commands.Linq
 			{
 				if (value >= 0)
 				{
-					return new(SuccessResult.Instance.Sync);
+					return new(SuccessResult.Instance);
 				}
 				return new(_Failure);
 			}

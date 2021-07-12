@@ -13,7 +13,7 @@ namespace YACCS.NamedArguments
 	public abstract class NamedArgumentTypeReaderBase<T> : TypeReader<T> where T : new()
 	{
 		private static readonly ITask<ITypeReaderResult<T>> _ArgCountError
-			= TypeReaderResult<T>.FromError(NamedArgBadCountResult.Instance.Sync).AsITask();
+			= TypeReaderResult<T>.FromError(NamedArgBadCountResult.Instance).AsITask();
 		private static readonly char[] _TrimEndChars = new[] { ':' };
 		private static readonly char[] _TrimStartChars = new[] { '/', '-' };
 
@@ -59,7 +59,7 @@ namespace YACCS.NamedArguments
 				}
 				dict.Add(key, input[i + 1]);
 			}
-			return SuccessResult.Instance.Sync;
+			return SuccessResult.Instance;
 		}
 
 		private async ITask<ITypeReaderResult<T>> ReadDictIntoInstanceAsync(

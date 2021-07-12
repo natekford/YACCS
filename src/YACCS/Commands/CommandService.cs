@@ -271,7 +271,7 @@ namespace YACCS.Commands
 			}
 			catch (Exception ex)
 			{
-				result = ExceptionDuringCommandResult.Instance.Sync;
+				result = ExceptionDuringCommandResult.Instance;
 				duringException = ex;
 			}
 

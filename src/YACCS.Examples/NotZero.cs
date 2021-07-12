@@ -24,7 +24,7 @@ namespace YACCS.Examples
 			{
 				return new(new FailureResult(GetErrorMessage()));
 			}
-			return new(SuccessResult.Instance.Sync);
+			return new(SuccessResult.Instance);
 		}
 
 		public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)

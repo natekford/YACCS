@@ -208,7 +208,7 @@ namespace YACCS.Commands
 		{
 			if (preconditions.Count == 0)
 			{
-				return new(SuccessResult.Instance.Sync);
+				return new(SuccessResult.Instance);
 			}
 
 			static async Task<IResult> PrivateProcessAsync(
@@ -220,7 +220,7 @@ namespace YACCS.Commands
 				// Each group must succeed for a command to be valid
 				foreach (var group in preconditions)
 				{
-					IResult groupResult = SuccessResult.Instance.Sync;
+					IResult groupResult = SuccessResult.Instance;
 					foreach (var precondition in group.Value)
 					{
 						// An AND has already failed, no need to check other ANDs
@@ -233,7 +233,7 @@ namespace YACCS.Commands
 						// OR: Any success = instant success, go to next group
 						if (precondition.Op == BoolOp.Or && result.IsSuccess)
 						{
-							groupResult = SuccessResult.Instance.Sync;
+							groupResult = SuccessResult.Instance;
 							break;
 						}
 						// AND: Any failure = skip other ANDs, only check further ORs
@@ -247,7 +247,7 @@ namespace YACCS.Commands
 						return groupResult;
 					}
 				}
-				return SuccessResult.Instance.Sync;
+				return SuccessResult.Instance;
 			}
 
 			return new(PrivateProcessAsync(preconditions, converter));
