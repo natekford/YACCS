@@ -17,10 +17,7 @@ namespace YACCS.Tests.TypeReaders
 
 		public ArrayTypeReader_Tests()
 		{
-			Context = new FakeContext
-			{
-				Services = Utils.CreateServices(),
-			};
+			Context = new FakeContext();
 			Reader = Context.Get<IReadOnlyDictionary<Type, ITypeReader>>().GetTypeReader<int[]>();
 		}
 

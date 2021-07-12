@@ -518,11 +518,6 @@ namespace YACCS.Tests.Commands
 
 		private static (CommandService, FakeContext, ICommand, IParameter) Create(bool success, int disallowedValue)
 		{
-			var context = new FakeContext
-			{
-				Services = Utils.CreateServices(),
-			};
-
 			static void Delegate(int arg)
 			{
 			}
@@ -537,6 +532,7 @@ namespace YACCS.Tests.Commands
 				.AddParameterPrecondition(new FakeParameterPrecondition(disallowedValue))
 				.AddParameterPrecondition(new WasIReachedParameterPrecondition());
 
+			var context = new FakeContext();
 			return (context.Get<CommandService>(), context, commandBuilder, commandBuilder.Parameters[0]);
 		}
 
@@ -606,11 +602,6 @@ namespace YACCS.Tests.Commands
 
 		private static (CommandService, FakeContext, IImmutableCommand, IImmutableParameter) Create(int disallowedValue)
 		{
-			var context = new FakeContext
-			{
-				Services = Utils.CreateServices(),
-			};
-
 			static void Delegate(int arg)
 			{
 			}
@@ -623,6 +614,7 @@ namespace YACCS.Tests.Commands
 				.AddParameterPrecondition(new WasIReachedParameterPrecondition());
 
 			var command = commandBuilder.MakeImmutable();
+			var context = new FakeContext();
 			return (context.Get<CommandService>(), context, command, command.Parameters[0]);
 		}
 	}
@@ -700,10 +692,7 @@ namespace YACCS.Tests.Commands
 
 		private static (CommandService, FakeContext) Create()
 		{
-			var context = new FakeContext
-			{
-				Services = Utils.CreateServices(),
-			};
+			var context = new FakeContext();
 			return (context.Get<CommandService>(), context);
 		}
 
@@ -906,10 +895,6 @@ namespace YACCS.Tests.Commands
 			int? length,
 			ITypeReader? reader = null)
 		{
-			var context = new FakeContext
-			{
-				Services = Utils.CreateServices(),
-			};
 			var parameter = new Parameter(typeof(T), "", null)
 			{
 				Attributes = new List<object>
@@ -918,6 +903,7 @@ namespace YACCS.Tests.Commands
 				},
 				TypeReader = reader,
 			}.ToImmutable();
+			var context = new FakeContext();
 			return (context.Get<CommandService>(), context, parameter);
 		}
 

@@ -19,11 +19,7 @@ namespace YACCS.Tests.TypeReaders
 
 		public CommandTypeReader_Tests()
 		{
-			Context = new FakeContext
-			{
-				Services = Utils.CreateServices(),
-			};
-
+			Context = new FakeContext();
 			foreach (var command in typeof(FakeCommandGroup).GetDirectCommandsAsync().GetAwaiter().GetResult())
 			{
 				Context.Get<CommandService>().Commands.Add(command);

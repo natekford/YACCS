@@ -30,7 +30,7 @@ namespace YACCS.Tests.NamedArguments
 				STR
 			};
 
-			var context = Create();
+			var context = new FakeContext();
 			var result = await Reader.ReadAsync(context, input).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgDuplicateResult));
@@ -51,7 +51,7 @@ namespace YACCS.Tests.NamedArguments
 				STR
 			};
 
-			var context = Create();
+			var context = new FakeContext();
 			var result = await Reader.ReadAsync(context, input).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgNonExistentResult));
@@ -72,7 +72,7 @@ namespace YACCS.Tests.NamedArguments
 				STR
 			};
 
-			var context = Create();
+			var context = new FakeContext();
 			var result = await Reader.ReadAsync(context, input).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 			if (result.Value is null)
@@ -83,14 +83,6 @@ namespace YACCS.Tests.NamedArguments
 			Assert.AreEqual(NUM, result.Value.Number);
 			Assert.AreEqual(STR, result.Value.String);
 			Assert.AreEqual(STR, result.Value.FieldString);
-		}
-
-		private FakeContext Create()
-		{
-			return new FakeContext()
-			{
-				Services = Utils.CreateServices(),
-			};
 		}
 
 		public class NamedClass

@@ -7,6 +7,6 @@ namespace YACCS.Tests
 	public class FakeContext : IContext
 	{
 		public Guid Id { get; set; } = Guid.NewGuid();
-		public IServiceProvider Services { get; set; } = EmptyServiceProvider.Instance;
+		public IServiceProvider Services { get; set; } = Utils.CreateServices();
 	}
 }
