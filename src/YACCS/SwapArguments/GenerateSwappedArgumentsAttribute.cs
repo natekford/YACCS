@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
@@ -11,7 +12,9 @@ namespace YACCS.SwapArguments
 	{
 		public int PriorityDifference { get; set; } = -1;
 
-		public IEnumerable<IImmutableCommand> GenerateCommands(IImmutableCommand original)
-			=> original.GenerateSwappedArgumentsVersions(PriorityDifference);
+		public ValueTask<IEnumerable<IImmutableCommand>> GenerateCommandsAsync(
+			IServiceProvider services,
+			IImmutableCommand original)
+			=> new(original.GenerateSwappedArgumentsVersions(PriorityDifference));
 	}
 }

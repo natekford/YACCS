@@ -76,7 +76,7 @@ namespace YACCS.Commands
 			return Array.Empty<IImmutableCommand>();
 		}
 
-		public virtual async ValueTask<CommandScore> GetBestMatchAsync(
+		protected internal virtual async ValueTask<CommandScore> GetBestMatchAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
@@ -107,7 +107,7 @@ namespace YACCS.Commands
 			return best ?? CommandScore.CommandNotFound;
 		}
 
-		public ValueTask<CommandScore> GetCommandScoreAsync(
+		protected internal ValueTask<CommandScore> GetCommandScoreAsync(
 			PreconditionCache cache,
 			IContext context,
 			IImmutableCommand command,
@@ -137,7 +137,7 @@ namespace YACCS.Commands
 			);
 		}
 
-		public async ValueTask<CommandScore> ProcessAllPreconditionsAsync(
+		protected internal async ValueTask<CommandScore> ProcessAllPreconditionsAsync(
 			PreconditionCache cache,
 			IContext context,
 			IImmutableCommand command,
@@ -210,7 +210,7 @@ namespace YACCS.Commands
 			return CommandScore.FromCanExecute(command, context, args, startIndex + 1);
 		}
 
-		public ValueTask<ITypeReaderResult> ProcessTypeReadersAsync(
+		protected internal ValueTask<ITypeReaderResult> ProcessTypeReadersAsync(
 			PreconditionCache cache,
 			IImmutableParameter parameter,
 			ReadOnlyMemory<string> input,
@@ -224,13 +224,13 @@ namespace YACCS.Commands
 			return cache.GetResultAsync(reader, sliced);
 		}
 
-		protected virtual ValueTask DisposeCommandAsync(CommandExecutedEventArgs e)
+		protected virtual Task DisposeCommandAsync(CommandExecutedEventArgs e)
 		{
 			if (e.Context is IDisposable disposable)
 			{
 				disposable.Dispose();
 			}
-			return new();
+			return Task.CompletedTask;
 		}
 
 		protected virtual async ValueTask<CommandExecutedEventArgs> HandleCommandAsync(

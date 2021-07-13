@@ -43,12 +43,12 @@ namespace YACCS.Commands.Models
 			Attributes.Add(new MethodInfoCommandAttribute(Method));
 		}
 
-		public override IImmutableCommand MakeImmutable()
+		public override IImmutableCommand ToImmutable()
 			=> new ImmutableReflectionCommand(this);
 
 		private static Type GetContextType(Type groupType)
 		{
-			if (groupType.GetConstructor(Type.EmptyTypes) == null)
+			if (groupType.GetConstructor(Type.EmptyTypes) is null)
 			{
 				throw new ArgumentException(
 					$"{groupType.FullName} is missing a public parameterless constructor", nameof(groupType));

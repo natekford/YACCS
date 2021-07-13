@@ -43,7 +43,7 @@ namespace YACCS.Commands.Models
 			Attributes.Add(new DelegateCommandAttribute(@delegate));
 		}
 
-		public override IImmutableCommand MakeImmutable()
+		public override IImmutableCommand ToImmutable()
 			=> new ImmutableDelegateCommand(this);
 
 		protected class ImmutableDelegateCommand : ImmutableCommand

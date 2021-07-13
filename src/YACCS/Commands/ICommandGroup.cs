@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Models;
@@ -8,10 +9,10 @@ namespace YACCS.Commands
 {
 	public interface ICommandGroup
 	{
-		ValueTask AfterExecutionAsync(IImmutableCommand command, IContext context, IResult result);
+		Task AfterExecutionAsync(IImmutableCommand command, IContext context, IResult result);
 
-		ValueTask BeforeExecutionAsync(IImmutableCommand command, IContext context);
+		Task BeforeExecutionAsync(IImmutableCommand command, IContext context);
 
-		ValueTask OnCommandBuildingAsync(IList<ICommand> commands);
+		Task OnCommandBuildingAsync(IServiceProvider services, IList<ICommand> commands);
 	}
 }

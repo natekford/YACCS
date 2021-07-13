@@ -55,7 +55,7 @@ namespace YACCS.Tests.SwapArguments
 		[TestMethod]
 		public async Task ThrowsWhenTryingToSwapRemainder()
 		{
-			var commands = typeof(CommandsGroupThrow).GetAllCommandsAsync();
+			var commands = typeof(CommandsGroupThrow).GetAllCommandsAsync(EmptyServiceProvider.Instance);
 
 			var i = 0;
 			await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
@@ -79,7 +79,7 @@ namespace YACCS.Tests.SwapArguments
 			};
 
 			var commandService = context.Get<CommandService>();
-			var commands = typeof(CommandsGroup).GetAllCommandsAsync();
+			var commands = typeof(CommandsGroup).GetAllCommandsAsync(context.Services);
 			await commandService.AddRangeAsync(commands).ConfigureAwait(false);
 
 			return (commandService, setMe, context);

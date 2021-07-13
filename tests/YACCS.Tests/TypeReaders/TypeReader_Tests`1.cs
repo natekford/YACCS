@@ -16,8 +16,12 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task Invalid_Test()
 		{
+			await SetupAsync().ConfigureAwait(false);
 			var result = await Reader.ReadAsync(Context, Invalid).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 		}
+
+		protected virtual Task SetupAsync()
+			=> Task.CompletedTask;
 	}
 }

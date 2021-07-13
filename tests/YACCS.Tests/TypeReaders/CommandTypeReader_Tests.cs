@@ -13,26 +13,24 @@ namespace YACCS.Tests.TypeReaders
 	[TestClass]
 	public class CommandTypeReader_Tests : TypeReader_Tests<IReadOnlyList<IImmutableCommand>>
 	{
-		public override IContext Context { get; }
 		public override ITypeReader<IReadOnlyList<IImmutableCommand>> Reader { get; }
 			= new CommandsTypeReader();
-
-		public CommandTypeReader_Tests()
-		{
-			Context = new FakeContext();
-			foreach (var command in typeof(FakeCommandGroup).GetDirectCommandsAsync().GetAwaiter().GetResult())
-			{
-				Context.Get<CommandService>().Commands.Add(command);
-			}
-		}
 
 		[TestMethod]
 		public async Task Valid_Test()
 		{
+			await SetupAsync().ConfigureAwait(false);
 			var result = await Reader.ReadAsync(Context, FakeCommandGroup._Name).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, typeof(IReadOnlyCollection<IImmutableCommand>));
 			Assert.AreEqual(1, result.Value!.Count);
+		}
+
+		protected override Task SetupAsync()
+		{
+			var commands = typeof(FakeCommandGroup).GetDirectCommandsAsync(Context.Services);
+			var commandService = Context.Get<CommandService>();
+			return commandService.AddRangeAsync(commands);
 		}
 
 		private class FakeCommandGroup : CommandGroup<IContext>

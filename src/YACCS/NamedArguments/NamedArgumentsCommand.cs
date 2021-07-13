@@ -63,12 +63,12 @@ namespace YACCS.NamedArguments
 			IDictionary<string, object?> values;
 			try
 			{
-				values = (IDictionary<string, object?>)args[0]!;
+				values = (IDictionary<string, object?>)args.Single()!;
 			}
 			catch (Exception e)
 			{
-				throw new ArgumentException("Expected named argument dictionary " +
-					$"for '{Source.Names?.FirstOrDefault()}'.", e);
+				throw new ArgumentException("Expected named argument dictionary and no " +
+					$"other arguments for '{Source.Names?.FirstOrDefault()}'.", e);
 			}
 
 			var realArgs = new object?[Source.Parameters.Count];

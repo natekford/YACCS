@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace YACCS.Commands.Models
 {
@@ -7,8 +8,8 @@ namespace YACCS.Commands.Models
 		new IList<IReadOnlyList<string>> Names { get; set; }
 		new IReadOnlyList<IParameter> Parameters { get; set; }
 
-		IImmutableCommand MakeImmutable();
+		IImmutableCommand ToImmutable();
 
-		IEnumerable<IImmutableCommand> MakeMultipleImmutable();
+		IAsyncEnumerable<IImmutableCommand> ToMultipleImmutableAsync(IServiceProvider services);
 	}
 }

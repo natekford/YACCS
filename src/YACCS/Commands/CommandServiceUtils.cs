@@ -41,16 +41,16 @@ namespace YACCS.Commands
 		}
 
 		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
-			this Type type)
+			this Type type,
+			IServiceProvider services)
 		{
-			var commands = await type.GetDirectCommandsAsync().ConfigureAwait(false);
-			foreach (var command in commands)
+			await foreach (var command in type.GetDirectCommandsAsync(services))
 			{
 				yield return command;
 			}
 			foreach (var nested in type.GetNestedTypes())
 			{
-				await foreach (var command in nested.GetAllCommandsAsync())
+				await foreach (var command in nested.GetAllCommandsAsync(services))
 				{
 					yield return command;
 				}
@@ -58,11 +58,12 @@ namespace YACCS.Commands
 		}
 
 		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
-			this IEnumerable<Assembly> assemblies)
+			this IEnumerable<Assembly> assemblies,
+			IServiceProvider services)
 		{
 			foreach (var assembly in assemblies)
 			{
-				await foreach (var command in assembly.GetAllCommandsAsync())
+				await foreach (var command in assembly.GetAllCommandsAsync(services))
 				{
 					yield return command;
 				}
@@ -70,12 +71,9 @@ namespace YACCS.Commands
 		}
 
 		public static IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
-			this Assembly assembly)
-			=> assembly.GetExportedTypes().GetDirectCommandsAsync();
-
-		public static IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync<T>()
-			where T : ICommandGroup, new()
-			=> typeof(T).GetAllCommandsAsync();
+			this Assembly assembly,
+			IServiceProvider services)
+			=> assembly.GetExportedTypes().GetDirectCommandsAsync(services);
 
 		public static IEnumerable<Exception> GetAllExceptions(this CommandExecutedEventArgs e)
 		{
@@ -139,50 +137,40 @@ namespace YACCS.Commands
 		}
 
 		public static async IAsyncEnumerable<IImmutableCommand> GetDirectCommandsAsync(
-			this IEnumerable<Type> types)
+			this IEnumerable<Type> types,
+			IServiceProvider services)
 		{
 			foreach (var type in types)
 			{
-				var commands = await type.GetDirectCommandsAsync().ConfigureAwait(false);
-				foreach (var command in commands)
+				await foreach (var command in type.GetDirectCommandsAsync(services))
 				{
 					yield return command;
 				}
 			}
 		}
 
-		public static ValueTask<IEnumerable<IImmutableCommand>> GetDirectCommandsAsync(
-			this Type type)
+		public static async IAsyncEnumerable<IImmutableCommand> GetDirectCommandsAsync(
+			this Type type,
+			IServiceProvider services)
 		{
 			var commands = type.CreateMutableCommands();
 			if (commands.Count == 0)
 			{
-				return new(Array.Empty<IImmutableCommand>());
+				yield break;
 			}
 
-			static async ValueTask<IEnumerable<IImmutableCommand>> GetDirectCommandsAsync(
-				Type type,
-				List<ICommand> commands)
+			var group = type.CreateInstance<ICommandGroup>();
+			await group.OnCommandBuildingAsync(services, commands).ConfigureAwait(false);
+
+			// Commands have been modified by whoever implemented them
+			// We can now return them in an immutable state
+			foreach (var command in commands)
 			{
-				var group = type.CreateInstance<ICommandGroup>();
-				await group.OnCommandBuildingAsync(commands).ConfigureAwait(false);
-
-				// Commands have been modified by whoever implemented them
-				// We can now return them in an immutable state
-				return commands.SelectMany(x =>
+				await foreach (var immutable in command.ToMultipleImmutableAsync(services))
 				{
-					try
-					{
-						return x.MakeMultipleImmutable();
-					}
-					catch (Exception e)
-					{
-						throw new InvalidOperationException(
-							$"An exception occurred while building the command '{x.Names?.FirstOrDefault()}'.", e);
-					}
-				});
+					yield return immutable;
+				}
 			}
-			return GetDirectCommandsAsync(type, commands);
 		}
 
 		public static bool HasPrefix(

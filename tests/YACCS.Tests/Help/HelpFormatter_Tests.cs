@@ -23,9 +23,9 @@ namespace YACCS.Tests.Help
 		[TestMethod]
 		public async Task Format_Test()
 		{
-			var (commands, formatter, context) = await CreateAsync().ConfigureAwait(false);
+			var (commandService, formatter, context) = await CreateAsync().ConfigureAwait(false);
 
-			var command = commands.ById(CommandGroup.ID).Single();
+			var command = commandService.Commands.ById(CommandGroup.ID).Single();
 			var output = await formatter.FormatAsync(context, command).ConfigureAwait(false);
 			const char TRAILING = ' ';
 
@@ -108,12 +108,14 @@ Parameters:{TRAILING}
 		public void TagFormatterValue_Test()
 			=> Assert.AreEqual("joe", Format<TagFormatter>($"{"joe":value}"));
 
-		private static async Task<(IEnumerable<IImmutableCommand>, IHelpFormatter, IContext)> CreateAsync()
+		private static async Task<(CommandService, HelpFormatter, FakeContext)> CreateAsync()
 		{
-			var commands = await typeof(CommandGroup).GetDirectCommandsAsync().ConfigureAwait(false);
-			var formatter = new HelpFormatter(new TypeNameRegistry(), new TagFormatter());
 			var context = new FakeContext();
-			return (commands, formatter, context);
+			var formatter = new HelpFormatter(new TypeNameRegistry(), new TagFormatter());
+			var commands = typeof(CommandGroup).GetDirectCommandsAsync(context.Services);
+			var commandService = context.Get<CommandService>();
+			await commandService.AddRangeAsync(commands).ConfigureAwait(false);
+			return (commandService, formatter, context);
 		}
 
 		private static string Format<T>(FormattableString formattable)

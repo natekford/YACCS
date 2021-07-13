@@ -13,7 +13,7 @@ namespace YACCS.Tests.Help
 		public void HasContextType_Test()
 		{
 			var (formatter, command) = Create();
-			var helpCommand = formatter.GetHelpCommand(command.MakeImmutable());
+			var helpCommand = formatter.GetHelpCommand(command.ToImmutable());
 			Assert.AreEqual(typeof(IContext), helpCommand.ContextType.Item);
 		}
 

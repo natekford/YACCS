@@ -20,7 +20,7 @@ namespace YACCS.Interactivity.Input
 				(Action)(() => { }),
 				new[] { new ImmutableName(new[] { "Input" }) },
 				typeof(TContext)
-			).MakeImmutable();
+			).ToImmutable();
 
 		protected Input(IReadOnlyDictionary<Type, ITypeReader> typeReaders)
 		{

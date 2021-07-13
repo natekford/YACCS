@@ -16,9 +16,11 @@ namespace YACCS.Examples
 		private readonly ConsoleHandler _Console;
 		private readonly Localized<ConsoleCommandService> _Localized;
 		private readonly IReadOnlyDictionary<Type, ITypeReader> _Readers;
+		private readonly IServiceProvider _Services;
 		private readonly IArgumentSplitter _Splitter;
 
 		public ConsoleCommandServiceFactory(
+			IServiceProvider services,
 			ICommandServiceConfig config,
 			IArgumentSplitter splitter,
 			IReadOnlyDictionary<Type, ITypeReader> readers,
@@ -29,9 +31,10 @@ namespace YACCS.Examples
 			_Config = config;
 			_Console = console;
 			_Readers = readers;
+			_Services = services;
 			_Splitter = splitter;
 
-			_Localized = new(_ => new(_Config, _Splitter, _Readers, _Console, _CommandAssemblies));
+			_Localized = new(_ => new(_Services, _Config, _Splitter, _Readers, _Console, _CommandAssemblies));
 		}
 
 		public ConsoleCommandService GetCommandService()

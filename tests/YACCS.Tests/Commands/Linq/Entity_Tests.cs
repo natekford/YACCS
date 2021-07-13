@@ -36,7 +36,7 @@ namespace YACCS.Tests.Commands.Linq
 
 			{
 				var command = new DelegateCommand(@delegate, Array.Empty<ImmutableName>());
-				commands.Add(command.MakeImmutable());
+				commands.Add(command.ToImmutable());
 
 				var result = commands.ByDelegate(@delegate, includeMethod: false).ToArray();
 				Assert.AreEqual(1, result.Length);
@@ -108,7 +108,7 @@ namespace YACCS.Tests.Commands.Linq
 		private async Task<List<IImmutableCommand>> CreateCommandsAsync()
 		{
 			var commands = new List<IImmutableCommand>();
-			await foreach (var command in typeof(Querying_TestsGroup).GetAllCommandsAsync())
+			await foreach (var command in typeof(Querying_TestsGroup).GetAllCommandsAsync(EmptyServiceProvider.Instance))
 			{
 				commands.Add(command);
 			}
@@ -154,13 +154,13 @@ namespace YACCS.Tests.Commands.Linq
 				public IResult CommandTwo(string arg)
 					=> SuccessResult.Instance;
 
-				public override ValueTask OnCommandBuildingAsync(IList<ICommand> commands)
+				public override Task OnCommandBuildingAsync(IServiceProvider services, IList<ICommand> commands)
 				{
 					var parameters = commands.SelectMany(x => x.Parameters);
 					var position = parameters.GetParameterById<int>(_PositionId);
 					Assert.IsNotNull(position);
 
-					return base.OnCommandBuildingAsync(commands);
+					return base.OnCommandBuildingAsync(services, commands);
 				}
 			}
 		}

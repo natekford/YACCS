@@ -30,13 +30,13 @@ namespace YACCS.Tests.Commands
 
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new[] { "1" })
-				.MakeImmutable();
+				.ToImmutable();
 			trie.Add(c1);
 			Assert.AreEqual(1, trie.Count);
 
 			var c2 = FakeDelegateCommand.New()
 				.AddName(new[] { "2" })
-				.MakeImmutable();
+				.ToImmutable();
 			trie.Add(c2);
 			Assert.AreEqual(2, commandService.Commands.Count);
 
@@ -57,7 +57,7 @@ namespace YACCS.Tests.Commands
 			var c1 = new DelegateCommand((Action<Fake>)Method, new[] { new[] { "1" } });
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				trie.Add(c1.MakeImmutable());
+				trie.Add(c1.ToImmutable());
 			});
 
 			c1.Parameters[0].TypeReader = new TryParseTypeReader<Fake>((string input, out Fake output) =>
@@ -65,7 +65,7 @@ namespace YACCS.Tests.Commands
 				output = null!;
 				return false;
 			});
-			trie.Add(c1.MakeImmutable());
+			trie.Add(c1.ToImmutable());
 			Assert.AreEqual(1, commandService.Commands.Count);
 		}
 
@@ -77,22 +77,22 @@ namespace YACCS.Tests.Commands
 
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new[] { "1" })
-				.MakeImmutable();
+				.ToImmutable();
 			trie.Add(c1);
 			var c2 = FakeDelegateCommand.New()
 				.AddName(new[] { "2" })
 				.AddName(new[] { "3" })
-				.MakeImmutable();
+				.ToImmutable();
 			trie.Add(c2);
 			var c3 = FakeDelegateCommand.New()
 				.AddName(new[] { "4", "1" })
 				.AddName(new[] { "4", "2" })
 				.AddName(new[] { "4", "3" })
-				.MakeImmutable();
+				.ToImmutable();
 			trie.Add(c3);
 			var c4 = FakeDelegateCommand.New()
 				.AddName(new[] { "4", "1" })
-				.MakeImmutable();
+				.ToImmutable();
 			trie.Add(c4);
 
 			{
@@ -342,7 +342,7 @@ namespace YACCS.Tests.Commands
 			var commands = new[]
 			{
 				 typeof(CommandsGroup),
-			}.GetDirectCommandsAsync();
+			}.GetDirectCommandsAsync(context.Services);
 			await commandService.AddRangeAsync(commands).ConfigureAwait(false);
 
 			return (commandService, context);
@@ -374,7 +374,7 @@ namespace YACCS.Tests.Commands
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
 				context,
-				command.MakeImmutable(),
+				command.ToImmutable(),
 				new[] { DISALLOWED_VALUE.ToString() },
 				1
 			).ConfigureAwait(false);
@@ -394,7 +394,7 @@ namespace YACCS.Tests.Commands
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
 				context,
-				command.MakeImmutable(),
+				command.ToImmutable(),
 				new[] { DISALLOWED_VALUE.ToString() },
 				0
 			).ConfigureAwait(false);
@@ -414,7 +414,7 @@ namespace YACCS.Tests.Commands
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
 				context,
-				command.MakeImmutable(),
+				command.ToImmutable(),
 				new[] { DISALLOWED_VALUE.ToString() },
 				0
 			).ConfigureAwait(false);
@@ -434,7 +434,7 @@ namespace YACCS.Tests.Commands
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
 				context,
-				command.MakeImmutable(),
+				command.ToImmutable(),
 				new[] { "joeba" },
 				0
 			).ConfigureAwait(false);
@@ -454,7 +454,7 @@ namespace YACCS.Tests.Commands
 			var score = await commandService.GetCommandScoreAsync(
 				new PreconditionCache(context),
 				new InvalidContext(),
-				command.MakeImmutable(),
+				command.ToImmutable(),
 				Array.Empty<string>(),
 				0
 			).ConfigureAwait(false);
@@ -472,7 +472,7 @@ namespace YACCS.Tests.Commands
 				var score = await commandService.GetCommandScoreAsync(
 					new PreconditionCache(context),
 					context,
-					command.MakeImmutable(),
+					command.ToImmutable(),
 					Array.Empty<string>(),
 					0
 				).ConfigureAwait(false);
@@ -486,7 +486,7 @@ namespace YACCS.Tests.Commands
 				var score = await commandService.GetCommandScoreAsync(
 					new PreconditionCache(context),
 					context,
-					command.MakeImmutable(),
+					command.ToImmutable(),
 					new[] { "a", "b", "c", "d", "e", "f" },
 					0
 				).ConfigureAwait(false);
@@ -503,7 +503,7 @@ namespace YACCS.Tests.Commands
 			var result = await commandService.ProcessAllPreconditionsAsync(
 				new PreconditionCache(context),
 				context,
-				command.MakeImmutable(),
+				command.ToImmutable(),
 				new[] { (DISALLOWED_VALUE + 1).ToString() },
 				0
 			).ConfigureAwait(false);
@@ -613,7 +613,7 @@ namespace YACCS.Tests.Commands
 				.AddParameterPrecondition(new FakeParameterPrecondition(disallowedValue))
 				.AddParameterPrecondition(new WasIReachedParameterPrecondition());
 
-			var command = commandBuilder.MakeImmutable();
+			var command = commandBuilder.ToImmutable();
 			var context = new FakeContext();
 			return (context.Get<CommandService>(), context, command, command.Parameters[0]);
 		}
@@ -641,7 +641,7 @@ namespace YACCS.Tests.Commands
 				{
 					MutableOp = BoolOp.Or,
 				})
-				.MakeImmutable();
+				.ToImmutable();
 			var result = await command.Preconditions
 				.ProcessAsync(x => x.CheckAsync(command, context))
 				.ConfigureAwait(false);
@@ -660,7 +660,7 @@ namespace YACCS.Tests.Commands
 					MutableOp = BoolOp.Or,
 				})
 				.AddPrecondition(new WasIReachedPrecondition())
-				.MakeImmutable();
+				.ToImmutable();
 			var result = await command.Preconditions
 				.ProcessAsync(x => x.CheckAsync(command, context))
 				.ConfigureAwait(false);
@@ -703,7 +703,7 @@ namespace YACCS.Tests.Commands
 				.AsContext<IContext>()
 				.AddPrecondition(new FakePrecondition(success))
 				.AddPrecondition(new WasIReachedPrecondition())
-				.MakeImmutable();
+				.ToImmutable();
 			return (commandService, context, command);
 		}
 	}
@@ -1043,7 +1043,7 @@ namespace YACCS.Tests.Commands
 
 	public class FakePreconditionWhichThrowsAfter : PreconditionAttribute
 	{
-		public override ValueTask AfterExecutionAsync(IImmutableCommand command, IContext context, Exception? exception)
+		public override Task AfterExecutionAsync(IImmutableCommand command, IContext context, Exception? exception)
 			=> throw new InvalidOperationException();
 
 		public override ValueTask<IResult> CheckAsync(IImmutableCommand command, IContext context)
@@ -1052,7 +1052,7 @@ namespace YACCS.Tests.Commands
 
 	public class FakePreconditionWhichThrowsBefore : PreconditionAttribute
 	{
-		public override ValueTask BeforeExecutionAsync(IImmutableCommand command, IContext context)
+		public override Task BeforeExecutionAsync(IImmutableCommand command, IContext context)
 			=> throw new InvalidOperationException();
 
 		public override ValueTask<IResult> CheckAsync(IImmutableCommand command, IContext context)

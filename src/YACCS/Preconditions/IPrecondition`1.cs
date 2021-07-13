@@ -9,9 +9,9 @@ namespace YACCS.Preconditions
 {
 	public interface IPrecondition<in TContext> : IPrecondition where TContext : IContext
 	{
-		ValueTask AfterExecutionAsync(IImmutableCommand command, TContext context, Exception? exception);
+		Task AfterExecutionAsync(IImmutableCommand command, TContext context, Exception? exception);
 
-		ValueTask BeforeExecutionAsync(IImmutableCommand command, TContext context);
+		Task BeforeExecutionAsync(IImmutableCommand command, TContext context);
 
 		ValueTask<IResult> CheckAsync(IImmutableCommand command, TContext context);
 	}

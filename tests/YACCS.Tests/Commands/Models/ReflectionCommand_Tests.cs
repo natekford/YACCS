@@ -19,7 +19,7 @@ namespace YACCS.Tests.Commands.Models
 		{
 			var method = typeof(GroupInjection)
 				.GetMethod(nameof(GroupInjection.CommandAsync));
-			var command = new ReflectionCommand(method!).MakeImmutable();
+			var command = new ReflectionCommand(method!).ToImmutable();
 			var context = new FakeContext
 			{
 				Services = new ServiceCollection()
@@ -70,7 +70,7 @@ namespace YACCS.Tests.Commands.Models
 			public string? WontBeInjectedBecauseNoSetter { get; }
 			public Guid? WontBeInjectedBecauseNotRegistered { get; set; }
 
-			public override ValueTask AfterExecutionAsync(IImmutableCommand command, FakeContext context, IResult result)
+			public override Task AfterExecutionAsync(IImmutableCommand command, FakeContext context, IResult result)
 			{
 				Assert.AreEqual(INJECTED_VALUE, InjectMeField);
 				Assert.AreEqual(INJECTED_VALUE, InjectMeProperty);

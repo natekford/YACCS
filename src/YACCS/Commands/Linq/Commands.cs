@@ -123,11 +123,11 @@ namespace YACCS.Commands.Linq
 				_Actual = actual;
 			}
 
-			public IImmutableCommand MakeImmutable()
-				=> _Actual.MakeImmutable();
+			public IImmutableCommand ToImmutable()
+										=> _Actual.ToImmutable();
 
-			public IEnumerable<IImmutableCommand> MakeMultipleImmutable()
-				=> _Actual.MakeMultipleImmutable();
+			public IAsyncEnumerable<IImmutableCommand> ToMultipleImmutableAsync(IServiceProvider services)
+										=> _Actual.ToMultipleImmutableAsync(services);
 		}
 	}
 }

@@ -35,16 +35,17 @@ namespace YACCS.Commands.Models
 			Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IParameter>();
 		}
 
-		public abstract IImmutableCommand MakeImmutable();
+		public abstract IImmutableCommand ToImmutable();
 
-		public virtual IEnumerable<IImmutableCommand> MakeMultipleImmutable()
+		public virtual async IAsyncEnumerable<IImmutableCommand> ToMultipleImmutableAsync(
+			IServiceProvider services)
 		{
-			var immutable = MakeImmutable();
+			var immutable = ToImmutable();
 			yield return immutable;
 
 			foreach (var generator in this.Get<ICommandGeneratorAttribute>())
 			{
-				foreach (var generated in generator.GenerateCommands(immutable))
+				foreach (var generated in await generator.GenerateCommandsAsync(services, immutable).ConfigureAwait(false))
 				{
 					yield return generated;
 				}

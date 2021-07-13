@@ -16,7 +16,7 @@ namespace YACCS.Tests.Commands.Models
 		{
 			var value = 0;
 			var @delegate = (Func<IResult>)(() => { ++value; return new ValueResult(value); });
-			var command = new DelegateCommand(@delegate, Array.Empty<ImmutableName>()).MakeImmutable();
+			var command = new DelegateCommand(@delegate, Array.Empty<ImmutableName>()).ToImmutable();
 			var results = new[]
 			{
 				await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
@@ -39,7 +39,7 @@ namespace YACCS.Tests.Commands.Models
 		{
 			var value = 0;
 			var @delegate = (Func<Task>)(() => { ++value; return Task.CompletedTask; });
-			var command = new DelegateCommand(@delegate, Array.Empty<ImmutableName>()).MakeImmutable();
+			var command = new DelegateCommand(@delegate, Array.Empty<ImmutableName>()).ToImmutable();
 			var results = new[]
 			{
 				await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
@@ -59,7 +59,7 @@ namespace YACCS.Tests.Commands.Models
 		{
 			var value = 0;
 			var @delegate = (Func<Task<int>>)(() => { ++value; return Task.FromResult(value); });
-			var command = new DelegateCommand(@delegate, Array.Empty<ImmutableName>()).MakeImmutable();
+			var command = new DelegateCommand(@delegate, Array.Empty<ImmutableName>()).ToImmutable();
 			var results = new[]
 			{
 				await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
@@ -82,7 +82,7 @@ namespace YACCS.Tests.Commands.Models
 		{
 			var value = 0;
 			void @delegate() => ++value;
-			var command = new DelegateCommand((Action)@delegate, Array.Empty<ImmutableName>()).MakeImmutable();
+			var command = new DelegateCommand((Action)@delegate, Array.Empty<ImmutableName>()).ToImmutable();
 			var results = new[]
 			{
 				await command.ExecuteAsync(null!, null!).ConfigureAwait(false),

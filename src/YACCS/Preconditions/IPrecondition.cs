@@ -9,9 +9,9 @@ namespace YACCS.Preconditions
 {
 	public interface IPrecondition : IGroupablePrecondition
 	{
-		ValueTask AfterExecutionAsync(IImmutableCommand command, IContext context, Exception? exception);
+		Task AfterExecutionAsync(IImmutableCommand command, IContext context, Exception? exception);
 
-		ValueTask BeforeExecutionAsync(IImmutableCommand command, IContext context);
+		Task BeforeExecutionAsync(IImmutableCommand command, IContext context);
 
 		ValueTask<IResult> CheckAsync(IImmutableCommand command, IContext context);
 	}

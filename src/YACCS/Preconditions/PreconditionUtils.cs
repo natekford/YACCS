@@ -11,6 +11,9 @@ namespace YACCS.Preconditions
 {
 	public static class PreconditionUtils
 	{
+		private static Task InvalidContext { get; }
+			= Task.FromResult(InvalidContextResult.Instance);
+
 		public static ValueTask<IResult> CheckAsync<TContext, TValue>(
 			this IParameterPrecondition _,
 			IImmutableCommand command,
@@ -53,11 +56,11 @@ namespace YACCS.Preconditions
 			return new(InvalidParameterResult.Instance);
 		}
 
-		public static ValueTask HandleAsync<TContext>(
+		public static Task HandleAsync<TContext>(
 			this IPrecondition _,
 			IImmutableCommand command,
 			IContext context,
-			Func<IImmutableCommand, TContext, ValueTask> afterExecutionAsync)
+			Func<IImmutableCommand, TContext, Task> afterExecutionAsync)
 			where TContext : IContext
 		{
 			if (context is not TContext tContext)
@@ -65,7 +68,7 @@ namespace YACCS.Preconditions
 				// We don't need to throw an exception here because CheckAsync should
 				// return a result indicating an invalid context type and this should not
 				// be called before CheckAsync
-				return new();
+				return InvalidContext;
 			}
 			return afterExecutionAsync(command, tContext);
 		}

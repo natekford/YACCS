@@ -21,12 +21,42 @@ namespace YACCS.Tests.Commands.Models
 	public class CommandBuilding_Tests
 	{
 		[TestMethod]
+		public async Task CommandBuildingThrowWhenGenericTypeDefinitions_Test()
+		{
+			var declaredCommands = typeof(GroupGeneric<object>).CreateMutableCommands();
+			Assert.AreEqual(1, declaredCommands.Count);
+
+			var concreteType = 0;
+			await foreach (var actualCommand in typeof(GroupGeneric<object>).GetDirectCommandsAsync(EmptyServiceProvider.Instance))
+			{
+				++concreteType;
+			}
+			Assert.AreEqual(1, concreteType);
+
+			await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
+			{
+				await foreach (var actualCommand in typeof(GroupGeneric<>).GetDirectCommandsAsync(EmptyServiceProvider.Instance))
+				{
+				}
+			}).ConfigureAwait(false);
+		}
+
+		[TestMethod]
+		public void CommandBuildingThrowWhenStructs_Test()
+		{
+			Assert.ThrowsException<ArgumentException>(() =>
+			{
+				_ = typeof(GroupStruct).CreateMutableCommands();
+			});
+		}
+
+		[TestMethod]
 		public async Task CommandDelegateBuilding_Test()
 		{
 			var @delegate = (Func<IContext, Task<bool>>)((IContext arg) => Task.FromResult(true));
 			var names = new[] { new[] { "Joe" } };
 			var command = new DelegateCommand(@delegate, names);
-			var immutable = command.MakeImmutable();
+			var immutable = command.ToImmutable();
 			Assert.AreEqual(names.Length, command.Names.Count);
 			Assert.AreEqual(names[0], command.Names[0]);
 			Assert.AreEqual(1, command.Parameters.Count);
@@ -45,16 +75,16 @@ namespace YACCS.Tests.Commands.Models
 		public async Task CommandMethodInfoBuilding_Test()
 		{
 			var commands = new List<IImmutableCommand>();
-			await foreach (var command in typeof(GroupBase).GetAllCommandsAsync())
+			await foreach (var command in typeof(GroupBase).GetAllCommandsAsync(EmptyServiceProvider.Instance))
 			{
 				commands.Add(command);
 			}
 			Assert.AreEqual(2, commands.Count);
 
-			var command1 = commands.ById(GroupBase.ID_1).SingleOrDefault();
+			var command1 = commands.ById(GroupBase.INHERITANCE_ALLOWED).SingleOrDefault();
 			Assert.IsNotNull(command1);
 
-			var command2 = commands.ById(GroupBase.ID_2).SingleOrDefault();
+			var command2 = commands.ById(GroupBase.INHERITANCE_DISALLOWED).SingleOrDefault();
 			Assert.IsNotNull(command2);
 		}
 
@@ -62,30 +92,30 @@ namespace YACCS.Tests.Commands.Models
 		public async Task CommandMethodInfoBuildingWithInheritanceInvolved_Test()
 		{
 			var commands = new List<IImmutableCommand>();
-			await foreach (var command in typeof(GroupChild).GetAllCommandsAsync())
+			await foreach (var command in typeof(GroupChild).GetAllCommandsAsync(EmptyServiceProvider.Instance))
 			{
 				commands.Add(command);
 			}
 			Assert.AreEqual(1, commands.Count);
 
-			var command1 = commands.ById(GroupBase.ID_1).SingleOrDefault();
+			var command1 = commands.ById(GroupBase.INHERITANCE_ALLOWED).SingleOrDefault();
 			Assert.IsNotNull(command1);
 
-			var command2 = commands.ById(GroupBase.ID_2).SingleOrDefault();
+			var command2 = commands.ById(GroupBase.INHERITANCE_DISALLOWED).SingleOrDefault();
 			Assert.IsNull(command2);
 		}
 
 		[TestMethod]
 		public void OverriddenTypeReader_Test()
 		{
-			var str = "";
-			void Delegate([OverrideTypeReader(typeof(FakeTypeReader))] string value)
-				=> str = value;
+			static void Delegate([OverrideTypeReader(typeof(FakeTypeReader))] string value)
+			{
+			}
 
 			var @delegate = (Action<string>)Delegate;
 			var names = new[] { new[] { "Joe" } };
 			var command = new DelegateCommand(@delegate, names);
-			var immutable = command.MakeImmutable();
+			var immutable = command.ToImmutable();
 			Assert.AreEqual(1, immutable.Parameters.Count);
 			Assert.IsInstanceOfType(immutable.Parameters[0].TypeReader, typeof(FakeTypeReader));
 		}
@@ -102,7 +132,7 @@ namespace YACCS.Tests.Commands.Models
 			var command = new DelegateCommand(@delegate, names);
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				_ = command.MakeMultipleImmutable().Any();
+				_ = command.ToImmutable();
 			});
 		}
 
@@ -114,7 +144,7 @@ namespace YACCS.Tests.Commands.Models
 			var @delegate = (Func<IContext, Task<bool>>)Method;
 			var names = new[] { new[] { "Joe" } };
 			var command = new DelegateCommand(@delegate, names);
-			var immutable = command.MakeImmutable();
+			var immutable = command.ToImmutable();
 			Assert.AreEqual(names.Length, command.Names.Count);
 			Assert.AreEqual(names[0], command.Names[0]);
 			Assert.AreEqual(1, command.Parameters.Count);
@@ -130,6 +160,23 @@ namespace YACCS.Tests.Commands.Models
 			Assert.AreEqual(true, value);
 		}
 
+		private struct GroupStruct : ICommandGroup
+		{
+			public Task AfterExecutionAsync(IImmutableCommand command, IContext context, IResult result)
+				=> Task.CompletedTask;
+
+			public Task BeforeExecutionAsync(IImmutableCommand command, IContext context)
+				=> Task.CompletedTask;
+
+			[Command(nameof(Command))]
+			public void Command()
+			{
+			}
+
+			public Task OnCommandBuildingAsync(IServiceProvider services, IList<ICommand> commands)
+				=> Task.CompletedTask;
+		}
+
 		private class FakeTypeReader : TypeReader<string>
 		{
 			public const string VALUE = "joe";
@@ -142,19 +189,23 @@ namespace YACCS.Tests.Commands.Models
 
 		private class GroupBase : CommandGroup<FakeContext>
 		{
-			public const string ID_1 = "id_1";
-			public const string ID_2 = "id_2";
+			public const string INHERITANCE_ALLOWED = "id_1";
+			public const string INHERITANCE_DISALLOWED = "id_2";
 
-			[Command("joeba", AllowInheritance = true)]
-			[Id(ID_1)]
-			public IResult CommandAsync() => SuccessResult.Instance;
+			[Command(nameof(InheritanceAllowed), AllowInheritance = true)]
+			[Id(INHERITANCE_ALLOWED)]
+			public IResult InheritanceAllowed() => SuccessResult.Instance;
 
-			[Command("joeba2", AllowInheritance = false)]
-			[Id(ID_2)]
-			public IResult CommandAsync2() => SuccessResult.Instance;
+			[Command(nameof(InheritanceDisallowed), AllowInheritance = false)]
+			[Id(INHERITANCE_DISALLOWED)]
+			public IResult InheritanceDisallowed() => SuccessResult.Instance;
 		}
 
 		private class GroupChild : GroupBase
+		{
+		}
+
+		private class GroupGeneric<T> : GroupBase
 		{
 		}
 	}

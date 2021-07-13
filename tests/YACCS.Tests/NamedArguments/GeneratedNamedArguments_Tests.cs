@@ -150,7 +150,7 @@ namespace YACCS.Tests.NamedArguments
 			};
 
 			var commandService = context.Get<CommandService>();
-			var commands = typeof(CommandsGroup).GetAllCommandsAsync();
+			var commands = typeof(CommandsGroup).GetAllCommandsAsync(context.Services);
 			await commandService.AddRangeAsync(commands).ConfigureAwait(false);
 
 			return (commandService, setMe, context);

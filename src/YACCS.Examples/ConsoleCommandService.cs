@@ -17,9 +17,11 @@ namespace YACCS.Examples
 	{
 		private readonly IEnumerable<Assembly> _CommandAssemblies;
 		private readonly ConsoleHandler _Console;
+		private readonly IServiceProvider _Services;
 		private bool _IsInitialized;
 
 		public ConsoleCommandService(
+			IServiceProvider services,
 			ICommandServiceConfig config,
 			IArgumentSplitter splitter,
 			IReadOnlyDictionary<Type, ITypeReader> readers,
@@ -29,6 +31,7 @@ namespace YACCS.Examples
 		{
 			_CommandAssemblies = commandAssemblies;
 			_Console = console;
+			_Services = services;
 		}
 
 		public Task InitializeAsync()
@@ -40,13 +43,13 @@ namespace YACCS.Examples
 			return PrivateInitialize();
 		}
 
-		protected override ValueTask DisposeCommandAsync(CommandExecutedEventArgs e)
+		protected override Task DisposeCommandAsync(CommandExecutedEventArgs e)
 		{
 			_Console.ReleaseIOLocks();
 			return base.DisposeCommandAsync(e);
 		}
 
-		private void AddDelegateCommands()
+		private async Task AddDelegateCommandsAsync()
 		{
 			// Example delegate command registration
 			static int Add(int a, int b)
@@ -54,18 +57,18 @@ namespace YACCS.Examples
 
 			var @delegate = (Func<int, int, int>)Add;
 			var names = new[] { new ImmutableName(new[] { nameof(Add) }) };
-			var add = new DelegateCommand(@delegate, names).MakeMultipleImmutable();
-			this.AddRange(add);
+			var add = new DelegateCommand(@delegate, names).ToMultipleImmutableAsync(_Services);
+			await this.AddRangeAsync(add).ConfigureAwait(false);
 		}
 
 		private async Task PrivateInitialize()
 		{
 			foreach (var assembly in _CommandAssemblies)
 			{
-				var commands = assembly.GetAllCommandsAsync();
+				var commands = assembly.GetAllCommandsAsync(_Services);
 				await this.AddRangeAsync(commands).ConfigureAwait(false);
 			}
-			AddDelegateCommands();
+			await AddDelegateCommandsAsync().ConfigureAwait(false);
 			Debug.WriteLine($"Registered {Commands.Count} commands for '{CultureInfo.CurrentUICulture}'.");
 
 			CommandExecuted += (e) =>
