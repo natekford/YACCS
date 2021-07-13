@@ -22,7 +22,6 @@ namespace YACCS.Examples
 		private Program()
 		{
 			_Services = new ServiceCollection()
-				.AddSingleton<IArgumentSplitter>(ArgumentSplitter.Instance)
 				.AddSingleton<ICommandServiceConfig>(CommandServiceConfig.Instance)
 				.AddSingleton<ILocalizer>(Localize.Instance)
 				.AddSingleton<ConsoleHandler>()
@@ -36,6 +35,7 @@ namespace YACCS.Examples
 					return x.GetRequiredService<ConsoleCommandServiceFactory>()
 						.GetCommandService();
 				})
+				.AddSingleton<IArgumentSplitter, ArgumentSplitter>()
 				.AddSingleton<IFormatProvider, TagFormatter>()
 				.AddSingleton<IHelpFormatter, HelpFormatter>()
 				.AddSingleton<IInput<IContext, string>, ConsoleInput>()

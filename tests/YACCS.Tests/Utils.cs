@@ -13,8 +13,8 @@ namespace YACCS.Tests
 	{
 		public static IServiceCollection CreateServiceCollection(ICommandServiceConfig? config = null)
 		{
-			var splitter = ArgumentSplitter.Instance;
 			config ??= CommandServiceConfig.Instance;
+			var splitter = new ArgumentSplitter(config);
 			var readers = new TypeReaderRegistry();
 			var commandService = new CommandService(config, splitter, readers);
 

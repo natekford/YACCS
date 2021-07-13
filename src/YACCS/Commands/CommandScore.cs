@@ -13,16 +13,10 @@ namespace YACCS.Commands
 		// This class is a mess
 		public static CommandScore CommandNotFound { get; }
 			= new(null, null, null!, CommandNotFoundResult.Instance, 0, 0, null);
-		public static Task<ICommandResult> CommandNotFoundTask { get; }
-			= Task.FromResult<ICommandResult>(CommandNotFound);
 		public static CommandScore MultiMatch { get; }
 			= new(null, null, null!, MultiMatchHandlingErrorResult.Instance, 0, 0, null);
-		public static Task<ICommandResult> MultiMatchTask { get; }
-			= Task.FromResult<ICommandResult>(MultiMatch);
 		public static CommandScore QuoteMismatch { get; }
 			= new(null, null, null!, QuoteMismatchResult.Instance, 0, 0, null);
-		public static Task<ICommandResult> QuoteMismatchTask { get; }
-			= Task.FromResult<ICommandResult>(QuoteMismatch);
 
 		public object?[]? Args { get; }
 		public IImmutableCommand? Command { get; }

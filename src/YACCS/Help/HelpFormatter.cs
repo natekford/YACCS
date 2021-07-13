@@ -93,6 +93,11 @@ namespace YACCS.Help
 
 			public virtual HelpBuilder AppendNames(IHelpCommand command)
 			{
+				if (command.Item.Names.Count == 0)
+				{
+					return this;
+				}
+
 				Append(HeaderNames);
 				var separator = CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ";
 				StringBuilder.AppendJoin(separator, command.Item.Names);
@@ -102,6 +107,11 @@ namespace YACCS.Help
 
 			public virtual async Task<HelpBuilder> AppendParametersAsync(IHelpCommand command)
 			{
+				if (command.Parameters.Count == 0)
+				{
+					return this;
+				}
+
 				AppendLine(HeaderParameters);
 				++CurrentDepth;
 				foreach (var parameter in command.Parameters)
@@ -151,12 +161,14 @@ namespace YACCS.Help
 
 			public virtual HelpBuilder AppendSummary(IHelpItem<object> item)
 			{
-				if (item.Summary is not null)
+				if (item.Summary is null)
 				{
-					Append(HeaderSummary);
-					AppendLine(item.Summary?.Summary);
-					AppendLine();
+					return this;
 				}
+
+				Append(HeaderSummary);
+				AppendLine(item.Summary?.Summary);
+				AppendLine();
 				return this;
 			}
 

@@ -7,7 +7,6 @@ namespace YACCS.Commands
 	{
 		IEqualityComparer<string> CommandNameComparer { get; }
 		IImmutableSet<char> EndQuotes { get; }
-		bool IgnoreExtraArgs { get; }
 		MultiMatchHandling MultiMatchHandling { get; }
 		char Separator { get; }
 		IImmutableSet<char> StartQuotes { get; }

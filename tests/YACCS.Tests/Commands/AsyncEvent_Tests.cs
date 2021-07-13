@@ -29,7 +29,7 @@ namespace YACCS.Tests.Commands
 
 			Task ExceptionHandler(ExceptionEventArgs<FakeEventArgs> e)
 			{
-				Assert.AreEqual(_Args, e.EventArgs);
+				Assert.AreSame(_Args, e.EventArgs);
 				Assert.AreEqual(1, e.Exceptions.Count);
 				Assert.IsInstanceOfType(e.Exceptions[0], typeof(InvalidOperationException));
 				value2 = 1;

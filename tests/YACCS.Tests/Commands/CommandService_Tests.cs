@@ -335,7 +335,7 @@ namespace YACCS.Tests.Commands
 				Services = Utils.CreateServices(new CommandServiceConfig
 				{
 					MultiMatchHandling = MultiMatchHandling.Error,
-				}),
+				}.ToImmutable()),
 			};
 
 			var commandService = context.Get<CommandService>();

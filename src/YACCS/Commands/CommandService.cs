@@ -31,8 +31,8 @@ namespace YACCS.Commands
 			IReadOnlyDictionary<Type, ITypeReader> readers)
 		{
 			Config = config;
-			Splitter = splitter;
 			Readers = readers;
+			Splitter = splitter;
 
 			CommandExecutedEvent = new AsyncEvent<CommandExecutedEventArgs>();
 			Commands = new CommandTrie(readers, config);
@@ -42,11 +42,11 @@ namespace YACCS.Commands
 		{
 			if (!Splitter.TrySplit(input, out var args))
 			{
-				return new(CommandScore.QuoteMismatchTask);
+				return new(CommandScore.QuoteMismatch);
 			}
 			if (args.Length == 0)
 			{
-				return new(CommandScore.CommandNotFoundTask);
+				return new(CommandScore.CommandNotFound);
 			}
 			return PrivateExecuteAsync(context, args);
 		}

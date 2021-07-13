@@ -4,21 +4,16 @@ using System.Collections.Immutable;
 
 namespace YACCS.Commands
 {
-	public class CommandServiceConfig : ICommandServiceConfig
+	public class CommandServiceConfig
 	{
 		public static ImmutableCommandServiceConfig Instance { get; }
-			= new(new CommandServiceConfig());
+			= new CommandServiceConfig().ToImmutable();
 
 		public HashSet<char> EndQuotes { get; set; } = new() { CommandServiceUtils.QUOTE };
-		public bool IgnoreExtraArgs { get; set; }
 		public bool IsCaseSensitive { get; set; }
 		public MultiMatchHandling MultiMatchHandling { get; set; } = MultiMatchHandling.Best;
 		public char Separator { get; set; } = CommandServiceUtils.SPACE;
 		public HashSet<char> StartQuotes { get; set; } = new() { CommandServiceUtils.QUOTE };
-		IEqualityComparer<string> ICommandServiceConfig.CommandNameComparer
-			=> IsCaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
-		IImmutableSet<char> ICommandServiceConfig.EndQuotes => EndQuotes.ToImmutableHashSet();
-		IImmutableSet<char> ICommandServiceConfig.StartQuotes => StartQuotes.ToImmutableHashSet();
 
 		public ImmutableCommandServiceConfig ToImmutable()
 			=> new(this);
@@ -28,16 +23,24 @@ namespace YACCS.Commands
 	{
 		public IEqualityComparer<string> CommandNameComparer { get; }
 		public IImmutableSet<char> EndQuotes { get; }
-		public bool IgnoreExtraArgs { get; }
 		public MultiMatchHandling MultiMatchHandling { get; }
 		public char Separator { get; }
 		public IImmutableSet<char> StartQuotes { get; }
+
+		public ImmutableCommandServiceConfig(CommandServiceConfig mutable)
+		{
+			CommandNameComparer = mutable.IsCaseSensitive
+				? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
+			EndQuotes = mutable.EndQuotes.ToImmutableHashSet();
+			MultiMatchHandling = mutable.MultiMatchHandling;
+			Separator = mutable.Separator;
+			StartQuotes = mutable.StartQuotes.ToImmutableHashSet();
+		}
 
 		public ImmutableCommandServiceConfig(ICommandServiceConfig other)
 		{
 			CommandNameComparer = other.CommandNameComparer;
 			EndQuotes = other.EndQuotes;
-			IgnoreExtraArgs = other.IgnoreExtraArgs;
 			MultiMatchHandling = other.MultiMatchHandling;
 			Separator = other.Separator;
 			StartQuotes = other.StartQuotes;
