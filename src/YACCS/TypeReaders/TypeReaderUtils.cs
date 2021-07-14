@@ -15,15 +15,6 @@ namespace YACCS.TypeReaders
 		public static ITask<ITypeReaderResult<T>> AsITask<T>(this ITypeReaderResult<T> result)
 			=> Task.FromResult(result).AsITask();
 
-		public static ITask<ITypeReaderResult> AsITask(this ITypeReaderResult result)
-			=> Task.FromResult(result).AsITask();
-
-		public static Task<ITypeReaderResult<T>> AsTask<T>(this ITypeReaderResult<T> result)
-			=> Task.FromResult(result);
-
-		public static Task<ITypeReaderResult> AsTask(this ITypeReaderResult result)
-			=> Task.FromResult(result);
-
 		public static ITypeReader<T> GetTypeReader<T>(
 			this IReadOnlyDictionary<Type, ITypeReader> registry)
 		{
