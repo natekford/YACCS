@@ -13,7 +13,7 @@ namespace YACCS.Tests.NamedArguments
 	public class NamedTypeReader_Tests : TypeReader_Tests<NamedTypeReader_Tests.NamedClass>
 	{
 		public override ITypeReader<NamedClass> Reader { get; }
-			= new NamedArgumentTypeReader<NamedClass>();
+			= new NamedArgumentsTypeReader<NamedClass>();
 
 		[TestMethod]
 		public async Task DuplicateKey_Test()

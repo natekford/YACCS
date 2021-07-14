@@ -6,7 +6,7 @@ using YACCS.Commands.Models;
 
 namespace YACCS.NamedArguments
 {
-	public static class NamedArgumentUtils
+	public static class NamedArgumentsUtils
 	{
 		public static IEnumerable<IImmutableParameter> CreateParametersForType(Type type)
 		{

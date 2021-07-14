@@ -95,7 +95,7 @@ namespace YACCS.NamedArguments
 		}
 
 		private class GeneratedNamedParameterPrecondition
-			: NamedArgumentParameterPreconditionBase<Dictionary<string, object?>>
+			: NamedArgumentsParameterPreconditionBase<Dictionary<string, object?>>
 		{
 			protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
@@ -133,7 +133,7 @@ namespace YACCS.NamedArguments
 		}
 
 		private class GeneratedNamedTypeReader
-			: NamedArgumentTypeReaderBase<Dictionary<string, object?>>
+			: NamedArgumentsTypeReaderBase<Dictionary<string, object?>>
 		{
 			protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 

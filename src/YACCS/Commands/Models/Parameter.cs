@@ -61,7 +61,7 @@ namespace YACCS.Commands.Models
 			if (this.Get<GenerateNamedArgumentsAttribute>().Any()
 				|| type.GetCustomAttribute<GenerateNamedArgumentsAttribute>() is not null)
 			{
-				var ppType = typeof(NamedArgumentParameterPrecondition<>).MakeGenericType(ParameterType);
+				var ppType = typeof(NamedArgumentsParameterPrecondition<>).MakeGenericType(ParameterType);
 				Attributes.Add(Activator.CreateInstance(ppType));
 				AddRemainderAttribute(ref _HasLengthAttribute);
 			}

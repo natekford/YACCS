@@ -7,19 +7,19 @@ using YACCS.Commands.Models;
 
 namespace YACCS.NamedArguments
 {
-	public class NamedArgumentParameterPrecondition<T> : NamedArgumentParameterPreconditionBase<T>
+	public class NamedArgumentsParameterPrecondition<T> : NamedArgumentsParameterPreconditionBase<T>
 	{
 		private readonly Func<T, string, object> _Getter;
 		private readonly Lazy<IReadOnlyDictionary<string, IImmutableParameter>> _Parameters;
 
 		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters => _Parameters.Value;
 
-		public NamedArgumentParameterPrecondition()
+		public NamedArgumentsParameterPrecondition()
 		{
 			_Getter = ReflectionUtils.CreateDelegate(Getter, "getter");
 			_Parameters = new(() =>
 			{
-				return NamedArgumentUtils
+				return NamedArgumentsUtils
 					.CreateParametersForType(typeof(T))
 					.ToDictionary(x => x.OriginalParameterName, StringComparer.OrdinalIgnoreCase);
 			});

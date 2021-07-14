@@ -100,7 +100,7 @@ namespace YACCS.TypeReaders
 			}
 			else if (type.GetCustomAttribute<GenerateNamedArgumentsAttribute>() is not null)
 			{
-				readerType = typeof(NamedArgumentTypeReader<>).MakeGenericType(type);
+				readerType = typeof(NamedArgumentsTypeReader<>).MakeGenericType(type);
 			}
 			else if (type.GetArrayType() is Type eType && Items.ContainsKey(eType))
 			{

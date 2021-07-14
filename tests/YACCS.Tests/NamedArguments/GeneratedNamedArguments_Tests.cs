@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
+using YACCS.NamedArguments;
 using YACCS.Preconditions;
 using YACCS.Results;
 

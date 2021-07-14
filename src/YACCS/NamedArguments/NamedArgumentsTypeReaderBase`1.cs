@@ -10,7 +10,7 @@ using YACCS.TypeReaders;
 
 namespace YACCS.NamedArguments
 {
-	public abstract class NamedArgumentTypeReaderBase<T> : TypeReader<T> where T : new()
+	public abstract class NamedArgumentsTypeReaderBase<T> : TypeReader<T> where T : new()
 	{
 		private static readonly ITask<ITypeReaderResult<T>> _ArgCountError
 			= TypeReaderResult<T>.FromError(NamedArgBadCountResult.Instance).AsITask();

@@ -8,7 +8,7 @@ using YACCS.Results;
 
 namespace YACCS.NamedArguments
 {
-	public abstract class NamedArgumentParameterPreconditionBase<T>
+	public abstract class NamedArgumentsParameterPreconditionBase<T>
 		: ParameterPrecondition<IContext, T>
 	{
 		protected abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
