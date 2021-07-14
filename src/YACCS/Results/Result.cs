@@ -16,5 +16,8 @@ namespace YACCS.Results
 			IsSuccess = isSuccess;
 			Response = response;
 		}
+
+		public override string ToString()
+			=> Response;
 	}
 }

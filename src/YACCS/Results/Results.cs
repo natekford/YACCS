@@ -89,45 +89,45 @@ namespace YACCS.Results
 		}
 	}
 
-	public class NamedArgDuplicateResult : LocalizedResult
+	public class NamedArgDuplicateResult : LocalizedResult, IFormattable
 	{
 		public string Name { get; }
-		public override string Response => string.Format(base.Response, Name);
+		public override string Response => ToString(null, null);
 
 		public NamedArgDuplicateResult(string name) : base(false, Keys.NamedArgDuplicateResult)
 		{
 			Name = name;
 		}
 
-		public override string ToString(string ignored, IFormatProvider formatProvider)
+		public string ToString(string? ignored, IFormatProvider? formatProvider)
 			=> string.Format(formatProvider, base.Response, Name);
 	}
 
-	public class NamedArgMissingValueResult : LocalizedResult
+	public class NamedArgMissingValueResult : LocalizedResult, IFormattable
 	{
 		public string Name { get; }
-		public override string Response => string.Format(base.Response, Name);
+		public override string Response => ToString(null, null);
 
 		public NamedArgMissingValueResult(string name) : base(false, Keys.NamedArgMissingValueResult)
 		{
 			Name = name;
 		}
 
-		public override string ToString(string ignored, IFormatProvider formatProvider)
+		public string ToString(string? ignored, IFormatProvider? formatProvider)
 			=> string.Format(formatProvider, base.Response, Name);
 	}
 
-	public class NamedArgNonExistentResult : LocalizedResult
+	public class NamedArgNonExistentResult : LocalizedResult, IFormattable
 	{
 		public string Name { get; }
-		public override string Response => string.Format(base.Response, Name);
+		public override string Response => ToString(null, null);
 
 		public NamedArgNonExistentResult(string name) : base(false, Keys.NamedArgNonExistentResult)
 		{
 			Name = name;
 		}
 
-		public override string ToString(string ignored, IFormatProvider formatProvider)
+		public string ToString(string? ignored, IFormatProvider? formatProvider)
 			=> string.Format(formatProvider, base.Response, Name);
 	}
 
@@ -149,17 +149,17 @@ namespace YACCS.Results
 		}
 	}
 
-	public class ParseFailedResult : LocalizedResult
+	public class ParseFailedResult : LocalizedResult, IFormattable
 	{
+		public override string Response => ToString(null, null);
 		public Type Type { get; }
-		public override string Response => string.Format(base.Response, Type);
 
 		protected ParseFailedResult(Type type) : base(false, Keys.ParseFailedResult)
 		{
 			Type = type;
 		}
 
-		public override string ToString(string ignored, IFormatProvider formatProvider)
+		public string ToString(string? ignored, IFormatProvider? formatProvider)
 			=> string.Format(formatProvider, base.Response, Type);
 	}
 
