@@ -1,5 +1,6 @@
 ﻿using System;
 
+using YACCS.Commands.Models;
 using YACCS.Localization;
 
 namespace YACCS.Results
@@ -133,10 +134,12 @@ namespace YACCS.Results
 
 	public class NullParameterResult : LocalizedResult
 	{
-		public static NullParameterResult Instance { get; } = new();
+		public IImmutableParameter Parameter { get; }
 
-		public NullParameterResult() : base(false, Keys.NullParameterResult)
+		public NullParameterResult(IImmutableParameter parameter)
+			: base(false, string.Format(Keys.NullParameterResult, parameter.ParameterName))
 		{
+			Parameter = parameter;
 		}
 	}
 

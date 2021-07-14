@@ -110,8 +110,13 @@ namespace YACCS.NamedArguments
 				IImmutableCommand command,
 				IImmutableParameter parameter,
 				IContext context,
-				[MaybeNull] Dictionary<string, object?> value)
+				Dictionary<string, object?>? value)
 			{
+				if (value is null)
+				{
+					return new(new NullParameterResult(parameter));
+				}
+
 				foreach (var kvp in Parameters)
 				{
 					if (!value.ContainsKey(kvp.Key) && !kvp.Value.HasDefaultValue)

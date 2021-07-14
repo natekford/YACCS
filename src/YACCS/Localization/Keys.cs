@@ -97,7 +97,7 @@ namespace YACCS.Localization
 		public static NeedsLocalization NotEnoughArgsResult { get; }
 			= new(nameof(NotEnoughArgsResult), "Not enough arguments provided.");
 		public static NeedsLocalization NullParameterResult { get; }
-			= new(nameof(NullParameterResult), "Parameter is null.");
+			= new(nameof(NullParameterResult), "Parameter {0} is null.");
 		public static NeedsLocalization ParseFailedResult { get; }
 			= new(nameof(ParseFailedResult), "Failed to parse {0}.");
 		public static NeedsLocalization QuoteMismatchResult { get; }

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
@@ -18,8 +17,13 @@ namespace YACCS.NamedArguments
 			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IContext context,
-			[MaybeNull] T value)
+			T? value)
 		{
+			if (value is null)
+			{
+				return new NullParameterResult(parameter);
+			}
+
 			foreach (var kvp in Parameters)
 			{
 				var (id, member) = kvp;

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
@@ -14,7 +13,7 @@ namespace YACCS.Preconditions
 			IImmutableCommand command,
 			IImmutableParameter parameter,
 			TContext context,
-			[MaybeNull] TValue value);
+			TValue? value);
 
 		ValueTask<IResult> IParameterPrecondition.CheckAsync(
 			IImmutableCommand command,
@@ -27,7 +26,7 @@ namespace YACCS.Preconditions
 			IImmutableCommand command,
 			IImmutableParameter parameter,
 			IContext context,
-			[MaybeNull] TValue value)
+			TValue? value)
 			=> this.CheckAsync<TContext, TValue>(command, parameter, context, value, CheckAsync);
 	}
 }

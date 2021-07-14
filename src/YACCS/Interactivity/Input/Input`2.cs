@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
+using YACCS.Preconditions;
 using YACCS.Results;
 using YACCS.TypeReaders;
 
@@ -49,12 +51,14 @@ namespace YACCS.Interactivity.Input
 					return trResult.InnerResult;
 				}
 
-				var value = trResult.Value!;
-				var parameterBuilder = new Parameter(typeof(TValue), "InputParameter", null);
-				var parameter = parameterBuilder.ToImmutable();
 				foreach (var precondition in options.Preconditions)
 				{
-					var result = await precondition.CheckAsync(EmptyCommand, parameter, context, value).ConfigureAwait(false);
+					var result = await precondition.CheckAsync(
+						EmptyCommand,
+						EmptyParameter<TValue>.Instance,
+						context,
+						trResult.Value
+					).ConfigureAwait(false);
 					if (!result.IsSuccess)
 					{
 						return result;
@@ -67,5 +71,23 @@ namespace YACCS.Interactivity.Input
 		}
 
 		protected abstract string GetInputString(TInput input);
+
+		protected sealed class EmptyParameter<T> : IImmutableParameter
+		{
+			public static EmptyParameter<T> Instance { get; } = new();
+
+			public IReadOnlyList<object> Attributes { get; } = Array.Empty<object>();
+			public object? DefaultValue => null;
+			public bool HasDefaultValue => false;
+			public int? Length => int.MaxValue;
+			public string OriginalParameterName { get; } = $"Input_{typeof(T).FullName}";
+			public string ParameterName => OriginalParameterName;
+			public Type ParameterType { get; } = typeof(T);
+			public IReadOnlyDictionary<string, IReadOnlyList<IParameterPrecondition>> Preconditions { get; }
+				= ImmutableDictionary.Create<string, IReadOnlyList<IParameterPrecondition>>();
+			public string PrimaryId { get; } = typeof(T).FullName;
+			public ITypeReader? TypeReader => null;
+			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
+		}
 	}
 }

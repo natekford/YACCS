@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
@@ -15,6 +14,6 @@ namespace YACCS.Preconditions
 			IImmutableCommand command,
 			IImmutableParameter parameter,
 			TContext context,
-			[MaybeNull] TValue value);
+			TValue? value);
 	}
 }
