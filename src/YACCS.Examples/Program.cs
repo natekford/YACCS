@@ -36,7 +36,7 @@ namespace YACCS.Examples
 						.GetCommandService();
 				})
 				.AddSingleton<IArgumentSplitter, ArgumentSplitter>()
-				.AddSingleton<IFormatProvider, TagFormatter>()
+				.AddSingleton<IFormatProvider, ConsoleTagFormatter>()
 				.AddSingleton<IHelpFormatter, HelpFormatter>()
 				.AddSingleton<IInput<IContext, string>, ConsoleInput>()
 				.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>, TypeReaderRegistry>()

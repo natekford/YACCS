@@ -1,9 +1,10 @@
-﻿using YACCS.Localization;
+﻿using System;
+
+using YACCS.Localization;
 
 namespace YACCS.Results
 {
-
-	public abstract class LocalizedResult : Result
+	public abstract class LocalizedResult : Result, IFormattable
 	{
 		public override string Response => UnlocalizedResponse.Localized;
 		protected NeedsLocalization UnlocalizedResponse { get; }
@@ -12,5 +13,11 @@ namespace YACCS.Results
 		{
 			UnlocalizedResponse = response;
 		}
+
+		public override string ToString()
+			=> Response;
+
+		public virtual string ToString(string ignored, IFormatProvider formatProvider)
+			=> ToString();
 	}
 }

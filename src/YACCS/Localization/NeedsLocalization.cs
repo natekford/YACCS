@@ -12,9 +12,6 @@
 			Fallback = fallback;
 		}
 
-		public static implicit operator NeedsLocalization(string key)
-			=> new(key);
-
 		public static implicit operator string(NeedsLocalization localized)
 			=> localized.ToString();
 

@@ -21,7 +21,7 @@ namespace YACCS.NamedArguments
 		{
 			if (value is null)
 			{
-				return new NullParameterResult(parameter);
+				return NullParameterResult.Instance;
 			}
 
 			foreach (var kvp in Parameters)

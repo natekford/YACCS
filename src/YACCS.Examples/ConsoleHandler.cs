@@ -1,12 +1,10 @@
 ﻿#pragma warning disable CA1822 // Mark members as static
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-using YACCS.Localization;
 using YACCS.Results;
 
 namespace YACCS.Examples
@@ -14,13 +12,13 @@ namespace YACCS.Examples
 	public class ConsoleHandler
 	{
 		private readonly Channel<string?> _Channel;
+		private readonly IFormatProvider _FormatProvider;
 		private readonly SemaphoreSlim _Input;
-		private readonly IReadOnlyDictionary<Type, string> _Names;
 		private readonly SemaphoreSlim _Output;
 
-		public ConsoleHandler(IReadOnlyDictionary<Type, string> names)
+		public ConsoleHandler(IFormatProvider formatProvider)
 		{
-			_Names = names;
+			_FormatProvider = formatProvider;
 			_Input = new SemaphoreSlim(1, 1);
 			_Output = new SemaphoreSlim(1, 1);
 			_Channel = Channel.CreateUnbounded<string?>(new UnboundedChannelOptions
@@ -113,7 +111,7 @@ namespace YACCS.Examples
 		{
 			return result switch
 			{
-				ParseFailedResult pfr => string.Format(Keys.ParseFailedResult, _Names[pfr.Type]),
+				IFormattable formattable => formattable.ToString(null, _FormatProvider),
 				_ => result.Response,
 			};
 		}

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -114,7 +113,7 @@ namespace YACCS.NamedArguments
 			{
 				if (value is null)
 				{
-					return new(new NullParameterResult(parameter));
+					return new(NullParameterResult.Instance);
 				}
 
 				foreach (var kvp in Parameters)

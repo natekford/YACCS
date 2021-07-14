@@ -1,6 +1,5 @@
 ﻿using System;
 
-using YACCS.Commands.Models;
 using YACCS.Localization;
 
 namespace YACCS.Results
@@ -41,7 +40,7 @@ namespace YACCS.Results
 		}
 	}
 
-	public class FailureResult : LocalizedResult
+	public class FailureResult : Result
 	{
 		public static FailureResult Instance { get; } = new();
 
@@ -90,37 +89,46 @@ namespace YACCS.Results
 		}
 	}
 
-	public class NamedArgDuplicateResult : Result
+	public class NamedArgDuplicateResult : LocalizedResult
 	{
 		public string Name { get; }
+		public override string Response => string.Format(base.Response, Name);
 
-		public NamedArgDuplicateResult(string name)
-			: base(false, string.Format(Keys.NamedArgDuplicateResult, name))
+		public NamedArgDuplicateResult(string name) : base(false, Keys.NamedArgDuplicateResult)
 		{
 			Name = name;
 		}
+
+		public override string ToString(string ignored, IFormatProvider formatProvider)
+			=> string.Format(formatProvider, base.Response, Name);
 	}
 
-	public class NamedArgMissingValueResult : Result
+	public class NamedArgMissingValueResult : LocalizedResult
 	{
 		public string Name { get; }
+		public override string Response => string.Format(base.Response, Name);
 
-		public NamedArgMissingValueResult(string name)
-			: base(false, string.Format(Keys.NamedArgMissingValueResult, name))
+		public NamedArgMissingValueResult(string name) : base(false, Keys.NamedArgMissingValueResult)
 		{
 			Name = name;
 		}
+
+		public override string ToString(string ignored, IFormatProvider formatProvider)
+			=> string.Format(formatProvider, base.Response, Name);
 	}
 
-	public class NamedArgNonExistentResult : Result
+	public class NamedArgNonExistentResult : LocalizedResult
 	{
 		public string Name { get; }
+		public override string Response => string.Format(base.Response, Name);
 
-		public NamedArgNonExistentResult(string name)
-			: base(false, string.Format(Keys.NamedArgNonExistentResult, name))
+		public NamedArgNonExistentResult(string name) : base(false, Keys.NamedArgNonExistentResult)
 		{
 			Name = name;
 		}
+
+		public override string ToString(string ignored, IFormatProvider formatProvider)
+			=> string.Format(formatProvider, base.Response, Name);
 	}
 
 	public class NotEnoughArgsResult : LocalizedResult
@@ -134,24 +142,25 @@ namespace YACCS.Results
 
 	public class NullParameterResult : LocalizedResult
 	{
-		public IImmutableParameter Parameter { get; }
+		public static NullParameterResult Instance { get; } = new();
 
-		public NullParameterResult(IImmutableParameter parameter)
-			: base(false, string.Format(Keys.NullParameterResult, parameter.ParameterName))
+		public NullParameterResult() : base(false, Keys.NullParameterResult)
 		{
-			Parameter = parameter;
 		}
 	}
 
-	public class ParseFailedResult : Result
+	public class ParseFailedResult : LocalizedResult
 	{
 		public Type Type { get; }
+		public override string Response => string.Format(base.Response, Type);
 
-		protected ParseFailedResult(Type type)
-			: base(false, string.Format(Keys.ParseFailedResult, type.Name))
+		protected ParseFailedResult(Type type) : base(false, Keys.ParseFailedResult)
 		{
 			Type = type;
 		}
+
+		public override string ToString(string ignored, IFormatProvider formatProvider)
+			=> string.Format(formatProvider, base.Response, Type);
 	}
 
 	public class ParseFailedResult<T> : ParseFailedResult
@@ -172,7 +181,7 @@ namespace YACCS.Results
 		}
 	}
 
-	public class SuccessResult : LocalizedResult
+	public class SuccessResult : Result
 	{
 		public static SuccessResult Instance { get; } = new();
 

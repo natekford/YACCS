@@ -13,25 +13,25 @@ namespace YACCS.Localization
 			.ToImmutableArray();
 
 		#region Words
-		public static NeedsLocalization And { get; } = nameof(And);
-		public static NeedsLocalization Attributes { get; } = nameof(Attributes);
-		public static NeedsLocalization Id { get; } = nameof(Id);
-		public static NeedsLocalization Length { get; } = nameof(Length);
-		public static NeedsLocalization Names { get; } = nameof(Names);
-		public static NeedsLocalization Or { get; } = nameof(Or);
-		public static NeedsLocalization Parameters { get; } = nameof(Parameters);
-		public static NeedsLocalization Preconditions { get; } = nameof(Preconditions);
-		public static NeedsLocalization Priority { get; } = nameof(Priority);
-		public static NeedsLocalization Remainder { get; } = nameof(Remainder);
-		public static NeedsLocalization Summary { get; } = nameof(Summary);
+		public static NeedsLocalization And { get; } = new(nameof(And));
+		public static NeedsLocalization Attributes { get; } = new(nameof(Attributes));
+		public static NeedsLocalization Id { get; } = new(nameof(Id));
+		public static NeedsLocalization Length { get; } = new(nameof(Length));
+		public static NeedsLocalization Names { get; } = new(nameof(Names));
+		public static NeedsLocalization Or { get; } = new(nameof(Or));
+		public static NeedsLocalization Parameters { get; } = new(nameof(Parameters));
+		public static NeedsLocalization Preconditions { get; } = new(nameof(Preconditions));
+		public static NeedsLocalization Priority { get; } = new(nameof(Priority));
+		public static NeedsLocalization Remainder { get; } = new(nameof(Remainder));
+		public static NeedsLocalization Summary { get; } = new(nameof(Summary));
 		#endregion Words
 
 		#region Nulls
-		public static NeedsLocalization Nil { get; } = nameof(Nil);
-		public static NeedsLocalization Nothing { get; } = nameof(Nothing);
-		public static NeedsLocalization Null { get; } = nameof(Null);
-		public static NeedsLocalization NullPtr { get; } = nameof(NullPtr);
-		public static NeedsLocalization Void { get; } = nameof(Void);
+		public static NeedsLocalization Nil { get; } = new(nameof(Nil));
+		public static NeedsLocalization Nothing { get; } = new(nameof(Nothing));
+		public static NeedsLocalization Null { get; } = new(nameof(Null));
+		public static NeedsLocalization NullPtr { get; } = new(nameof(NullPtr));
+		public static NeedsLocalization Void { get; } = new(nameof(Void));
 		#endregion Nulls
 
 		#region Types
@@ -97,7 +97,7 @@ namespace YACCS.Localization
 		public static NeedsLocalization NotEnoughArgsResult { get; }
 			= new(nameof(NotEnoughArgsResult), "Not enough arguments provided.");
 		public static NeedsLocalization NullParameterResult { get; }
-			= new(nameof(NullParameterResult), "Parameter {0} is null.");
+			= new(nameof(NullParameterResult), "Parameter is null.");
 		public static NeedsLocalization ParseFailedResult { get; }
 			= new(nameof(ParseFailedResult), "Failed to parse {0}.");
 		public static NeedsLocalization QuoteMismatchResult { get; }

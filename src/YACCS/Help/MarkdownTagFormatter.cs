@@ -1,12 +1,15 @@
-﻿namespace YACCS.Help
+﻿using System;
+using System.Collections.Generic;
+
+namespace YACCS.Help
 {
 	public class MarkdownTagFormatter : TagFormatter
 	{
-		public MarkdownTagFormatter()
+		protected override Dictionary<string, Func<string, string>> Formatters { get; } = new(StringComparer.OrdinalIgnoreCase)
 		{
-			Formatters[Tag.Header] = x => $"**{x}**:";
-			Formatters[Tag.Key] = x => $"**{x}** =";
-			Formatters[Tag.Value] = x => $"`{x}`";
-		}
+			[Tag.Header] = x => $"**{x}**:",
+			[Tag.Key] = x => $"**{x}** =",
+			[Tag.Value] = x => $"`{x}`",
+		};
 	}
 }
