@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
+using YACCS.Examples.Preconditions;
 using YACCS.Help;
-using YACCS.Help.Attributes;
+using YACCS.Interactivity;
 using YACCS.Interactivity.Input;
 using YACCS.Results;
-using YACCS.Interactivity;
 
-namespace YACCS.Examples
+namespace YACCS.Examples.Commands
 {
-
 	[Command(nameof(Help))]
 	public class Help : ConsoleCommands<IContext>
 	{
@@ -52,7 +49,7 @@ namespace YACCS.Examples
 				var options = Input.CreateOptions().With(preconditions: new[]
 				{
 						new RangeParameterPrecondition(1, commands.Count)
-					});
+				});
 				var result = await Input.GetAsync(Context, options).ConfigureAwait(false);
 				if (!result.InnerResult.IsSuccess)
 				{

@@ -8,7 +8,7 @@ using YACCS.Localization;
 using YACCS.Preconditions;
 using YACCS.Results;
 
-namespace YACCS.Examples
+namespace YACCS.Examples.Preconditions
 {
 	public class NotZero : ParameterPreconditionAttribute, IRuntimeFormattableAttribute
 	{

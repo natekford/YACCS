@@ -5,10 +5,11 @@ using System.Globalization;
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
+using YACCS.Examples.Preconditions;
 using YACCS.Help.Attributes;
 using YACCS.Results;
 
-namespace YACCS.Examples
+namespace YACCS.Examples.Commands
 {
 	public class Commands : ConsoleCommands<IContext>
 	{

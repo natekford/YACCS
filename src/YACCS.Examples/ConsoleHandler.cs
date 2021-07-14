@@ -61,7 +61,7 @@ namespace YACCS.Examples
 		}
 
 		public void ReleaseInputLock()
-			=> _Input.ReleaseIfZero();
+			=> ReleaseIfZero(_Input);
 
 		public void ReleaseIOLocks()
 		{
@@ -70,7 +70,7 @@ namespace YACCS.Examples
 		}
 
 		public void ReleaseOutputLock()
-			=> _Output.ReleaseIfZero();
+			=> ReleaseIfZero(_Output);
 
 		public async Task WaitForBothIOLocksAsync()
 		{
@@ -117,5 +117,8 @@ namespace YACCS.Examples
 				_ => result.Response,
 			};
 		}
+
+		private static int ReleaseIfZero(SemaphoreSlim semaphore)
+			=> semaphore.CurrentCount == 0 ? semaphore.Release() : semaphore.CurrentCount;
 	}
 }

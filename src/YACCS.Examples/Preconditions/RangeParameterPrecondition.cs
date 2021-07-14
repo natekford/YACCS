@@ -6,7 +6,7 @@ using YACCS.Commands.Models;
 using YACCS.Preconditions;
 using YACCS.Results;
 
-namespace YACCS.Examples
+namespace YACCS.Examples.Preconditions
 {
 	public class RangeParameterPrecondition : ParameterPrecondition<IContext, int>
 	{
