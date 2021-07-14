@@ -10,6 +10,7 @@ using YACCS.Help;
 using YACCS.Help.Attributes;
 using YACCS.Interactivity.Input;
 using YACCS.Results;
+using YACCS.Interactivity;
 
 namespace YACCS.Examples
 {
@@ -95,13 +96,10 @@ namespace YACCS.Examples
 						Console.WriteLine($"\t{++i}. {c.Names[0]}");
 					}
 
-					var options = new InputOptions<IContext, string, int>
+					var options = Input.CreateOptions().With(preconditions: new[]
 					{
-						Preconditions = new[]
-						{
-							new RangeParameterPrecondition(1, commands.Count)
-						},
-					};
+						new RangeParameterPrecondition(1, commands.Count)
+					});
 					var result = await Input.GetAsync(Context, options).ConfigureAwait(false);
 					if (!result.InnerResult.IsSuccess)
 					{
