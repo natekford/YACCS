@@ -70,7 +70,7 @@ namespace YACCS.Tests.SwapArguments
 			Assert.AreEqual(1, i);
 		}
 
-		private async Task<(CommandService, SetMe, FakeContext)> CreateAsync()
+		private async ValueTask<(CommandService, SetMe, FakeContext)> CreateAsync()
 		{
 			var setMe = new SetMe();
 			var context = new FakeContext()

@@ -31,10 +31,10 @@ namespace YACCS.Help
 		public async ValueTask<string> FormatAsync(IContext context, IImmutableCommand command)
 		{
 			var help = GetHelpCommand(command);
-			var builder = GetBuilder(context)
-				.AppendNames(help)
-				.AppendSummary(help);
+			var builder = GetBuilder(context);
 
+			builder.AppendNames(help);
+			builder.AppendSummary(help);
 			await builder.AppendAttributesAsync(help).ConfigureAwait(false);
 			await builder.AppendPreconditionsAsync(help.Preconditions).ConfigureAwait(false);
 			await builder.AppendParametersAsync(help).ConfigureAwait(false);
@@ -88,28 +88,27 @@ namespace YACCS.Help
 				StringBuilder = new();
 			}
 
-			public virtual Task<HelpBuilder> AppendAttributesAsync(IHelpItem<object> item)
+			public virtual Task AppendAttributesAsync(IHelpItem<object> item)
 				=> AppendItemsAsync(HeaderAttributes, item.Attributes);
 
-			public virtual HelpBuilder AppendNames(IHelpCommand command)
+			public virtual void AppendNames(IHelpCommand command)
 			{
 				if (command.Item.Names.Count == 0)
 				{
-					return this;
+					return;
 				}
 
 				Append(HeaderNames);
 				var separator = CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ";
 				StringBuilder.AppendJoin(separator, command.Item.Names);
 				AppendLine();
-				return this;
 			}
 
-			public virtual async Task<HelpBuilder> AppendParametersAsync(IHelpCommand command)
+			public virtual async Task AppendParametersAsync(IHelpCommand command)
 			{
 				if (command.Parameters.Count == 0)
 				{
-					return this;
+					return;
 				}
 
 				AppendLine(HeaderParameters);
@@ -127,16 +126,15 @@ namespace YACCS.Help
 					await AppendPreconditionsAsync(parameter.Preconditions).ConfigureAwait(false);
 				}
 				--CurrentDepth;
-				return this;
 			}
 
-			public virtual async Task<HelpBuilder> AppendPreconditionsAsync<T>(
+			public virtual async Task AppendPreconditionsAsync<T>(
 				IReadOnlyDictionary<string, ILookup<BoolOp, IHelpItem<T>>> preconditions)
 				where T : notnull
 			{
 				if (preconditions.Count == 0)
 				{
-					return this;
+					return;
 				}
 
 				AppendLine(HeaderPreconditions);
@@ -156,42 +154,38 @@ namespace YACCS.Help
 					}
 				}
 				--CurrentDepth;
-				return this;
 			}
 
-			public virtual HelpBuilder AppendSummary(IHelpItem<object> item)
+			public virtual void AppendSummary(IHelpItem<object> item)
 			{
 				if (item.Summary is null)
 				{
-					return this;
+					return;
 				}
 
 				Append(HeaderSummary);
 				AppendLine(item.Summary?.Summary);
 				AppendLine();
-				return this;
 			}
 
 			public override string ToString()
 				=> StringBuilder.ToString();
 
-			protected virtual HelpBuilder Append(string value)
+			protected virtual void Append(string value)
 			{
 				AppendDepth(value);
 				StringBuilder.Append(value);
-				return this;
 			}
 
-			protected virtual HelpBuilder AppendDepth(string? value)
+			protected virtual void AppendDepth(string? value)
 			{
 				if (value is not null && (StringBuilder.Length == 0 || StringBuilder[^1] == '\n'))
 				{
 					StringBuilder.Append('\t', CurrentDepth);
 				}
-				return this;
 			}
 
-			protected virtual async Task<HelpBuilder> AppendItemsAsync<T>(
+			protected virtual async Task AppendItemsAsync<T>(
 				string header,
 				IEnumerable<IHelpItem<T>> items)
 				where T : notnull
@@ -228,14 +222,12 @@ namespace YACCS.Help
 				{
 					AppendLine();
 				}
-				return this;
 			}
 
-			protected virtual HelpBuilder AppendLine(string? value = null)
+			protected virtual void AppendLine(string? value = null)
 			{
 				AppendDepth(value);
 				StringBuilder.AppendLine(value);
-				return this;
 			}
 
 			private static FormattableString ToHeader(string value)

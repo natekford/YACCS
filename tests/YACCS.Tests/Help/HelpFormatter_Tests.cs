@@ -107,7 +107,7 @@ Parameters:{TRAILING}
 		public void TagFormatterValue_Test()
 			=> Assert.AreEqual("joe", Format<TagFormatter>($"{"joe":value}"));
 
-		private static async Task<(CommandService, HelpFormatter, FakeContext)> CreateAsync()
+		private static async ValueTask<(CommandService, HelpFormatter, FakeContext)> CreateAsync()
 		{
 			var context = new FakeContext();
 			var formatter = new HelpFormatter(new TypeNameRegistry(), new TagFormatter());

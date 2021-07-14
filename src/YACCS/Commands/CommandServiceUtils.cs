@@ -204,7 +204,7 @@ namespace YACCS.Commands
 				return new(SuccessResult.Instance);
 			}
 
-			static async Task<IResult> PrivateProcessAsync(
+			static async ValueTask<IResult> PrivateProcessAsync(
 				IReadOnlyDictionary<string, IReadOnlyList<T>> preconditions,
 				Func<T, ValueTask<IResult>> converter)
 			{
@@ -243,7 +243,7 @@ namespace YACCS.Commands
 				return SuccessResult.Instance;
 			}
 
-			return new(PrivateProcessAsync(preconditions, converter));
+			return PrivateProcessAsync(preconditions, converter);
 		}
 
 		internal static List<ICommand> CreateMutableCommands(this Type type)

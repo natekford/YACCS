@@ -328,7 +328,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsInstanceOfType(result.InnerResult, typeof(QuoteMismatchResult));
 		}
 
-		private static async Task<(CommandService, FakeContext)> CreateAsync()
+		private static async ValueTask<(CommandService, FakeContext)> CreateAsync()
 		{
 			var context = new FakeContext
 			{

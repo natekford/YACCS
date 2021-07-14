@@ -1,18 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-
-using MorseCode.ITask;
 
 namespace YACCS.Results
 {
 	public static class ResultUtils
 	{
-		public static ITask<IResult> AsITask(this IResult result)
-			=> Task.FromResult(result).AsITask();
-
-		public static Task<IResult> AsTask(this IResult result)
-			=> Task.FromResult(result);
-
 		public static IResult GetMostNestedResult(this INestedResult result)
 		{
 			var actual = result.InnerResult;

@@ -53,7 +53,7 @@ namespace YACCS.Tests.Commands.Models
 		[TestMethod]
 		public async Task CommandDelegateBuilding_Test()
 		{
-			var @delegate = (Func<IContext, Task<bool>>)((IContext arg) => Task.FromResult(true));
+			var @delegate = (Func<IContext, bool>)((IContext arg) => true);
 			var names = new[] { new[] { "Joe" } };
 			var command = new DelegateCommand(@delegate, names);
 			var immutable = command.ToImmutable();
@@ -139,9 +139,9 @@ namespace YACCS.Tests.Commands.Models
 		[TestMethod]
 		public async Task StaticCommandDelegateBuilding_Test()
 		{
-			static Task<bool> Method(IContext arg) => Task.FromResult(true);
+			static bool Method(IContext arg) => true;
 
-			var @delegate = (Func<IContext, Task<bool>>)Method;
+			var @delegate = (Func<IContext, bool>)Method;
 			var names = new[] { new[] { "Joe" } };
 			var command = new DelegateCommand(@delegate, names);
 			var immutable = command.ToImmutable();

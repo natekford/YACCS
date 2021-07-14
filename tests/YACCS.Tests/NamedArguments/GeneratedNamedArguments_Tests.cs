@@ -141,7 +141,7 @@ namespace YACCS.Tests.NamedArguments
 			Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgMissingValueResult));
 		}
 
-		private async Task<(CommandService, SetMe, FakeContext)> CreateAsync()
+		private async ValueTask<(CommandService, SetMe, FakeContext)> CreateAsync()
 		{
 			var setMe = new SetMe();
 			var context = new FakeContext()

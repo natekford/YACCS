@@ -7,6 +7,6 @@ namespace YACCS.Interactivity
 {
 	public interface ICriterion<in TContext, in TInput> where TContext : IContext
 	{
-		Task<IResult> JudgeAsync(TContext context, TInput input);
+		ValueTask<IResult> JudgeAsync(TContext context, TInput input);
 	}
 }
