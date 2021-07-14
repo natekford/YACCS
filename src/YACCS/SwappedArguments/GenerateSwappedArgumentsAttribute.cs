@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 
-namespace YACCS.SwapArguments
+namespace YACCS.SwappedArguments
 {
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
 	public class GenerateSwappedArgumentsAttribute : Attribute, ICommandGeneratorAttribute

@@ -7,9 +7,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
-using YACCS.SwapArguments;
+using YACCS.SwappedArguments;
 
-namespace YACCS.Tests.SwapArguments
+namespace YACCS.Tests.SwappedArguments
 {
 	[TestClass]
 	public class SwappedArgumentCommand_Tests

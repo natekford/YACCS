@@ -1,4 +1,4 @@
-﻿namespace YACCS.SwapArguments
+﻿namespace YACCS.SwappedArguments
 {
 	public interface ISwappableAttribute
 	{

@@ -11,7 +11,7 @@ using YACCS.Commands.Models;
 using YACCS.Preconditions;
 using YACCS.Results;
 
-namespace YACCS.SwapArguments
+namespace YACCS.SwappedArguments
 {
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public class SwappedArgumentsCommand : IImmutableCommand

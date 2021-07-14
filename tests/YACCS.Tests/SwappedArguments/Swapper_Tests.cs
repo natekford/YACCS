@@ -4,9 +4,9 @@ using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using YACCS.SwapArguments;
+using YACCS.SwappedArguments;
 
-namespace YACCS.Tests.SwapArguments
+namespace YACCS.Tests.SwappedArguments
 {
 	[TestClass]
 	public class Swapper_Tests

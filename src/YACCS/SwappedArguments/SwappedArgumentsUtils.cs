@@ -5,7 +5,7 @@ using System.Linq;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 
-namespace YACCS.SwapArguments
+namespace YACCS.SwappedArguments
 {
 	public static class SwappedArgumentsUtils
 	{

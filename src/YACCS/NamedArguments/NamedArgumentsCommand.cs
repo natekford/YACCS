@@ -95,7 +95,7 @@ namespace YACCS.NamedArguments
 		}
 
 		private class GeneratedNamedParameterPrecondition
-			: NamedArgumentsParameterPreconditionBase<Dictionary<string, object?>>
+			: NamedArgumentsParameterPreconditionBase<IDictionary<string, object?>>
 		{
 			protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
@@ -109,7 +109,7 @@ namespace YACCS.NamedArguments
 				IImmutableCommand command,
 				IImmutableParameter parameter,
 				IContext context,
-				Dictionary<string, object?>? value)
+				IDictionary<string, object?>? value)
 			{
 				if (value is null)
 				{
@@ -127,7 +127,7 @@ namespace YACCS.NamedArguments
 			}
 
 			protected override object? Getter(
-				Dictionary<string, object?> instance,
+				IDictionary<string, object?> instance,
 				string property)
 				=> instance[property];
 		}
