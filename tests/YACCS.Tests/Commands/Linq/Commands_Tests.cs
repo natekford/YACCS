@@ -176,6 +176,7 @@ namespace YACCS.Tests.Commands.Linq
 		{
 			public Guid Id { get; set; }
 			public IServiceProvider Services { get; set; } = EmptyServiceProvider.Instance;
+			public object Source => throw new NotImplementedException();
 		}
 
 		private sealed class NotSevenPM : Precondition<FakeContext>

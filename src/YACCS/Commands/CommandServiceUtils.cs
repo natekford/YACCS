@@ -153,6 +153,11 @@ namespace YACCS.Commands
 			this Type type,
 			IServiceProvider services)
 		{
+			if (type.IsAbstract)
+			{
+				yield break;
+			}
+
 			var commands = type.CreateMutableCommands();
 			if (commands.Count == 0)
 			{

@@ -540,6 +540,7 @@ namespace YACCS.Tests.Commands
 		{
 			public Guid Id { get; set; }
 			public IServiceProvider Services { get; set; } = EmptyServiceProvider.Instance;
+			public object Source => throw new NotImplementedException();
 		}
 	}
 

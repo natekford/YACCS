@@ -8,5 +8,6 @@ namespace YACCS.Tests
 	{
 		public Guid Id { get; set; } = Guid.NewGuid();
 		public IServiceProvider Services { get; set; } = Utils.CreateServices();
+		public object Source => throw new NotImplementedException();
 	}
 }

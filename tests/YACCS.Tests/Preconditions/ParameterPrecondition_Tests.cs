@@ -104,6 +104,7 @@ namespace YACCS.Tests.Preconditions
 		{
 			public Guid Id => throw new NotImplementedException();
 			public IServiceProvider Services => throw new NotImplementedException();
+			public object Source => throw new NotImplementedException();
 		}
 
 		private class IsNullOrNotNegativeParameterPrecondition : ParameterPrecondition<FakeContext, int?>
