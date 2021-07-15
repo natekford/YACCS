@@ -372,7 +372,6 @@ namespace YACCS.Tests.Commands
 		{
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
-				new PreconditionCache(context),
 				context,
 				command.ToImmutable(),
 				new[] { DISALLOWED_VALUE.ToString() },
@@ -392,7 +391,6 @@ namespace YACCS.Tests.Commands
 		{
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
-				new PreconditionCache(context),
 				context,
 				command.ToImmutable(),
 				new[] { DISALLOWED_VALUE.ToString() },
@@ -412,7 +410,6 @@ namespace YACCS.Tests.Commands
 		{
 			var (commandService, context, command, parameter) = Create(false, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
-				new PreconditionCache(context),
 				context,
 				command.ToImmutable(),
 				new[] { DISALLOWED_VALUE.ToString() },
@@ -432,7 +429,6 @@ namespace YACCS.Tests.Commands
 		{
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
-				new PreconditionCache(context),
 				context,
 				command.ToImmutable(),
 				new[] { "joeba" },
@@ -450,9 +446,8 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task InvalidContext_Test()
 		{
-			var (commandService, context, command, _) = Create(true, DISALLOWED_VALUE);
+			var (commandService, _, command, _) = Create(true, DISALLOWED_VALUE);
 			var score = await commandService.GetCommandScoreAsync(
-				new PreconditionCache(context),
 				new InvalidContext(),
 				command.ToImmutable(),
 				Array.Empty<string>(),
@@ -470,7 +465,6 @@ namespace YACCS.Tests.Commands
 			// Not enough
 			{
 				var score = await commandService.GetCommandScoreAsync(
-					new PreconditionCache(context),
 					context,
 					command.ToImmutable(),
 					Array.Empty<string>(),
@@ -484,7 +478,6 @@ namespace YACCS.Tests.Commands
 			// Too many
 			{
 				var score = await commandService.GetCommandScoreAsync(
-					new PreconditionCache(context),
 					context,
 					command.ToImmutable(),
 					new[] { "a", "b", "c", "d", "e", "f" },
@@ -501,7 +494,6 @@ namespace YACCS.Tests.Commands
 		{
 			var (commandService, context, command, parameter) = Create(true, DISALLOWED_VALUE);
 			var result = await commandService.ProcessAllPreconditionsAsync(
-				new PreconditionCache(context),
 				context,
 				command.ToImmutable(),
 				new[] { (DISALLOWED_VALUE + 1).ToString() },
@@ -718,7 +710,7 @@ namespace YACCS.Tests.Commands
 			var value = new[] { 1, 2, 3, 4 };
 			var (commandService, context, parameter) = Create<int[]>(4);
 			var result = await commandService.ProcessTypeReadersAsync(
-				new PreconditionCache(context),
+				context,
 				parameter,
 				value.Select(x => x.ToString()).Append("joeba").Append("trash").ToArray(),
 				0
@@ -739,7 +731,7 @@ namespace YACCS.Tests.Commands
 			var value = new[] { 1, 2, 3, 4 };
 			var (commandService, context, parameter) = Create<int[]>(4);
 			var result = await commandService.ProcessTypeReadersAsync(
-				new PreconditionCache(context),
+				context,
 				parameter,
 				value.Select(x => x.ToString()).ToArray(),
 				0
@@ -760,7 +752,7 @@ namespace YACCS.Tests.Commands
 			var value = new[] { 1, 2, 3, 4 };
 			var (commandService, context, parameter) = Create<int[]>(null);
 			var result = await commandService.ProcessTypeReadersAsync(
-				new PreconditionCache(context),
+				context,
 				parameter,
 				value.Select(x => x.ToString()).ToArray(),
 				0
@@ -782,7 +774,7 @@ namespace YACCS.Tests.Commands
 			await Assert.ThrowsExceptionAsync<KeyNotFoundException>(async () =>
 			{
 				var result = await commandService.ProcessTypeReadersAsync(
-					new PreconditionCache(context),
+					context,
 					parameter,
 					new[] { "joeba" },
 					0
@@ -795,7 +787,7 @@ namespace YACCS.Tests.Commands
 		{
 			var (commandService, context, parameter) = Create<char>(1, new CoolCharTypeReader());
 			var result = await commandService.ProcessTypeReadersAsync(
-				new PreconditionCache(context),
+				context,
 				parameter,
 				new[] { "joeba" },
 				0
@@ -808,7 +800,7 @@ namespace YACCS.Tests.Commands
 		{
 			var (commandService, context, parameter) = Create<char>(1);
 			var result = await commandService.ProcessTypeReadersAsync(
-				new PreconditionCache(context),
+				context,
 				parameter,
 				new[] { "joeba" },
 				0
@@ -822,7 +814,7 @@ namespace YACCS.Tests.Commands
 			const int VALUE = 2;
 			var (commandService, context, parameter) = Create<int>(1);
 			var result = await commandService.ProcessTypeReadersAsync(
-				new PreconditionCache(context),
+				context,
 				parameter,
 				new[] { VALUE.ToString() },
 				0
@@ -838,7 +830,7 @@ namespace YACCS.Tests.Commands
 			const int VALUE = 2;
 			var (commandService, context, parameter) = Create<int>(1);
 			var result = await commandService.ProcessTypeReadersAsync(
-				new PreconditionCache(context),
+				context,
 				parameter,
 				new[] { VALUE.ToString(), "joeba", "trash" },
 				0
@@ -854,7 +846,7 @@ namespace YACCS.Tests.Commands
 			var value = new[] { "a", "b", "cee", "d" };
 			var (commandService, context, parameter) = Create<char[]>(4);
 			var result = await commandService.ProcessTypeReadersAsync(
-				new PreconditionCache(context),
+				context,
 				parameter,
 				value,
 				0
@@ -868,7 +860,7 @@ namespace YACCS.Tests.Commands
 			const string VALUE = "joeba";
 			var (commandService, context, parameter) = Create<string>(1);
 			var result = await commandService.ProcessTypeReadersAsync(
-				new PreconditionCache(context),
+				context,
 				parameter,
 				new[] { VALUE },
 				0
@@ -883,7 +875,7 @@ namespace YACCS.Tests.Commands
 		{
 			var (commandService, context, parameter) = Create<IContext>(0);
 			var result = await commandService.ProcessTypeReadersAsync(
-				new PreconditionCache(context),
+				context,
 				parameter,
 				new[] { "doesn't matter" },
 				0

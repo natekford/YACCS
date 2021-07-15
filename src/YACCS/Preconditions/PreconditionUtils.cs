@@ -9,6 +9,12 @@ using YACCS.Results;
 
 namespace YACCS.Preconditions
 {
+	public delegate ValueTask<IResult> CheckAsync<TContext, TValue>(
+		IImmutableCommand command,
+		IImmutableParameter parameter,
+		TContext context,
+		TValue value);
+
 	public static class PreconditionUtils
 	{
 		private static Task InvalidContext { get; }
@@ -20,8 +26,7 @@ namespace YACCS.Preconditions
 			IImmutableParameter parameter,
 			IContext context,
 			object? value,
-			Func<IImmutableCommand, IImmutableParameter, TContext, TValue, ValueTask<IResult>> checkAsync)
-			where TContext : IContext
+			CheckAsync<TContext, TValue> checkAsync)
 		{
 			if (context is not TContext tContext)
 			{
@@ -92,7 +97,7 @@ namespace YACCS.Preconditions
 			IImmutableParameter parameter,
 			TContext context,
 			IEnumerable<TValue> values,
-			Func<IImmutableCommand, IImmutableParameter, TContext, TValue, ValueTask<IResult>> checkAsync)
+			CheckAsync<TContext, TValue> checkAsync)
 		{
 			foreach (var value in values)
 			{
@@ -110,7 +115,7 @@ namespace YACCS.Preconditions
 			IImmutableParameter parameter,
 			TContext context,
 			IEnumerable values,
-			Func<IImmutableCommand, IImmutableParameter, TContext, TValue, ValueTask<IResult>> checkAsync)
+			CheckAsync<TContext, TValue> checkAsync)
 		{
 			foreach (var value in values)
 			{

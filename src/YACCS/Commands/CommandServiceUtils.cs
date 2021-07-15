@@ -226,6 +226,7 @@ namespace YACCS.Commands
 						// OR: Any success = instant success, go to next group
 						if (precondition.Op == BoolOp.Or && result.IsSuccess)
 						{
+							// Do NOT return directly from here, each group must succeed
 							groupResult = SuccessResult.Instance;
 							break;
 						}
@@ -235,6 +236,7 @@ namespace YACCS.Commands
 							groupResult = result;
 						}
 					}
+					// Any group failed, command is a failure
 					if (!groupResult.IsSuccess)
 					{
 						return groupResult;

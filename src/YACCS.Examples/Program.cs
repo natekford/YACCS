@@ -21,6 +21,7 @@ namespace YACCS.Examples
 
 		private Program()
 		{
+			var a = Keys.AllKeys;
 			_Services = new ServiceCollection()
 				.AddSingleton<ICommandServiceConfig>(CommandServiceConfig.Instance)
 				.AddSingleton<ILocalizer>(Localize.Instance)

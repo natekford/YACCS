@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using MorseCode.ITask;
+
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Parsing;
@@ -81,7 +83,6 @@ namespace YACCS.Commands
 			ReadOnlyMemory<string> input)
 		{
 			var best = default(CommandScore);
-			var cache = new PreconditionCache(context);
 
 			var node = Commands.Root;
 			for (var i = 0; i < input.Length; ++i)
@@ -93,7 +94,7 @@ namespace YACCS.Commands
 				foreach (var command in node.Items)
 				{
 					// Add 1 to i to account for how we're in a node
-					var score = await GetCommandScoreAsync(cache, context, command, input, i + 1).ConfigureAwait(false);
+					var score = await GetCommandScoreAsync(context, command, input, i + 1).ConfigureAwait(false);
 					if (Config.MultiMatchHandling == MultiMatchHandling.Error
 						&& best?.InnerResult.IsSuccess == true
 						&& score.InnerResult.IsSuccess)
@@ -108,7 +109,6 @@ namespace YACCS.Commands
 		}
 
 		protected internal ValueTask<CommandScore> GetCommandScoreAsync(
-			PreconditionCache cache,
 			IContext context,
 			IImmutableCommand command,
 			ReadOnlyMemory<string> input,
@@ -129,7 +129,6 @@ namespace YACCS.Commands
 			}
 
 			return ProcessAllPreconditionsAsync(
-				cache,
 				context,
 				command,
 				input,
@@ -138,7 +137,6 @@ namespace YACCS.Commands
 		}
 
 		protected internal async ValueTask<CommandScore> ProcessAllPreconditionsAsync(
-			PreconditionCache cache,
 			IContext context,
 			IImmutableCommand command,
 			ReadOnlyMemory<string> input,
@@ -146,7 +144,7 @@ namespace YACCS.Commands
 		{
 			// Any precondition fails, command is not valid
 			var pResult = await command.Preconditions
-				.ProcessAsync(x => cache.GetResultAsync(command, x))
+				.ProcessAsync(x => x.CheckAsync(command, context))
 				.ConfigureAwait(false);
 			if (!pResult.IsSuccess)
 			{
@@ -164,7 +162,7 @@ namespace YACCS.Commands
 				if (currentIndex < input.Length || parameter.Length is null)
 				{
 					var trResult = await ProcessTypeReadersAsync(
-						cache,
+						context,
 						parameter,
 						input,
 						currentIndex
@@ -198,7 +196,7 @@ namespace YACCS.Commands
 				}
 
 				var ppResult = await parameter.Preconditions
-					.ProcessAsync(x => cache.GetResultAsync(command, parameter, x, value))
+					.ProcessAsync(x => x.CheckAsync(command, parameter, context, value))
 					.ConfigureAwait(false);
 				if (!ppResult.IsSuccess)
 				{
@@ -210,8 +208,8 @@ namespace YACCS.Commands
 			return CommandScore.FromCanExecute(command, context, args, startIndex + 1);
 		}
 
-		protected internal ValueTask<ITypeReaderResult> ProcessTypeReadersAsync(
-			PreconditionCache cache,
+		protected internal ITask<ITypeReaderResult> ProcessTypeReadersAsync(
+			IContext context,
 			IImmutableParameter parameter,
 			ReadOnlyMemory<string> input,
 			int startIndex)
@@ -221,7 +219,7 @@ namespace YACCS.Commands
 			// Allow a length of zero for arguments with zero length, i.e. IContext
 			var length = Math.Max(Math.Min(input.Length - startIndex, pLength), 0);
 			var sliced = input.Slice(startIndex, length);
-			return cache.GetResultAsync(reader, sliced);
+			return reader.ReadAsync(context, sliced);
 		}
 
 		protected virtual Task DisposeCommandAsync(CommandExecutedEventArgs e)
