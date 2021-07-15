@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-using MorseCode.ITask;
-
 using YACCS.Commands;
 using YACCS.Results;
 
@@ -11,8 +9,8 @@ namespace YACCS.TypeReaders
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public class TypeReaderResult<T> : ITypeReaderResult<T>
 	{
-		public static ITask<ITypeReaderResult<T>> FailureInstance { get; }
-			= FromError(ParseFailedResult<T>.Instance).AsITask();
+		public static ITypeReaderResult<T> FailureInstance { get; }
+			= FromError(ParseFailedResult<T>.Instance);
 
 		public IResult InnerResult { get; }
 		[MaybeNull]

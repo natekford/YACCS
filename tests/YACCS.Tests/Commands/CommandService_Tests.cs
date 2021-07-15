@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using MorseCode.ITask;
-
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
@@ -902,10 +900,10 @@ namespace YACCS.Tests.Commands
 
 		private class CoolCharTypeReader : TypeReader<char>
 		{
-			public override ITask<ITypeReaderResult<char>> ReadAsync(
+			public override ValueTask<ITypeReaderResult<char>> ReadAsync(
 				IContext context,
 				ReadOnlyMemory<string> input)
-				=> TypeReaderResult<char>.FromSuccess('z').AsITask();
+				=> new(TypeReaderResult<char>.FromSuccess('z'));
 		}
 	}
 

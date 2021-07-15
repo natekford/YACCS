@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
-using MorseCode.ITask;
+using System.Threading.Tasks;
 
 using YACCS.Commands;
 using YACCS.Parsing;
@@ -10,21 +9,21 @@ namespace YACCS.TypeReaders
 {
 	public class ArrayTypeReader<T> : TypeReader<T[]>
 	{
-		public override async ITask<ITypeReaderResult<T[]>> ReadAsync(
+		public override async ValueTask<ITypeReaderResult<T[]>> ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
 			var readers = context.Services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
 			var handler = context.Services.GetRequiredService<IArgumentSplitter>();
 
-			var reader = readers.GetTypeReader<T>();
+			var reader = readers[typeof(T)];
 			var values = new List<T>(input.Length);
 			for (var i = 0; i < input.Length; ++i)
 			{
 				var iResult = await reader.ReadAsync(context, input.Slice(i, 1)).ConfigureAwait(false);
 				if (iResult.InnerResult.IsSuccess)
 				{
-					values.Add(iResult.Value!);
+					values.Add((T)iResult.Value!);
 					continue;
 				}
 
@@ -41,7 +40,7 @@ namespace YACCS.TypeReaders
 					{
 						return TypeReaderResult<T[]>.FromError(jResult.InnerResult);
 					}
-					values.Add(jResult.Value!);
+					values.Add((T)jResult.Value!);
 				}
 			}
 			return TypeReaderResult<T[]>.FromSuccess(values.ToArray());

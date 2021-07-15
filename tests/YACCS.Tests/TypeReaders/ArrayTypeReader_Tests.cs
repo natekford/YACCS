@@ -18,7 +18,8 @@ namespace YACCS.Tests.TypeReaders
 		public ArrayTypeReader_Tests()
 		{
 			Context = new FakeContext();
-			Reader = Context.Get<IReadOnlyDictionary<Type, ITypeReader>>().GetTypeReader<int[]>();
+			var dict = Context.Get<IReadOnlyDictionary<Type, ITypeReader>>();
+			Reader = (ITypeReader<int[]>)dict[typeof(int[])];
 		}
 
 		[TestMethod]

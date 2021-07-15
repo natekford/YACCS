@@ -44,7 +44,7 @@ namespace YACCS.Interactivity.Input
 					}
 				}
 
-				var tr = options.TypeReader ?? TypeReaders.GetTypeReader<TValue>();
+				var tr = options.TypeReader ?? TypeReaders[typeof(TValue)];
 				var trResult = await tr.ReadAsync(context, GetInputString(i)).ConfigureAwait(false);
 				if (!trResult.InnerResult.IsSuccess)
 				{
@@ -65,7 +65,7 @@ namespace YACCS.Interactivity.Input
 					}
 				}
 
-				e.SetResult(trResult.Value!);
+				e.SetResult((TValue)trResult.Value!);
 				return SuccessResult.Instance;
 			}));
 		}

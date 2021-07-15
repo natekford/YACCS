@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
-using MorseCode.ITask;
+using System.Threading.Tasks;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
@@ -12,26 +11,26 @@ namespace YACCS.NamedArguments
 {
 	public abstract class NamedArgumentsTypeReaderBase<T> : TypeReader<T> where T : new()
 	{
-		private static readonly ITask<ITypeReaderResult<T>> _ArgCountError
-			= TypeReaderResult<T>.FromError(NamedArgBadCountResult.Instance).AsITask();
+		private static readonly ITypeReaderResult<T> _ArgCountError
+			= TypeReaderResult<T>.FromError(NamedArgBadCountResult.Instance);
 		private static readonly char[] _TrimEndChars = new[] { ':' };
 		private static readonly char[] _TrimStartChars = new[] { '/', '-' };
 
 		protected abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
-		public override ITask<ITypeReaderResult<T>> ReadAsync(
+		public override ValueTask<ITypeReaderResult<T>> ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
 			if (input.Length % 2 != 0)
 			{
-				return _ArgCountError;
+				return new(_ArgCountError);
 			}
 
 			var result = TryCreateDict(input.Span, out var dict);
 			if (!result.IsSuccess)
 			{
-				return TypeReaderResult<T>.FromError(result).AsITask();
+				return new(TypeReaderResult<T>.FromError(result));
 			}
 
 			return ReadDictIntoInstanceAsync(context, dict!);
@@ -62,7 +61,7 @@ namespace YACCS.NamedArguments
 			return SuccessResult.Instance;
 		}
 
-		private async ITask<ITypeReaderResult<T>> ReadDictIntoInstanceAsync(
+		private async ValueTask<ITypeReaderResult<T>> ReadDictIntoInstanceAsync(
 			IContext context,
 			IDictionary<string, string> dict)
 		{

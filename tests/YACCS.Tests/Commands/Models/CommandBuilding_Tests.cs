@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using MorseCode.ITask;
-
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
@@ -181,10 +179,10 @@ namespace YACCS.Tests.Commands.Models
 		{
 			public const string VALUE = "joe";
 
-			public override ITask<ITypeReaderResult<string>> ReadAsync(
+			public override ValueTask<ITypeReaderResult<string>> ReadAsync(
 				IContext context,
 				ReadOnlyMemory<string> input)
-				=> TypeReaderResult<string>.FromSuccess(VALUE).AsITask();
+				=> new(TypeReaderResult<string>.FromSuccess(VALUE));
 		}
 
 		private class GroupBase : CommandGroup<FakeContext>

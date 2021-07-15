@@ -1,6 +1,5 @@
 ﻿using System;
-
-using MorseCode.ITask;
+using System.Threading.Tasks;
 
 using YACCS.Commands;
 
@@ -19,7 +18,7 @@ namespace YACCS.TypeReaders
 			_Reader = reader;
 		}
 
-		public override async ITask<ITypeReaderResult<T?>> ReadAsync(
+		public override async ValueTask<ITypeReaderResult<T?>> ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{

@@ -42,7 +42,7 @@ namespace YACCS.NamedArguments
 			var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(1);
 			try
 			{
-				var parameter = ParameterFactory.Create<IDictionary<string, object?>>("NamedArgDictionary")
+				var parameter = ParameterFactory.Create<Dictionary<string, object?>>("NamedArgDictionary")
 					.AddParameterPrecondition(new GeneratedNamedParameterPrecondition(Source))
 					.SetTypeReader(new GeneratedNamedTypeReader(Source))
 					.AddAttribute(new RemainderAttribute())
@@ -59,10 +59,10 @@ namespace YACCS.NamedArguments
 
 		public ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
 		{
-			IDictionary<string, object?> values;
+			Dictionary<string, object?> values;
 			try
 			{
-				values = (IDictionary<string, object?>)args.Single()!;
+				values = (Dictionary<string, object?>)args.Single()!;
 			}
 			catch (Exception e)
 			{
@@ -95,7 +95,7 @@ namespace YACCS.NamedArguments
 		}
 
 		private class GeneratedNamedParameterPrecondition
-			: NamedArgumentsParameterPreconditionBase<IDictionary<string, object?>>
+			: NamedArgumentsParameterPreconditionBase<Dictionary<string, object?>>
 		{
 			protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
@@ -109,7 +109,7 @@ namespace YACCS.NamedArguments
 				IImmutableCommand command,
 				IImmutableParameter parameter,
 				IContext context,
-				IDictionary<string, object?>? value)
+				Dictionary<string, object?>? value)
 			{
 				if (value is null)
 				{
@@ -127,7 +127,7 @@ namespace YACCS.NamedArguments
 			}
 
 			protected override object? Getter(
-				IDictionary<string, object?> instance,
+				Dictionary<string, object?> instance,
 				string property)
 				=> instance[property];
 		}

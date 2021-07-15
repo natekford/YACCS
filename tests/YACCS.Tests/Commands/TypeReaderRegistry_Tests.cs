@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using MorseCode.ITask;
 
 using YACCS.Commands;
 using YACCS.TypeReaders;
@@ -28,28 +28,21 @@ namespace YACCS.Tests.Commands
 		{
 			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
 			registry.Register(typeof(string), new BadStringReader());
-
-			var r1 = registry[typeof(string)];
-			Assert.IsNotNull(r1);
-
-			Assert.ThrowsException<ArgumentException>(() =>
-			{
-				registry.GetTypeReader<string>();
-			});
+			Assert.IsNotNull(registry[typeof(string)]);
 		}
 
 		[TestMethod]
 		public void NoReaderRegistered_Test()
 		{
 			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
-			Assert.ThrowsException<ArgumentException>(() =>
+			Assert.ThrowsException<KeyNotFoundException>(() =>
 			{
-				var reader = registry.GetTypeReader<FakeStruct>();
+				_ = registry[typeof(FakeStruct)];
 			});
 		}
 
 		[TestMethod]
-		public void RegisterChildTypeReaderToParent_Test()
+		public async Task RegisterChildTypeReaderToParent_Test()
 		{
 			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
 			var reader = new TryParseTypeReader<Child>((string input, out Child output) =>
@@ -59,14 +52,15 @@ namespace YACCS.Tests.Commands
 			});
 			registry.Register(typeof(Parent), reader);
 
-			// This is the entire reason I added the ITask package.
-			// Why couldn't there be an ITask in the base library
-			var r1 = registry.GetTypeReader<Parent>();
-			Assert.IsNotNull(r1);
+			var retrieved = registry[typeof(Parent)];
+			var item = await retrieved.ReadAsync(null!, "joe").ConfigureAwait(false);
+			Assert.IsNotNull(retrieved);
+			Assert.IsInstanceOfType(item.Value, typeof(Parent));
+			Assert.IsInstanceOfType(item.Value, typeof(Child));
 
-			Assert.ThrowsException<ArgumentException>(() =>
+			Assert.ThrowsException<KeyNotFoundException>(() =>
 			{
-				registry.GetTypeReader<Child>();
+				_ = registry[typeof(Child)];
 			});
 		}
 
@@ -81,19 +75,15 @@ namespace YACCS.Tests.Commands
 			});
 			registry.Register(typeof(FakeStruct), reader);
 
-			var r1 = registry.GetTypeReader<FakeStruct>();
-			Assert.IsNotNull(r1);
-
-			var r2 = registry.GetTypeReader<FakeStruct?>();
-			Assert.IsNotNull(r2);
+			Assert.IsNotNull(registry[typeof(FakeStruct)]);
+			Assert.IsNotNull(registry[typeof(FakeStruct?)]);
 		}
 
 		[TestMethod]
 		public void TryGetEnumReader_Test()
 		{
 			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
-			var reader = registry.GetTypeReader<BindingFlags>();
-			Assert.IsNotNull(reader);
+			Assert.IsNotNull(registry[typeof(BindingFlags)]);
 		}
 
 		private struct FakeStruct
@@ -104,7 +94,7 @@ namespace YACCS.Tests.Commands
 		{
 			public Type OutputType => typeof(string);
 
-			public ITask<ITypeReaderResult> ReadAsync(
+			public ValueTask<ITypeReaderResult> ReadAsync(
 				IContext context,
 				ReadOnlyMemory<string> input)
 				=> throw new NotImplementedException();

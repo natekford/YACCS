@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using MorseCode.ITask;
-
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Parsing;
@@ -208,7 +206,7 @@ namespace YACCS.Commands
 			return CommandScore.FromCanExecute(command, context, args, startIndex + 1);
 		}
 
-		protected internal ITask<ITypeReaderResult> ProcessTypeReadersAsync(
+		protected internal ValueTask<ITypeReaderResult> ProcessTypeReadersAsync(
 			IContext context,
 			IImmutableParameter parameter,
 			ReadOnlyMemory<string> input,

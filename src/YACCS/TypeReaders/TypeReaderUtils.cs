@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
-using MorseCode.ITask;
-
 using YACCS.Commands;
 using YACCS.Commands.Models;
 
@@ -12,20 +10,6 @@ namespace YACCS.TypeReaders
 {
 	public static class TypeReaderUtils
 	{
-		public static ITask<ITypeReaderResult<T>> AsITask<T>(this ITypeReaderResult<T> result)
-			=> Task.FromResult(result).AsITask();
-
-		public static ITypeReader<T> GetTypeReader<T>(
-			this IReadOnlyDictionary<Type, ITypeReader> registry)
-		{
-			if (registry.TryGetValue(typeof(T), out var temp) && temp is ITypeReader<T> reader)
-			{
-				return reader;
-			}
-			throw new ArgumentException(
-				$"Invalid type reader registered for {typeof(T).Name}.", nameof(T));
-		}
-
 		public static ITypeReader GetTypeReader(
 			this IReadOnlyDictionary<Type, ITypeReader> registry,
 			IImmutableParameter parameter)
@@ -46,13 +30,13 @@ namespace YACCS.TypeReaders
 			}
 		}
 
-		public static ITask<ITypeReaderResult> ReadAsync(
+		public static ValueTask<ITypeReaderResult> ReadAsync(
 			this ITypeReader reader,
 			IContext context,
 			string input)
 			=> reader.ReadAsync(context, new[] { input });
 
-		public static ITask<ITypeReaderResult<T>> ReadAsync<T>(
+		public static ValueTask<ITypeReaderResult<T>> ReadAsync<T>(
 			this ITypeReader<T> reader,
 			IContext context,
 			string input)

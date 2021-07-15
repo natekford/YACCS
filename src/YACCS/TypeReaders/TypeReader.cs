@@ -1,6 +1,5 @@
 ﻿using System;
-
-using MorseCode.ITask;
+using System.Threading.Tasks;
 
 using YACCS.Commands;
 
@@ -10,13 +9,13 @@ namespace YACCS.TypeReaders
 	{
 		public Type OutputType => typeof(T);
 
-		public abstract ITask<ITypeReaderResult<T>> ReadAsync(
+		public abstract ValueTask<ITypeReaderResult<T>> ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input);
 
-		ITask<ITypeReaderResult> ITypeReader.ReadAsync(
+		async ValueTask<ITypeReaderResult> ITypeReader.ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
-			=> ReadAsync(context, input);
+			=> await ReadAsync(context, input).ConfigureAwait(false);
 	}
 }

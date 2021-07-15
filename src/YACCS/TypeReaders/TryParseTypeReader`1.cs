@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-
-using MorseCode.ITask;
+using System.Threading.Tasks;
 
 using YACCS.Commands;
 
@@ -18,7 +17,7 @@ namespace YACCS.TypeReaders
 			_Delegate = @delegate;
 		}
 
-		public override ITask<ITypeReaderResult<T>> ReadAsync(
+		public override ValueTask<ITypeReaderResult<T>> ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
@@ -28,9 +27,9 @@ namespace YACCS.TypeReaders
 			}
 			if (_Delegate(input.Span[0], out var result))
 			{
-				return TypeReaderResult<T>.FromSuccess(result).AsITask();
+				return new(TypeReaderResult<T>.FromSuccess(result));
 			}
-			return TypeReaderResult<T>.FailureInstance;
+			return new(TypeReaderResult<T>.FailureInstance);
 		}
 	}
 }

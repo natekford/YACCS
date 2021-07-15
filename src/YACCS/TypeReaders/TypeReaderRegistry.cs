@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 
 using YACCS.Commands;
-using YACCS.Commands.Attributes;
 using YACCS.NamedArguments;
 
 namespace YACCS.TypeReaders
@@ -54,6 +53,12 @@ namespace YACCS.TypeReaders
 
 		public void Register(Type type, ITypeReader item)
 		{
+			if (!type.IsAssignableFrom(item.OutputType))
+			{
+				throw new ArgumentException("Cannot register a type reader with an output " +
+					$"type of {item.OutputType} to {type}.");
+			}
+
 			if (type.IsValueType
 				&& item.GetType().GetInterfaces().Any(x => x.IsGenericOf(typeof(ITypeReader<>))))
 			{
