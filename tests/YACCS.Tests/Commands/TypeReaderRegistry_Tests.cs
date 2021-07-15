@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using MorseCode.ITask;
 
 using YACCS.Commands;
+using YACCS.Commands.Linq;
+using YACCS.Commands.Models;
 using YACCS.TypeReaders;
 
 namespace YACCS.Tests.Commands
@@ -28,9 +31,7 @@ namespace YACCS.Tests.Commands
 		{
 			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
 			registry.Register(typeof(string), new BadStringReader());
-
-			var r1 = registry[typeof(string)];
-			Assert.IsNotNull(r1);
+			Assert.IsNotNull(registry[typeof(string)]);
 
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
@@ -44,12 +45,12 @@ namespace YACCS.Tests.Commands
 			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				var reader = registry.GetTypeReader<FakeStruct>();
+				registry.GetTypeReader<FakeStruct>();
 			});
 		}
 
 		[TestMethod]
-		public void RegisterChildTypeReaderToParent_Test()
+		public async Task RegisterChildTypeReaderToParent_Test()
 		{
 			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
 			var reader = new TryParseTypeReader<Child>((string input, out Child output) =>
@@ -59,10 +60,16 @@ namespace YACCS.Tests.Commands
 			});
 			registry.Register(typeof(Parent), reader);
 
-			// This is the entire reason I added the ITask package.
-			// Why couldn't there be an ITask in the base library
-			var r1 = registry.GetTypeReader<Parent>();
-			Assert.IsNotNull(r1);
+			var retrieved = registry.GetTypeReader<Parent>();
+			var item = await retrieved.ReadAsync(null!, "joe").ConfigureAwait(false);
+			Assert.IsNotNull(retrieved);
+			Assert.IsInstanceOfType(item.Value, typeof(Parent));
+			Assert.IsInstanceOfType(item.Value, typeof(Child));
+
+			var parameter = new Parameter(typeof(Parent), "joe", null);
+			var typed = parameter.AsType<Parent>();
+			typed.SetTypeReader(retrieved);
+			Assert.AreEqual(retrieved, typed.TypeReader);
 
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
@@ -81,11 +88,8 @@ namespace YACCS.Tests.Commands
 			});
 			registry.Register(typeof(FakeStruct), reader);
 
-			var r1 = registry.GetTypeReader<FakeStruct>();
-			Assert.IsNotNull(r1);
-
-			var r2 = registry.GetTypeReader<FakeStruct?>();
-			Assert.IsNotNull(r2);
+			Assert.IsNotNull(registry.GetTypeReader<FakeStruct>());
+			Assert.IsNotNull(registry.GetTypeReader<FakeStruct?>());
 		}
 
 		[TestMethod]

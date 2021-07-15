@@ -137,7 +137,7 @@ namespace YACCS.Commands.Linq
 			}
 			public ITypeReader<TValue>? OverridenTypeReader
 			{
-				get => _Actual.TypeReader as ITypeReader<TValue>;
+				get => (ITypeReader<TValue>?)_Actual.TypeReader;
 				set => _Actual.TypeReader = value;
 			}
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
@@ -146,7 +146,7 @@ namespace YACCS.Commands.Linq
 			ITypeReader? IParameter.TypeReader
 			{
 				get => OverridenTypeReader;
-				set => OverridenTypeReader = value as ITypeReader<TValue>;
+				set => OverridenTypeReader = (ITypeReader<TValue>?)value;
 			}
 
 			public Parameter(IParameter actual)
