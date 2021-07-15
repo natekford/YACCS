@@ -19,7 +19,6 @@ namespace YACCS.Commands.Models
 	{
 		private static readonly object NoDefaultValue = new();
 
-		private readonly bool? _HasLengthAttribute;
 		private ITypeReader? _OverriddenTypeReader;
 
 		public object? DefaultValue { get; set; } = NoDefaultValue;
@@ -58,12 +57,19 @@ namespace YACCS.Commands.Models
 			OriginalParameterName = name;
 			ParameterType = type;
 
-			if (this.Get<GenerateNamedArgumentsAttribute>().Any()
-				|| type.GetCustomAttribute<GenerateNamedArgumentsAttribute>() is not null)
+			// After everything else has been set, some attributes may add additional stuff
+			// like the named arguments attribute on the parameter's type will add
+			// the named arguments parameter precondition which verifies that every
+			// property has been set or has a default value
+			// Call provider.GetCustomAttributes again because Attributes may be modified
+			IEnumerable<object> attrs = type.GetCustomAttributes(true);
+			if (provider != null)
 			{
-				var ppType = typeof(NamedArgumentsParameterPrecondition<>).MakeGenericType(ParameterType);
-				Attributes.Add(Activator.CreateInstance(ppType));
-				AddRemainderAttribute(ref _HasLengthAttribute);
+				attrs = provider.GetCustomAttributes(true).Concat(attrs);
+			}
+			foreach (var modifier in attrs.OfType<IParameterModifierAttribute>())
+			{
+				modifier.ModifyParameter(this);
 			}
 		}
 
@@ -84,7 +90,7 @@ namespace YACCS.Commands.Models
 
 			if (this.Get<ParamArrayAttribute>().Any())
 			{
-				AddRemainderAttribute(ref _HasLengthAttribute);
+				this.MarkAsRemainder();
 			}
 		}
 
@@ -104,17 +110,6 @@ namespace YACCS.Commands.Models
 				return NoDefaultValue;
 			}
 			return value;
-		}
-
-		private void AddRemainderAttribute(ref bool? flag)
-		{
-			if (flag == true || this.Get<ILengthAttribute>().Any())
-			{
-				return;
-			}
-
-			flag = true;
-			Attributes.Add(new RemainderAttribute());
 		}
 
 		[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]

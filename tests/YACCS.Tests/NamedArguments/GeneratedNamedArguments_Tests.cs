@@ -1,7 +1,8 @@
-﻿using System.Threading.Tasks;
-
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using System;
+using System.Threading.Tasks;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
@@ -170,6 +171,7 @@ namespace YACCS.Tests.NamedArguments
 			[GenerateNamedArguments]
 			public async Task<IResult> Test(
 				[Name(D)]
+				[Test]
 				double d,
 				[Name(I)]
 				int i,
@@ -239,6 +241,18 @@ namespace YACCS.Tests.NamedArguments
 			public double DoubleValue { get; set; }
 			public int IntValue { get; set; }
 			public string StringValue { get; set; } = null!;
+		}
+
+		[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+		private class TestAttribute : Attribute, IParameterModifierAttribute
+		{
+			public void ModifyParameter(IParameter parameter)
+			{
+				for (var i = 0; i < 10; ++i)
+				{
+					parameter.Attributes.Add("test");
+				}
+			}
 		}
 	}
 }

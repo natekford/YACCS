@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 using YACCS.Preconditions;
 using YACCS.TypeReaders;
@@ -82,6 +83,15 @@ namespace YACCS.Commands.Linq
 
 		public static bool IsValidParameter(this IQueryableParameter parameter, Type type)
 			=> parameter.ParameterType.IsAssignableFrom(type);
+
+		public static T MarkAsRemainder<T>(this T parameter) where T : IParameter
+		{
+			if (!parameter.Get<ILengthAttribute>().Any())
+			{
+				parameter.Attributes.Add(new RemainderAttribute());
+			}
+			return parameter;
+		}
 
 		public static TParameter RemoveDefaultValue<TParameter>(this TParameter parameter)
 			where TParameter : IParameter
