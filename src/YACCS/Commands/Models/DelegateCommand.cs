@@ -8,7 +8,7 @@ using YACCS.Results;
 
 namespace YACCS.Commands.Models
 {
-	public class DelegateCommand : Command
+	public sealed class DelegateCommand : Command
 	{
 		public Delegate Delegate { get; }
 
@@ -23,10 +23,9 @@ namespace YACCS.Commands.Models
 		public DelegateCommand(Delegate @delegate, IImmutableCommand source)
 			: this(@delegate, source.ContextType, source, source.Names)
 		{
-			Attributes.Add(new GeneratedCommandAttribute(source));
 		}
 
-		protected DelegateCommand(
+		private DelegateCommand(
 			Delegate @delegate,
 			Type contextType,
 			IImmutableCommand? source,
@@ -46,7 +45,7 @@ namespace YACCS.Commands.Models
 		public override IImmutableCommand ToImmutable()
 			=> new ImmutableDelegateCommand(this);
 
-		protected class ImmutableDelegateCommand : ImmutableCommand
+		private sealed class ImmutableDelegateCommand : ImmutableCommand
 		{
 			private readonly Delegate _Delegate;
 			private readonly Func<object?[], object> _Execute;
@@ -64,7 +63,7 @@ namespace YACCS.Commands.Models
 				return ConvertValueAsync(value);
 			}
 
-			protected virtual Func<object?[], object> Execute()
+			private Func<object?[], object> Execute()
 			{
 				/*
 				 *	(object?[] Args) =>

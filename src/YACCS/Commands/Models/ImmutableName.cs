@@ -8,7 +8,7 @@ using YACCS.Localization;
 namespace YACCS.Commands.Models
 {
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-	public class ImmutableName : IReadOnlyList<string>
+	public sealed class ImmutableName : IReadOnlyList<string>
 	{
 		private readonly ImmutableArray<string> _Keys;
 		public int Count => _Keys.Length;

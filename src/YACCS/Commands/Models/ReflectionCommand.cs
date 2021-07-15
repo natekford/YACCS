@@ -11,7 +11,7 @@ using YACCS.Results;
 
 namespace YACCS.Commands.Models
 {
-	public class ReflectionCommand : Command
+	public sealed class ReflectionCommand : Command
 	{
 		public Type GroupType { get; }
 		public MethodInfo Method { get; }
@@ -25,7 +25,7 @@ namespace YACCS.Commands.Models
 		{
 		}
 
-		protected ReflectionCommand(
+		private ReflectionCommand(
 			MethodInfo method,
 			Type groupType,
 			IImmutableCommand? source)
@@ -115,7 +115,7 @@ namespace YACCS.Commands.Models
 			}
 		}
 
-		protected class ImmutableReflectionCommand : ImmutableCommand
+		private sealed class ImmutableReflectionCommand : ImmutableCommand
 		{
 			private static readonly ConcurrentDictionary<Type, Func<IServiceProvider, ICommandGroup>> _ConstructorCache = new();
 			private static readonly MethodInfo _GetService = typeof(IServiceProvider)
@@ -151,7 +151,7 @@ namespace YACCS.Commands.Models
 				return result;
 			}
 
-			protected virtual Func<IServiceProvider, ICommandGroup> Constructor()
+			private Func<IServiceProvider, ICommandGroup> Constructor()
 			{
 				/*
 				 *	(IServiceProvider Provider) =>
@@ -216,7 +216,7 @@ namespace YACCS.Commands.Models
 				});
 			}
 
-			protected virtual Func<ICommandGroup, object?[], object> Execute()
+			private Func<ICommandGroup, object?[], object> Execute()
 			{
 				/*
 				 *	(ICommandGroup Group, object?[] Args) =>
