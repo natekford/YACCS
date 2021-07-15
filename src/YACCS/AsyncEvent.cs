@@ -63,7 +63,7 @@ namespace YACCS
 				}
 			}
 
-			if (exceptions != null && _Exception.IsValueCreated)
+			if (exceptions is not null && _Exception.IsValueCreated)
 			{
 				var exceptionArgs = new ExceptionEventArgs<T>(exceptions, args);
 				await Exception.InvokeAsync(exceptionArgs).ConfigureAwait(false);

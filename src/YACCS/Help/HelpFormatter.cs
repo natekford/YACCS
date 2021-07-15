@@ -43,7 +43,7 @@ namespace YACCS.Help
 
 		public virtual IHelpCommand GetHelpCommand(IImmutableCommand command)
 		{
-			while (command.Source != null)
+			while (command.Source is not null)
 			{
 				command = command.Source;
 			}

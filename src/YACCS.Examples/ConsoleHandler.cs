@@ -89,9 +89,9 @@ namespace YACCS.Examples
 			var response = FormatResult(result.InnerResult);
 			if (!string.IsNullOrWhiteSpace(response))
 			{
-				if (result.Parameter != null)
+				if (result.Parameter is not null)
 				{
-					response = result.Parameter.ParameterName + ": " + response;
+					response = $"{result.Parameter.ParameterName}: {response}";
 				}
 
 				WriteLine(response, result.InnerResult.IsSuccess ? ConsoleColor.Green : ConsoleColor.Red);

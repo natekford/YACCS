@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 
 using YACCS.Commands;
-using YACCS.Commands.Attributes;
 using YACCS.NamedArguments;
 
 namespace YACCS.TypeReaders
@@ -43,7 +42,7 @@ namespace YACCS.TypeReaders
 			RegisterWithNullable(new TimeSpanTypeReader<TimeSpan>(TimeSpan.TryParse));
 
 			Items.RegisterTypeReaders(typeof(TypeReaderRegistry).Assembly.GetTypeReaders());
-			if (assemblies != null)
+			if (assemblies is not null)
 			{
 				foreach (var assembly in assemblies)
 				{
@@ -110,7 +109,7 @@ namespace YACCS.TypeReaders
 			{
 				readerType = null;
 			}
-			return readerType != null;
+			return readerType is not null;
 		}
 	}
 }

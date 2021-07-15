@@ -304,7 +304,7 @@ namespace YACCS.Commands
 		{
 			var best = await GetBestMatchAsync(context, args).ConfigureAwait(false);
 			// If a command is found and args are parsed, execute command in background
-			if (best.InnerResult.IsSuccess && best.Command != null && best.Args != null)
+			if (best.InnerResult.IsSuccess && best.Command is not null && best.Args is not null)
 			{
 				_ = PrivateHandleCommandAsync(context, best.Command, best.Args);
 			}

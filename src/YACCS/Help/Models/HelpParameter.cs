@@ -14,7 +14,7 @@ namespace YACCS.Help.Models
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public class HelpParameter : HelpItem<IImmutableParameter>, IHelpParameter
 	{
-		public bool IsRemainder => Item.Length == null;
+		public bool IsRemainder => Item.Length is null;
 		public IHelpItem<Type> ParameterType { get; }
 		public IReadOnlyDictionary<string, ILookup<BoolOp, IHelpItem<IParameterPrecondition>>> Preconditions { get; }
 		public IHelpItem<ITypeReader>? TypeReader { get; }

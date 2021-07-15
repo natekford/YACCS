@@ -110,7 +110,10 @@ namespace YACCS.Commands.Models
 		{
 			while (type is not null)
 			{
-				AddAttributes(type);
+				foreach (var attribute in type.GetCustomAttributes(true))
+				{
+					Attributes.Add(attribute);
+				}
 				type = type.DeclaringType;
 			}
 		}

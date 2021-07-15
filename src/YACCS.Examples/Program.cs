@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -21,7 +20,6 @@ namespace YACCS.Examples
 
 		private Program()
 		{
-			var a = Keys.AllKeys;
 			_Services = new ServiceCollection()
 				.AddSingleton<ICommandServiceConfig>(CommandServiceConfig.Instance)
 				.AddSingleton<ILocalizer>(Localize.Instance)
@@ -46,7 +44,7 @@ namespace YACCS.Examples
 
 #if DEBUG
 			Localize.Instance.KeyNotFound += (key, culture)
-				=> Debug.WriteLine($"Unable to find the localization for '{key}' in '{culture}'.");
+				=> System.Diagnostics.Debug.WriteLine($"Unable to find the localization for '{key}' in '{culture}'.");
 #endif
 		}
 

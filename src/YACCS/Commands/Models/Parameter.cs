@@ -8,7 +8,6 @@ using System.Reflection;
 
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
-using YACCS.NamedArguments;
 using YACCS.Preconditions;
 using YACCS.TypeReaders;
 
@@ -61,15 +60,12 @@ namespace YACCS.Commands.Models
 			// like the named arguments attribute on the parameter's type will add
 			// the named arguments parameter precondition which verifies that every
 			// property has been set or has a default value
-			// Call provider.GetCustomAttributes again because Attributes may be modified
-			IEnumerable<object> attrs = type.GetCustomAttributes(true);
-			if (provider != null)
+			foreach (var attribute in type.GetCustomAttributes(true).Concat(BaseAttributes))
 			{
-				attrs = provider.GetCustomAttributes(true).Concat(attrs);
-			}
-			foreach (var modifier in attrs.OfType<IParameterModifierAttribute>())
-			{
-				modifier.ModifyParameter(this);
+				if (attribute is IParameterModifierAttribute modifier)
+				{
+					modifier.ModifyParameter(this);
+				}
 			}
 		}
 

@@ -272,7 +272,7 @@ namespace YACCS.Parsing
 				return false;
 			}
 			// Other comparison char doesn't exist or is whitespace, return true
-			if (comparison == null || char.IsWhiteSpace(comparison.Value))
+			if (comparison is null || char.IsWhiteSpace(comparison.Value))
 			{
 				return true;
 			}

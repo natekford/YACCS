@@ -35,14 +35,14 @@ namespace YACCS.TypeReaders
 		{
 			foreach (var type in assembly.GetExportedTypes())
 			{
-				var attr = type.GetCustomAttribute<TypeReaderTargetTypesAttribute>();
-				if (attr == null)
+				var attribute = type.GetCustomAttribute<TypeReaderTargetTypesAttribute>();
+				if (attribute is null)
 				{
 					continue;
 				}
 
 				var typeReader = type.CreateInstance<ITypeReader>();
-				yield return new(attr.TargetTypes, typeReader);
+				yield return new(attribute.TargetTypes, typeReader);
 			}
 		}
 

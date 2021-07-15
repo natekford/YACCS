@@ -78,15 +78,15 @@ namespace YACCS.Commands
 		public static IEnumerable<Exception> GetAllExceptions(this CommandExecutedEventArgs e)
 		{
 			var enumerable = Enumerable.Empty<Exception>();
-			if (e.BeforeExceptions != null)
+			if (e.BeforeExceptions is not null)
 			{
 				enumerable = enumerable.Concat(e.BeforeExceptions);
 			}
-			if (e.DuringException != null)
+			if (e.DuringException is not null)
 			{
 				enumerable = enumerable.Append(e.DuringException);
 			}
-			if (e.AfterExceptions != null)
+			if (e.AfterExceptions is not null)
 			{
 				enumerable = enumerable.Concat(e.AfterExceptions);
 			}
