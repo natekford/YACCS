@@ -13,12 +13,12 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Examples
 {
-	public class ConsoleCommandService : CommandService
+	public sealed class ConsoleCommandService : CommandService
 	{
-		private readonly IEnumerable<Assembly> _CommandAssemblies;
-		private readonly ConsoleHandler _Console;
-		private readonly IServiceProvider _Services;
-		private bool _IsInitialized;
+		private readonly IEnumerable<Assembly> CommandAssemblies;
+		private readonly ConsoleHandler Console;
+		private readonly Lazy<Task> Initialize;
+		private readonly IServiceProvider Services;
 
 		public ConsoleCommandService(
 			IServiceProvider services,
@@ -29,25 +29,14 @@ namespace YACCS.Examples
 			IEnumerable<Assembly> commandAssemblies)
 			: base(config, splitter, readers)
 		{
-			_CommandAssemblies = commandAssemblies;
-			_Console = console;
-			_Services = services;
+			CommandAssemblies = commandAssemblies;
+			Console = console;
+			Services = services;
+			Initialize = new Lazy<Task>(() => PrivateInitialize());
 		}
 
 		public Task InitializeAsync()
-		{
-			if (_IsInitialized)
-			{
-				return Task.CompletedTask;
-			}
-			return PrivateInitialize();
-		}
-
-		protected override Task DisposeCommandAsync(CommandExecutedEventArgs e)
-		{
-			_Console.ReleaseIOLocks();
-			return base.DisposeCommandAsync(e);
-		}
+			=> Initialize.Value;
 
 		private async Task AddDelegateCommandsAsync()
 		{
@@ -57,32 +46,32 @@ namespace YACCS.Examples
 
 			var @delegate = (Func<int, int, int>)Add;
 			var names = new[] { new ImmutableName(new[] { nameof(Add) }) };
-			var add = new DelegateCommand(@delegate, names).ToMultipleImmutableAsync(_Services);
+			var add = new DelegateCommand(@delegate, names).ToMultipleImmutableAsync(Services);
 			await this.AddRangeAsync(add).ConfigureAwait(false);
+		}
+
+		private Task OnCommandExecuted(CommandExecutedEventArgs e)
+		{
+			Console.WriteResult(e.Result);
+			var exceptions = e.GetAllExceptions();
+			if (exceptions.Any())
+			{
+				Console.WriteLine(string.Join(Environment.NewLine, exceptions), ConsoleColor.Red);
+			}
+			return Task.CompletedTask;
 		}
 
 		private async Task PrivateInitialize()
 		{
-			foreach (var assembly in _CommandAssemblies)
+			foreach (var assembly in CommandAssemblies)
 			{
-				var commands = assembly.GetAllCommandsAsync(_Services);
+				var commands = assembly.GetAllCommandsAsync(Services);
 				await this.AddRangeAsync(commands).ConfigureAwait(false);
 			}
 			await AddDelegateCommandsAsync().ConfigureAwait(false);
 			Debug.WriteLine($"Registered {Commands.Count} commands for '{CultureInfo.CurrentUICulture}'.");
 
-			CommandExecuted += (e) =>
-			{
-				_Console.WriteResult(e.Result);
-				var exceptions = e.GetAllExceptions();
-				if (exceptions.Any())
-				{
-					_Console.WriteLine(string.Join(Environment.NewLine, exceptions), ConsoleColor.Red);
-				}
-				return Task.CompletedTask;
-			};
-
-			_IsInitialized = true;
+			CommandExecuted += OnCommandExecuted;
 		}
 	}
 }

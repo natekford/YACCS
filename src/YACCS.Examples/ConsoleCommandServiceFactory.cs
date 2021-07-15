@@ -9,7 +9,7 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Examples
 {
-	public class ConsoleCommandServiceFactory
+	public sealed class ConsoleCommandServiceFactory
 	{
 		private readonly IEnumerable<Assembly> _CommandAssemblies;
 		private readonly ICommandServiceConfig _Config;

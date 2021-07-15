@@ -9,7 +9,7 @@ using YACCS.Results;
 
 namespace YACCS.Examples
 {
-	public class ConsoleHandler
+	public sealed class ConsoleHandler
 	{
 		private readonly Channel<string?> _Channel;
 		private readonly IFormatProvider _FormatProvider;

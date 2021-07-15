@@ -6,7 +6,7 @@ using YACCS.Commands;
 
 namespace YACCS.Examples
 {
-	public class ConsoleContext : IContext<string>, IDisposable
+	public sealed class ConsoleContext : IContext<string>, IDisposable
 	{
 		public Guid Id { get; } = Guid.NewGuid();
 		public string Input { get; }
@@ -21,10 +21,10 @@ namespace YACCS.Examples
 			Input = input;
 		}
 
-#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
-
 		public void Dispose()
-#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
-			=> Scope.Dispose();
+		{
+			Scope.ServiceProvider.GetRequiredService<ConsoleHandler>().ReleaseIOLocks();
+			Scope.Dispose();
+		}
 	}
 }

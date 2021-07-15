@@ -9,7 +9,7 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Examples
 {
-	public class ConsoleInput : Input<IContext, string>
+	public sealed class ConsoleInput : Input<IContext, string>
 	{
 		private readonly ConsoleHandler _Console;
 		private readonly Dictionary<Guid, CancellationTokenSource> _Input = new();

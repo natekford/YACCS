@@ -5,7 +5,7 @@ using YACCS.Help;
 
 namespace YACCS.Examples
 {
-	public class ConsoleTagFormatter : TagFormatter
+	public sealed class ConsoleTagFormatter : TagFormatter
 	{
 		private readonly IReadOnlyDictionary<Type, string> _Names;
 
