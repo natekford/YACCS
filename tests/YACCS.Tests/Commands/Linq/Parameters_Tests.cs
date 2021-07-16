@@ -94,6 +94,8 @@ namespace YACCS.Tests.Commands.Linq
 			});
 			var parent_parent = parent.AsType<Base>();
 			Assert.IsInstanceOfType(parent_parent, typeof(IParameter<Base>));
+			var parent_child = (IParameter<Child>)parent_parent;
+			Assert.IsInstanceOfType(parent_child, typeof(IParameter<Base>));
 		}
 
 		[TestMethod]
