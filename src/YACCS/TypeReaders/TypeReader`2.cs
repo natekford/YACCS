@@ -10,6 +10,7 @@ namespace YACCS.TypeReaders
 	public abstract class TypeReader<TContext, TValue> : ITypeReader<TContext, TValue>
 		where TContext : IContext
 	{
+		public Type ContextType => typeof(TContext);
 		public Type OutputType => typeof(TValue);
 		protected static ITask<ITypeReaderResult<TValue>> InvalidContext { get; }
 			= TypeReaderResult<TValue>.FromError(InvalidContextResult.Instance).AsITask();

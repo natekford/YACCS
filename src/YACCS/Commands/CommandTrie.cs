@@ -54,18 +54,32 @@ namespace YACCS.Commands
 				}
 			}
 
-			// Verify that every parameter has a type reader
+			// Verify that every parameter has a type reader and that the reader can accept
+			// the context that the command accepts
 			foreach (var parameter in item.Parameters)
 			{
+				ITypeReader reader;
 				try
 				{
-					_ = _Readers.GetTypeReader(parameter);
+					reader = _Readers.GetTypeReader(parameter);
 				}
 				catch (Exception e)
 				{
 					throw new ArgumentException("Unregistered type reader for " +
-						$"'{parameter.ParameterType}' from '{item.Names?.FirstOrDefault()}'.",
+						$"'{parameter.ParameterName}' from '{item.Names?.FirstOrDefault()}'.",
 						nameof(item), e);
+				}
+
+				// If A can't inherit B and B can't inherit A then neither is part of the
+				// same inheritance chain and there will never be a valid context
+				if (!reader.ContextType.IsAssignableFrom(item.ContextType) &&
+					!item.ContextType.IsAssignableFrom(reader.ContextType))
+				{
+					throw new ArgumentException("Invalid type reader for " +
+						$"'{parameter.ParameterName}' from '{item.Names?.FirstOrDefault()}'. " +
+						$"Type reader accepts '{reader.ContextType}', " +
+						$"command accepts '{item.ContextType}'. " +
+						"The type reader will never receive a valid context.", nameof(item));
 				}
 			}
 

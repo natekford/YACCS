@@ -106,6 +106,7 @@ namespace YACCS.Tests.Commands
 
 		public class BadStringReader : ITypeReader
 		{
+			public Type ContextType => typeof(IContext);
 			public Type OutputType => typeof(string);
 
 			public ITask<ITypeReaderResult> ReadAsync(

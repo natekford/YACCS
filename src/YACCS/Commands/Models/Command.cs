@@ -20,7 +20,7 @@ namespace YACCS.Commands.Models
 	{
 		public Type ContextType { get; protected set; }
 		public IList<IReadOnlyList<string>> Names { get; set; }
-		public IReadOnlyList<IParameter> Parameters { get; set; }
+		public IReadOnlyList<IParameter> Parameters { get; protected set; }
 		public IImmutableCommand? Source { get; protected set; }
 		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
 		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;

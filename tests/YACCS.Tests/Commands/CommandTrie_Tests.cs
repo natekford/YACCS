@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using MorseCode.ITask;
+
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
@@ -155,6 +157,25 @@ namespace YACCS.Tests.Commands
 		}
 
 		[TestMethod]
+		public void InvalidTypeReader_Test()
+		{
+			static void Delegate(string input)
+			{
+			}
+
+			var @delegate = (Action<string>)Delegate;
+			var command = new DelegateCommand(@delegate, new[] { new[] { "joe" } });
+			command.Parameters[0].TypeReader = new TestTypeReader(typeof(Guid));
+			Assert.ThrowsException<ArgumentException>(() =>
+			{
+				_Trie.Add(command.ToImmutable());
+			});
+
+			command.Parameters[0].TypeReader = new TestTypeReader(typeof(FakeContext));
+			Assert.AreEqual(1, _Trie.Add(command.ToImmutable()));
+		}
+
+		[TestMethod]
 		public void NameWithSeparator_Test()
 		{
 			var command = FakeDelegateCommand.New()
@@ -175,6 +196,20 @@ namespace YACCS.Tests.Commands
 			{
 				_Trie.Add(command);
 			});
+		}
+
+		public sealed class TestTypeReader : ITypeReader
+		{
+			public Type ContextType { get; }
+			public Type OutputType => typeof(string);
+
+			public TestTypeReader(Type contextType)
+			{
+				ContextType = contextType;
+			}
+
+			public ITask<ITypeReaderResult> ReadAsync(IContext context, ReadOnlyMemory<string> input)
+				=> throw new NotImplementedException();
 		}
 	}
 }
