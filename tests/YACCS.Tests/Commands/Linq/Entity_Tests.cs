@@ -157,7 +157,7 @@ namespace YACCS.Tests.Commands.Linq
 				public override Task OnCommandBuildingAsync(IServiceProvider services, IList<ICommand> commands)
 				{
 					var parameters = commands.SelectMany(x => x.Parameters);
-					var position = parameters.GetParameterById<int>(_PositionId);
+					var position = parameters.ById(_PositionId).Single().AsType<int>();
 					Assert.IsNotNull(position);
 
 					return base.OnCommandBuildingAsync(services, commands);

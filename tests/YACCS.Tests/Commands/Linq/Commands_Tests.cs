@@ -45,7 +45,7 @@ namespace YACCS.Tests.Commands.Linq
 		[TestMethod]
 		public void AddName_Test()
 		{
-			var command = _Commands.GetCommandById<FakeContext>(NORM_ID);
+			var command = _Commands.ById(NORM_ID).Single().AsContext<FakeContext>();
 			Assert.AreEqual(0, command.Names.Count);
 			command.AddName(new[] { "joe", "mama" });
 			Assert.AreEqual(1, command.Names.Count);
@@ -54,7 +54,7 @@ namespace YACCS.Tests.Commands.Linq
 		[TestMethod]
 		public void AddPrecondition_Test()
 		{
-			var command = _Commands.GetCommandById<FakeContext>(NORM_ID);
+			var command = _Commands.ById(NORM_ID).Single().AsContext<FakeContext>();
 			Assert.AreEqual(0, command.Get<IPrecondition>().Count());
 			command.AddPrecondition(new NotSevenPM());
 			Assert.AreEqual(1, command.Get<IPrecondition>().Count());
@@ -95,42 +95,6 @@ namespace YACCS.Tests.Commands.Linq
 			});
 			var parent_parent = parent.AsContext<FakeContext>();
 			Assert.IsInstanceOfType(parent_parent, typeof(ICommand<FakeContext>));
-		}
-
-		[TestMethod]
-		public void GetCommandById_Test()
-		{
-			var command = _Commands.GetCommandById<FakeContext>(NORM_ID);
-			Assert.IsNotNull(command);
-
-			Assert.ThrowsException<InvalidOperationException>(() =>
-			{
-				_Commands.GetCommandById<FakeContext>("doesn't exist");
-			});
-
-			Assert.ThrowsException<InvalidOperationException>(() =>
-			{
-				_Commands.GetCommandById<FakeContext>(DUPE_ID);
-			});
-		}
-
-		[TestMethod]
-		public void GetCommandsById_Test()
-		{
-			{
-				var commands = _Commands.GetCommandsById<FakeContext>(DUPE_ID);
-				Assert.AreEqual(2, commands.Count());
-			}
-
-			{
-				var commands = _Commands.GetCommandsById<FakeContext>(NORM_ID);
-				Assert.AreEqual(1, commands.Count());
-			}
-
-			{
-				var commands = _Commands.GetCommandsById<FakeContext>("doesn't exist");
-				Assert.AreEqual(0, commands.Count());
-			}
 		}
 
 		[TestMethod]

@@ -55,27 +55,6 @@ namespace YACCS.Commands.Linq
 			return new Command<TContext>(command);
 		}
 
-		public static ICommand<TContext> GetCommandById<TContext>(
-			this IEnumerable<ICommand> commands,
-			string id)
-			where TContext : IContext
-		{
-			return commands
-				.ById(id)
-				.Single()
-				.AsContext<TContext>();
-		}
-
-		public static IEnumerable<ICommand<TContext>> GetCommandsById<TContext>(
-			this IEnumerable<ICommand> commands,
-			string id)
-			where TContext : IContext
-		{
-			return commands
-				.ById(id)
-				.Select(AsContext<TContext>);
-		}
-
 		public static IEnumerable<ICommand<TContext>> GetCommandsByType<TContext>(
 			this IEnumerable<ICommand> commands)
 			where TContext : IContext
@@ -97,25 +76,21 @@ namespace YACCS.Commands.Linq
 		{
 			private readonly ICommand _Actual;
 
-			public IList<object> Attributes
+			IList<object> IEntityBase.Attributes
 			{
 				get => _Actual.Attributes;
 				set => _Actual.Attributes = value;
 			}
-			public IList<IReadOnlyList<string>> Names
+			IEnumerable<object> IQueryableEntity.Attributes => _Actual.Attributes;
+			Type IQueryableCommand.ContextType => _Actual.ContextType;
+			IList<IReadOnlyList<string>> ICommand.Names
 			{
 				get => _Actual.Names;
 				set => _Actual.Names = value;
 			}
-			public IReadOnlyList<IParameter> Parameters
-			{
-				get => _Actual.Parameters;
-				set => _Actual.Parameters = value;
-			}
-			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
-			public Type ContextType => _Actual.ContextType;
-			IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
-			IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
+			IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => _Actual.Names;
+			IReadOnlyList<IParameter> ICommand.Parameters => _Actual.Parameters;
+			IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => _Actual.Parameters;
 			private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 			public Command(ICommand actual)
@@ -124,10 +99,10 @@ namespace YACCS.Commands.Linq
 			}
 
 			public IImmutableCommand ToImmutable()
-										=> _Actual.ToImmutable();
+				=> _Actual.ToImmutable();
 
 			public IAsyncEnumerable<IImmutableCommand> ToMultipleImmutableAsync(IServiceProvider services)
-										=> _Actual.ToMultipleImmutableAsync(services);
+				=> _Actual.ToMultipleImmutableAsync(services);
 		}
 	}
 }

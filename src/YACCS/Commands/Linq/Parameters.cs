@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 using YACCS.Commands.Attributes;
@@ -49,25 +50,6 @@ namespace YACCS.Commands.Linq
 
 		public static IParameter<T> Create<T>(string name)
 			=> new Parameter(typeof(T), name, null).AsType<T>();
-
-		public static IParameter<TValue> GetParameterById<TValue>(
-			this IEnumerable<IParameter> parameters,
-			string id)
-		{
-			return parameters
-				.ById(id)
-				.Single()
-				.AsType<TValue>();
-		}
-
-		public static IEnumerable<IParameter<TValue>> GetParametersById<TValue>(
-			this IEnumerable<IParameter> parameters,
-			string id)
-		{
-			return parameters
-				.ById(id)
-				.Select(AsType<TValue>);
-		}
 
 		public static IEnumerable<IParameter<TValue>> GetParametersByType<TValue>(
 			this IEnumerable<IParameter> parameters)
@@ -126,38 +108,35 @@ namespace YACCS.Commands.Linq
 			return parameter;
 		}
 
+		[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 		private sealed class Parameter<TValue> : IParameter<TValue>
 		{
 			private readonly IParameter _Actual;
 
-			public IList<object> Attributes
+			IList<object> IEntityBase.Attributes
 			{
 				get => _Actual.Attributes;
 				set => _Actual.Attributes = value;
 			}
-			public object? DefaultValue
+			IEnumerable<object> IQueryableEntity.Attributes => _Actual.Attributes;
+			object? IParameter.DefaultValue
 			{
 				get => _Actual.DefaultValue;
 				set => _Actual.DefaultValue = value;
 			}
-			public bool HasDefaultValue
+			bool IParameter.HasDefaultValue
 			{
 				get => _Actual.HasDefaultValue;
 				set => _Actual.HasDefaultValue = value;
 			}
-			public ITypeReader<TValue>? OverridenTypeReader
-			{
-				get => (ITypeReader<TValue>?)_Actual.TypeReader;
-				set => _Actual.TypeReader = value;
-			}
-			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
-			public string OriginalParameterName => _Actual.OriginalParameterName;
-			public Type ParameterType => _Actual.ParameterType;
+			string IQueryableParameter.OriginalParameterName => _Actual.OriginalParameterName;
+			Type IQueryableParameter.ParameterType => _Actual.ParameterType;
 			ITypeReader? IParameter.TypeReader
 			{
-				get => OverridenTypeReader;
-				set => OverridenTypeReader = (ITypeReader<TValue>?)value;
+				get => _Actual.TypeReader;
+				set => _Actual.TypeReader = (ITypeReader<TValue>?)value;
 			}
+			private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 			public Parameter(IParameter actual)
 			{

@@ -53,7 +53,7 @@ namespace YACCS.Tests.Commands.Linq
 		[TestMethod]
 		public void AddParameterPrecondition_Test()
 		{
-			var parameter = _Parameters.GetParameterById<int>(NORM_ID);
+			var parameter = _Parameters.ById(NORM_ID).Single().AsType<int>();
 			Assert.AreEqual(1, parameter.Attributes.Count);
 			parameter.AddParameterPrecondition(new NotNegative());
 			Assert.AreEqual(2, parameter.Attributes.Count);
@@ -97,42 +97,6 @@ namespace YACCS.Tests.Commands.Linq
 		}
 
 		[TestMethod]
-		public void GetParameterById_Test()
-		{
-			var parameter = _Parameters.GetParameterById<int>(NORM_ID);
-			Assert.IsNotNull(parameter);
-
-			Assert.ThrowsException<InvalidOperationException>(() =>
-			{
-				_Parameters.GetParameterById<int>("doesn't exist");
-			});
-
-			Assert.ThrowsException<InvalidOperationException>(() =>
-			{
-				_Parameters.GetParameterById<Base>(DUPE_ID);
-			});
-		}
-
-		[TestMethod]
-		public void GetParametersById_Test()
-		{
-			{
-				var parameters = _Parameters.GetParametersById<Child>(DUPE_ID);
-				Assert.AreEqual(2, parameters.Count());
-			}
-
-			{
-				var parameters = _Parameters.GetParametersById<int>(NORM_ID);
-				Assert.AreEqual(1, parameters.Count());
-			}
-
-			{
-				var parameters = _Parameters.GetParametersById<int>("doesn't exist");
-				Assert.AreEqual(0, parameters.Count());
-			}
-		}
-
-		[TestMethod]
 		public void GetParametersByType_Test()
 		{
 			{
@@ -159,7 +123,7 @@ namespace YACCS.Tests.Commands.Linq
 		[TestMethod]
 		public void ModifyDefaultValue_Test()
 		{
-			var parameter = _Parameters.GetParameterById<int>(NORM_ID);
+			var parameter = _Parameters.ById(NORM_ID).Single().AsType<int>();
 			Assert.IsFalse(parameter.HasDefaultValue);
 
 			parameter.SetDefaultValue(1);
@@ -177,7 +141,7 @@ namespace YACCS.Tests.Commands.Linq
 		[TestMethod]
 		public void SetOverridenTypeReader_Test()
 		{
-			var parameter = _Parameters.GetParameterById<int>(NORM_ID);
+			var parameter = _Parameters.ById(NORM_ID).Single().AsType<int>();
 			Assert.IsNull(parameter.TypeReader);
 
 			parameter.SetTypeReader(new NumberTypeReader<int>(int.TryParse));
