@@ -900,7 +900,7 @@ namespace YACCS.Tests.Commands
 			return (context.Get<CommandService>(), context, parameter);
 		}
 
-		private class CoolCharTypeReader : TypeReader<char>
+		private class CoolCharTypeReader : TypeReader<IContext, char>
 		{
 			public override ITask<ITypeReaderResult<char>> ReadAsync(
 				IContext context,

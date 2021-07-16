@@ -10,34 +10,34 @@ using YACCS.TypeReaders;
 
 namespace YACCS.NamedArguments
 {
-	public abstract class NamedArgumentsTypeReaderBase<T> : TypeReader<T> where T : new()
+	public abstract class NamedArgumentsTypeReaderBase<TValue> : TypeReader<IContext, TValue>
+		where TValue : new()
 	{
-		private static readonly ITask<ITypeReaderResult<T>> _ArgCountError
-			= TypeReaderResult<T>.FromError(NamedArgBadCountResult.Instance).AsITask();
 		private static readonly char[] _TrimEndChars = new[] { ':' };
 		private static readonly char[] _TrimStartChars = new[] { '/', '-' };
-
 		protected abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
+		private static ITask<ITypeReaderResult<TValue>> ArgCountError { get; }
+			= TypeReaderResult<TValue>.FromError(NamedArgBadCountResult.Instance).AsITask();
 
-		public override ITask<ITypeReaderResult<T>> ReadAsync(
+		public override ITask<ITypeReaderResult<TValue>> ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
 			if (input.Length % 2 != 0)
 			{
-				return _ArgCountError;
+				return ArgCountError;
 			}
 
 			var result = TryCreateDict(input.Span, out var dict);
 			if (!result.IsSuccess)
 			{
-				return TypeReaderResult<T>.FromError(result).AsITask();
+				return TypeReaderResult<TValue>.FromError(result).AsITask();
 			}
 
 			return ReadDictIntoInstanceAsync(context, dict!);
 		}
 
-		protected abstract void Setter(T instance, string property, object? value);
+		protected abstract void Setter(TValue instance, string property, object? value);
 
 		protected virtual IResult TryCreateDict(
 			ReadOnlySpan<string> input,
@@ -62,13 +62,13 @@ namespace YACCS.NamedArguments
 			return SuccessResult.Instance;
 		}
 
-		private async ITask<ITypeReaderResult<T>> ReadDictIntoInstanceAsync(
+		private async ITask<ITypeReaderResult<TValue>> ReadDictIntoInstanceAsync(
 			IContext context,
 			IDictionary<string, string> dict)
 		{
 			var registry = context.Services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
 
-			var instance = new T();
+			var instance = new TValue();
 			foreach (var kvp in dict)
 			{
 				var args = kvp.Value;
@@ -78,12 +78,12 @@ namespace YACCS.NamedArguments
 				var result = await reader.ReadAsync(context, args).ConfigureAwait(false);
 				if (!result.InnerResult.IsSuccess)
 				{
-					return TypeReaderResult<T>.FromError(result.InnerResult);
+					return TypeReaderResult<TValue>.FromError(result.InnerResult);
 				}
 
 				Setter(instance, parameter.OriginalParameterName, result.Value);
 			}
-			return TypeReaderResult<T>.FromSuccess(instance);
+			return TypeReaderResult<TValue>.FromSuccess(instance);
 		}
 	}
 }

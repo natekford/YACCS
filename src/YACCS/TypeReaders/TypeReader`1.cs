@@ -6,15 +6,14 @@ using YACCS.Commands;
 
 namespace YACCS.TypeReaders
 {
-	public abstract class TypeReader<T> : ITypeReader<T>
+	/// <summary>
+	/// A <see cref="TypeReader{TContext, TValue}"/> which does not care about the type of
+	/// the passed in <see cref="IContext"/>. This does NOT mean that <see langword="null"/> is allowed.
+	/// </summary>
+	/// <typeparam name="TValue"></typeparam>
+	public abstract class TypeReader<TValue> : TypeReader<IContext, TValue>
 	{
-		public Type OutputType => typeof(T);
-
-		public abstract ITask<ITypeReaderResult<T>> ReadAsync(
-			IContext context,
-			ReadOnlyMemory<string> input);
-
-		ITask<ITypeReaderResult> ITypeReader.ReadAsync(
+		protected override ITask<ITypeReaderResult<TValue>> ReadInternalAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
 			=> ReadAsync(context, input);

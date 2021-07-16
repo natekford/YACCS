@@ -11,7 +11,7 @@ namespace YACCS.Tests.TypeReaders
 	public class NullableTypeReader_Tests : TypeReader_Tests<int?>
 	{
 		public override ITypeReader<int?> Reader { get; }
-			= new NullableTypeReader<int>(new NumberTypeReader<int>(int.TryParse));
+			= new NullableTypeReader<int>();
 
 		[TestMethod]
 		public async Task AddedString_Test()

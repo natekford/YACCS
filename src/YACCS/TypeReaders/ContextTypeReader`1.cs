@@ -6,17 +6,20 @@ using YACCS.Commands;
 
 namespace YACCS.TypeReaders
 {
-	public class ContextTypeReader<T> : TypeReader<T> where T : IContext
+	public class ContextTypeReader<TContext> : TypeReader<TContext, TContext>
+		where TContext : IContext
 	{
-		public override ITask<ITypeReaderResult<T>> ReadAsync(
-			IContext context,
+		public override ITask<ITypeReaderResult<TContext>> ReadAsync(
+			TContext context,
 			ReadOnlyMemory<string> input)
 		{
-			if (context is not T tContext)
+			// This won't be hit because TypeReader`2 already checks for context type
+			// In case someone ever calls this directly this should remain
+			if (context is not TContext tContext)
 			{
-				return TypeReaderResult<T>.FailureInstance;
+				return InvalidContext;
 			}
-			return TypeReaderResult<T>.FromSuccess(tContext).AsITask();
+			return TypeReaderResult<TContext>.FromSuccess(tContext).AsITask();
 		}
 	}
 }

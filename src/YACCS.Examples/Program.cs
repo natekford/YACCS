@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 using YACCS.Commands;
 using YACCS.Help;
-using YACCS.Interactivity.Input;
 using YACCS.Localization;
 using YACCS.Parsing;
 using YACCS.TypeReaders;
@@ -23,8 +22,9 @@ namespace YACCS.Examples
 			_Services = new ServiceCollection()
 				.AddSingleton<ICommandServiceConfig>(CommandServiceConfig.Instance)
 				.AddSingleton<ILocalizer>(Localize.Instance)
-				.AddSingleton<ConsoleHandler>()
 				.AddSingleton<ConsoleCommandServiceFactory>()
+				.AddSingleton<ConsoleHandler>()
+				.AddSingleton<ConsoleInput>()
 				.AddSingleton<IEnumerable<Assembly>>(new[] { typeof(Program).Assembly })
 				// These 2 need to be transient so if the culture is changed
 				// the correct localized command service is retrieved
@@ -37,7 +37,6 @@ namespace YACCS.Examples
 				.AddSingleton<IArgumentSplitter, ArgumentSplitter>()
 				.AddSingleton<IFormatProvider, ConsoleTagFormatter>()
 				.AddSingleton<IHelpFormatter, HelpFormatter>()
-				.AddSingleton<IInput<IContext, string>, ConsoleInput>()
 				.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>, TypeReaderRegistry>()
 				.AddSingleton<IReadOnlyDictionary<Type, string>, TypeNameRegistry>()
 				.BuildServiceProvider();

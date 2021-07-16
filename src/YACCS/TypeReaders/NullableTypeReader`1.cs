@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using MorseCode.ITask;
 
@@ -6,35 +7,32 @@ using YACCS.Commands;
 
 namespace YACCS.TypeReaders
 {
-	public class NullableTypeReader<T> : TypeReader<T?> where T : struct
+	public class NullableTypeReader<TValue> : TypeReader<TValue?> where TValue : struct
 	{
-		private static readonly NullChecker Checker = new();
-		private static readonly ITypeReaderResult<T?> NullResult
-			= TypeReaderResult<T?>.FromSuccess(null);
+		private static readonly NullChecker _Checker = new();
+		private static readonly ITypeReaderResult<TValue?> _NullResult
+			= TypeReaderResult<TValue?>.FromSuccess(null);
 
-		private readonly ITypeReader<T> _Reader;
-
-		public NullableTypeReader(ITypeReader<T> reader)
-		{
-			_Reader = reader;
-		}
-
-		public override async ITask<ITypeReaderResult<T?>> ReadAsync(
+		public override async ITask<ITypeReaderResult<TValue?>> ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
-			var checker = context.Services.GetService<INullChecker>() ?? Checker;
+			// We don't need to handle having the correct context type because
+			// the type reader we retrieve handles that
+			var checker = context.Services.GetService<INullChecker>() ?? _Checker;
 			if (input.Length == 1 && checker.IsNull(input.Span[0]))
 			{
-				return NullResult;
+				return _NullResult;
 			}
 
-			var result = await _Reader.ReadAsync(context, input).ConfigureAwait(false);
+			var readers = context.Services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
+			var reader = readers.GetTypeReader<TValue>();
+			var result = await reader.ReadAsync(context, input).ConfigureAwait(false);
 			if (!result.InnerResult.IsSuccess)
 			{
-				return TypeReaderResult<T?>.FromError(result.InnerResult);
+				return TypeReaderResult<TValue?>.FromError(result.InnerResult);
 			}
-			return TypeReaderResult<T?>.FromSuccess(result.Value);
+			return TypeReaderResult<TValue?>.FromSuccess(result.Value);
 		}
 	}
 }

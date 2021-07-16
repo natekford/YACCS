@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 
-using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 using YACCS.Examples.Preconditions;
@@ -11,7 +10,7 @@ using YACCS.Results;
 
 namespace YACCS.Examples.Commands
 {
-	public class Commands : ConsoleCommands<IContext>
+	public class Commands : ConsoleCommands
 	{
 		public override string Abstract() => "What's 9 + 10?";
 
@@ -35,17 +34,12 @@ namespace YACCS.Examples.Commands
 			=> numerator / divisor;
 
 		[Command(nameof(Echo))]
-		public void Echo([Remainder] string input)
-			=> Console.WriteLine(input);
+		public string Echo([Remainder] string input)
+			=> input;
 
 		[Command(nameof(EchoMultipleLines))]
-		public void EchoMultipleLines([Remainder] IEnumerable<string> input)
-		{
-			foreach (var item in input)
-			{
-				Console.WriteLine(item);
-			}
-		}
+		public string EchoMultipleLines([Remainder] IEnumerable<string> input)
+			=> string.Join('\n', input);
 
 		[Command(nameof(Exit))]
 		public void Exit()

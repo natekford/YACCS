@@ -177,7 +177,7 @@ namespace YACCS.Tests.Commands.Models
 				=> Task.CompletedTask;
 		}
 
-		private class FakeTypeReader : TypeReader<string>
+		private class FakeTypeReader : TypeReader<IContext, string>
 		{
 			public const string VALUE = "joe";
 

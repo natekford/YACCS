@@ -61,7 +61,7 @@ namespace YACCS.Tests.Commands
 			registry.Register(typeof(Parent), reader);
 
 			var retrieved = registry.GetTypeReader<Parent>();
-			var item = await retrieved.ReadAsync(null!, "joe").ConfigureAwait(false);
+			var item = await retrieved.ReadAsync(new FakeContext(), "joe").ConfigureAwait(false);
 			Assert.IsNotNull(retrieved);
 			Assert.IsInstanceOfType(item.Value, typeof(Parent));
 			Assert.IsInstanceOfType(item.Value, typeof(Child));

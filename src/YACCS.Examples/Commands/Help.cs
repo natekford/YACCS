@@ -7,19 +7,17 @@ using YACCS.Commands.Models;
 using YACCS.Examples.Preconditions;
 using YACCS.Help;
 using YACCS.Interactivity;
-using YACCS.Interactivity.Input;
 using YACCS.Results;
 
 namespace YACCS.Examples.Commands
 {
 	[Command(nameof(Help))]
-	public class Help : ConsoleCommands<IContext>
+	public class Help : ConsoleCommands
 	{
 		private static readonly string _Separator = new('-', 10);
 
 		public ICommandService CommandService { get; set; } = null!;
 		public IHelpFormatter HelpFormatter { get; set; } = null!;
-		public IInput<IContext, string> Input { get; set; } = null!;
 
 		public override string Abstract() => "21";
 

@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-using YACCS.Commands;
 using YACCS.Interactivity.Input;
 using YACCS.TypeReaders;
 
 namespace YACCS.Examples
 {
-	public sealed class ConsoleInput : Input<IContext, string>
+	public sealed class ConsoleInput : Input<ConsoleContext, string>
 	{
 		private readonly ConsoleHandler _Console;
 		private readonly Dictionary<Guid, CancellationTokenSource> _Input = new();
@@ -25,7 +24,7 @@ namespace YACCS.Examples
 		protected override string GetInputString(string input)
 			=> input;
 
-		protected override async Task SubscribeAsync(IContext context, OnInput onInput)
+		protected override async Task SubscribeAsync(ConsoleContext context, OnInput onInput)
 		{
 			// Lock both input and output
 			// Input because we're using console input
@@ -57,7 +56,7 @@ namespace YACCS.Examples
 			_Input.Add(context.Id, source);
 		}
 
-		protected override Task UnsubscribeAsync(IContext context, OnInput onInput)
+		protected override Task UnsubscribeAsync(ConsoleContext context, OnInput onInput)
 		{
 			// Only release input lock since output lock gets released when command is done
 			_Console.ReleaseInputLock();

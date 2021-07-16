@@ -6,8 +6,10 @@ using YACCS.Commands;
 
 namespace YACCS.TypeReaders
 {
-	public interface ITypeReader<out T> : ITypeReader
+	public interface ITypeReader<out TValue> : ITypeReader
 	{
-		new ITask<ITypeReaderResult<T>> ReadAsync(IContext context, ReadOnlyMemory<string> input);
+		new ITask<ITypeReaderResult<TValue>> ReadAsync(
+			IContext context,
+			ReadOnlyMemory<string> input);
 	}
 }

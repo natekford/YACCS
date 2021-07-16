@@ -67,7 +67,7 @@ namespace YACCS.TypeReaders
 		public void RegisterWithNullable<T>(ITypeReader<T> item) where T : struct
 		{
 			Items[typeof(T)] = item;
-			Items[typeof(T?)] = new NullableTypeReader<T>(item);
+			Items[typeof(T?)] = new NullableTypeReader<T>();
 		}
 
 		public override bool TryGetValue(Type type, [NotNullWhen(true)] out ITypeReader reader)
