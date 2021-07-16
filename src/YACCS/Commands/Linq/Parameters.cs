@@ -134,7 +134,7 @@ namespace YACCS.Commands.Linq
 			ITypeReader? IParameter.TypeReader
 			{
 				get => _Actual.TypeReader;
-				set => _Actual.TypeReader = (ITypeReader<TValue>?)value;
+				set => _Actual.TypeReader = value;
 			}
 			private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
