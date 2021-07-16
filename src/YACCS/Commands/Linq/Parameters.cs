@@ -143,7 +143,7 @@ namespace YACCS.Commands.Linq
 				_Actual = actual;
 			}
 
-			public IImmutableParameter ToImmutable()
+			IImmutableParameter IParameter.ToImmutable()
 				=> _Actual.ToImmutable();
 		}
 	}

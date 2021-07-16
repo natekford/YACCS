@@ -98,10 +98,10 @@ namespace YACCS.Commands.Linq
 				_Actual = actual;
 			}
 
-			public IImmutableCommand ToImmutable()
+			IImmutableCommand ICommand.ToImmutable()
 				=> _Actual.ToImmutable();
 
-			public IAsyncEnumerable<IImmutableCommand> ToMultipleImmutableAsync(IServiceProvider services)
+			IAsyncEnumerable<IImmutableCommand> ICommand.ToMultipleImmutableAsync(IServiceProvider services)
 				=> _Actual.ToMultipleImmutableAsync(services);
 		}
 	}
