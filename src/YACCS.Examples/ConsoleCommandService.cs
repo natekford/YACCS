@@ -23,11 +23,11 @@ namespace YACCS.Examples
 		public ConsoleCommandService(
 			IServiceProvider services,
 			ICommandServiceConfig config,
-			IArgumentSplitter splitter,
+			IArgumentHandler handler,
 			IReadOnlyDictionary<Type, ITypeReader> readers,
 			ConsoleHandler console,
 			IEnumerable<Assembly> commandAssemblies)
-			: base(config, splitter, readers)
+			: base(config, handler, readers)
 		{
 			CommandAssemblies = commandAssemblies;
 			Console = console;

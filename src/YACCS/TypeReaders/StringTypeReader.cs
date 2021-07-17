@@ -13,7 +13,7 @@ namespace YACCS.TypeReaders
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
-			var handler = context.Services.GetRequiredService<IArgumentSplitter>();
+			var handler = context.Services.GetRequiredService<IArgumentHandler>();
 			return TypeReaderResult<string?>.FromSuccess(handler.Join(input)).AsITask();
 		}
 	}

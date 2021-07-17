@@ -14,15 +14,15 @@ namespace YACCS.Examples
 		private readonly IEnumerable<Assembly> _CommandAssemblies;
 		private readonly ICommandServiceConfig _Config;
 		private readonly ConsoleHandler _Console;
+		private readonly IArgumentHandler _Handler;
 		private readonly Localized<ConsoleCommandService> _Localized;
 		private readonly IReadOnlyDictionary<Type, ITypeReader> _Readers;
 		private readonly IServiceProvider _Services;
-		private readonly IArgumentSplitter _Splitter;
 
 		public ConsoleCommandServiceFactory(
 			IServiceProvider services,
 			ICommandServiceConfig config,
-			IArgumentSplitter splitter,
+			IArgumentHandler handler,
 			IReadOnlyDictionary<Type, ITypeReader> readers,
 			ConsoleHandler console,
 			IEnumerable<Assembly> commandAssemblies)
@@ -32,9 +32,9 @@ namespace YACCS.Examples
 			_Console = console;
 			_Readers = readers;
 			_Services = services;
-			_Splitter = splitter;
+			_Handler = handler;
 
-			_Localized = new(_ => new(_Services, _Config, _Splitter, _Readers, _Console, _CommandAssemblies));
+			_Localized = new(_ => new(_Services, _Config, _Handler, _Readers, _Console, _CommandAssemblies));
 		}
 
 		public ConsoleCommandService GetCommandService()

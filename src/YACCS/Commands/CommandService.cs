@@ -19,8 +19,8 @@ namespace YACCS.Commands
 		IReadOnlyCollection<IImmutableCommand> ICommandService.Commands => Commands;
 		protected IAsyncEvent<CommandExecutedEventArgs> CommandExecutedEvent { get; set; }
 		protected ICommandServiceConfig Config { get; set; }
+		protected IArgumentHandler Handler { get; set; }
 		protected IReadOnlyDictionary<Type, ITypeReader> Readers { get; set; }
-		protected IArgumentSplitter Splitter { get; set; }
 
 		public event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted
 		{
@@ -30,12 +30,12 @@ namespace YACCS.Commands
 
 		public CommandService(
 			ICommandServiceConfig config,
-			IArgumentSplitter splitter,
+			IArgumentHandler handler,
 			IReadOnlyDictionary<Type, ITypeReader> readers)
 		{
 			Config = config;
 			Readers = readers;
-			Splitter = splitter;
+			Handler = handler;
 
 			CommandExecutedEvent = new AsyncEvent<CommandExecutedEventArgs>();
 			Commands = new CommandTrie(readers, config);
@@ -43,7 +43,7 @@ namespace YACCS.Commands
 
 		public virtual ValueTask<ICommandResult> ExecuteAsync(IContext context, string input)
 		{
-			if (!Splitter.TrySplit(input, out var args))
+			if (!Handler.TrySplit(input, out var args))
 			{
 				return new(CommandScore.QuoteMismatch);
 			}
@@ -56,7 +56,7 @@ namespace YACCS.Commands
 
 		public virtual IReadOnlyList<IImmutableCommand> Find(string input)
 		{
-			if (!Splitter.TrySplit(input, out var args))
+			if (!Handler.TrySplit(input, out var args))
 			{
 				return Array.Empty<IImmutableCommand>();
 			}

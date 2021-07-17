@@ -6,7 +6,7 @@ using YACCS.Commands;
 
 namespace YACCS.Parsing
 {
-	public sealed class ArgumentSplitter : IArgumentSplitter
+	public sealed class ArgumentHandler : IArgumentHandler
 	{
 		private readonly IImmutableSet<char> _End;
 		private readonly char _Separator;
@@ -14,14 +14,14 @@ namespace YACCS.Parsing
 
 		public bool AllowEscaping { get; set; } = true;
 
-		public ArgumentSplitter(char separator, IImmutableSet<char> start, IImmutableSet<char> end)
+		public ArgumentHandler(char separator, IImmutableSet<char> start, IImmutableSet<char> end)
 		{
 			_Start = start;
 			_End = end;
 			_Separator = separator;
 		}
 
-		public ArgumentSplitter(ICommandServiceConfig config) : this(
+		public ArgumentHandler(ICommandServiceConfig config) : this(
 			config.Separator,
 			config.StartQuotes,
 			config.EndQuotes)
@@ -40,7 +40,7 @@ namespace YACCS.Parsing
 			return string.Join(_Separator, args.ToArray());
 		}
 
-		public bool TrySplit(ReadOnlySpan<char> input, [NotNullWhen(true)] out ReadOnlyMemory<string> args)
+		public bool TrySplit(ReadOnlySpan<char> input, out ReadOnlyMemory<string> args)
 		{
 			var result = TryParse(input, out var temp);
 			args = temp;

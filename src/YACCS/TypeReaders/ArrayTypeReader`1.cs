@@ -17,7 +17,7 @@ namespace YACCS.TypeReaders
 			// We don't need to handle having the correct context type because
 			// the type reader we retrieve handles that
 			var readers = context.Services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
-			var handler = context.Services.GetRequiredService<IArgumentSplitter>();
+			var handler = context.Services.GetRequiredService<IArgumentHandler>();
 
 			var reader = readers.GetTypeReader<TValue>();
 			var values = new List<TValue>(input.Length);
