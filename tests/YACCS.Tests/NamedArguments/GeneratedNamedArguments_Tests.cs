@@ -62,7 +62,7 @@ namespace YACCS.Tests.NamedArguments
 				$" {CommandsGroup.D}: {DOUBLE}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
-			Assert.IsInstanceOfType(result.InnerResult, typeof(ParseFailedResult<int>));
+			Assert.IsInstanceOfType(result.InnerResult, typeof(ParseFailedResult));
 		}
 
 		[TestMethod]

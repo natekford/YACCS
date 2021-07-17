@@ -12,8 +12,6 @@ namespace YACCS.TypeReaders
 	{
 		public Type ContextType => typeof(TContext);
 		public Type OutputType => typeof(TValue);
-		protected static ITask<ITypeReaderResult<TValue>> InvalidContext { get; }
-			= TypeReaderResult<TValue>.FromError(InvalidContextResult.Instance).AsITask();
 
 		public abstract ITask<ITypeReaderResult<TValue>> ReadAsync(
 			TContext context,
@@ -35,7 +33,7 @@ namespace YACCS.TypeReaders
 		{
 			if (context is not TContext tContext)
 			{
-				return InvalidContext;
+				return CachedResults<TValue>.InvalidContextTask;
 			}
 			return ReadAsync(tContext, input);
 		}

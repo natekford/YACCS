@@ -5,6 +5,8 @@ using MorseCode.ITask;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
+using YACCS.Parsing;
+using YACCS.Results;
 
 namespace YACCS.TypeReaders
 {
@@ -28,12 +30,12 @@ namespace YACCS.TypeReaders
 			ReadOnlyMemory<string> input)
 		{
 			var commands = context.Services.GetRequiredService<ICommandService>();
-			var found = commands.Find(input.Span[0]);
+			var found = commands.Find(input);
 			if (found.Count > 0)
 			{
 				return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.FromSuccess(found).AsITask();
 			}
-			return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.FailureInstance;
+			return CachedResults<IReadOnlyList<IImmutableCommand>>.ParseFailedTask;
 		}
 	}
 }

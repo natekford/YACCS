@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Models;
@@ -12,6 +13,6 @@ namespace YACCS.Commands
 
 		ValueTask<ICommandResult> ExecuteAsync(IContext context, string input);
 
-		IReadOnlyList<IImmutableCommand> Find(string input);
+		IReadOnlyList<IImmutableCommand> Find(ReadOnlyMemory<string> input);
 	}
 }

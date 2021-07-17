@@ -1,9 +1,33 @@
 ﻿using System;
 
+using MorseCode.ITask;
+
 using YACCS.Localization;
+using YACCS.TypeReaders;
 
 namespace YACCS.Results
 {
+	public static class CachedResults<TValue>
+	{
+		public static ITypeReaderResult<TValue> Canceled { get; }
+			= TypeReaderResult<TValue>.FromError(CanceledResult.Instance);
+
+		public static ITypeReaderResult<TValue> InvalidContext { get; }
+			= TypeReaderResult<TValue>.FromError(InvalidContextResult.Instance);
+
+		public static ITask<ITypeReaderResult<TValue>> InvalidContextTask { get; }
+			= InvalidContext.AsITask();
+
+		public static ITypeReaderResult<TValue> ParseFailed { get; }
+			= TypeReaderResult<TValue>.FromError(new ParseFailedResult(typeof(TValue)));
+
+		public static ITask<ITypeReaderResult<TValue>> ParseFailedTask { get; }
+			= ParseFailed.AsITask();
+
+		public static ITypeReaderResult<TValue> TimedOut { get; }
+			= TypeReaderResult<TValue>.FromError(TimedOutResult.Instance);
+	}
+
 	public class CanceledResult : LocalizedResult
 	{
 		public static CanceledResult Instance { get; } = new();
@@ -154,22 +178,13 @@ namespace YACCS.Results
 		public override string Response => ToString(null, null);
 		public Type Type { get; }
 
-		protected ParseFailedResult(Type type) : base(false, Keys.ParseFailedResult)
+		public ParseFailedResult(Type type) : base(false, Keys.ParseFailedResult)
 		{
 			Type = type;
 		}
 
 		public string ToString(string? ignored, IFormatProvider? formatProvider)
 			=> string.Format(formatProvider, base.Response, Type);
-	}
-
-	public class ParseFailedResult<T> : ParseFailedResult
-	{
-		public static ParseFailedResult<T> Instance { get; } = new();
-
-		public ParseFailedResult() : base(typeof(T))
-		{
-		}
 	}
 
 	public class QuoteMismatchResult : LocalizedResult

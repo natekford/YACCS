@@ -3,6 +3,7 @@
 using MorseCode.ITask;
 
 using YACCS.Commands;
+using YACCS.Results;
 
 namespace YACCS.TypeReaders
 {
@@ -17,7 +18,7 @@ namespace YACCS.TypeReaders
 			// In case someone ever calls this directly this should remain
 			if (context is not TContext tContext)
 			{
-				return InvalidContext;
+				return CachedResults<TContext>.InvalidContextTask;
 			}
 			return TypeReaderResult<TContext>.FromSuccess(tContext).AsITask();
 		}

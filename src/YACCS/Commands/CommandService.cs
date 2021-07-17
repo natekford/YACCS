@@ -54,21 +54,17 @@ namespace YACCS.Commands
 			return PrivateExecuteAsync(context, args);
 		}
 
-		public virtual IReadOnlyList<IImmutableCommand> Find(string input)
+		public virtual IReadOnlyList<IImmutableCommand> Find(ReadOnlyMemory<string> input)
 		{
-			if (!Handler.TrySplit(input, out var args))
-			{
-				return Array.Empty<IImmutableCommand>();
-			}
-
 			var node = Commands.Root;
-			for (var i = 0; i < args.Length; ++i)
+			var span = input.Span;
+			for (var i = 0; i < input.Length; ++i)
 			{
-				if (!node.TryGetEdge(args.Span[i], out node))
+				if (!node.TryGetEdge(span[i], out node))
 				{
 					break;
 				}
-				if (i == args.Length - 1)
+				if (i == input.Length - 1)
 				{
 					// Generated items have a source and that source gives them the same
 					// names/properties, so they should be ignored since they are copies

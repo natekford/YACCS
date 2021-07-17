@@ -5,6 +5,7 @@ using MorseCode.ITask;
 
 using YACCS.Commands;
 using YACCS.Parsing;
+using YACCS.Results;
 
 namespace YACCS.TypeReaders
 {
@@ -30,7 +31,7 @@ namespace YACCS.TypeReaders
 			{
 				return TypeReaderResult<TValue>.FromSuccess(result).AsITask();
 			}
-			return TypeReaderResult<TValue>.FailureInstance;
+			return CachedResults<TValue>.ParseFailedTask;
 		}
 	}
 }

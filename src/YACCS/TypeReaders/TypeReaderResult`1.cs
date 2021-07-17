@@ -11,9 +11,6 @@ namespace YACCS.TypeReaders
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public class TypeReaderResult<T> : ITypeReaderResult<T>
 	{
-		public static ITask<ITypeReaderResult<T>> FailureInstance { get; }
-			= FromError(ParseFailedResult<T>.Instance).AsITask();
-
 		public IResult InnerResult { get; }
 		[MaybeNull]
 		public T Value { get; }
