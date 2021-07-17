@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 
 using YACCS.Commands;
-using YACCS.Commands.Models;
 using YACCS.Results;
 
 namespace YACCS.Preconditions
@@ -10,10 +9,6 @@ namespace YACCS.Preconditions
 		: IParameterPrecondition<TValue>
 		where TContext : IContext
 	{
-		ValueTask<IResult> CheckAsync(
-			IImmutableCommand command,
-			IImmutableParameter parameter,
-			TContext context,
-			TValue? value);
+		ValueTask<IResult> CheckAsync(CommandMeta meta, TContext context, TValue? value);
 	}
 }

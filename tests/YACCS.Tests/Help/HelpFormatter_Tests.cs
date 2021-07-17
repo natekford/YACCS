@@ -208,8 +208,7 @@ Parameters:{TRAILING}
 			public const string SUMMARY = "The passed in value is less than or equal to 100.";
 
 			public ValueTask<IResult> CheckAsync(
-				IImmutableCommand command,
-				IImmutableParameter parameter,
+				CommandMeta meta,
 				IContext context,
 				int value)
 			{
@@ -221,11 +220,10 @@ Parameters:{TRAILING}
 			}
 
 			protected override ValueTask<IResult> CheckAsync(
-				IImmutableCommand command,
-				IImmutableParameter parameter,
+				CommandMeta meta,
 				IContext context,
 				object? value)
-				=> this.CheckAsync<IContext, int>(command, parameter, context, value, CheckAsync);
+				=> this.CheckAsync<IContext, int>(meta, context, value, CheckAsync);
 		}
 	}
 }

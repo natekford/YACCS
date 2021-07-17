@@ -7,6 +7,7 @@ using MorseCode.ITask;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Parsing;
+using YACCS.Preconditions;
 using YACCS.Results;
 using YACCS.TypeReaders;
 
@@ -195,8 +196,9 @@ namespace YACCS.Commands
 					return CommandScore.FromFailedOptionalArgs(command, parameter, context, currentIndex - 1);
 				}
 
+				var meta = new CommandMeta(command, parameter);
 				var ppResult = await parameter.Preconditions
-					.ProcessAsync(x => x.CheckAsync(command, parameter, context, value))
+					.ProcessAsync(x => x.CheckAsync(meta, context, value))
 					.ConfigureAwait(false);
 				if (!ppResult.IsSuccess)
 				{

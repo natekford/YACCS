@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 
 using YACCS.Commands;
-using YACCS.Commands.Models;
 using YACCS.Results;
 
 namespace YACCS.Preconditions
@@ -12,15 +11,13 @@ namespace YACCS.Preconditions
 		: GroupablePreconditionAttribute, IParameterPrecondition
 	{
 		ValueTask<IResult> IParameterPrecondition.CheckAsync(
-			IImmutableCommand command,
-			IImmutableParameter parameter,
+			CommandMeta meta,
 			IContext context,
 			object? value)
-			=> CheckAsync(command, parameter, context, value);
+			=> CheckAsync(meta, context, value);
 
 		protected abstract ValueTask<IResult> CheckAsync(
-			IImmutableCommand command,
-			IImmutableParameter parameter,
+			CommandMeta meta,
 			IContext context,
 			object? value);
 	}

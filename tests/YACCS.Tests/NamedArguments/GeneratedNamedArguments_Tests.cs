@@ -216,8 +216,7 @@ namespace YACCS.Tests.NamedArguments
 		private class NotNegative : ParameterPreconditionAttribute
 		{
 			public ValueTask<IResult> CheckAsync(
-				IImmutableCommand command,
-				IImmutableParameter parameter,
+				CommandMeta meta,
 				IContext context,
 				int value)
 			{
@@ -229,11 +228,10 @@ namespace YACCS.Tests.NamedArguments
 			}
 
 			protected override ValueTask<IResult> CheckAsync(
-				IImmutableCommand command,
-				IImmutableParameter parameter,
+				CommandMeta meta,
 				IContext context,
 				object? value)
-				=> this.CheckAsync<IContext, int>(command, parameter, context, value, CheckAsync);
+				=> this.CheckAsync<IContext, int>(meta, context, value, CheckAsync);
 		}
 
 		private class SetMe

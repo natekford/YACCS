@@ -12,8 +12,6 @@ using YACCS.Commands.Models;
 using YACCS.Preconditions;
 using YACCS.Results;
 
-using ParameterFactory = YACCS.Commands.Linq.Parameters;
-
 namespace YACCS.NamedArguments
 {
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
@@ -42,7 +40,8 @@ namespace YACCS.NamedArguments
 			var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(1);
 			try
 			{
-				var parameter = ParameterFactory.Create<IDictionary<string, object?>>("NamedArgDictionary")
+				var parameter = Commands.Linq.Parameters
+					.Create<Dictionary<string, object?>>("NamedArgDictionary")
 					.AddParameterPrecondition(new GeneratedNamedParameterPrecondition(Source))
 					.SetTypeReader(new GeneratedNamedTypeReader(Source))
 					.AddAttribute(new RemainderAttribute())
@@ -59,10 +58,10 @@ namespace YACCS.NamedArguments
 
 		public ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
 		{
-			IDictionary<string, object?> values;
+			Dictionary<string, object?> values;
 			try
 			{
-				values = (IDictionary<string, object?>)args.Single()!;
+				values = (Dictionary<string, object?>)args.Single()!;
 			}
 			catch (Exception e)
 			{
@@ -84,7 +83,7 @@ namespace YACCS.NamedArguments
 				}
 				else
 				{
-					// This should never really be reachable due to GeneratedNamedParameterPrecondition
+					// This should never really be reachable due to the parameter precondition
 					// already checking for undefined values
 					throw new InvalidOperationException(
 						$"Missing value for the parameter '{parameter.OriginalParameterName}' " +
@@ -95,21 +94,20 @@ namespace YACCS.NamedArguments
 		}
 
 		private class GeneratedNamedParameterPrecondition
-			: NamedArgumentsParameterPreconditionBase<IDictionary<string, object?>>
+			: NamedArgumentsParameterPreconditionBase<Dictionary<string, object?>>
 		{
 			protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
 			public GeneratedNamedParameterPrecondition(IImmutableCommand command)
 			{
 				Parameters = command.Parameters
-					.ToDictionary(x => x.OriginalParameterName, StringComparer.OrdinalIgnoreCase);
+					.ToImmutableDictionary(x => x.OriginalParameterName, StringComparer.OrdinalIgnoreCase);
 			}
 
 			public override ValueTask<IResult> CheckAsync(
-				IImmutableCommand command,
-				IImmutableParameter parameter,
+				CommandMeta meta,
 				IContext context,
-				IDictionary<string, object?>? value)
+				Dictionary<string, object?>? value)
 			{
 				if (value is null)
 				{
@@ -123,11 +121,11 @@ namespace YACCS.NamedArguments
 						return new(new NamedArgMissingValueResult(kvp.Key));
 					}
 				}
-				return base.CheckAsync(command, parameter, context, value);
+				return base.CheckAsync(meta, context, value);
 			}
 
 			protected override object? Getter(
-				IDictionary<string, object?> instance,
+				Dictionary<string, object?> instance,
 				string property)
 				=> instance[property];
 		}
@@ -140,7 +138,7 @@ namespace YACCS.NamedArguments
 			public GeneratedNamedTypeReader(IImmutableCommand command)
 			{
 				Parameters = command.Parameters
-					.ToDictionary(x => x.ParameterName, StringComparer.OrdinalIgnoreCase);
+					.ToImmutableDictionary(x => x.ParameterName, StringComparer.OrdinalIgnoreCase);
 			}
 
 			protected override void Setter(

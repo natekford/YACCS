@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 
 using YACCS.Commands;
-using YACCS.Commands.Models;
 using YACCS.Preconditions;
 using YACCS.Results;
 
@@ -24,8 +23,7 @@ namespace YACCS.Examples.Preconditions
 		}
 
 		public override ValueTask<IResult> CheckAsync(
-			IImmutableCommand command,
-			IImmutableParameter parameter,
+			CommandMeta meta,
 			IContext context,
 			[MaybeNull] int value)
 		{

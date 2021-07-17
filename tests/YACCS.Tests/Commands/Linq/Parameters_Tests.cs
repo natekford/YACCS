@@ -167,8 +167,7 @@ namespace YACCS.Tests.Commands.Linq
 			private static readonly IResult _Failure = new FailureResult(_Message);
 
 			public override ValueTask<IResult> CheckAsync(
-				IImmutableCommand command,
-				IImmutableParameter parameter,
+				CommandMeta meta,
 				FakeContext context,
 				[MaybeNull] int value)
 			{

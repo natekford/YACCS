@@ -51,11 +51,11 @@ namespace YACCS.Interactivity.Input
 					return trResult.InnerResult;
 				}
 
+				var meta = new CommandMeta(EmptyCommand, EmptyParameter<TValue>.Instance);
 				foreach (var precondition in options.Preconditions)
 				{
 					var result = await precondition.CheckAsync(
-						EmptyCommand,
-						EmptyParameter<TValue>.Instance,
+						meta,
 						context,
 						trResult.Value
 					).ConfigureAwait(false);

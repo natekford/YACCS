@@ -48,8 +48,8 @@ namespace YACCS.Commands.Linq
 			return new Parameter<TValue>(parameter);
 		}
 
-		public static IParameter<T> Create<T>(string name)
-			=> new Parameter(typeof(T), name, null).AsType<T>();
+		public static IParameter<TValue> Create<TValue>(string name)
+			=> new Parameter(typeof(TValue), name, null).AsType<TValue>();
 
 		public static IEnumerable<IParameter<TValue>> GetParametersByType<TValue>(
 			this IEnumerable<IParameter> parameters)
@@ -82,8 +82,7 @@ namespace YACCS.Commands.Linq
 			return parameter;
 		}
 
-		public static TParameter RemoveTypeReader<TParameter>(
-			this TParameter parameter)
+		public static TParameter RemoveTypeReader<TParameter>(this TParameter parameter)
 			where TParameter : IParameter
 		{
 			parameter.TypeReader = null;

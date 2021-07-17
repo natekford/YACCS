@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 
 using YACCS.Commands;
-using YACCS.Commands.Models;
 using YACCS.Help.Attributes;
 using YACCS.Localization;
 using YACCS.Preconditions;
@@ -14,11 +13,7 @@ namespace YACCS.Examples.Preconditions
 	{
 		public virtual string FallbackErrorMessage { get; set; } = "Cannot be zero.";
 
-		public ValueTask<IResult> CheckAsync(
-			IImmutableCommand command,
-			IImmutableParameter parameter,
-			IContext context,
-			int value)
+		public ValueTask<IResult> CheckAsync(CommandMeta meta, IContext context, int value)
 		{
 			if (value == 0)
 			{
@@ -31,11 +26,10 @@ namespace YACCS.Examples.Preconditions
 			=> new(GetErrorMessage());
 
 		protected override ValueTask<IResult> CheckAsync(
-			IImmutableCommand command,
-			IImmutableParameter parameter,
+			CommandMeta meta,
 			IContext context,
 			object? value)
-			=> this.CheckAsync<IContext, int>(command, parameter, context, value, CheckAsync);
+			=> this.CheckAsync<IContext, int>(meta, context, value, CheckAsync);
 
 		private string GetErrorMessage()
 			=> Localize.This("NotZero", FallbackErrorMessage);

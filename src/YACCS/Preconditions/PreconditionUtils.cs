@@ -10,8 +10,7 @@ using YACCS.Results;
 namespace YACCS.Preconditions
 {
 	public delegate ValueTask<IResult> CheckAsync<TContext, TValue>(
-		IImmutableCommand command,
-		IImmutableParameter parameter,
+		CommandMeta meta,
 		TContext context,
 		TValue value);
 
@@ -22,8 +21,7 @@ namespace YACCS.Preconditions
 
 		public static ValueTask<IResult> CheckAsync<TContext, TValue>(
 			this IParameterPrecondition _,
-			IImmutableCommand command,
-			IImmutableParameter parameter,
+			CommandMeta meta,
 			IContext context,
 			object? value,
 			CheckAsync<TContext, TValue> checkAsync)
@@ -34,12 +32,12 @@ namespace YACCS.Preconditions
 			}
 			if (value is TValue tValue)
 			{
-				return checkAsync(command, parameter, tContext, tValue);
+				return checkAsync(meta, tContext, tValue);
 			}
 			// If the value passed in is null, let checkAsync deal with it
 			if (value is null)
 			{
-				return checkAsync(command, parameter, tContext, default!);
+				return checkAsync(meta, tContext, default!);
 			}
 			// Not sure if this is the best way of dealing with IEnumerables
 			//
@@ -47,7 +45,7 @@ namespace YACCS.Preconditions
 			// because I don't want to make the interfaces dependent upon PreconditionCache
 			if (value is IEnumerable<TValue> tValues)
 			{
-				return CheckAsync(command, parameter, tContext, tValues, checkAsync);
+				return CheckAsync(meta, tContext, tValues, checkAsync);
 			}
 			// Use the non generic interface to handle non nullable arrays
 			// passed to nullable preconditions
@@ -56,7 +54,7 @@ namespace YACCS.Preconditions
 			// 'null is int?' returns false
 			if (value is IEnumerable tUntypedValues)
 			{
-				return CheckAsync(command, parameter, tContext, tUntypedValues, checkAsync);
+				return CheckAsync(meta, tContext, tUntypedValues, checkAsync);
 			}
 			return new(InvalidParameterResult.Instance);
 		}
@@ -93,15 +91,14 @@ namespace YACCS.Preconditions
 		}
 
 		private static async ValueTask<IResult> CheckAsync<TContext, TValue>(
-			IImmutableCommand command,
-			IImmutableParameter parameter,
+			CommandMeta meta,
 			TContext context,
 			IEnumerable<TValue> values,
 			CheckAsync<TContext, TValue> checkAsync)
 		{
 			foreach (var value in values)
 			{
-				var result = await checkAsync(command, parameter, context, value).ConfigureAwait(false);
+				var result = await checkAsync(meta, context, value).ConfigureAwait(false);
 				if (!result.IsSuccess)
 				{
 					return result;
@@ -111,8 +108,7 @@ namespace YACCS.Preconditions
 		}
 
 		private static async ValueTask<IResult> CheckAsync<TContext, TValue>(
-			IImmutableCommand command,
-			IImmutableParameter parameter,
+			CommandMeta meta,
 			TContext context,
 			IEnumerable values,
 			CheckAsync<TContext, TValue> checkAsync)
@@ -125,7 +121,7 @@ namespace YACCS.Preconditions
 					return InvalidParameterResult.Instance;
 				}
 
-				var result = await checkAsync(command, parameter, context, tValue!).ConfigureAwait(false);
+				var result = await checkAsync(meta, context, tValue!).ConfigureAwait(false);
 				if (!result.IsSuccess)
 				{
 					return result;
