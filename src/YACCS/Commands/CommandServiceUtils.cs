@@ -75,27 +75,9 @@ namespace YACCS.Commands
 			IServiceProvider services)
 			=> assembly.GetExportedTypes().GetDirectCommandsAsync(services);
 
-		public static IEnumerable<Exception> GetAllExceptions(this CommandExecutedEventArgs e)
-		{
-			var enumerable = Enumerable.Empty<Exception>();
-			if (e.BeforeExceptions is not null)
-			{
-				enumerable = enumerable.Concat(e.BeforeExceptions);
-			}
-			if (e.DuringException is not null)
-			{
-				enumerable = enumerable.Append(e.DuringException);
-			}
-			if (e.AfterExceptions is not null)
-			{
-				enumerable = enumerable.Concat(e.AfterExceptions);
-			}
-			return enumerable;
-		}
-
-		public static IReadOnlyCollection<TValue> GetAllItems<TKey, TValue>(
+		public static IReadOnlyCollection<TValue> GetAllDistinctItems<TKey, TValue>(
 			this INode<TKey, TValue> node,
-			Predicate<TValue>? predicate = null)
+			Func<TValue, bool>? predicate = null)
 		{
 			static IEnumerable<TValue> GetItems(INode<TKey, TValue> node)
 			{
@@ -123,6 +105,24 @@ namespace YACCS.Commands
 				}
 			}
 			return set;
+		}
+
+		public static IEnumerable<Exception> GetAllExceptions(this CommandExecutedEventArgs e)
+		{
+			var enumerable = Enumerable.Empty<Exception>();
+			if (e.BeforeExceptions is not null)
+			{
+				enumerable = enumerable.Concat(e.BeforeExceptions);
+			}
+			if (e.DuringException is not null)
+			{
+				enumerable = enumerable.Append(e.DuringException);
+			}
+			if (e.AfterExceptions is not null)
+			{
+				enumerable = enumerable.Concat(e.AfterExceptions);
+			}
+			return enumerable;
 		}
 
 		public static async IAsyncEnumerable<IImmutableCommand> GetDirectCommandsAsync(

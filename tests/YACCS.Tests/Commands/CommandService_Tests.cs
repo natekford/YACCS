@@ -25,7 +25,7 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public void AddAndRemove_Test()
 		{
-			var commandService = Utils.CreateServices().Get<CommandService>();
+			var commandService = Utils.CreateServices().Get<ICommandService>();
 			var trie = (ITrie<string, IImmutableCommand>)commandService.Commands;
 
 			var c1 = FakeDelegateCommand.New()
@@ -50,7 +50,7 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public void AddWithParameters_Test()
 		{
-			var commandService = Utils.CreateServices().Get<CommandService>();
+			var commandService = Utils.CreateServices().Get<ICommandService>();
 			var trie = (ITrie<string, IImmutableCommand>)commandService.Commands;
 
 			static void Method(Fake x) { }

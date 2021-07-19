@@ -59,7 +59,7 @@ namespace YACCS.Commands
 				{
 					// Generated items have a source and that source gives them the same
 					// names/properties, so they should be ignored since they are copies
-					return node.GetAllItems(x => x.Source is null);
+					return node.GetAllDistinctItems(x => x.Source is null);
 				}
 			}
 
