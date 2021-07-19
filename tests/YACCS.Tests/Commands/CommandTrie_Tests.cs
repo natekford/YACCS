@@ -21,7 +21,7 @@ namespace YACCS.Tests.Commands
 			= new(new TypeReaderRegistry(), CommandServiceConfig.Instance);
 
 		[TestMethod]
-		public void AddAndRemove_Tests()
+		public void AddAndRemove_Test()
 		{
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new[] { "1" })
@@ -118,7 +118,7 @@ namespace YACCS.Tests.Commands
 		}
 
 		[TestMethod]
-		public void Duplicate_Tests()
+		public void Duplicate_Test()
 		{
 			var c1 = FakeDelegateCommand.New()
 				.AddName(new[] { "a" })

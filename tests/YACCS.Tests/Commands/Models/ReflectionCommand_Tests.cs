@@ -15,7 +15,7 @@ namespace YACCS.Tests.Commands.Models
 	public class ReflectionCommand_Tests
 	{
 		[TestMethod]
-		public async Task GroupInjection_Tests()
+		public async Task GroupInjection_Test()
 		{
 			var method = typeof(GroupInjection)
 				.GetMethod(nameof(GroupInjection.CommandAsync));
