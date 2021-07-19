@@ -27,22 +27,15 @@ namespace YACCS.Examples
 				SingleWriter = true,
 				AllowSynchronousContinuations = false,
 			});
-			_ = Task.Run(async () =>
+			_ = Task.Run(WriteToChannelAsync);
+		}
+
+		private async Task WriteToChannelAsync()
+		{
+			while (true)
 			{
-#if false
-				var writer = new TrackingReadLineTextWriter(Console.Out);
-				Console.SetOut(writer);
-				while (true)
-				{
-					await _Channel.Writer.WriteAsync(writer.ReadLine()).ConfigureAwait(false);
-				}
-#else
-				while (true)
-				{
-					await _Channel.Writer.WriteAsync(Console.ReadLine()).ConfigureAwait(false);
-				}
-#endif
-			});
+				await _Channel.Writer.WriteAsync(Console.ReadLine()).ConfigureAwait(false);
+			}
 		}
 
 		public async Task<string?> ReadLineAsync()
