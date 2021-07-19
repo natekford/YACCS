@@ -28,6 +28,7 @@ namespace YACCS.Tests.Commands
 				.ToImmutable();
 			Assert.AreEqual(1, _Trie.Add(c1));
 			Assert.AreEqual(1, _Trie.Count);
+			Assert.AreEqual(1, _Trie.Root.Edges.Count);
 			Assert.AreEqual(1, _Trie.Root["1"].GetAllDistinctItems().Count);
 			Assert.AreEqual(1, _Trie.Root["1"].Items.Count);
 
@@ -37,6 +38,7 @@ namespace YACCS.Tests.Commands
 				.ToImmutable();
 			Assert.AreEqual(2, _Trie.Add(c2));
 			Assert.AreEqual(2, _Trie.Count);
+			Assert.AreEqual(3, _Trie.Root.Edges.Count);
 			Assert.AreEqual(1, _Trie.Root["2"].GetAllDistinctItems().Count);
 			Assert.AreEqual(1, _Trie.Root["2"].Items.Count);
 			Assert.AreEqual(1, _Trie.Root["3"].GetAllDistinctItems().Count);
@@ -49,6 +51,7 @@ namespace YACCS.Tests.Commands
 				.ToImmutable();
 			Assert.AreEqual(3, _Trie.Add(c3));
 			Assert.AreEqual(3, _Trie.Count);
+			Assert.AreEqual(4, _Trie.Root.Edges.Count);
 			Assert.AreEqual(1, _Trie.Root["4"].GetAllDistinctItems().Count);
 			Assert.AreEqual(0, _Trie.Root["4"].Items.Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["1"].GetAllDistinctItems().Count);
@@ -60,6 +63,7 @@ namespace YACCS.Tests.Commands
 				.ToImmutable();
 			Assert.AreEqual(1, _Trie.Add(c4));
 			Assert.AreEqual(4, _Trie.Count);
+			Assert.AreEqual(4, _Trie.Root.Edges.Count);
 			Assert.AreEqual(2, _Trie.Root["4"].GetAllDistinctItems().Count);
 			Assert.AreEqual(0, _Trie.Root["4"].Items.Count);
 			Assert.AreEqual(2, _Trie.Root["4"]["1"].GetAllDistinctItems().Count);
@@ -72,6 +76,7 @@ namespace YACCS.Tests.Commands
 				.ToImmutable();
 			((ICollection<IImmutableCommand>)_Trie).Add(c5);
 			Assert.AreEqual(5, _Trie.Count);
+			Assert.AreEqual(5, _Trie.Root.Edges.Count);
 			Assert.AreEqual(1, _Trie.Root["5"].GetAllDistinctItems().Count);
 			Assert.AreEqual(1, _Trie.Root["5"].Items.Count);
 
@@ -80,6 +85,7 @@ namespace YACCS.Tests.Commands
 				.ToImmutable();
 			Assert.AreEqual(1, _Trie.Remove(c4));
 			Assert.AreEqual(1, _Trie.Add(c6));
+			Assert.AreEqual(5, _Trie.Root.Edges.Count);
 			Assert.AreEqual(2, _Trie.Root["4"].GetAllDistinctItems().Count);
 			Assert.AreEqual(1, _Trie.Root["4"].Items.Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["1"].GetAllDistinctItems().Count);
@@ -89,6 +95,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsTrue(((ICollection<IImmutableCommand>)_Trie).Remove(c6));
 			Assert.AreEqual(1, _Trie.Root["4"].GetAllDistinctItems().Count);
 			Assert.AreEqual(0, _Trie.Root["4"].Items.Count);
+			Assert.AreEqual(5, _Trie.Root.Edges.Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["1"].GetAllDistinctItems().Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["2"].GetAllDistinctItems().Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["3"].GetAllDistinctItems().Count);
@@ -97,8 +104,30 @@ namespace YACCS.Tests.Commands
 			var c7 = FakeDelegateCommand.New().ToImmutable();
 			Assert.AreEqual(0, _Trie.Remove(c7));
 
+			var items = new List<IImmutableCommand>();
+			foreach (var item in _Trie)
+			{
+				items.Add(item);
+				_Trie.Remove(item);
+			}
+			Assert.AreEqual(0, _Trie.Count);
+			Assert.AreEqual(0, _Trie.Root.Edges.Count);
+
+			foreach (var item in items)
+			{
+				_Trie.Add(item);
+			}
+			Assert.AreEqual(1, _Trie.Root["4"].GetAllDistinctItems().Count);
+			Assert.AreEqual(0, _Trie.Root["4"].Items.Count);
+			Assert.AreEqual(5, _Trie.Root.Edges.Count);
+			Assert.AreEqual(1, _Trie.Root["4"]["1"].GetAllDistinctItems().Count);
+			Assert.AreEqual(1, _Trie.Root["4"]["2"].GetAllDistinctItems().Count);
+			Assert.AreEqual(1, _Trie.Root["4"]["3"].GetAllDistinctItems().Count);
+			Assert.AreEqual(1, _Trie.Root["4"].GetAllDistinctItems().Count);
+
 			_Trie.Clear();
 			Assert.AreEqual(0, _Trie.Count);
+			Assert.AreEqual(0, _Trie.Root.Edges.Count);
 		}
 
 		[TestMethod]

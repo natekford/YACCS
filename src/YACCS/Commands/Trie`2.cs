@@ -23,7 +23,7 @@ namespace YACCS.Commands
 		{
 			_Comparer = comparer;
 			_Items = new();
-			_Root = new(default, null, comparer);
+			_Root = new(default!, null, comparer);
 		}
 
 		public virtual int Add(TValue item)
@@ -72,7 +72,7 @@ namespace YACCS.Commands
 		public IEnumerator<TValue> GetEnumerator()
 			=> Items.GetEnumerator();
 
-		public virtual int Remove(TValue item)
+		public int Remove(TValue item)
 		{
 			var removed = 0;
 			if (_Items.TryRemove(item, out _))
@@ -112,7 +112,7 @@ namespace YACCS.Commands
 		{
 			private readonly ConcurrentDictionary<TKey, Node> _Edges;
 			private readonly ConcurrentDictionary<TValue, byte> _Items;
-			private readonly TKey? _Key;
+			private readonly TKey _Key;
 			private readonly Node? _Parent;
 
 			public IReadOnlyCollection<TValue> Items
@@ -125,7 +125,7 @@ namespace YACCS.Commands
 				get
 				{
 					var path = string.Empty;
-					for (var node = this; node is not null; node = node._Parent)
+					for (var node = this; node._Parent is not null; node = node._Parent)
 					{
 						path = $"{node._Key} {path}";
 					}
@@ -145,7 +145,7 @@ namespace YACCS.Commands
 			INode<TKey, TValue> INode<TKey, TValue>.this[TKey key]
 				=> this[key];
 
-			public Node(TKey? key, Node? parent, IEqualityComparer<TKey> stringComparer)
+			public Node(TKey key, Node? parent, IEqualityComparer<TKey> stringComparer)
 			{
 				_Edges = new(stringComparer);
 				_Items = new();
@@ -172,11 +172,11 @@ namespace YACCS.Commands
 				if (isRemoved)
 				{
 					// Kill all empty nodes
-					for (var node = this; node is not null; node = node._Parent)
+					for (var node = this; node._Parent is not null; node = node._Parent)
 					{
 						if (node._Items.Count == 0 && node._Edges.Count == 0)
 						{
-							node._Parent?._Edges?.TryRemove(node._Key!, out _);
+							node._Parent._Edges.TryRemove(node._Key, out _);
 						}
 					}
 				}
