@@ -93,20 +93,10 @@ namespace YACCS.Commands
 			return enumerable;
 		}
 
-		public static IReadOnlyList<TValue> GetAllItems<TKey, TValue>(
+		public static IReadOnlyCollection<TValue> GetAllItems<TKey, TValue>(
 			this INode<TKey, TValue> node,
 			Predicate<TValue>? predicate = null)
 		{
-			static int GetMaximumSize(INode<TKey, TValue> node)
-			{
-				var size = node.Items.Count;
-				foreach (var edge in node.Edges)
-				{
-					size += GetMaximumSize(edge);
-				}
-				return size;
-			}
-
 			static IEnumerable<TValue> GetItems(INode<TKey, TValue> node)
 			{
 				foreach (var item in node.Items)
@@ -124,7 +114,7 @@ namespace YACCS.Commands
 
 			predicate ??= _ => true;
 
-			var set = new HashSet<TValue>(GetMaximumSize(node));
+			var set = new HashSet<TValue>();
 			foreach (var item in GetItems(node))
 			{
 				if (predicate(item))
@@ -132,8 +122,7 @@ namespace YACCS.Commands
 					set.Add(item);
 				}
 			}
-
-			return set.ToImmutableArray();
+			return set;
 		}
 
 		public static async IAsyncEnumerable<IImmutableCommand> GetDirectCommandsAsync(

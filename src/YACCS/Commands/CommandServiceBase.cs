@@ -15,7 +15,7 @@ namespace YACCS.Commands
 {
 	public abstract class CommandServiceBase : ICommandService
 	{
-		public ITrie<string, IImmutableCommand> Commands { get; protected set; }
+		public ITrie<string, IImmutableCommand> Commands { get; set; }
 		IReadOnlyCollection<IImmutableCommand> ICommandService.Commands => Commands;
 		protected ICommandServiceConfig Config { get; set; }
 		protected IArgumentHandler Handler { get; set; }
@@ -45,7 +45,7 @@ namespace YACCS.Commands
 			return PrivateExecuteAsync(context, args);
 		}
 
-		public virtual IReadOnlyList<IImmutableCommand> Find(ReadOnlyMemory<string> input)
+		public virtual IReadOnlyCollection<IImmutableCommand> Find(ReadOnlyMemory<string> input)
 		{
 			var node = Commands.Root;
 			var span = input.Span;

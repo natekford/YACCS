@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
@@ -32,10 +33,14 @@ namespace YACCS.Examples.Commands
 		}
 
 		[Command]
-		public async Task<IResult> HelpCommand(IReadOnlyList<IImmutableCommand> commands)
+		public async Task<IResult> HelpCommand(IReadOnlyCollection<IImmutableCommand> commands)
 		{
-			var command = commands[0];
-			if (commands.Count > 1)
+			IImmutableCommand command;
+			if (commands.Count == 1)
+			{
+				command = commands.First();
+			}
+			else
 			{
 				Console.WriteLine("Enter the position of the command you want to see: ");
 				var i = 0;
@@ -54,7 +59,7 @@ namespace YACCS.Examples.Commands
 					return result.InnerResult;
 				}
 
-				command = commands[result.Value - 1];
+				command = commands.ElementAt(result.Value - 1);
 			}
 
 			Console.WriteLine();

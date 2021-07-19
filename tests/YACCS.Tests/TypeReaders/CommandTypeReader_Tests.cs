@@ -11,9 +11,9 @@ using YACCS.TypeReaders;
 namespace YACCS.Tests.TypeReaders
 {
 	[TestClass]
-	public class CommandTypeReader_Tests : TypeReader_Tests<IReadOnlyList<IImmutableCommand>>
+	public class CommandTypeReader_Tests : TypeReader_Tests<IReadOnlyCollection<IImmutableCommand>>
 	{
-		public override ITypeReader<IReadOnlyList<IImmutableCommand>> Reader { get; }
+		public override ITypeReader<IReadOnlyCollection<IImmutableCommand>> Reader { get; }
 			= new CommandsTypeReader();
 
 		[TestMethod]

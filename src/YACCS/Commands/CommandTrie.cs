@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -14,12 +15,13 @@ namespace YACCS.Commands
 	public sealed class CommandTrie : ITrie<string, IImmutableCommand>
 	{
 		private readonly ICommandServiceConfig _Config;
-		private readonly HashSet<IImmutableCommand> _Items;
+		private readonly ConcurrentDictionary<IImmutableCommand, byte> _Items;
 		private readonly IReadOnlyDictionary<Type, ITypeReader> _Readers;
 		private readonly Node _Root;
 
 		public bool IsReadOnly => false;
-		public IReadOnlyCollection<IImmutableCommand> Items => _Items;
+		public IReadOnlyCollection<IImmutableCommand> Items
+			=> (IReadOnlyCollection<IImmutableCommand>)_Items.Keys;
 		public INode<string, IImmutableCommand> Root => _Root;
 		public int Count => _Items.Count;
 		private string DebuggerDisplay => $"Count = {Count}";
@@ -28,10 +30,10 @@ namespace YACCS.Commands
 			IReadOnlyDictionary<Type, ITypeReader> readers,
 			ICommandServiceConfig config)
 		{
-			_Readers = readers;
 			_Config = config;
-			_Root = new(null, null, _Config.CommandNameComparer);
 			_Items = new();
+			_Readers = readers;
+			_Root = new(null, null, _Config.CommandNameComparer);
 		}
 
 		public int Add(IImmutableCommand item)
@@ -84,26 +86,25 @@ namespace YACCS.Commands
 			}
 
 			var added = 0;
-			foreach (var name in item.Names)
+			if (_Items.TryAdd(item, 0))
 			{
-				var node = _Root;
-				for (var i = 0; i < name.Count; ++i)
+				foreach (var name in item.Names)
 				{
-					var key = name[i];
-					if (!node.TryGetEdge(key, out var next))
+					var node = _Root;
+					for (var i = 0; i < name.Count; ++i)
 					{
-						node[key] = next = new(key, node, _Config.CommandNameComparer);
+						var key = name[i];
+						if (!node.TryGetEdge(key, out var next))
+						{
+							node[key] = next = new(key, node, _Config.CommandNameComparer);
+						}
+						if (i == name.Count - 1 && next.Add(item))
+						{
+							++added;
+						}
+						node = next;
 					}
-					if (i == name.Count - 1 && next.Add(item))
-					{
-						++added;
-					}
-					node = next;
 				}
-			}
-			if (added != 0)
-			{
-				_Items.Add(item);
 			}
 			return added;
 		}
@@ -116,14 +117,9 @@ namespace YACCS.Commands
 
 		public bool Contains(IImmutableCommand item)
 		{
-			// Since commands with no names can't get added, they will never be in the trie
-			if (item.Names.Count == 0)
-			{
-				return false;
-			}
 			if (item.Names.Count >= _Items.Count)
 			{
-				return _Items.Contains(item);
+				return _Items.ContainsKey(item);
 			}
 
 			foreach (var name in item.Names)
@@ -153,30 +149,26 @@ namespace YACCS.Commands
 		}
 
 		public IEnumerator<IImmutableCommand> GetEnumerator()
-			=> _Items.GetEnumerator();
+			=> Items.GetEnumerator();
 
 		public int Remove(IImmutableCommand item)
 		{
-			// Since commands with no names can't get added, they will never be in the trie
-			// If the item isn't in the hashset containing all items, it's not in the trie
-			if (item.Names.Count == 0 || !_Items.Remove(item))
-			{
-				return 0;
-			}
-
 			var removed = 0;
-			foreach (var name in item.Names)
+			if (_Items.TryRemove(item, out _))
 			{
-				var node = _Root;
-				for (var i = 0; i < name.Count; ++i)
+				foreach (var name in item.Names)
 				{
-					if (!node.TryGetEdge(name[i], out node))
+					var node = _Root;
+					for (var i = 0; i < name.Count; ++i)
 					{
-						break;
-					}
-					if (i == name.Count - 1 && node.Remove(item))
-					{
-						++removed;
+						if (!node.TryGetEdge(name[i], out node))
+						{
+							break;
+						}
+						if (i == name.Count - 1 && node.Remove(item))
+						{
+							++removed;
+						}
 					}
 				}
 			}
@@ -195,14 +187,17 @@ namespace YACCS.Commands
 		[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 		private sealed class Node : INode<string, IImmutableCommand>
 		{
-			private readonly Dictionary<string, Node> _Edges;
-			private readonly HashSet<IImmutableCommand> _Items;
+			private readonly ConcurrentDictionary<string, Node> _Edges;
+			private readonly ConcurrentDictionary<IImmutableCommand, byte> _Items;
 			private readonly string? _Key;
 			private readonly Node? _Parent;
 
-			public IReadOnlyCollection<IImmutableCommand> Items => _Items;
-			public IReadOnlyCollection<Node> Edges => _Edges.Values;
-			IReadOnlyCollection<INode<string, IImmutableCommand>> INode<string, IImmutableCommand>.Edges => Edges;
+			public IReadOnlyCollection<IImmutableCommand> Items
+				=> (IReadOnlyCollection<IImmutableCommand>)_Items.Keys;
+			public IReadOnlyCollection<Node> Edges
+				=> (IReadOnlyCollection<Node>)_Edges.Values;
+			IReadOnlyCollection<INode<string, IImmutableCommand>> INode<string, IImmutableCommand>.Edges
+				=> Edges;
 			private string DebuggerDisplay
 			{
 				get
@@ -230,14 +225,14 @@ namespace YACCS.Commands
 
 			public Node(string? key, Node? parent, IEqualityComparer<string> stringComparer)
 			{
-				_Items = new();
 				_Edges = new(stringComparer);
+				_Items = new();
 				_Key = key;
 				_Parent = parent;
 			}
 
-			public bool Add(IImmutableCommand command)
-				=> _Items.Add(command);
+			public bool Add(IImmutableCommand item)
+				=> _Items.TryAdd(item, 0);
 
 			public void Clear()
 			{
@@ -245,27 +240,25 @@ namespace YACCS.Commands
 				_Items.Clear();
 			}
 
-			public bool Contains(IImmutableCommand command)
+			public bool Contains(IImmutableCommand item)
 				// Only direct commands since the node has already been found via name
-				=> _Items.Contains(command);
+				=> _Items.ContainsKey(item);
 
-			public bool Remove(IImmutableCommand command)
+			public bool Remove(IImmutableCommand item)
 			{
-				if (!_Items.Remove(command))
+				var isRemoved = _Items.TryRemove(item, out _);
+				if (isRemoved)
 				{
-					return false;
-				}
-
-				// Kill all empty nodes
-				for (var node = this; node is not null; node = node._Parent)
-				{
-					if (node._Items.Count == 0 && node._Edges.Count == 0)
+					// Kill all empty nodes
+					for (var node = this; node is not null; node = node._Parent)
 					{
-						node._Parent?._Edges?.Remove(node._Key!);
+						if (node._Items.Count == 0 && node._Edges.Count == 0)
+						{
+							node._Parent?._Edges?.TryRemove(node._Key!, out _);
+						}
 					}
 				}
-
-				return true;
+				return isRemoved;
 			}
 
 			public bool TryGetEdge(string key, [NotNullWhen(true)] out Node? node)
