@@ -183,21 +183,20 @@ namespace YACCS.Tests.Commands
 			var tcs = new TaskCompletionSource();
 			context = new DisposableContext(tcs);
 
-			var shouldNotBeCompleted = new TaskCompletionSource<CommandExecutedEventArgs>();
-			Task Logger(CommandExecutedEventArgs e)
+			var shouldGetArgs = new TaskCompletionSource<CommandExecutedEventArgs>();
+			commandService.CommandExecuted += (e) =>
 			{
-				shouldNotBeCompleted.SetResult(e);
+				shouldGetArgs.SetResult(e);
 				return Task.CompletedTask;
-			}
-			commandService.CommandExecuted += Logger;
-			commandService.CommandExecuted -= Logger;
+			};
 
 			const string input = $"{CommandsGroup._Name} {CommandsGroup._Throws}";
 			var syncResult = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			Assert.IsTrue(syncResult.InnerResult.IsSuccess);
 
 			await tcs.Task.ConfigureAwait(false);
-			Assert.IsFalse(shouldNotBeCompleted.Task.IsCompleted);
+			Assert.IsTrue(shouldGetArgs.Task.IsCompleted);
+			Assert.IsInstanceOfType(shouldGetArgs.Task.Result, typeof(CommandExecutedEventArgs));
 		}
 
 		[TestMethod]
@@ -217,7 +216,7 @@ namespace YACCS.Tests.Commands
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			sw.Stop();
 			Assert.IsTrue(result.InnerResult.IsSuccess);
-			if (sw.ElapsedMilliseconds >= CommandsGroup.DELAY - 50)
+			if (sw.ElapsedMilliseconds >= CommandsGroup.DELAY - 200)
 			{
 				Assert.Fail("ExecuteAsync did not run in the background.");
 			}

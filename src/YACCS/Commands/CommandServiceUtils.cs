@@ -21,7 +21,7 @@ namespace YACCS.Commands
 		internal const string DEBUGGER_DISPLAY = "{DebuggerDisplay,nq}";
 
 		public static void AddRange(
-			this CommandService commandService,
+			this CommandServiceBase commandService,
 			IEnumerable<IImmutableCommand> enumerable)
 		{
 			foreach (var command in enumerable)
@@ -31,7 +31,7 @@ namespace YACCS.Commands
 		}
 
 		public static async Task AddRangeAsync(
-			this CommandService commandService,
+			this CommandServiceBase commandService,
 			IAsyncEnumerable<IImmutableCommand> enumerable)
 		{
 			await foreach (var command in enumerable)

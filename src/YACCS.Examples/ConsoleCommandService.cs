@@ -13,7 +13,7 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Examples
 {
-	public sealed class ConsoleCommandService : CommandService
+	public sealed class ConsoleCommandService : CommandServiceBase
 	{
 		private readonly IEnumerable<Assembly> CommandAssemblies;
 		private readonly ConsoleHandler Console;
@@ -38,6 +38,17 @@ namespace YACCS.Examples
 		public Task InitializeAsync()
 			=> Initialize.Value;
 
+		protected override Task OnCommandExecutedAsync(CommandExecutedEventArgs e)
+		{
+			Console.WriteResult(e.Result);
+			var exceptions = e.GetAllExceptions();
+			if (exceptions.Any())
+			{
+				Console.WriteLine(string.Join(Environment.NewLine, exceptions), ConsoleColor.Red);
+			}
+			return Task.CompletedTask;
+		}
+
 		private async Task AddDelegateCommandsAsync()
 		{
 			// Example delegate command registration
@@ -50,17 +61,6 @@ namespace YACCS.Examples
 			await this.AddRangeAsync(add).ConfigureAwait(false);
 		}
 
-		private Task OnCommandExecuted(CommandExecutedEventArgs e)
-		{
-			Console.WriteResult(e.Result);
-			var exceptions = e.GetAllExceptions();
-			if (exceptions.Any())
-			{
-				Console.WriteLine(string.Join(Environment.NewLine, exceptions), ConsoleColor.Red);
-			}
-			return Task.CompletedTask;
-		}
-
 		private async Task PrivateInitialize()
 		{
 			foreach (var assembly in CommandAssemblies)
@@ -70,8 +70,6 @@ namespace YACCS.Examples
 			}
 			await AddDelegateCommandsAsync().ConfigureAwait(false);
 			Debug.WriteLine($"Registered {Commands.Count} commands for '{CultureInfo.CurrentUICulture}'.");
-
-			CommandExecuted += OnCommandExecuted;
 		}
 	}
 }
