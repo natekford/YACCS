@@ -28,8 +28,8 @@ namespace YACCS.Tests.TypeReaders
 
 		protected override Task SetupAsync()
 		{
-			var commands = typeof(FakeCommandGroup).GetDirectCommandsAsync(Context.Services);
 			var commandService = Context.Get<CommandService>();
+			var commands = typeof(FakeCommandGroup).GetDirectCommandsAsync(Context.Services);
 			return commandService.AddRangeAsync(commands);
 		}
 

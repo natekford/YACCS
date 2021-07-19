@@ -111,8 +111,8 @@ Parameters:{TRAILING}
 		{
 			var context = new FakeContext();
 			var formatter = new HelpFormatter(new TypeNameRegistry(), new TagFormatter());
-			var commands = typeof(CommandGroup).GetDirectCommandsAsync(context.Services);
 			var commandService = context.Get<CommandService>();
+			var commands = typeof(CommandGroup).GetDirectCommandsAsync(context.Services);
 			await commandService.AddRangeAsync(commands).ConfigureAwait(false);
 			return (commandService, formatter, context);
 		}

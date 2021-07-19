@@ -338,10 +338,7 @@ namespace YACCS.Tests.Commands
 			};
 
 			var commandService = context.Get<CommandService>();
-			var commands = new[]
-			{
-				 typeof(CommandsGroup),
-			}.GetDirectCommandsAsync(context.Services);
+			var commands = typeof(CommandsGroup).GetDirectCommandsAsync(context.Services);
 			await commandService.AddRangeAsync(commands).ConfigureAwait(false);
 
 			return (commandService, context);
