@@ -376,7 +376,7 @@ namespace YACCS.Tests.Commands
 
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 			Assert.AreEqual(CommandStage.FailedTypeReader, result.Stage);
-			Assert.AreEqual(0, result.Score);
+			Assert.AreEqual(1, result.Score);
 
 			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
 			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
@@ -395,7 +395,7 @@ namespace YACCS.Tests.Commands
 
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 			Assert.AreEqual(CommandStage.FailedParameterPrecondition, result.Stage);
-			Assert.AreEqual(0, result.Score);
+			Assert.AreEqual(1, result.Score);
 
 			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
 			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
@@ -943,6 +943,7 @@ namespace YACCS.Tests.Commands
 
 		[Command(_Disabled)]
 		[DisabledPrecondition]
+		[YACCS.Commands.Attributes.Priority(2)]
 		public void Disabled()
 		{
 		}

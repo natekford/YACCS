@@ -88,7 +88,7 @@ namespace YACCS.Commands
 					{
 						return CommandScore.MultiMatch;
 					}
-					best = CommandScore.Max(best, score);
+					best = Max(best, score);
 				}
 			}
 
@@ -156,7 +156,7 @@ namespace YACCS.Commands
 					).ConfigureAwait(false);
 					if (!trResult.InnerResult.IsSuccess)
 					{
-						return CommandScore.FromFailedTypeReader(command, parameter, context, trResult.InnerResult, currentIndex - 1);
+						return CommandScore.FromFailedTypeReader(command, parameter, context, trResult.InnerResult, currentIndex);
 					}
 
 					value = trResult.Value;
@@ -179,7 +179,7 @@ namespace YACCS.Commands
 				// If the parameter isn't optional it's a failure
 				else if (!parameter.HasDefaultValue)
 				{
-					return CommandScore.FromFailedOptionalArgs(command, parameter, context, currentIndex - 1);
+					return CommandScore.FromFailedOptionalArgs(command, parameter, context, currentIndex);
 				}
 
 				var meta = new CommandMeta(command, parameter);
@@ -188,7 +188,7 @@ namespace YACCS.Commands
 					.ConfigureAwait(false);
 				if (!ppResult.IsSuccess)
 				{
-					return CommandScore.FromFailedParameterPrecondition(command, parameter, context, ppResult, currentIndex - 1);
+					return CommandScore.FromFailedParameterPrecondition(command, parameter, context, ppResult, currentIndex);
 				}
 
 				args[i] = value;
@@ -285,6 +285,9 @@ namespace YACCS.Commands
 				result
 			);
 		}
+
+		protected virtual CommandScore? Max(CommandScore? a, CommandScore? b)
+			=> CommandScore.Max(a, b);
 
 		protected abstract Task OnCommandExecutedAsync(CommandExecutedEventArgs e);
 
