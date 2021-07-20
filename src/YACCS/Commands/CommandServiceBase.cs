@@ -130,12 +130,10 @@ namespace YACCS.Commands
 			int startIndex)
 		{
 			// Any precondition fails, command is not valid
-			var pResult = await command.Preconditions
-				.ProcessAsync(x => x.CheckAsync(command, context))
-				.ConfigureAwait(false);
-			if (!pResult.IsSuccess)
+			var canExecute = await command.CanExecuteAsync(context).ConfigureAwait(false);
+			if (!canExecute.IsSuccess)
 			{
-				return CommandScore.FromFailedPrecondition(command, context, pResult, startIndex);
+				return CommandScore.FromFailedPrecondition(command, context, canExecute, startIndex);
 			}
 
 			var args = new object?[command.Parameters.Count];

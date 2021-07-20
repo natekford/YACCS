@@ -9,6 +9,7 @@ using YACCS.Examples.Preconditions;
 using YACCS.Help;
 using YACCS.Interactivity;
 using YACCS.Results;
+using YACCS.TypeReaders;
 
 namespace YACCS.Examples.Commands
 {
@@ -20,20 +21,27 @@ namespace YACCS.Examples.Commands
 		public ICommandService CommandService { get; set; } = null!;
 		public IHelpFormatter HelpFormatter { get; set; } = null!;
 
+		[Disabled]
 		public override string Abstract() => "21";
 
 		[Command]
-		public void HelpCommand()
+		public async Task HelpCommand()
 		{
 			var i = 0;
 			foreach (var command in CommandService.Commands)
 			{
-				Console.WriteLine($"\t{++i}. {command.Names[0]}");
+				var canExecute = await command.CanExecuteAsync(Context).ConfigureAwait(false);
+				if (canExecute.IsSuccess)
+				{
+					Console.WriteLine($"\t{++i}. {command.Names[0]}");
+				}
 			}
 		}
 
 		[Command]
-		public async Task<IResult> HelpCommand(IReadOnlyCollection<IImmutableCommand> commands)
+		public async Task<IResult> HelpCommand(
+			[OverrideTypeReader(typeof(ExecutableCommandsTypeReader))]
+			IReadOnlyCollection<IImmutableCommand> commands)
 		{
 			IImmutableCommand command;
 			if (commands.Count == 1)

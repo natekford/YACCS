@@ -41,10 +41,10 @@ namespace YACCS.Examples
 		protected override Task OnCommandExecutedAsync(CommandExecutedEventArgs e)
 		{
 			Console.WriteResult(e.Result);
-			var exceptions = e.GetAllExceptions();
-			if (exceptions.Any())
+			var exceptions = string.Join(Environment.NewLine, e.GetAllExceptions());
+			if (!string.IsNullOrWhiteSpace(exceptions))
 			{
-				Console.WriteLine(string.Join(Environment.NewLine, exceptions), ConsoleColor.Red);
+				Console.WriteLine(exceptions, ConsoleColor.Red);
 			}
 			return Task.CompletedTask;
 		}

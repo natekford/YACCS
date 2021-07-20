@@ -40,8 +40,13 @@ namespace YACCS.Commands
 			}
 		}
 
+		public static ValueTask<IResult> CanExecuteAsync(
+			this IImmutableCommand command,
+			IContext context)
+			=> command.Preconditions.ProcessAsync(x => x.CheckAsync(command, context));
+
 		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
-			this Type type,
+					this Type type,
 			IServiceProvider services)
 		{
 			await foreach (var command in type.GetDirectCommandsAsync(services))
@@ -183,10 +188,10 @@ namespace YACCS.Commands
 			return true;
 		}
 
-		public static ValueTask<IResult> ProcessAsync<T>(
-			this IReadOnlyDictionary<string, IReadOnlyList<T>> preconditions,
-			Func<T, ValueTask<IResult>> converter)
-			where T : IGroupablePrecondition
+		public static ValueTask<IResult> ProcessAsync<TPrecondition>(
+			this IReadOnlyDictionary<string, IReadOnlyList<TPrecondition>> preconditions,
+			Func<TPrecondition, ValueTask<IResult>> converter)
+			where TPrecondition : IGroupablePrecondition
 		{
 			if (preconditions.Count == 0)
 			{
@@ -194,8 +199,8 @@ namespace YACCS.Commands
 			}
 
 			static async ValueTask<IResult> PrivateProcessAsync(
-				IReadOnlyDictionary<string, IReadOnlyList<T>> preconditions,
-				Func<T, ValueTask<IResult>> converter)
+				IReadOnlyDictionary<string, IReadOnlyList<TPrecondition>> preconditions,
+				Func<TPrecondition, ValueTask<IResult>> converter)
 			{
 				// Preconditions are grouped but cannot be subgrouped
 				// So treat logic as group is surrounded by parantheses but inside isn't
