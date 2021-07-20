@@ -158,6 +158,18 @@ namespace YACCS.Tests.NamedArguments
 			return (commandService, setMe, context);
 		}
 
+		[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+		private class AddNonsenseAttribute : Attribute, IParameterModifierAttribute
+		{
+			public void ModifyParameter(IParameter parameter)
+			{
+				for (var i = 0; i < 10; ++i)
+				{
+					parameter.Attributes.Add("test");
+				}
+			}
+		}
+
 		private class CommandsGroup : CommandGroup<IContext>
 		{
 			public const string D = "val_d";
@@ -171,7 +183,7 @@ namespace YACCS.Tests.NamedArguments
 			[GenerateNamedArguments]
 			public async Task<IResult> Test(
 				[Name(D)]
-				[Test]
+				[AddNonsense]
 				double d,
 				[Name(I)]
 				int i,
@@ -239,18 +251,6 @@ namespace YACCS.Tests.NamedArguments
 			public double DoubleValue { get; set; }
 			public int IntValue { get; set; }
 			public string StringValue { get; set; } = null!;
-		}
-
-		[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
-		private class TestAttribute : Attribute, IParameterModifierAttribute
-		{
-			public void ModifyParameter(IParameter parameter)
-			{
-				for (var i = 0; i < 10; ++i)
-				{
-					parameter.Attributes.Add("test");
-				}
-			}
 		}
 	}
 }

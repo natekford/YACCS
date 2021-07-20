@@ -540,11 +540,9 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (commandService, context, meta) = Create(DISALLOWED_VALUE);
+			var (context, meta) = Create(DISALLOWED_VALUE);
 			var arg = new[] { DISALLOWED_VALUE, DISALLOWED_VALUE + 1, DISALLOWED_VALUE + 2 };
-			var result = await meta.Parameter.Preconditions
-				.ProcessAsync(x => x.CheckAsync(meta, context, arg))
-				.ConfigureAwait(false);
+			var result = await meta.Parameter.CanExecuteAsync(meta, context, arg).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
 			Assert.IsFalse(meta.Parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
@@ -554,11 +552,9 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (commandService, context, meta) = Create(DISALLOWED_VALUE);
+			var (context, meta) = Create(DISALLOWED_VALUE);
 			var arg = new[] { DISALLOWED_VALUE + 1, DISALLOWED_VALUE + 2, DISALLOWED_VALUE + 3 };
-			var result = await meta.Parameter.Preconditions
-				.ProcessAsync(x => x.CheckAsync(meta, context, arg))
-				.ConfigureAwait(false);
+			var result = await meta.Parameter.CanExecuteAsync(meta, context, arg).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
 			Assert.IsTrue(meta.Parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
@@ -568,10 +564,8 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (commandService, context, meta) = Create(DISALLOWED_VALUE);
-			var result = await meta.Parameter.Preconditions
-				.ProcessAsync(x => x.CheckAsync(meta, context, DISALLOWED_VALUE))
-				.ConfigureAwait(false);
+			var (context, meta) = Create(DISALLOWED_VALUE);
+			var result = await meta.Parameter.CanExecuteAsync(meta, context, DISALLOWED_VALUE).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
 			Assert.IsFalse(meta.Parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
@@ -581,15 +575,13 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (commandService, context, meta) = Create(DISALLOWED_VALUE);
-			var result = await meta.Parameter.Preconditions
-				.ProcessAsync(x => x.CheckAsync(meta, context, 1 + DISALLOWED_VALUE))
-				.ConfigureAwait(false);
+			var (context, meta) = Create(DISALLOWED_VALUE);
+			var result = await meta.Parameter.CanExecuteAsync(meta, context, 1 + DISALLOWED_VALUE).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
 			Assert.IsTrue(meta.Parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
-		private static (CommandService, FakeContext, CommandMeta) Create(int disallowedValue)
+		private static (FakeContext, CommandMeta) Create(int disallowedValue)
 		{
 			static void Delegate(int arg)
 			{
@@ -605,7 +597,7 @@ namespace YACCS.Tests.Commands
 			var command = commandBuilder.ToImmutable();
 			var context = new FakeContext();
 			var meta = new CommandMeta(command, command.Parameters[0]);
-			return (context.Get<CommandService>(), context, meta);
+			return (context, meta);
 		}
 	}
 
@@ -615,7 +607,6 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task ProcessPreconditions_GroupedEndsWithSuccessOR_Test()
 		{
-			var (commandService, context) = Create();
 			var command = FakeDelegateCommand.New()
 				.AsContext<IContext>()
 				.AddPrecondition(new FakePrecondition(true)
@@ -632,9 +623,7 @@ namespace YACCS.Tests.Commands
 					MutableOp = BoolOp.Or,
 				})
 				.ToImmutable();
-			var result = await command.Preconditions
-				.ProcessAsync(x => x.CheckAsync(command, context))
-				.ConfigureAwait(false);
+			var result = await command.CanExecuteAsync(new FakeContext()).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
 			Assert.IsFalse(command.Get<WasIReachedPrecondition>().Single().IWasReached);
 		}
@@ -642,7 +631,6 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task ProcessPreconditions_GroupedStartsWithSuccessOR_Test()
 		{
-			var (commandService, context) = Create();
 			var command = FakeDelegateCommand.New()
 				.AsContext<IContext>()
 				.AddPrecondition(new FakePrecondition(true)
@@ -651,9 +639,7 @@ namespace YACCS.Tests.Commands
 				})
 				.AddPrecondition(new WasIReachedPrecondition())
 				.ToImmutable();
-			var result = await command.Preconditions
-				.ProcessAsync(x => x.CheckAsync(command, context))
-				.ConfigureAwait(false);
+			var result = await command.CanExecuteAsync(new FakeContext()).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
 			Assert.IsFalse(command.Get<WasIReachedPrecondition>().Single().IWasReached);
 		}
@@ -661,10 +647,8 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task ProcessPreconditionsFailure_Test()
 		{
-			var (commandService, context, command) = Create(false);
-			var result = await command.Preconditions
-				.ProcessAsync(x => x.CheckAsync(command, context))
-				.ConfigureAwait(false);
+			var (context, command) = Create(false);
+			var result = await command.CanExecuteAsync(context).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
 			Assert.IsFalse(command.Get<WasIReachedPrecondition>().Single().IWasReached);
 		}
@@ -672,29 +656,20 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task ProcessPreconditionsSuccess_Test()
 		{
-			var (commandService, context, command) = Create(true);
-			var result = await command.Preconditions
-				.ProcessAsync(x => x.CheckAsync(command, context))
-				.ConfigureAwait(false);
+			var (context, command) = Create(true);
+			var result = await command.CanExecuteAsync(context).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
 			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
 		}
 
-		private static (CommandService, FakeContext) Create()
+		private static (FakeContext, IImmutableCommand) Create(bool success)
 		{
-			var context = new FakeContext();
-			return (context.Get<CommandService>(), context);
-		}
-
-		private static (CommandService, FakeContext, IImmutableCommand) Create(bool success)
-		{
-			var (commandService, context) = Create();
 			var command = FakeDelegateCommand.New()
 				.AsContext<IContext>()
 				.AddPrecondition(new FakePrecondition(success))
 				.AddPrecondition(new WasIReachedPrecondition())
 				.ToImmutable();
-			return (commandService, context, command);
+			return (new FakeContext(), command);
 		}
 	}
 

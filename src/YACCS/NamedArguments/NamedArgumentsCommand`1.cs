@@ -125,8 +125,8 @@ namespace YACCS.NamedArguments
 				return base.CheckAsync(meta, context, value);
 			}
 
-			protected override object? Getter(TDict instance, string property)
-				=> instance[property];
+			protected override bool TryGetValue(TDict instance, string property, out object? value)
+				=> instance.TryGetValue(property, out value);
 		}
 
 		private class GeneratedNamedArgumentsTypeReader : NamedArgumentsTypeReaderBase<TDict>

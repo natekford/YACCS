@@ -18,6 +18,12 @@ namespace YACCS.Results
 		public static ITask<ITypeReaderResult<TValue>> InvalidContextTask { get; }
 			= InvalidContext.AsITask();
 
+		public static ITypeReaderResult<TValue> NamedArgBadCount { get; }
+			= TypeReaderResult<TValue>.FromError(NamedArgBadCountResult.Instance);
+
+		public static ITask<ITypeReaderResult<TValue>> NamedArgBadCountTask { get; }
+			= NamedArgBadCount.AsITask();
+
 		public static ITypeReaderResult<TValue> ParseFailed { get; }
 			= TypeReaderResult<TValue>.FromError(new ParseFailedResult(typeof(TValue)));
 

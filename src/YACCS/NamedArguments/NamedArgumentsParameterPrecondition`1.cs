@@ -11,6 +11,7 @@ namespace YACCS.NamedArguments
 	public class NamedArgumentsParameterPrecondition<TValue>
 		: NamedArgumentsParameterPreconditionBase<TValue>
 	{
+		private static readonly object NotFound = new();
 		private readonly Func<TValue, string, object> _Getter;
 		private readonly Lazy<IReadOnlyDictionary<string, IImmutableParameter>> _Parameters;
 
@@ -27,17 +28,15 @@ namespace YACCS.NamedArguments
 			});
 		}
 
-		protected override object? Getter(TValue instance, string property)
+		protected override bool TryGetValue(TValue instance, string property, out object? value)
 		{
-			try
+			value = _Getter.Invoke(instance, property);
+			if (value == NotFound)
 			{
-				return _Getter.Invoke(instance, property);
+				value = null;
+				return false;
 			}
-			catch (Exception e)
-			{
-				throw new InvalidOperationException(
-					$"Unable to find the specified member '{property}'.", e);
-			}
+			return true;
 		}
 
 		private static Func<TValue, string, object> Getter()
@@ -57,9 +56,7 @@ namespace YACCS.NamedArguments
 			 *		{
 			 *			return Instance.MemberC;
 			 *		}
-			 *
-			 *		throw new InvalidOperationException();
-			 *		return null;
+			 *		return NotFound;
 			 *	}
 			 */
 
@@ -79,11 +76,9 @@ namespace YACCS.NamedArguments
 
 				return Expression.IfThen(isMember, @return);
 			});
-			var exception = Expression.Constant(new InvalidOperationException("Unable to find the specified member name."));
-			var @throw = Expression.Throw(exception);
-			var @null = Expression.Constant(null);
-			var returnLabel = Expression.Label(objectLabel, @null);
-			var body = Expression.Block(getters.Append(@throw).Append(returnLabel));
+			var notFound = Expression.Constant(NotFound);
+			var returnLabel = Expression.Label(objectLabel, notFound);
+			var body = Expression.Block(getters.Append(notFound).Append(returnLabel));
 
 			var lambda = Expression.Lambda<Func<TValue, string, object>>(
 				body,

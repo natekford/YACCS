@@ -23,17 +23,19 @@ namespace YACCS.NamedArguments
 				return NullParameterResult.Instance;
 			}
 
-			foreach (var kvp in Parameters)
+			foreach (var (property, paramater) in Parameters)
 			{
-				var (id, member) = kvp;
-				var result = await member.Preconditions
-					.ProcessAsync(x =>
+				if (!TryGetValue(value, property, out var propertyValue))
+				{
+					if (!paramater.HasDefaultValue)
 					{
-						var newMeta = new CommandMeta(meta.Command, member);
-						var retrieved = Getter(value, id);
-						return x.CheckAsync(newMeta, context, retrieved);
-					})
-					.ConfigureAwait(false);
+						return new NamedArgMissingValueResult(property);
+					}
+					propertyValue = paramater.DefaultValue;
+				}
+
+				var newMeta = new CommandMeta(meta.Command, paramater);
+				var result = await paramater.CanExecuteAsync(newMeta, context, propertyValue).ConfigureAwait(false);
 				if (!result.IsSuccess)
 				{
 					return result;
@@ -42,6 +44,6 @@ namespace YACCS.NamedArguments
 			return SuccessResult.Instance;
 		}
 
-		protected abstract object? Getter(T instance, string property);
+		protected abstract bool TryGetValue(T instance, string property, out object? value);
 	}
 }

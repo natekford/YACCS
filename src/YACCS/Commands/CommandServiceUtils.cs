@@ -43,10 +43,29 @@ namespace YACCS.Commands
 		public static ValueTask<IResult> CanExecuteAsync(
 			this IImmutableCommand command,
 			IContext context)
-			=> command.Preconditions.ProcessAsync(x => x.CheckAsync(command, context));
+		{
+			return command.Preconditions.ProcessAsync((precondition, state) =>
+			{
+				var (command, context) = state;
+				return precondition.CheckAsync(command, context);
+			}, (command, context));
+		}
+
+		public static ValueTask<IResult> CanExecuteAsync(
+			this IImmutableParameter parameter,
+			CommandMeta meta,
+			IContext context,
+			object? value)
+		{
+			return parameter.Preconditions.ProcessAsync((precondition, state) =>
+			{
+				var (meta, context, value) = state;
+				return precondition.CheckAsync(meta, context, value);
+			}, (meta, context, value));
+		}
 
 		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
-					this Type type,
+			this Type type,
 			IServiceProvider services)
 		{
 			await foreach (var command in type.GetDirectCommandsAsync(services))
@@ -188,9 +207,10 @@ namespace YACCS.Commands
 			return true;
 		}
 
-		public static ValueTask<IResult> ProcessAsync<TPrecondition>(
+		public static ValueTask<IResult> ProcessAsync<TPrecondition, TState>(
 			this IReadOnlyDictionary<string, IReadOnlyList<TPrecondition>> preconditions,
-			Func<TPrecondition, ValueTask<IResult>> converter)
+			Func<TPrecondition, TState, ValueTask<IResult>> converter,
+			TState state)
 			where TPrecondition : IGroupablePrecondition
 		{
 			if (preconditions.Count == 0)
@@ -200,7 +220,8 @@ namespace YACCS.Commands
 
 			static async ValueTask<IResult> PrivateProcessAsync(
 				IReadOnlyDictionary<string, IReadOnlyList<TPrecondition>> preconditions,
-				Func<TPrecondition, ValueTask<IResult>> converter)
+				Func<TPrecondition, TState, ValueTask<IResult>> converter,
+				TState state)
 			{
 				// Preconditions are grouped but cannot be subgrouped
 				// So treat logic as group is surrounded by parantheses but inside isn't
@@ -216,7 +237,7 @@ namespace YACCS.Commands
 							continue;
 						}
 
-						var result = await converter(precondition).ConfigureAwait(false);
+						var result = await converter(precondition, state).ConfigureAwait(false);
 						// OR: Any success = instant success, go to next group
 						if (precondition.Op == BoolOp.Or && result.IsSuccess)
 						{
@@ -239,7 +260,7 @@ namespace YACCS.Commands
 				return SuccessResult.Instance;
 			}
 
-			return PrivateProcessAsync(preconditions, converter);
+			return PrivateProcessAsync(preconditions, converter, state);
 		}
 
 		internal static List<ICommand> CreateMutableCommands(this Type type)

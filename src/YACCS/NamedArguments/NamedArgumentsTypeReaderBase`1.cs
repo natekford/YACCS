@@ -16,8 +16,6 @@ namespace YACCS.NamedArguments
 		private static readonly char[] _TrimEndChars = new[] { ':' };
 		private static readonly char[] _TrimStartChars = new[] { '/', '-' };
 		protected abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
-		private static ITask<ITypeReaderResult<TValue>> ArgCountError { get; }
-			= TypeReaderResult<TValue>.FromError(NamedArgBadCountResult.Instance).AsITask();
 
 		public override ITask<ITypeReaderResult<TValue>> ReadAsync(
 			IContext context,
@@ -25,7 +23,7 @@ namespace YACCS.NamedArguments
 		{
 			if (input.Length % 2 != 0)
 			{
-				return ArgCountError;
+				return CachedResults<TValue>.NamedArgBadCountTask;
 			}
 
 			var result = TryCreateDict(input.Span, out var dict);
