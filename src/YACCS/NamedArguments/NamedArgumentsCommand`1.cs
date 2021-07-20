@@ -15,8 +15,8 @@ using YACCS.Results;
 namespace YACCS.NamedArguments
 {
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-	public class NamedArgumentsCommand<TDict> : IImmutableCommand
-		where TDict : IDictionary<string, object?>, new()
+	public class NamedArgumentsCommand<T> : IImmutableCommand
+		where T : IDictionary<string, object?>, new()
 	{
 		public IReadOnlyList<object> Attributes { get; }
 		public int MaxLength => int.MaxValue;
@@ -42,7 +42,7 @@ namespace YACCS.NamedArguments
 			try
 			{
 				var parameter = Commands.Linq.Parameters
-					.Create<TDict>("NamedArgDictionary")
+					.Create<T>("NamedArgDictionary")
 					.AddParameterPrecondition(new GeneratedNamedArgumentsParameterPrecondition(Source))
 					.SetTypeReader(new GeneratedNamedArgumentsTypeReader(Source))
 					.AddAttribute(new RemainderAttribute())
@@ -59,10 +59,10 @@ namespace YACCS.NamedArguments
 
 		public ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
 		{
-			TDict values;
+			T dict;
 			try
 			{
-				values = (TDict)args.Single()!;
+				dict = (T)args.Single()!;
 			}
 			catch (Exception e)
 			{
@@ -70,32 +70,28 @@ namespace YACCS.NamedArguments
 					$"other arguments for '{Source.Names?.FirstOrDefault()}'.", e);
 			}
 
-			var realArgs = new object?[Source.Parameters.Count];
-			for (var i = 0; i < realArgs.Length; ++i)
+			var values = new object?[Source.Parameters.Count];
+			for (var i = 0; i < values.Length; ++i)
 			{
 				var parameter = Source.Parameters[i];
-				if (values.TryGetValue(parameter.OriginalParameterName, out var value))
+				if (dict.TryGetValue(parameter.OriginalParameterName, out var value))
 				{
-					realArgs[i] = value;
-				}
-				else if (parameter.HasDefaultValue)
-				{
-					realArgs[i] = parameter.DefaultValue;
+					values[i] = value;
 				}
 				else
 				{
 					// This should never really be reachable due to the parameter precondition
-					// already checking for undefined values
+					// already checking for undefined values and setting default values
 					throw new InvalidOperationException(
 						$"Missing value for the parameter '{parameter.OriginalParameterName}' " +
 						$"from '{Source.Names?.FirstOrDefault()}'.");
 				}
 			}
-			return Source.ExecuteAsync(context, realArgs);
+			return Source.ExecuteAsync(context, values);
 		}
 
 		private class GeneratedNamedArgumentsParameterPrecondition
-			: NamedArgumentsParameterPreconditionBase<TDict>
+			: NamedArgumentsParameterPreconditionBase<T>
 		{
 			protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
@@ -105,31 +101,26 @@ namespace YACCS.NamedArguments
 					.ToImmutableDictionary(x => x.OriginalParameterName, StringComparer.OrdinalIgnoreCase);
 			}
 
-			public override ValueTask<IResult> CheckAsync(
-				CommandMeta meta,
-				IContext context,
-				TDict? value)
+			protected override bool TryGetValue(T instance, string property, out object? value)
 			{
-				if (value is null)
+				// If the value is already in the dictionary, we use that
+				// If it's not, check if it has a default value
+				// No value or default value? Indicate failure
+				if (!instance.TryGetValue(property, out value))
 				{
-					return new(NullParameterResult.Instance);
-				}
-
-				foreach (var kvp in Parameters)
-				{
-					if (!value.ContainsKey(kvp.Key) && !kvp.Value.HasDefaultValue)
+					var parameter = Parameters[property];
+					if (!parameter.HasDefaultValue)
 					{
-						return new(new NamedArgMissingValueResult(kvp.Key));
+						return false;
 					}
-				}
-				return base.CheckAsync(meta, context, value);
-			}
 
-			protected override bool TryGetValue(TDict instance, string property, out object? value)
-				=> instance.TryGetValue(property, out value);
+					value = instance[property] = Parameters[property].DefaultValue;
+				}
+				return true;
+			}
 		}
 
-		private class GeneratedNamedArgumentsTypeReader : NamedArgumentsTypeReaderBase<TDict>
+		private class GeneratedNamedArgumentsTypeReader : NamedArgumentsTypeReaderBase<T>
 		{
 			protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
@@ -139,7 +130,7 @@ namespace YACCS.NamedArguments
 					.ToImmutableDictionary(x => x.ParameterName, StringComparer.OrdinalIgnoreCase);
 			}
 
-			protected override void Setter(TDict instance, string property, object? value)
+			protected override void Setter(T instance, string property, object? value)
 				=> instance[property] = value;
 		}
 	}

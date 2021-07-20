@@ -23,19 +23,15 @@ namespace YACCS.NamedArguments
 				return NullParameterResult.Instance;
 			}
 
-			foreach (var (property, paramater) in Parameters)
+			foreach (var (property, parameter) in Parameters)
 			{
 				if (!TryGetValue(value, property, out var propertyValue))
 				{
-					if (!paramater.HasDefaultValue)
-					{
-						return new NamedArgMissingValueResult(property);
-					}
-					propertyValue = paramater.DefaultValue;
+					return new NamedArgMissingValueResult(property);
 				}
 
-				var newMeta = new CommandMeta(meta.Command, paramater);
-				var result = await paramater.CanExecuteAsync(newMeta, context, propertyValue).ConfigureAwait(false);
+				var newMeta = new CommandMeta(meta.Command, parameter);
+				var result = await parameter.CanExecuteAsync(newMeta, context, propertyValue).ConfigureAwait(false);
 				if (!result.IsSuccess)
 				{
 					return result;

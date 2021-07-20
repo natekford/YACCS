@@ -7,11 +7,11 @@ using YACCS.Commands.Models;
 
 namespace YACCS.NamedArguments
 {
-	public class NamedArgumentsTypeReader<TValue> : NamedArgumentsTypeReaderBase<TValue>
-		where TValue : new()
+	public class NamedArgumentsTypeReader<T> : NamedArgumentsTypeReaderBase<T>
+		where T : new()
 	{
 		private readonly Lazy<IReadOnlyDictionary<string, IImmutableParameter>> _Parameters;
-		private readonly Action<TValue, string, object?> _Setter;
+		private readonly Action<T, string, object?> _Setter;
 
 		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters => _Parameters.Value;
 
@@ -20,16 +20,16 @@ namespace YACCS.NamedArguments
 			_Parameters = new(() =>
 			{
 				return NamedArgumentsUtils
-					.CreateParametersForType(typeof(TValue))
+					.CreateParametersForType(typeof(T))
 					.ToImmutableDictionary(x => x.ParameterName, StringComparer.OrdinalIgnoreCase);
 			});
 			_Setter = ReflectionUtils.CreateDelegate(Setter, "setter");
 		}
 
-		protected override void Setter(TValue instance, string property, object? value)
+		protected override void Setter(T instance, string property, object? value)
 			=> _Setter.Invoke(instance, property, value);
 
-		private static Action<TValue, string, object?> Setter()
+		private static Action<T, string, object?> Setter()
 		{
 			/*
 			 *	(T Instance, string Name, object Value) =>
@@ -52,11 +52,11 @@ namespace YACCS.NamedArguments
 			 *	}
 			 */
 
-			var instance = Expression.Parameter(typeof(TValue), "Instance");
+			var instance = Expression.Parameter(typeof(T), "Instance");
 			var name = Expression.Parameter(typeof(string), "Name");
 			var value = Expression.Parameter(typeof(object), "Value");
 
-			var setters = typeof(TValue).CreateExpressionsForWritableMembers<Expression>(instance, x =>
+			var setters = typeof(T).CreateExpressionsForWritableMembers<Expression>(instance, x =>
 			{
 				// If Name == memberInfo.Name
 				var memberName = Expression.Constant(x.Member.Name);
@@ -72,7 +72,7 @@ namespace YACCS.NamedArguments
 			});
 			var body = Expression.Block(setters);
 
-			var lambda = Expression.Lambda<Action<TValue, string, object?>>(
+			var lambda = Expression.Lambda<Action<T, string, object?>>(
 				body,
 				instance,
 				name,
