@@ -48,22 +48,21 @@ namespace YACCS.Commands
 		public virtual IReadOnlyCollection<IImmutableCommand> Find(ReadOnlyMemory<string> input)
 		{
 			var node = Commands.Root;
-			var span = input.Span;
-			for (var i = 0; i < input.Length; ++i)
+			foreach (var key in input.Span)
 			{
-				if (!node.TryGetEdge(span[i], out node))
+				if (!node.TryGetEdge(key, out node))
 				{
 					break;
 				}
-				if (i == input.Length - 1)
-				{
-					// Generated items have a source and that source gives them the same
-					// names/properties, so they should be ignored since they are copies
-					return node.GetAllDistinctItems(x => x.Source is null);
-				}
+			}
+			if (node is null)
+			{
+				return Array.Empty<IImmutableCommand>();
 			}
 
-			return Array.Empty<IImmutableCommand>();
+			// Generated items have a source and that source gives them the same
+			// names/properties, so they should be ignored since they are copies
+			return node.GetAllDistinctItems(x => x.Source is null);
 		}
 
 		protected internal virtual async ValueTask<CommandScore> GetBestMatchAsync(

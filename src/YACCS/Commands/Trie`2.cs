@@ -9,7 +9,6 @@ namespace YACCS.Commands
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public abstract class Trie<TKey, TValue> : ITrie<TKey, TValue>
 	{
-		private readonly IEqualityComparer<TKey> _Comparer;
 		private readonly ConcurrentDictionary<TValue, byte> _Items;
 		private readonly Node _Root;
 
@@ -21,32 +20,29 @@ namespace YACCS.Commands
 
 		protected Trie(IEqualityComparer<TKey> comparer)
 		{
-			_Comparer = comparer;
 			_Items = new();
 			_Root = new(default!, null, comparer);
 		}
 
 		public virtual int Add(TValue item)
 		{
-			var added = 0;
-			if (_Items.TryAdd(item, 0))
+			if (!_Items.TryAdd(item, 0))
 			{
-				foreach (var paths in GetPaths(item))
+				return 0;
+			}
+
+			var added = 0;
+			foreach (var path in GetPaths(item))
+			{
+				var node = _Root;
+				foreach (var key in path)
 				{
-					var node = _Root;
-					for (var i = 0; i < paths.Count; ++i)
-					{
-						var key = paths[i];
-						if (!node.TryGetEdge(key, out var next))
-						{
-							node[key] = next = new(key, node, _Comparer);
-						}
-						if (i == paths.Count - 1 && next.Add(item))
-						{
-							++added;
-						}
-						node = next;
-					}
+					node = node.GetOrAdd(key);
+				}
+				// Node will always not be null because we add any missing paths
+				if (node.Add(item))
+				{
+					++added;
 				}
 			}
 			return added;
@@ -74,23 +70,26 @@ namespace YACCS.Commands
 
 		public int Remove(TValue item)
 		{
-			var removed = 0;
-			if (_Items.TryRemove(item, out _))
+			if (!_Items.TryRemove(item, out _))
 			{
-				foreach (var path in GetPaths(item))
+				return 0;
+			}
+
+			var removed = 0;
+			foreach (var path in GetPaths(item))
+			{
+				var node = _Root;
+				foreach (var key in path)
 				{
-					var node = _Root;
-					for (var i = 0; i < path.Count; ++i)
+					if (!node.TryGetEdge(key, out node))
 					{
-						if (!node.TryGetEdge(path[i], out node))
-						{
-							break;
-						}
-						if (i == path.Count - 1 && node.Remove(item))
-						{
-							++removed;
-						}
+						break;
 					}
+				}
+				// Node will only not be null if the path is successful
+				if (node?.Remove(item) == true)
+				{
+					++removed;
 				}
 			}
 			return removed;
@@ -108,8 +107,9 @@ namespace YACCS.Commands
 		protected abstract IEnumerable<IReadOnlyList<TKey>> GetPaths(TValue item);
 
 		[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-		protected class Node : INode<TKey, TValue>
+		private class Node : INode<TKey, TValue>
 		{
+			private readonly IEqualityComparer<TKey> _Comparer;
 			private readonly ConcurrentDictionary<TKey, Node> _Edges;
 			private readonly ConcurrentDictionary<TValue, byte> _Items;
 			private readonly TKey _Key;
@@ -145,9 +145,10 @@ namespace YACCS.Commands
 			INode<TKey, TValue> INode<TKey, TValue>.this[TKey key]
 				=> this[key];
 
-			public Node(TKey key, Node? parent, IEqualityComparer<TKey> stringComparer)
+			public Node(TKey key, Node? parent, IEqualityComparer<TKey> comparer)
 			{
-				_Edges = new(stringComparer);
+				_Comparer = comparer;
+				_Edges = new(comparer);
 				_Items = new();
 				_Key = key;
 				_Parent = parent;
@@ -165,6 +166,14 @@ namespace YACCS.Commands
 			public bool Contains(TValue item)
 				// Only direct items since the node has already been found via name
 				=> _Items.ContainsKey(item);
+
+			public Node GetOrAdd(TKey key)
+			{
+				return _Edges.GetOrAdd(key, (key, parent) =>
+				{
+					return new(key, parent, parent._Comparer);
+				}, this);
+			}
 
 			public bool Remove(TValue item)
 			{
@@ -191,7 +200,7 @@ namespace YACCS.Commands
 				[NotNullWhen(true)] out INode<TKey, TValue>? node)
 			{
 				var result = TryGetEdge(key, out var temp);
-				node = temp!;
+				node = temp;
 				return result;
 			}
 		}
