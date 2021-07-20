@@ -7,31 +7,31 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Results
 {
-	public static class CachedResults<TValue>
+	public static class CachedResults<T>
 	{
-		public static ITypeReaderResult<TValue> Canceled { get; }
-			= TypeReaderResult<TValue>.FromError(CanceledResult.Instance);
+		public static ITypeReaderResult<T> Canceled { get; }
+			= TypeReaderResult<T>.FromError(CanceledResult.Instance);
 
-		public static ITypeReaderResult<TValue> InvalidContext { get; }
-			= TypeReaderResult<TValue>.FromError(InvalidContextResult.Instance);
+		public static ITypeReaderResult<T> InvalidContext { get; }
+			= TypeReaderResult<T>.FromError(InvalidContextResult.Instance);
 
-		public static ITask<ITypeReaderResult<TValue>> InvalidContextTask { get; }
+		public static ITask<ITypeReaderResult<T>> InvalidContextTask { get; }
 			= InvalidContext.AsITask();
 
-		public static ITypeReaderResult<TValue> NamedArgBadCount { get; }
-			= TypeReaderResult<TValue>.FromError(NamedArgBadCountResult.Instance);
+		public static ITypeReaderResult<T> NamedArgBadCount { get; }
+			= TypeReaderResult<T>.FromError(NamedArgBadCountResult.Instance);
 
-		public static ITask<ITypeReaderResult<TValue>> NamedArgBadCountTask { get; }
+		public static ITask<ITypeReaderResult<T>> NamedArgBadCountTask { get; }
 			= NamedArgBadCount.AsITask();
 
-		public static ITypeReaderResult<TValue> ParseFailed { get; }
-			= TypeReaderResult<TValue>.FromError(new ParseFailedResult(typeof(TValue)));
+		public static ITypeReaderResult<T> ParseFailed { get; }
+			= TypeReaderResult<T>.FromError(new ParseFailedResult(typeof(T)));
 
-		public static ITask<ITypeReaderResult<TValue>> ParseFailedTask { get; }
+		public static ITask<ITypeReaderResult<T>> ParseFailedTask { get; }
 			= ParseFailed.AsITask();
 
-		public static ITypeReaderResult<TValue> TimedOut { get; }
-			= TypeReaderResult<TValue>.FromError(TimedOutResult.Instance);
+		public static ITypeReaderResult<T> TimedOut { get; }
+			= TypeReaderResult<T>.FromError(TimedOutResult.Instance);
 	}
 
 	public class CanceledResult : LocalizedResult

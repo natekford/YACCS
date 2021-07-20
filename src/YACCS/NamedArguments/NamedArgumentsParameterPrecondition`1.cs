@@ -8,11 +8,11 @@ using YACCS.Commands.Models;
 
 namespace YACCS.NamedArguments
 {
-	public class NamedArgumentsParameterPrecondition<TValue>
-		: NamedArgumentsParameterPreconditionBase<TValue>
+	public class NamedArgumentsParameterPrecondition<T>
+		: NamedArgumentsParameterPreconditionBase<T>
 	{
 		private static readonly object NotFound = new();
-		private readonly Func<TValue, string, object> _Getter;
+		private readonly Func<T, string, object> _Getter;
 		private readonly Lazy<IReadOnlyDictionary<string, IImmutableParameter>> _Parameters;
 
 		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters => _Parameters.Value;
@@ -23,12 +23,12 @@ namespace YACCS.NamedArguments
 			_Parameters = new(() =>
 			{
 				return NamedArgumentsUtils
-					.CreateParametersForType(typeof(TValue))
+					.CreateParametersForType(typeof(T))
 					.ToImmutableDictionary(x => x.OriginalParameterName, StringComparer.OrdinalIgnoreCase);
 			});
 		}
 
-		protected override bool TryGetValue(TValue instance, string property, out object? value)
+		protected override bool TryGetValue(T instance, string property, out object? value)
 		{
 			value = _Getter.Invoke(instance, property);
 			if (value == NotFound)
@@ -39,7 +39,7 @@ namespace YACCS.NamedArguments
 			return true;
 		}
 
-		private static Func<TValue, string, object> Getter()
+		private static Func<T, string, object> Getter()
 		{
 			/*
 			 *	(T Instance, string Name) =>
@@ -60,11 +60,11 @@ namespace YACCS.NamedArguments
 			 *	}
 			 */
 
-			var instance = Expression.Parameter(typeof(TValue), "Instance");
+			var instance = Expression.Parameter(typeof(T), "Instance");
 			var name = Expression.Parameter(typeof(string), "Name");
 
 			var objectLabel = Expression.Label(typeof(object));
-			var getters = typeof(TValue).CreateExpressionsForWritableMembers<Expression>(instance, x =>
+			var getters = typeof(T).CreateExpressionsForWritableMembers<Expression>(instance, x =>
 			{
 				// If Name == memberInfo.Name
 				var memberName = Expression.Constant(x.Member.Name);
@@ -80,7 +80,7 @@ namespace YACCS.NamedArguments
 			var returnLabel = Expression.Label(objectLabel, notFound);
 			var body = Expression.Block(getters.Append(notFound).Append(returnLabel));
 
-			var lambda = Expression.Lambda<Func<TValue, string, object>>(
+			var lambda = Expression.Lambda<Func<T, string, object>>(
 				body,
 				instance,
 				name

@@ -27,11 +27,7 @@ namespace YACCS.NamedArguments
 			{
 				if (!TryGetValue(value, property, out var propertyValue))
 				{
-					if (!paramater.HasDefaultValue)
-					{
-						return new NamedArgMissingValueResult(property);
-					}
-					propertyValue = paramater.DefaultValue;
+					return new NamedArgMissingValueResult(property);
 				}
 
 				var newMeta = new CommandMeta(meta.Command, paramater);
