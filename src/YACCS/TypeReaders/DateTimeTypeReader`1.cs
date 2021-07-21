@@ -3,7 +3,11 @@ using System.Globalization;
 
 namespace YACCS.TypeReaders
 {
-	public delegate bool DateTimeDelegate<T>(string input, IFormatProvider provider, DateTimeStyles style, out T result);
+	public delegate bool DateTimeDelegate<T>(
+		string input,
+		IFormatProvider provider,
+		DateTimeStyles style,
+		out T result);
 
 	public class DateTimeTypeReader<T> : TryParseTypeReader<T>
 	{

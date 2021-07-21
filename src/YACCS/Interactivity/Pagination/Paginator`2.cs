@@ -22,20 +22,20 @@ namespace YACCS.Interactivity.Pagination
 			{
 				await displayer.DisplayAsync(context, page).ConfigureAwait(false);
 
-				var result = await HandleInteraction<int?>(context, options, e => new(async i =>
+				var result = await HandleInteraction<int?>(context, options, async (task, input) =>
 				{
 					foreach (var criterion in options.Criteria)
 					{
-						var result = await criterion.JudgeAsync(context, i).ConfigureAwait(false);
+						var result = await criterion.JudgeAsync(context, input).ConfigureAwait(false);
 						if (!result.IsSuccess)
 						{
 							return result;
 						}
 					}
 
-					e.SetResult(displayer.Convert(i));
+					task.SetResult(displayer.Convert(input));
 					return SuccessResult.Instance;
-				})).ConfigureAwait(false);
+				}).ConfigureAwait(false);
 				if (!result.InnerResult.IsSuccess || !result.Value.HasValue)
 				{
 					return;
@@ -45,13 +45,7 @@ namespace YACCS.Interactivity.Pagination
 			}
 		}
 
-		protected static int Mod(double a, double b)
-		{
-			if (b == 0)
-			{
-				return 0;
-			}
-			return (int)(a - (b * Math.Floor(a / b)));
-		}
+		protected static int Mod(int a, int b)
+			=> b == 0 ? 0 : (int)(a - (b * Math.Floor((double)a / b)));
 	}
 }

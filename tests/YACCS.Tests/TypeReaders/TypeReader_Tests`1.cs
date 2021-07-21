@@ -17,7 +17,7 @@ namespace YACCS.Tests.TypeReaders
 		public async Task Invalid_Test()
 		{
 			await SetupAsync().ConfigureAwait(false);
-			var result = await Reader.ReadAsync(Context, Invalid).ConfigureAwait(false);
+			var result = await Reader.ReadAsync(Context, new[] { Invalid }).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 		}
 

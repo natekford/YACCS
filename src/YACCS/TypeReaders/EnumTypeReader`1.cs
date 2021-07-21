@@ -2,7 +2,11 @@
 
 namespace YACCS.TypeReaders
 {
-	public delegate bool EnumDelegate<TEnum>(string input, bool ignoreCase, out TEnum result) where TEnum : struct, Enum;
+	public delegate bool EnumDelegate<TEnum>(
+		string input,
+		bool ignoreCase,
+		out TEnum result)
+		where TEnum : struct, Enum;
 
 	public class EnumTypeReader<TEnum> : TryParseTypeReader<TEnum> where TEnum : struct, Enum
 	{

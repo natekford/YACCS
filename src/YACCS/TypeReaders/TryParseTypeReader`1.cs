@@ -27,6 +27,7 @@ namespace YACCS.TypeReaders
 			ReadOnlyMemory<string> input)
 		{
 			var handler = context.Services.GetRequiredService<IArgumentHandler>();
+
 			if (_Delegate(handler.Join(input), out var result))
 			{
 				return TypeReaderResult<TValue>.FromSuccess(result).AsITask();

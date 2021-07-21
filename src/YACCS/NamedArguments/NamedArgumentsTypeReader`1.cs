@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq.Expressions;
 
 using YACCS.Commands.Models;
@@ -17,12 +16,7 @@ namespace YACCS.NamedArguments
 
 		public NamedArgumentsTypeReader()
 		{
-			_Parameters = new(() =>
-			{
-				return NamedArgumentsUtils
-					.CreateParametersForType(typeof(T))
-					.ToImmutableDictionary(x => x.ParameterName, StringComparer.OrdinalIgnoreCase);
-			});
+			_Parameters = new(() => typeof(T).CreateParamDict(x => x.ParameterName));
 			_Setter = ReflectionUtils.CreateDelegate(Setter, "setter");
 		}
 

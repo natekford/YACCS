@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
+using YACCS.Interactivity;
 using YACCS.Interactivity.Input;
 using YACCS.TypeReaders;
 
@@ -14,9 +15,9 @@ namespace YACCS.Examples
 		private readonly Dictionary<Guid, CancellationTokenSource> _Input = new();
 
 		public ConsoleInput(
-			IReadOnlyDictionary<Type, ITypeReader> registry,
+			IReadOnlyDictionary<Type, ITypeReader> readers,
 			ConsoleHandler console)
-			: base(registry)
+			: base(readers)
 		{
 			_Console = console;
 		}
@@ -24,7 +25,10 @@ namespace YACCS.Examples
 		protected override string GetInputString(string input)
 			=> input;
 
-		protected override async Task SubscribeAsync(ConsoleContext context, OnInput onInput)
+		protected override async Task SubscribeAsync<TValue>(
+			TaskCompletionSource<TValue> task,
+			ConsoleContext context,
+			OnInput<string, TValue> onInput)
 		{
 			// Lock both input and output
 			// Input because we're using console input
@@ -32,6 +36,8 @@ namespace YACCS.Examples
 			await _Console.WaitForBothIOLocksAsync().ConfigureAwait(false);
 
 			var source = new CancellationTokenSource();
+			_Input.Add(context.Id, source);
+
 			_ = Task.Run(async () =>
 			{
 				// Only keep the loop going when not canceled
@@ -49,14 +55,15 @@ namespace YACCS.Examples
 						continue;
 					}
 
-					var result = await onInput.Invoke(input).ConfigureAwait(false);
+					var result = await onInput.Invoke(task, input).ConfigureAwait(false);
 					_Console.WriteResult(result);
 				}
 			});
-			_Input.Add(context.Id, source);
 		}
 
-		protected override Task UnsubscribeAsync(ConsoleContext context, OnInput onInput)
+		protected override Task UnsubscribeAsync<TValue>(
+			ConsoleContext context,
+			OnInput<string, TValue> onInput)
 		{
 			// Only release input lock since output lock gets released when command is done
 			_Console.ReleaseInputLock();

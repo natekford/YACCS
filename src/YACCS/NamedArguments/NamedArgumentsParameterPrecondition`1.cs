@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -20,24 +19,11 @@ namespace YACCS.NamedArguments
 		public NamedArgumentsParameterPrecondition()
 		{
 			_Getter = ReflectionUtils.CreateDelegate(Getter, "getter");
-			_Parameters = new(() =>
-			{
-				return NamedArgumentsUtils
-					.CreateParametersForType(typeof(T))
-					.ToImmutableDictionary(x => x.OriginalParameterName, StringComparer.OrdinalIgnoreCase);
-			});
+			_Parameters = new(() => typeof(T).CreateParamDict(x => x.OriginalParameterName));
 		}
 
 		protected override bool TryGetValue(T instance, string property, out object? value)
-		{
-			value = _Getter.Invoke(instance, property);
-			if (value == NotFound)
-			{
-				value = null;
-				return false;
-			}
-			return true;
-		}
+			=> (value = _Getter.Invoke(instance, property)) != NotFound;
 
 		private static Func<T, string, object> Getter()
 		{

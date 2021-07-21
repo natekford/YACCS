@@ -24,7 +24,7 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task Int_Test()
 		{
-			var result = await Reader.ReadAsync(Context, "1 2 3").ConfigureAwait(false);
+			var result = await Reader.ReadAsync(Context, new[] { "1 2 3" }).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, typeof(int[]));
 			Assert.AreEqual(1, result.Value![0]);

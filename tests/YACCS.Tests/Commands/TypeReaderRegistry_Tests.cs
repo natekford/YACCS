@@ -19,49 +19,49 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public void InvalidReaderRegistered_Test()
 		{
-			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
+			var readers = Utils.CreateServices().Get<TypeReaderRegistry>();
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				registry.Register(typeof(FakeStruct), new UriTypeReader());
+				readers.Register(typeof(FakeStruct), new UriTypeReader());
 			});
 		}
 
 		[TestMethod]
 		public void NonGenericReaderRegistered_Test()
 		{
-			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
-			registry.Register(typeof(string), new BadStringReader());
-			Assert.IsNotNull(registry[typeof(string)]);
+			var readers = Utils.CreateServices().Get<TypeReaderRegistry>();
+			readers.Register(typeof(string), new BadStringReader());
+			Assert.IsNotNull(readers[typeof(string)]);
 
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				registry.GetTypeReader<string>();
+				readers.GetTypeReader<string>();
 			});
 		}
 
 		[TestMethod]
 		public void NoReaderRegistered_Test()
 		{
-			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
+			var readers = Utils.CreateServices().Get<TypeReaderRegistry>();
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				registry.GetTypeReader<FakeStruct>();
+				readers.GetTypeReader<FakeStruct>();
 			});
 		}
 
 		[TestMethod]
 		public async Task RegisterChildTypeReaderToParent_Test()
 		{
-			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
+			var readers = Utils.CreateServices().Get<TypeReaderRegistry>();
 			var reader = new TryParseTypeReader<Child>((string input, out Child output) =>
 			{
 				output = new Child();
 				return true;
 			});
-			registry.Register(typeof(Parent), reader);
+			readers.Register(typeof(Parent), reader);
 
-			var retrieved = registry.GetTypeReader<Parent>();
-			var item = await retrieved.ReadAsync(new FakeContext(), "joe").ConfigureAwait(false);
+			var retrieved = readers.GetTypeReader<Parent>();
+			var item = await retrieved.ReadAsync(new FakeContext(), new[] { "joe" }).ConfigureAwait(false);
 			Assert.IsNotNull(retrieved);
 			Assert.IsInstanceOfType(item.Value, typeof(Parent));
 			Assert.IsInstanceOfType(item.Value, typeof(Child));
@@ -73,30 +73,30 @@ namespace YACCS.Tests.Commands
 
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				registry.GetTypeReader<Child>();
+				readers.GetTypeReader<Child>();
 			});
 		}
 
 		[TestMethod]
 		public void RegisterValueType_Test()
 		{
-			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
+			var readers = Utils.CreateServices().Get<TypeReaderRegistry>();
 			var reader = new TryParseTypeReader<FakeStruct>((string input, out FakeStruct output) =>
 			{
 				output = new FakeStruct();
 				return true;
 			});
-			registry.Register(typeof(FakeStruct), reader);
+			readers.Register(typeof(FakeStruct), reader);
 
-			Assert.IsNotNull(registry.GetTypeReader<FakeStruct>());
-			Assert.IsNotNull(registry.GetTypeReader<FakeStruct?>());
+			Assert.IsNotNull(readers.GetTypeReader<FakeStruct>());
+			Assert.IsNotNull(readers.GetTypeReader<FakeStruct?>());
 		}
 
 		[TestMethod]
 		public void TryGetEnumReader_Test()
 		{
-			var registry = Utils.CreateServices().Get<TypeReaderRegistry>();
-			var reader = registry.GetTypeReader<BindingFlags>();
+			var readers = Utils.CreateServices().Get<TypeReaderRegistry>();
+			var reader = readers.GetTypeReader<BindingFlags>();
 			Assert.IsNotNull(reader);
 		}
 

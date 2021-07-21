@@ -13,9 +13,9 @@ namespace YACCS.NamedArguments
 	public abstract class NamedArgumentsTypeReaderBase<T> : TypeReader<IContext, T>
 		where T : new()
 	{
-		private static readonly char[] _TrimEndChars = new[] { ':' };
-		private static readonly char[] _TrimStartChars = new[] { '/', '-' };
 		protected abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
+		protected char[] TrimEnd { get; set; } = new[] { ':' };
+		protected char[] TrimStart { get; set; } = new[] { '/', '-' };
 
 		public override ITask<ITypeReaderResult<T>> ReadAsync(
 			IContext context,
@@ -31,53 +31,53 @@ namespace YACCS.NamedArguments
 			{
 				return TypeReaderResult<T>.FromError(result).AsITask();
 			}
-
-			return ReadDictIntoInstanceAsync(context, dict!);
+			return ReadDictIntoInstanceAsync(context, dict);
 		}
 
 		protected abstract void Setter(T instance, string property, object? value);
 
 		protected virtual IResult TryCreateDict(
 			ReadOnlySpan<string> input,
-			out IDictionary<string, string> dict)
+			out IReadOnlyDictionary<string, string> dict)
 		{
-			dict = new Dictionary<string, string>();
+			var mutable = new Dictionary<string, string>();
+			dict = mutable;
+
 			for (var i = 0; i < input.Length; i += 2)
 			{
-				var name = input[i].TrimStart(_TrimStartChars).TrimEnd(_TrimEndChars);
+				var name = input[i].TrimStart(TrimStart).TrimEnd(TrimEnd);
 				if (!Parameters.TryGetValue(name, out var parameter))
 				{
 					return new NamedArgNonExistentResult(name);
 				}
 
-				var key = parameter.ParameterName;
-				if (dict.ContainsKey(key))
+				var property = parameter.ParameterName;
+				if (dict.ContainsKey(property))
 				{
-					return new NamedArgDuplicateResult(key);
+					return new NamedArgDuplicateResult(property);
 				}
-				dict.Add(key, input[i + 1]);
+				mutable.Add(property, input[i + 1]);
 			}
 			return SuccessResult.Instance;
 		}
 
 		private async ITask<ITypeReaderResult<T>> ReadDictIntoInstanceAsync(
 			IContext context,
-			IDictionary<string, string> dict)
+			IReadOnlyDictionary<string, string> dict)
 		{
-			var registry = context.Services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
+			var readers = context.Services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
 
 			var instance = new T();
 			foreach (var (property, input) in dict)
 			{
 				var parameter = Parameters[property];
 
-				var reader = registry.GetTypeReader(parameter);
-				var result = await reader.ReadAsync(context, input).ConfigureAwait(false);
+				var reader = readers.GetTypeReader(parameter);
+				var result = await reader.ReadAsync(context, new[] { input }).ConfigureAwait(false);
 				if (!result.InnerResult.IsSuccess)
 				{
 					return TypeReaderResult<T>.FromError(result.InnerResult);
 				}
-
 				Setter(instance, parameter.OriginalParameterName, result.Value);
 			}
 			return TypeReaderResult<T>.FromSuccess(instance);

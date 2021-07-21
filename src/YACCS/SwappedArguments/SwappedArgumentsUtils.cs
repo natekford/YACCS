@@ -27,7 +27,6 @@ namespace YACCS.SwappedArguments
 						$"Cannot swap the parameter '{parameter.OriginalParameterName}' " +
 						$"from '{command.Names?.FirstOrDefault()}' because it is a remainder.");
 				}
-
 				indices.Add(i);
 			}
 			return command.GenerateSwappedArgumentsVersions(indices, priorityDifference);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 
 using YACCS.Localization;
 
@@ -8,7 +7,7 @@ namespace YACCS.TypeReaders
 {
 	public class NullChecker : INullChecker
 	{
-		protected virtual Localized<ISet<string>> Localized { get; } = new(CreateSet);
+		protected virtual Localized<ISet<string>> Localized { get; } = new(_ => CreateSet());
 
 		protected ISet<string> Values => Localized.GetCurrent();
 
@@ -27,7 +26,7 @@ namespace YACCS.TypeReaders
 		public bool IsNull(string? value)
 			=> value is null || Values.Contains(value);
 
-		protected static ISet<string> CreateSet(CultureInfo _)
+		protected static ISet<string> CreateSet()
 		{
 			return new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 			{

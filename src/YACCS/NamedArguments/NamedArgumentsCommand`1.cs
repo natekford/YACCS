@@ -97,8 +97,7 @@ namespace YACCS.NamedArguments
 
 			public GeneratedNamedArgumentsParameterPrecondition(IImmutableCommand command)
 			{
-				Parameters = command.Parameters
-					.ToImmutableDictionary(x => x.OriginalParameterName, StringComparer.OrdinalIgnoreCase);
+				Parameters = command.Parameters.ToParamDict(x => x.OriginalParameterName);
 			}
 
 			protected override bool TryGetValue(T instance, string property, out object? value)
@@ -113,8 +112,7 @@ namespace YACCS.NamedArguments
 					{
 						return false;
 					}
-
-					value = instance[property] = Parameters[property].DefaultValue;
+					value = instance[property] = parameter.DefaultValue;
 				}
 				return true;
 			}
@@ -126,8 +124,7 @@ namespace YACCS.NamedArguments
 
 			public GeneratedNamedArgumentsTypeReader(IImmutableCommand command)
 			{
-				Parameters = command.Parameters
-					.ToImmutableDictionary(x => x.ParameterName, StringComparer.OrdinalIgnoreCase);
+				Parameters = command.Parameters.ToParamDict(x => x.ParameterName);
 			}
 
 			protected override void Setter(T instance, string property, object? value)

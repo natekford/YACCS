@@ -33,11 +33,11 @@ namespace YACCS.Interactivity.Input
 			TContext context,
 			IInputOptions<TContext, TInput, TValue> options)
 		{
-			return HandleInteraction<TValue>(context, options, e => new(async i =>
+			return HandleInteraction<TValue>(context, options, async (task, input) =>
 			{
 				foreach (var criterion in options.Criteria)
 				{
-					var result = await criterion.JudgeAsync(context, i).ConfigureAwait(false);
+					var result = await criterion.JudgeAsync(context, input).ConfigureAwait(false);
 					if (!result.IsSuccess)
 					{
 						return result;
@@ -45,7 +45,7 @@ namespace YACCS.Interactivity.Input
 				}
 
 				var tr = options.TypeReader ?? TypeReaders.GetTypeReader<TValue>();
-				var trResult = await tr.ReadAsync(context, GetInputString(i)).ConfigureAwait(false);
+				var trResult = await tr.ReadAsync(context, new[] { GetInputString(input) }).ConfigureAwait(false);
 				if (!trResult.InnerResult.IsSuccess)
 				{
 					return trResult.InnerResult;
@@ -65,9 +65,9 @@ namespace YACCS.Interactivity.Input
 					}
 				}
 
-				e.SetResult(trResult.Value!);
+				task.SetResult(trResult.Value!);
 				return SuccessResult.Instance;
-			}));
+			});
 		}
 
 		protected abstract string GetInputString(TInput input);

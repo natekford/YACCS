@@ -25,7 +25,7 @@ namespace YACCS.Tests.TypeReaders
 					.AddSingleton<INullChecker>(checker)
 					.BuildServiceProvider(),
 			};
-			var result = await Reader.ReadAsync(context, JOE).ConfigureAwait(false);
+			var result = await Reader.ReadAsync(context, new[] { JOE }).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsNull(result.Value);
 		}
@@ -33,7 +33,7 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task Null_Test()
 		{
-			var result = await Reader.ReadAsync(Context, default(string)!).ConfigureAwait(false);
+			var result = await Reader.ReadAsync(Context, new[] { default(string)! }).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsNull(result.Value);
 		}
@@ -41,7 +41,7 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task NullString_Test()
 		{
-			var result = await Reader.ReadAsync(Context, "null").ConfigureAwait(false);
+			var result = await Reader.ReadAsync(Context, new[] { "null" }).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsNull(result.Value);
 		}
@@ -49,7 +49,7 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task Valid_Test()
 		{
-			var result = await Reader.ReadAsync(Context, "1").ConfigureAwait(false);
+			var result = await Reader.ReadAsync(Context, new[] { "1" }).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, typeof(int?));
 			Assert.AreEqual(1, result.Value!.Value);

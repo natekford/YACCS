@@ -16,9 +16,9 @@ namespace YACCS.TypeReaders
 			=> Task.FromResult(result).AsITask();
 
 		public static ITypeReader<T> GetTypeReader<T>(
-			this IReadOnlyDictionary<Type, ITypeReader> registry)
+			this IReadOnlyDictionary<Type, ITypeReader> readers)
 		{
-			if (registry.TryGetValue(typeof(T), out var temp) && temp is ITypeReader<T> reader)
+			if (readers.TryGetValue(typeof(T), out var temp) && temp is ITypeReader<T> reader)
 			{
 				return reader;
 			}
@@ -27,9 +27,9 @@ namespace YACCS.TypeReaders
 		}
 
 		public static ITypeReader GetTypeReader(
-			this IReadOnlyDictionary<Type, ITypeReader> registry,
+			this IReadOnlyDictionary<Type, ITypeReader> readers,
 			IImmutableParameter parameter)
-			=> parameter.TypeReader ?? registry[parameter.ParameterType];
+			=> parameter.TypeReader ?? readers[parameter.ParameterType];
 
 		public static IEnumerable<TypeReaderInfo> GetTypeReaders(this Assembly assembly)
 		{
@@ -46,27 +46,15 @@ namespace YACCS.TypeReaders
 			}
 		}
 
-		public static ITask<ITypeReaderResult> ReadAsync(
-			this ITypeReader reader,
-			IContext context,
-			string input)
-			=> reader.ReadAsync(context, new[] { input });
-
-		public static ITask<ITypeReaderResult<T>> ReadAsync<T>(
-			this ITypeReader<T> reader,
-			IContext context,
-			string input)
-			=> reader.ReadAsync(context, new[] { input });
-
 		public static void RegisterTypeReaders(
-			this IDictionary<Type, ITypeReader> registry,
-			IEnumerable<TypeReaderInfo> typeReaderInfos)
+			this IDictionary<Type, ITypeReader> readers,
+			IEnumerable<TypeReaderInfo> typeReaders)
 		{
-			foreach (var typeReaderInfo in typeReaderInfos)
+			foreach (var typeReader in typeReaders)
 			{
-				foreach (var type in typeReaderInfo.TargetTypes)
+				foreach (var type in typeReader.TargetTypes)
 				{
-					registry[type] = typeReaderInfo.Instance;
+					readers[type] = typeReader.Instance;
 				}
 			}
 		}

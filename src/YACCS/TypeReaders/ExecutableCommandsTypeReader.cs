@@ -31,6 +31,7 @@ namespace YACCS.TypeReaders
 					executableCommands.Add(command);
 				}
 			}
+
 			if (executableCommands.Count > 0)
 			{
 				return TypeReaderResult<IReadOnlyCollection<IImmutableCommand>>.FromSuccess(executableCommands);
