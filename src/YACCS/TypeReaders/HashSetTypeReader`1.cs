@@ -6,11 +6,11 @@ using YACCS.Commands;
 
 namespace YACCS.TypeReaders
 {
-	public class ListTypeReader<T> : CollectionTypeReader<T, List<T>>
+	public class HashSetTypeReader<T> : CollectionTypeReader<T, HashSet<T>>
 	{
-		protected override ValueTask<List<T>> CreateCollectionAsync(
+		protected override ValueTask<HashSet<T>> CreateCollectionAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
-			=> new(new List<T>(input.Length));
+			=> new(new HashSet<T>(input.Length));
 	}
 }
