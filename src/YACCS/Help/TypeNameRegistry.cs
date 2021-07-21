@@ -46,12 +46,12 @@ namespace YACCS.Help
 			{
 				value = GenerateNullableName(key.GetGenericArguments()[0]);
 			}
-			else if (key.GetCollectionType() is Type cType)
+			else if (key.TryGetCollectionType(out var cType))
 			{
 				value = GenerateListName(cType);
 			}
 			// For sets, just return list name
-			else if (key.GetHashSetType() is Type sType)
+			else if (key.TryGetHashSetType(out var sType))
 			{
 				value = GenerateListName(sType);
 			}

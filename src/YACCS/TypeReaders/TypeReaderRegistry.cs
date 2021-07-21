@@ -101,12 +101,12 @@ namespace YACCS.TypeReaders
 			{
 				readerType = typeof(NamedArgumentsTypeReader<>).MakeGenericType(type);
 			}
-			else if (type.GetCollectionType() is Type cType && Items.ContainsKey(cType))
+			else if (type.TryGetCollectionType(out var cType) && Items.ContainsKey(cType))
 			{
 				var typeDef = type.IsArray ? typeof(ArrayTypeReader<>) : typeof(ListTypeReader<>);
 				readerType = typeDef.MakeGenericType(cType);
 			}
-			else if (type.GetHashSetType() is Type sType && Items.ContainsKey(sType))
+			else if (type.TryGetHashSetType(out var sType) && Items.ContainsKey(sType))
 			{
 				readerType = typeof(HashSetTypeReader<>).MakeGenericType(sType);
 			}

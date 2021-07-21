@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -12,40 +13,28 @@ namespace YACCS.TypeReaders
 {
 	public static class TypeReaderUtils
 	{
+		// Don't deal with the non generic versions b/c how would we parse 'object'?
+
 		// HashSet<T> and its generic interfaces
 		public static ImmutableHashSet<Type> HashSetTypes { get; } = new HashSet<Type>
 		{
-			typeof(ISet<>),
 			typeof(HashSet<>),
+			typeof(ISet<>),
 		}.ToImmutableHashSet();
 
 		// List<T> and its generic interfaces
-		// Don't deal with the non generic versions b/c how would we parse 'object'?
 		public static ImmutableHashSet<Type> ListTypes { get; } = new HashSet<Type>
 		{
+			typeof(List<>),
 			typeof(IList<>),
 			typeof(ICollection<>),
 			typeof(IEnumerable<>),
 			typeof(IReadOnlyList<>),
 			typeof(IReadOnlyCollection<>),
-			typeof(List<>),
 		}.ToImmutableHashSet();
 
 		public static ITask<ITypeReaderResult<T>> AsITask<T>(this ITypeReaderResult<T> result)
 			=> Task.FromResult(result).AsITask();
-
-		public static Type? GetCollectionType(this Type type)
-		{
-			// If the type is an array, return its element type
-			if (type.IsArray)
-			{
-				return type.GetElementType();
-			}
-			return type.GetEnumerableType(ListTypes);
-		}
-
-		public static Type? GetHashSetType(this Type type)
-			=> type.GetEnumerableType(HashSetTypes);
 
 		public static ITypeReader<T> GetTypeReader<T>(
 			this IReadOnlyDictionary<Type, ITypeReader> readers)
@@ -101,13 +90,36 @@ namespace YACCS.TypeReaders
 			}
 		}
 
-		private static Type? GetEnumerableType(this Type type, IImmutableSet<Type> defs)
+		public static bool TryGetCollectionType(
+			this Type type,
+			[NotNullWhen(true)] out Type? collectionType)
+		{
+			// If the type is an array, return its element type
+			if (type.IsArray)
+			{
+				collectionType = type.GetElementType();
+				return true;
+			}
+			return type.TryGetEnumerableType(ListTypes, out collectionType);
+		}
+
+		public static bool TryGetHashSetType(
+			this Type type,
+			[NotNullWhen(true)] out Type? setType)
+			=> type.TryGetEnumerableType(HashSetTypes, out setType);
+
+		private static bool TryGetEnumerableType(
+			this Type type,
+			IImmutableSet<Type> defs,
+			[NotNullWhen(true)] out Type? enumerableType)
 		{
 			if (type.IsGenericType && defs.Contains(type.GetGenericTypeDefinition()))
 			{
-				return type.GetGenericArguments()[0];
+				enumerableType = type.GetGenericArguments()[0];
+				return true;
 			}
-			return null;
+			enumerableType = null;
+			return false;
 		}
 	}
 }
