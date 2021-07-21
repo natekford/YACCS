@@ -25,7 +25,7 @@ namespace YACCS.NamedArguments
 
 			foreach (var (property, parameter) in Parameters)
 			{
-				if (!TryGetValue(value, property, out var propertyValue))
+				if (!TryGetProperty(value, property, out var propertyValue))
 				{
 					return new NamedArgMissingValueResult(property);
 				}
@@ -40,6 +40,6 @@ namespace YACCS.NamedArguments
 			return SuccessResult.Instance;
 		}
 
-		protected abstract bool TryGetValue(T instance, string property, out object? value);
+		protected abstract bool TryGetProperty(T instance, string property, out object? value);
 	}
 }

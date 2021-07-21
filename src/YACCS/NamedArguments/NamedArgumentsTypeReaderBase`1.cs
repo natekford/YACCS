@@ -34,7 +34,7 @@ namespace YACCS.NamedArguments
 			return ReadDictIntoInstanceAsync(context, dict);
 		}
 
-		protected abstract void Setter(T instance, string property, object? value);
+		protected abstract void SetProperty(T instance, string property, object? value);
 
 		protected virtual IResult TryCreateDict(
 			ReadOnlySpan<string> input,
@@ -78,7 +78,7 @@ namespace YACCS.NamedArguments
 				{
 					return Error(result.InnerResult);
 				}
-				Setter(instance, parameter.OriginalParameterName, result.Value);
+				SetProperty(instance, parameter.OriginalParameterName, result.Value);
 			}
 			return Success(instance);
 		}

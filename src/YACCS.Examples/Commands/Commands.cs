@@ -37,6 +37,10 @@ namespace YACCS.Examples.Commands
 		public string Echo([Remainder] string input)
 			=> input;
 
+		[Command(nameof(EchoDistinctLines), "EDL")]
+		public string EchoDistinctLines([Remainder] HashSet<string> input)
+			=> string.Join('\n', input);
+
 		[Command(nameof(EchoMultipleLines), "EML")]
 		public string EchoMultipleLines([Remainder] List<string> input)
 			=> string.Join('\n', input);

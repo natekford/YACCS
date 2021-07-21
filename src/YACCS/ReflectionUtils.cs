@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -9,18 +8,6 @@ namespace YACCS
 {
 	public static class ReflectionUtils
 	{
-		// List<T> and its generic interfaces
-		// Don't deal with the non generic versions b/c how would we parse 'object'?
-		public static ImmutableHashSet<Type> ListTypes { get; } = new HashSet<Type>
-		{
-			typeof(IList<>),
-			typeof(ICollection<>),
-			typeof(IEnumerable<>),
-			typeof(IReadOnlyList<>),
-			typeof(IReadOnlyCollection<>),
-			typeof(List<>),
-		}.ToImmutableHashSet();
-
 		public static TryExpression AddThrow<T>(
 			this Expression body,
 			Expression<Action<T>> createException)
@@ -49,22 +36,21 @@ namespace YACCS
 
 		public static IEnumerable<T> CreateExpressionsForWritableMembers<T>(
 			this Type type,
-			Func<MemberInfo, T> createExpression)
+			Expression instance,
+			Func<MemberExpression, T> createExpression)
 			where T : Expression
 		{
-			var (properties, fields) = type.GetWritableMembers();
-			var propertyExpressions = properties.Select(createExpression);
-			var fieldExpressions = fields.Select(createExpression);
-			return propertyExpressions.Concat(fieldExpressions);
-		}
+			T Convert(MemberInfo x)
+			{
+				var instanceCast = Expression.Convert(instance, x.DeclaringType);
+				var access = Expression.MakeMemberAccess(instanceCast, x);
+				return createExpression(access);
+			}
 
-		public static IEnumerable<T> CreateExpressionsForWritableMembers<T>(
-			this Type type,
-			Expression instance,
-			Func<MemberExpression, T> createExpression) where T : Expression
-		{
-			T Convert(MemberInfo x) => createExpression(instance.CreateMemberAccessExpression(x));
-			return type.CreateExpressionsForWritableMembers(Convert);
+			var (properties, fields) = type.GetWritableMembers();
+			var propertyExpressions = properties.Select(Convert);
+			var fieldExpressions = fields.Select(Convert);
+			return propertyExpressions.Concat(fieldExpressions);
 		}
 
 		public static T CreateInstance<T>(this Type type, params object[] args)
@@ -120,27 +106,6 @@ namespace YACCS
 			}
 
 			return (body, args);
-		}
-
-		public static MemberExpression CreateMemberAccessExpression(
-			this Expression instance,
-			MemberInfo member)
-		{
-			var instanceCast = Expression.Convert(instance, member.DeclaringType);
-			return Expression.MakeMemberAccess(instanceCast, member);
-		}
-
-		public static Type? GetListType(this Type type)
-		{
-			if (type.IsArray)
-			{
-				return type.GetElementType();
-			}
-			if (type.IsGenericType && ListTypes.Contains(type.GetGenericTypeDefinition()))
-			{
-				return type.GetGenericArguments()[0];
-			}
-			return null;
 		}
 
 		public static (IEnumerable<PropertyInfo>, IEnumerable<FieldInfo>) GetWritableMembers(

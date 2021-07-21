@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 using YACCS.Localization;
+using YACCS.TypeReaders;
 
 namespace YACCS.Help
 {
@@ -45,9 +46,14 @@ namespace YACCS.Help
 			{
 				value = GenerateNullableName(key.GetGenericArguments()[0]);
 			}
-			else if (key.GetListType() is Type eType)
+			else if (key.GetCollectionType() is Type cType)
 			{
-				value = GenerateListName(eType);
+				value = GenerateListName(cType);
+			}
+			// For sets, just return list name
+			else if (key.GetHashSetType() is Type sType)
+			{
+				value = GenerateListName(sType);
 			}
 
 			value ??= key.Name;

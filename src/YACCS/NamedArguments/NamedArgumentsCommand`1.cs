@@ -100,7 +100,7 @@ namespace YACCS.NamedArguments
 				Parameters = command.Parameters.ToParamDict(x => x.OriginalParameterName);
 			}
 
-			protected override bool TryGetValue(T instance, string property, out object? value)
+			protected override bool TryGetProperty(T instance, string property, out object? value)
 			{
 				// If the value is already in the dictionary, we use that
 				// If it's not, check if it has a default value
@@ -127,7 +127,7 @@ namespace YACCS.NamedArguments
 				Parameters = command.Parameters.ToParamDict(x => x.ParameterName);
 			}
 
-			protected override void Setter(T instance, string property, object? value)
+			protected override void SetProperty(T instance, string property, object? value)
 				=> instance[property] = value;
 		}
 	}

@@ -20,7 +20,7 @@ namespace YACCS.NamedArguments
 			_Setter = ReflectionUtils.CreateDelegate(Setter, "setter");
 		}
 
-		protected override void Setter(T instance, string property, object? value)
+		protected override void SetProperty(T instance, string property, object? value)
 			=> _Setter.Invoke(instance, property, value);
 
 		private static Action<T, string, object?> Setter()

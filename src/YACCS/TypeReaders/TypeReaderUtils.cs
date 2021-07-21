@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -11,8 +12,40 @@ namespace YACCS.TypeReaders
 {
 	public static class TypeReaderUtils
 	{
+		// HashSet<T> and its generic interfaces
+		public static ImmutableHashSet<Type> HashSetTypes { get; } = new HashSet<Type>
+		{
+			typeof(ISet<>),
+			typeof(HashSet<>),
+		}.ToImmutableHashSet();
+
+		// List<T> and its generic interfaces
+		// Don't deal with the non generic versions b/c how would we parse 'object'?
+		public static ImmutableHashSet<Type> ListTypes { get; } = new HashSet<Type>
+		{
+			typeof(IList<>),
+			typeof(ICollection<>),
+			typeof(IEnumerable<>),
+			typeof(IReadOnlyList<>),
+			typeof(IReadOnlyCollection<>),
+			typeof(List<>),
+		}.ToImmutableHashSet();
+
 		public static ITask<ITypeReaderResult<T>> AsITask<T>(this ITypeReaderResult<T> result)
 			=> Task.FromResult(result).AsITask();
+
+		public static Type? GetCollectionType(this Type type)
+		{
+			// If the type is an array, return its element type
+			if (type.IsArray)
+			{
+				return type.GetElementType();
+			}
+			return type.GetEnumerableType(ListTypes);
+		}
+
+		public static Type? GetHashSetType(this Type type)
+			=> type.GetEnumerableType(HashSetTypes);
 
 		public static ITypeReader<T> GetTypeReader<T>(
 			this IReadOnlyDictionary<Type, ITypeReader> readers)
@@ -66,6 +99,15 @@ namespace YACCS.TypeReaders
 					$"A type reader with the output type {reader.OutputType.Name} " +
 					$"cannot be used for the type {type.Name}.", nameof(reader));
 			}
+		}
+
+		private static Type? GetEnumerableType(this Type type, IImmutableSet<Type> defs)
+		{
+			if (type.IsGenericType && defs.Contains(type.GetGenericTypeDefinition()))
+			{
+				return type.GetGenericArguments()[0];
+			}
+			return null;
 		}
 	}
 }

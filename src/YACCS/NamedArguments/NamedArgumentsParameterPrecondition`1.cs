@@ -22,7 +22,7 @@ namespace YACCS.NamedArguments
 			_Parameters = new(() => typeof(T).CreateParamDict(x => x.OriginalParameterName));
 		}
 
-		protected override bool TryGetValue(T instance, string property, out object? value)
+		protected override bool TryGetProperty(T instance, string property, out object? value)
 			=> (value = _Getter.Invoke(instance, property)) != NotFound;
 
 		private static Func<T, string, object> Getter()
