@@ -25,11 +25,11 @@ namespace YACCS.TypeReaders
 			var commands = context.Services.GetRequiredService<ICommandService>();
 
 			var found = commands.Find(input);
-			if (found.Count > 0)
+			if (found.Count == 0)
 			{
-				return TypeReaderResult<IReadOnlyCollection<IImmutableCommand>>.FromSuccess(found).AsITask();
+				return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailedTask;
 			}
-			return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailedTask;
+			return Success(found).AsITask();
 		}
 	}
 }

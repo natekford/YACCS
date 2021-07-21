@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -8,16 +9,17 @@ namespace YACCS
 {
 	public static class ReflectionUtils
 	{
-		// Some interfaces Array implements
+		// List<T> and its generic interfaces
 		// Don't deal with the non generic versions b/c how would we parse 'object'?
-		public static readonly HashSet<Type> SupportedArrayInterfaces = new()
+		public static ImmutableHashSet<Type> ListTypes { get; } = new HashSet<Type>
 		{
 			typeof(IList<>),
 			typeof(ICollection<>),
 			typeof(IEnumerable<>),
 			typeof(IReadOnlyList<>),
 			typeof(IReadOnlyCollection<>),
-		};
+			typeof(List<>),
+		}.ToImmutableHashSet();
 
 		public static TryExpression AddThrow<T>(
 			this Expression body,
@@ -128,14 +130,13 @@ namespace YACCS
 			return Expression.MakeMemberAccess(instanceCast, member);
 		}
 
-		public static Type? GetArrayType(this Type type)
+		public static Type? GetListType(this Type type)
 		{
 			if (type.IsArray)
 			{
 				return type.GetElementType();
 			}
-			if (type.IsInterface && type.IsGenericType
-				&& SupportedArrayInterfaces.Contains(type.GetGenericTypeDefinition()))
+			if (type.IsGenericType && ListTypes.Contains(type.GetGenericTypeDefinition()))
 			{
 				return type.GetGenericArguments()[0];
 			}

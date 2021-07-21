@@ -101,9 +101,10 @@ namespace YACCS.TypeReaders
 			{
 				readerType = typeof(NamedArgumentsTypeReader<>).MakeGenericType(type);
 			}
-			else if (type.GetArrayType() is Type eType && Items.ContainsKey(eType))
+			else if (type.GetListType() is Type eType && Items.ContainsKey(eType))
 			{
-				readerType = typeof(ArrayTypeReader<>).MakeGenericType(eType);
+				var typeDef = type.IsArray ? typeof(ArrayTypeReader<>) : typeof(ListTypeReader<>);
+				readerType = typeDef.MakeGenericType(eType);
 			}
 			else
 			{

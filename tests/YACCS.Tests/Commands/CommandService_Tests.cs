@@ -688,9 +688,8 @@ namespace YACCS.Tests.Commands
 				0
 			).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
-			Assert.IsInstanceOfType(result.Value, value.GetType());
 
-			var cast = (int[])result.Value!;
+			var cast = (IReadOnlyList<int>)result.Value!;
 			for (var i = 0; i < value.Length; ++i)
 			{
 				Assert.AreEqual(value[i], cast[i]);
@@ -709,9 +708,8 @@ namespace YACCS.Tests.Commands
 				0
 			).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
-			Assert.IsInstanceOfType(result.Value, value.GetType());
 
-			var cast = (int[])result.Value!;
+			var cast = (IReadOnlyList<int>)result.Value!;
 			for (var i = 0; i < value.Length; ++i)
 			{
 				Assert.AreEqual(value[i], cast[i]);
@@ -730,9 +728,8 @@ namespace YACCS.Tests.Commands
 				0
 			).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
-			Assert.IsInstanceOfType(result.Value, value.GetType());
 
-			var cast = (int[])result.Value!;
+			var cast = (IReadOnlyList<int>)result.Value!;
 			for (var i = 0; i < value.Length; ++i)
 			{
 				Assert.AreEqual(value[i], cast[i]);
@@ -877,7 +874,7 @@ namespace YACCS.Tests.Commands
 			public override ITask<ITypeReaderResult<char>> ReadAsync(
 				IContext context,
 				ReadOnlyMemory<string> input)
-				=> TypeReaderResult<char>.FromSuccess('z').AsITask();
+				=> Success('z').AsITask();
 		}
 	}
 

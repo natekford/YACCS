@@ -29,7 +29,7 @@ namespace YACCS.NamedArguments
 			var result = TryCreateDict(input.Span, out var dict);
 			if (!result.IsSuccess)
 			{
-				return TypeReaderResult<T>.FromError(result).AsITask();
+				return Error(result).AsITask();
 			}
 			return ReadDictIntoInstanceAsync(context, dict);
 		}
@@ -76,11 +76,11 @@ namespace YACCS.NamedArguments
 				var result = await reader.ReadAsync(context, new[] { input }).ConfigureAwait(false);
 				if (!result.InnerResult.IsSuccess)
 				{
-					return TypeReaderResult<T>.FromError(result.InnerResult);
+					return Error(result.InnerResult);
 				}
 				Setter(instance, parameter.OriginalParameterName, result.Value);
 			}
-			return TypeReaderResult<T>.FromSuccess(instance);
+			return Success(instance);
 		}
 	}
 }

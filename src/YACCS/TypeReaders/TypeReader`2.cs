@@ -27,6 +27,9 @@ namespace YACCS.TypeReaders
 			ReadOnlyMemory<string> input)
 			=> ReadInternalAsync(context, input);
 
+		protected ITypeReaderResult<TValue> Error(IResult result)
+			=> TypeReaderResult<TValue>.FromError(result);
+
 		protected virtual ITask<ITypeReaderResult<TValue>> ReadInternalAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
@@ -37,5 +40,8 @@ namespace YACCS.TypeReaders
 			}
 			return ReadAsync(tContext, input);
 		}
+
+		protected ITypeReaderResult<TValue> Success(TValue value)
+			=> TypeReaderResult<TValue>.FromSuccess(value);
 	}
 }

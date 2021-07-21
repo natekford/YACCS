@@ -20,7 +20,7 @@ namespace YACCS.TypeReaders
 			{
 				return CachedResults<TContext>.InvalidContextTask;
 			}
-			return TypeReaderResult<TContext>.FromSuccess(tContext).AsITask();
+			return Success(tContext).AsITask();
 		}
 	}
 }

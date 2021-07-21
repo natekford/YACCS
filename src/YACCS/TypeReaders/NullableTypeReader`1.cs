@@ -10,7 +10,7 @@ namespace YACCS.TypeReaders
 	public class NullableTypeReader<TValue> : TypeReader<TValue?> where TValue : struct
 	{
 		private static readonly NullChecker _Checker = new();
-		private static readonly ITypeReaderResult<TValue?> _NullResult
+		private static readonly ITypeReaderResult<TValue?> _Null
 			= TypeReaderResult<TValue?>.FromSuccess(null);
 
 		public override async ITask<ITypeReaderResult<TValue?>> ReadAsync(
@@ -22,7 +22,7 @@ namespace YACCS.TypeReaders
 			var checker = context.Services.GetService<INullChecker>() ?? _Checker;
 			if (input.Length == 1 && checker.IsNull(input.Span[0]))
 			{
-				return _NullResult;
+				return _Null;
 			}
 
 			var readers = context.Services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
@@ -30,9 +30,9 @@ namespace YACCS.TypeReaders
 			var result = await reader.ReadAsync(context, input).ConfigureAwait(false);
 			if (!result.InnerResult.IsSuccess)
 			{
-				return TypeReaderResult<TValue?>.FromError(result.InnerResult);
+				return Error(result.InnerResult);
 			}
-			return TypeReaderResult<TValue?>.FromSuccess(result.Value);
+			return Success(result.Value);
 		}
 	}
 }

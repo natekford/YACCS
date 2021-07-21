@@ -28,11 +28,11 @@ namespace YACCS.TypeReaders
 		{
 			var handler = context.Services.GetRequiredService<IArgumentHandler>();
 
-			if (_Delegate(handler.Join(input), out var result))
+			if (!_Delegate(handler.Join(input), out var result))
 			{
-				return TypeReaderResult<TValue>.FromSuccess(result).AsITask();
+				return CachedResults<TValue>.ParseFailedTask;
 			}
-			return CachedResults<TValue>.ParseFailedTask;
+			return Success(result).AsITask();
 		}
 	}
 }

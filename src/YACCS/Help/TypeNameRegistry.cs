@@ -45,7 +45,7 @@ namespace YACCS.Help
 			{
 				value = GenerateNullableName(key.GetGenericArguments()[0]);
 			}
-			else if (key.GetArrayType() is Type eType)
+			else if (key.GetListType() is Type eType)
 			{
 				value = GenerateListName(eType);
 			}

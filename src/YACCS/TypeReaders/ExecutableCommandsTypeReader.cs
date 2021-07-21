@@ -32,11 +32,11 @@ namespace YACCS.TypeReaders
 				}
 			}
 
-			if (executableCommands.Count > 0)
+			if (executableCommands.Count == 0)
 			{
-				return TypeReaderResult<IReadOnlyCollection<IImmutableCommand>>.FromSuccess(executableCommands);
+				return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailed;
 			}
-			return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailed;
+			return Success(executableCommands);
 		}
 	}
 }

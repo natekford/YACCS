@@ -27,10 +27,10 @@ namespace YACCS.Examples
 				SingleWriter = true,
 				AllowSynchronousContinuations = false,
 			});
-			_ = Task.Run(WriteToChannelAsync);
+			_ = Task.Run(StartWritingToChannel);
 		}
 
-		private async Task WriteToChannelAsync()
+		private async Task StartWritingToChannel()
 		{
 			while (true)
 			{
@@ -38,12 +38,11 @@ namespace YACCS.Examples
 			}
 		}
 
-		public async Task<string?> ReadLineAsync()
+		public async Task<string?> ReadLineAsync(CancellationToken token = default)
 		{
 			try
 			{
-				await _Channel.Reader.WaitToReadAsync().ConfigureAwait(false);
-				return await _Channel.Reader.ReadAsync().ConfigureAwait(false);
+				return await _Channel.Reader.ReadAsync(token).ConfigureAwait(false);
 			}
 			catch (OperationCanceledException)
 			{
@@ -63,10 +62,10 @@ namespace YACCS.Examples
 		public void ReleaseOutputLock()
 			=> ReleaseIfZero(_Output);
 
-		public async Task WaitForBothIOLocksAsync()
+		public async Task WaitForBothIOLocksAsync(CancellationToken token = default)
 		{
-			await _Input.WaitAsync().ConfigureAwait(false);
-			await _Output.WaitAsync().ConfigureAwait(false);
+			await _Input.WaitAsync(token).ConfigureAwait(false);
+			await _Output.WaitAsync(token).ConfigureAwait(false);
 		}
 
 		public void WriteLine(string input = "", ConsoleColor? color = null)

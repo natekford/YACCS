@@ -23,7 +23,7 @@ namespace YACCS.Examples.Commands
 			return $"Successfully changed the current UI culture to {culture}.";
 		}
 
-		[Command(nameof(Divide))]
+		[Command(nameof(Divide), "D")]
 		[Summary("Divides two numbers and returns the result (rounded down).")]
 		public int Divide(
 			[Summary("The number being divided.")]
@@ -33,12 +33,12 @@ namespace YACCS.Examples.Commands
 			int divisor)
 			=> numerator / divisor;
 
-		[Command(nameof(Echo))]
+		[Command(nameof(Echo), "E")]
 		public string Echo([Remainder] string input)
 			=> input;
 
-		[Command(nameof(EchoMultipleLines))]
-		public string EchoMultipleLines([Remainder] IEnumerable<string> input)
+		[Command(nameof(EchoMultipleLines), "EML")]
+		public string EchoMultipleLines([Remainder] List<string> input)
 			=> string.Join('\n', input);
 
 		[Command(nameof(Exit))]
@@ -53,7 +53,7 @@ namespace YACCS.Examples.Commands
 		public void Throws()
 			=> throw new InvalidOperationException("i throw for no reason");
 
-		[Command(nameof(Time))]
+		[Command(nameof(Time), "T")]
 		[Summary("Prints out the current time in UTC, optionally converted to a specified timezone.")]
 		public string Time(
 			[Summary("The timezone to convert to, no input means UTC.")]

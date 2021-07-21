@@ -184,7 +184,7 @@ namespace YACCS.Tests.Commands.Models
 			public override ITask<ITypeReaderResult<string>> ReadAsync(
 				IContext context,
 				ReadOnlyMemory<string> input)
-				=> TypeReaderResult<string>.FromSuccess(VALUE).AsITask();
+				=> Success(VALUE).AsITask();
 		}
 
 		private class GroupBase : CommandGroup<FakeContext>

@@ -1,54 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
 
 using MorseCode.ITask;
 
 using YACCS.Commands;
-using YACCS.Parsing;
 
 namespace YACCS.TypeReaders
 {
-	public class ArrayTypeReader<TValue> : TypeReader<TValue[]>
+	public class ArrayTypeReader<T> : TypeReader<T[]>
 	{
-		public override async ITask<ITypeReaderResult<TValue[]>> ReadAsync(
+		private readonly ListTypeReader<T> _ListTypeReader = new();
+
+		public override async ITask<ITypeReaderResult<T[]>> ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
-			// We don't need to handle having the correct context type because
-			// the type reader we retrieve handles that
-			var readers = context.Services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
-			var handler = context.Services.GetRequiredService<IArgumentHandler>();
-
-			var reader = readers.GetTypeReader<TValue>();
-			var values = new List<TValue>(input.Length);
-			for (var i = 0; i < input.Length; ++i)
+			// It's simpler to have this class rely on an instance of ListTypeReader
+			// than to separate out the logic to a base class or static method
+			var result = await _ListTypeReader.ReadAsync(context, input).ConfigureAwait(false);
+			if (!result.InnerResult.IsSuccess)
 			{
-				// Try to convert directly from the input string
-				var iResult = await reader.ReadAsync(context, input.Slice(i, 1)).ConfigureAwait(false);
-				if (iResult.InnerResult.IsSuccess)
-				{
-					values.Add(iResult.Value!);
-					continue;
-				}
-
-				// Converting directly from the input string didn't work
-				// Try splitting the input string
-				if (!handler.TrySplit(input.Span[i], out var args) || args.Length < 2)
-				{
-					return TypeReaderResult<TValue[]>.FromError(iResult.InnerResult);
-				}
-
-				for (var j = 0; j < args.Length; ++j)
-				{
-					var jResult = await reader.ReadAsync(context, args.Slice(j, 1)).ConfigureAwait(false);
-					if (!jResult.InnerResult.IsSuccess)
-					{
-						return TypeReaderResult<TValue[]>.FromError(jResult.InnerResult);
-					}
-					values.Add(jResult.Value!);
-				}
+				return Error(result.InnerResult);
 			}
-			return TypeReaderResult<TValue[]>.FromSuccess(values.ToArray());
+			return Success(result.Value!.ToArray());
 		}
 	}
 }
