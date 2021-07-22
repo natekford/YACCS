@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
-
-using YACCS.Commands.Models;
 
 namespace YACCS.Commands.Attributes
 {
@@ -14,15 +11,6 @@ namespace YACCS.Commands.Attributes
 			| AttributeTargets.Parameter
 			| AttributeTargets.Property
 			| AttributeTargets.Field;
-
-		public static ImmutableArray<object> CreateGeneratedCommandAttributeList(
-			this IImmutableCommand source)
-		{
-			var builder = ImmutableArray.CreateBuilder<object>(source.Attributes.Count + 1);
-			builder.AddRange(source.Attributes);
-			builder.Add(new GeneratedCommandAttribute(source));
-			return builder.MoveToImmutable();
-		}
 
 		internal static TValue ThrowIfDuplicate<TAttribute, TValue>(
 			this TAttribute attribute,

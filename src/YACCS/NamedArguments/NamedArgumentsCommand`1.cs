@@ -15,15 +15,12 @@ namespace YACCS.NamedArguments
 	public class NamedArgumentsCommand<T> : GeneratedCommand
 		where T : IDictionary<string, object?>, new()
 	{
-		public override IReadOnlyList<object> Attributes { get; }
 		public override int MaxLength => int.MaxValue;
 		public override int MinLength => 0;
 		public override IReadOnlyList<IImmutableParameter> Parameters { get; }
 
 		public NamedArgumentsCommand(IImmutableCommand source) : base(source)
 		{
-			Attributes = source.CreateGeneratedCommandAttributeList();
-
 			var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(1);
 			try
 			{
@@ -59,19 +56,9 @@ namespace YACCS.NamedArguments
 			var values = new object?[Source.Parameters.Count];
 			for (var i = 0; i < values.Length; ++i)
 			{
-				var parameter = Source.Parameters[i];
-				if (dict.TryGetValue(parameter.OriginalParameterName, out var value))
-				{
-					values[i] = value;
-				}
-				else
-				{
-					// This should never really be reachable due to the parameter precondition
-					// already checking for undefined values and setting default values
-					throw new InvalidOperationException(
-						$"Missing value for the parameter '{parameter.OriginalParameterName}' " +
-						$"from '{Source.Names?.FirstOrDefault()}'.");
-				}
+				// There shouldn't be any KNFExceptions because the type readers/preconditions
+				// are already setting default values and checking for undefined values
+				values[i] = dict[Source.Parameters[i].OriginalParameterName];
 			}
 			return Source.ExecuteAsync(context, values);
 		}

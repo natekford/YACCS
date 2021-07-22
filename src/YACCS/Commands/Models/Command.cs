@@ -33,11 +33,6 @@ namespace YACCS.Commands.Models
 			ContextType = contextType;
 			Names = new List<IReadOnlyList<string>>();
 			Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IParameter>();
-
-			if (source is not null)
-			{
-				Attributes.Add(new GeneratedCommandAttribute(source));
-			}
 		}
 
 		public abstract IImmutableCommand ToImmutable();

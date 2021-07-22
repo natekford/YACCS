@@ -14,7 +14,6 @@ namespace YACCS.SwappedArguments
 	{
 		private readonly Swapper _Swapper;
 
-		public override IReadOnlyList<object> Attributes { get; }
 		public override IReadOnlyList<IImmutableParameter> Parameters { get; }
 		public override int Priority { get; }
 
@@ -25,7 +24,6 @@ namespace YACCS.SwappedArguments
 		{
 			_Swapper = swapper;
 			Priority = source.Priority + (priorityDifference * _Swapper.Swaps.Length);
-			Attributes = source.CreateGeneratedCommandAttributeList();
 
 			var builder = ImmutableArray.CreateBuilder<IImmutableParameter>(Source.Parameters.Count);
 			builder.AddRange(source.Parameters);
