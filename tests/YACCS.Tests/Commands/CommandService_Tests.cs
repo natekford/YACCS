@@ -680,13 +680,8 @@ namespace YACCS.Tests.Commands
 		public async Task ProcessTypeReaderMultipleButNotAllValues_Test()
 		{
 			var value = new[] { 1, 2, 3, 4 };
-			var (commandService, context, parameter) = Create<int[]>(4);
-			var result = await commandService.ProcessTypeReadersAsync(
-				context,
-				parameter,
-				value.Select(x => x.ToString()).Append("joeba").Append("trash").ToArray(),
-				0
-			).ConfigureAwait(false);
+			var input = value.Select(x => x.ToString()).Append("joeba").Append("trash").ToArray();
+			var result = await RunAsync<int[]>(4, 0, input).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 
 			var cast = (IReadOnlyList<int>)result.Value!;
@@ -700,13 +695,8 @@ namespace YACCS.Tests.Commands
 		public async Task ProcessTypeReaderMultipleValuesAllValues_Test()
 		{
 			var value = new[] { 1, 2, 3, 4 };
-			var (commandService, context, parameter) = Create<int[]>(4);
-			var result = await commandService.ProcessTypeReadersAsync(
-				context,
-				parameter,
-				value.Select(x => x.ToString()).ToArray(),
-				0
-			).ConfigureAwait(false);
+			var input = value.Select(x => x.ToString()).ToArray();
+			var result = await RunAsync<int[]>(4, 0, input).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 
 			var cast = (IReadOnlyList<int>)result.Value!;
@@ -720,13 +710,8 @@ namespace YACCS.Tests.Commands
 		public async Task ProcessTypeReaderMultipleValuesLongerThanArgs_Test()
 		{
 			var value = new[] { 1, 2, 3, 4 };
-			var (commandService, context, parameter) = Create<int[]>(null);
-			var result = await commandService.ProcessTypeReadersAsync(
-				context,
-				parameter,
-				value.Select(x => x.ToString()).ToArray(),
-				0
-			).ConfigureAwait(false);
+			var input = value.Select(x => x.ToString()).ToArray();
+			var result = await RunAsync<int[]>(null, 0, input).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 
 			var cast = (IReadOnlyList<int>)result.Value!;
@@ -739,41 +724,23 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task ProcessTypeReaderNotRegistered_Test()
 		{
-			var (commandService, context, parameter) = Create<CommandService_TypeReaders_Tests>(1);
 			await Assert.ThrowsExceptionAsync<KeyNotFoundException>(async () =>
 			{
-				var result = await commandService.ProcessTypeReadersAsync(
-					context,
-					parameter,
-					new[] { "joeba" },
-					0
-				).ConfigureAwait(false);
+				_ = await RunAsync<DBNull>(1, 0, new[] { "joeba" }).ConfigureAwait(false);
 			}).ConfigureAwait(false);
 		}
 
 		[TestMethod]
 		public async Task ProcessTypeReaderOverridden_Test()
 		{
-			var (commandService, context, parameter) = Create<char>(1, new CoolCharTypeReader());
-			var result = await commandService.ProcessTypeReadersAsync(
-				context,
-				parameter,
-				new[] { "joeba" },
-				0
-			).ConfigureAwait(false);
+			var result = await RunAsync<char>(1, 0, new[] { "joeba" }, new CoolCharTypeReader()).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 		}
 
 		[TestMethod]
 		public async Task ProcessTypeReadersCharFailure_Test()
 		{
-			var (commandService, context, parameter) = Create<char>(1);
-			var result = await commandService.ProcessTypeReadersAsync(
-				context,
-				parameter,
-				new[] { "joeba" },
-				0
-			).ConfigureAwait(false);
+			var result = await RunAsync<char>(1, 0, new[] { "joeba" }).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 		}
 
@@ -781,13 +748,7 @@ namespace YACCS.Tests.Commands
 		public async Task ProcessTypeReaderSingleValue_Test()
 		{
 			const int VALUE = 2;
-			var (commandService, context, parameter) = Create<int>(1);
-			var result = await commandService.ProcessTypeReadersAsync(
-				context,
-				parameter,
-				new[] { VALUE.ToString() },
-				0
-			).ConfigureAwait(false);
+			var result = await RunAsync<int>(1, 0, new[] { VALUE.ToString() }).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, VALUE.GetType());
 			Assert.AreEqual(VALUE, result.Value);
@@ -797,13 +758,7 @@ namespace YACCS.Tests.Commands
 		public async Task ProcessTypeReaderSingleValueWhenMultipleExist_Test()
 		{
 			const int VALUE = 2;
-			var (commandService, context, parameter) = Create<int>(1);
-			var result = await commandService.ProcessTypeReadersAsync(
-				context,
-				parameter,
-				new[] { VALUE.ToString(), "joeba", "trash" },
-				0
-			).ConfigureAwait(false);
+			var result = await RunAsync<int>(1, 0, new[] { VALUE.ToString(), "joeba", "trash" }).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, VALUE.GetType());
 			Assert.AreEqual(VALUE, result.Value);
@@ -812,14 +767,7 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task ProcessTypeReadersOneInvalidValue_Test()
 		{
-			var value = new[] { "a", "b", "cee", "d" };
-			var (commandService, context, parameter) = Create<char[]>(4);
-			var result = await commandService.ProcessTypeReadersAsync(
-				context,
-				parameter,
-				value,
-				0
-			).ConfigureAwait(false);
+			var result = await RunAsync<char[]>(4, 0, new[] { "a", "b", "cee", "d" }).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 		}
 
@@ -827,13 +775,7 @@ namespace YACCS.Tests.Commands
 		public async Task ProcessTypeReadersString_Test()
 		{
 			const string VALUE = "joeba";
-			var (commandService, context, parameter) = Create<string>(1);
-			var result = await commandService.ProcessTypeReadersAsync(
-				context,
-				parameter,
-				new[] { VALUE },
-				0
-			).ConfigureAwait(false);
+			var result = await RunAsync<string>(1, 0, new[] { VALUE }).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, VALUE.GetType());
 			Assert.AreEqual(VALUE, result.Value);
@@ -842,19 +784,15 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public async Task ProcessTypeReaderZeroLength_Test()
 		{
-			var (commandService, context, parameter) = Create<IContext>(0);
-			var result = await commandService.ProcessTypeReadersAsync(
-				context,
-				parameter,
-				new[] { "doesn't matter" },
-				0
-			).ConfigureAwait(false);
+			var result = await RunAsync<IContext>(0, 0, new[] { "doesn't matter" }).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.Value, typeof(IContext));
 		}
 
-		private static (CommandService, FakeContext, IImmutableParameter) Create<T>(
+		private static ITask<ITypeReaderResult> RunAsync<T>(
 			int? length,
+			int startIndex,
+			ReadOnlyMemory<string> input,
 			ITypeReader? reader = null)
 		{
 			var parameter = new Parameter(typeof(T), "", null)
@@ -866,7 +804,8 @@ namespace YACCS.Tests.Commands
 				TypeReader = reader,
 			}.ToImmutable();
 			var context = new FakeContext();
-			return (context.Get<CommandService>(), context, parameter);
+			var commandService = context.Get<CommandService>();
+			return commandService.ProcessTypeReadersAsync(context, parameter, input, startIndex);
 		}
 
 		private class CoolCharTypeReader : TypeReader<IContext, char>
