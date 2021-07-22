@@ -37,7 +37,7 @@ namespace YACCS.TypeReaders
 				// Try splitting the input string
 				if (!handler.TrySplit(input.Span[i], out var args) || args.Length < 2)
 				{
-					return Error(iResult.InnerResult);
+					return Error(iResult);
 				}
 
 				for (var j = 0; j < args.Length; ++j)
@@ -45,7 +45,7 @@ namespace YACCS.TypeReaders
 					var jResult = await reader.ReadAsync(context, args.Slice(j, 1)).ConfigureAwait(false);
 					if (!jResult.InnerResult.IsSuccess)
 					{
-						return Error(jResult.InnerResult);
+						return Error(jResult);
 					}
 					values.Add(jResult.Value!);
 				}

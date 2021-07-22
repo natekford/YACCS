@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -18,11 +19,11 @@ namespace YACCS.Tests.TypeReaders
 		{
 			const string JOE = "joe";
 
-			var checker = new NullChecker(new[] { JOE });
+			var @null = new NullValidator(new[] { JOE }.ToImmutableHashSet());
 			var context = new FakeContext
 			{
 				Services = new ServiceCollection()
-					.AddSingleton<INullChecker>(checker)
+					.AddSingleton<INullValidator>(@null)
 					.BuildServiceProvider(),
 			};
 			var result = await Reader.ReadAsync(context, new[] { JOE }).ConfigureAwait(false);

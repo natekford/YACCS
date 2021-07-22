@@ -9,7 +9,7 @@ namespace YACCS.Results
 	{
 		public bool IsSuccess { get; }
 		public virtual string Response { get; }
-		private string DebuggerDisplay => $"IsSuccess = {IsSuccess}, Response = {Response}";
+		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 		protected Result(bool isSuccess, string response)
 		{

@@ -21,6 +21,8 @@ namespace YACCS.NamedArguments
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
+			// Flags aren't supported, so if the input is an odd length
+			// we know something is missing
 			if (input.Length % 2 != 0)
 			{
 				return CachedResults<T>.NamedArgBadCountTask;
@@ -76,7 +78,7 @@ namespace YACCS.NamedArguments
 				var result = await reader.ReadAsync(context, new[] { input }).ConfigureAwait(false);
 				if (!result.InnerResult.IsSuccess)
 				{
-					return Error(result.InnerResult);
+					return Error(result);
 				}
 				SetProperty(instance, parameter.OriginalParameterName, result.Value);
 			}

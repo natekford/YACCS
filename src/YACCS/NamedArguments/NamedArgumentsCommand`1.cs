@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,33 +8,20 @@ using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
-using YACCS.Preconditions;
 using YACCS.Results;
 
 namespace YACCS.NamedArguments
 {
-	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-	public class NamedArgumentsCommand<T> : IImmutableCommand
+	public class NamedArgumentsCommand<T> : GeneratedCommand
 		where T : IDictionary<string, object?>, new()
 	{
-		public IReadOnlyList<object> Attributes { get; }
-		public int MaxLength => int.MaxValue;
-		public int MinLength => 0;
-		public IReadOnlyList<IImmutableParameter> Parameters { get; }
-		public IImmutableCommand Source { get; }
-		IEnumerable<object> IQueryableEntity.Attributes => Attributes;
-		public Type ContextType => Source.ContextType;
-		public IReadOnlyList<IReadOnlyList<string>> Names => Source.Names;
-		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
-		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
-		public IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions => Source.Preconditions;
-		public string PrimaryId => Source.PrimaryId;
-		public int Priority => Source.Priority;
-		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
+		public override IReadOnlyList<object> Attributes { get; }
+		public override int MaxLength => int.MaxValue;
+		public override int MinLength => 0;
+		public override IReadOnlyList<IImmutableParameter> Parameters { get; }
 
-		public NamedArgumentsCommand(IImmutableCommand source)
+		public NamedArgumentsCommand(IImmutableCommand source) : base(source)
 		{
-			Source = source;
 			Attributes = source.CreateGeneratedCommandAttributeList();
 
 			var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(1);
@@ -57,7 +43,7 @@ namespace YACCS.NamedArguments
 			Parameters = parameters.MoveToImmutable();
 		}
 
-		public ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
+		public override ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
 		{
 			T dict;
 			try

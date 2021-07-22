@@ -11,7 +11,7 @@ namespace YACCS.TypeReaders
 {
 	public class TypeReaderRegistry : TypeRegistry<ITypeReader>
 	{
-		private static readonly MethodInfo _RegisterMethod =
+		private static readonly MethodInfo _RegisterNullable =
 			typeof(TypeReaderRegistry)
 			.GetTypeInfo()
 			.DeclaredMethods
@@ -53,10 +53,9 @@ namespace YACCS.TypeReaders
 
 		public void Register(Type type, ITypeReader item)
 		{
-			if (type.IsValueType
-				&& item.GetType().GetInterfaces().Any(x => x.IsGenericOf(typeof(ITypeReader<>))))
+			if (type.IsValueType)
 			{
-				_RegisterMethod.MakeGenericMethod(type).Invoke(this, new object[] { item });
+				_RegisterNullable.MakeGenericMethod(type).Invoke(this, new object[] { item });
 			}
 			else
 			{
@@ -76,19 +75,17 @@ namespace YACCS.TypeReaders
 			{
 				return true;
 			}
-			if (!TryGetReaderType(type, out var readerType))
+			if (TryCreateReader(type, out reader))
 			{
-				reader = null!;
-				return false;
+				Register(type, reader);
+				return true;
 			}
-
-			reader = readerType.CreateInstance<ITypeReader>();
-			Register(type, reader);
-			return true;
+			return false;
 		}
 
-		protected virtual bool TryGetReaderType(Type type, [NotNullWhen(true)] out Type? readerType)
+		protected virtual bool TryCreateReader(Type type, [NotNullWhen(true)] out ITypeReader reader)
 		{
+			Type readerType;
 			if (type.IsEnum)
 			{
 				readerType = typeof(EnumTypeReader<>).MakeGenericType(type);
@@ -112,9 +109,12 @@ namespace YACCS.TypeReaders
 			}
 			else
 			{
-				readerType = null;
+				reader = null!;
+				return false;
 			}
-			return readerType is not null;
+
+			reader = readerType.CreateInstance<ITypeReader>();
+			return true;
 		}
 	}
 }

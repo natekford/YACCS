@@ -296,5 +296,8 @@ namespace YACCS.Commands
 
 		internal static string FormatForDebuggerDisplay(this IQueryableParameter item)
 			=> $"Name = {item.OriginalParameterName}, Type = {item.ParameterType}";
+
+		internal static string FormatForDebuggerDisplay(this IResult item)
+			=> $"IsSuccess = {item.IsSuccess}, Response = {item.Response}";
 	}
 }

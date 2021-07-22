@@ -30,6 +30,9 @@ namespace YACCS.TypeReaders
 		protected ITypeReaderResult<TValue> Error(IResult result)
 			=> TypeReaderResult<TValue>.FromError(result);
 
+		protected ITypeReaderResult<TValue> Error(ITypeReaderResult result)
+			=> TypeReaderResult<TValue>.FromError(result.InnerResult);
+
 		protected virtual ITask<ITypeReaderResult<TValue>> ReadInternalAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)

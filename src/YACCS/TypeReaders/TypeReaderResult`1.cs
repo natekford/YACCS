@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 
 using YACCS.Commands;
 using YACCS.Results;
@@ -10,12 +9,13 @@ namespace YACCS.TypeReaders
 	public class TypeReaderResult<T> : ITypeReaderResult<T>
 	{
 		public IResult InnerResult { get; }
-		[MaybeNull]
-		public T Value { get; }
+		public T? Value { get; }
 		object? ITypeReaderResult.Value => Value;
-		private string DebuggerDisplay => $"IsSuccess = {InnerResult.IsSuccess}, Response = {InnerResult.Response}, Value = {Value}";
+		private string DebuggerDisplay => InnerResult.IsSuccess
+			? $"Value = {Value}"
+			: InnerResult.FormatForDebuggerDisplay();
 
-		public TypeReaderResult(IResult result, [MaybeNull] T value)
+		public TypeReaderResult(IResult result, T? value)
 		{
 			InnerResult = result;
 			Value = value;
