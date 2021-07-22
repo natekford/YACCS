@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
-using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 using YACCS.Results;
 

@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading.Tasks;
 
-using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
-using YACCS.Results;
+using YACCS.StructuredArguments;
 
 namespace YACCS.NamedArguments
 {
-	public class NamedArgumentsCommand<T> : GeneratedCommand
+	public class NamedArgumentsCommand<T> : StructuredArgumentsCommand<T>
 		where T : IDictionary<string, object?>, new()
 	{
 		public override int MaxLength => int.MaxValue;
@@ -40,27 +38,11 @@ namespace YACCS.NamedArguments
 			Parameters = parameters.MoveToImmutable();
 		}
 
-		public override ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
+		protected override object? GetValue(T structured, IImmutableParameter parameter)
 		{
-			T dict;
-			try
-			{
-				dict = (T)args.Single()!;
-			}
-			catch (Exception e)
-			{
-				throw new ArgumentException("Expected named argument dictionary and no " +
-					$"other arguments for '{Source.Names?.FirstOrDefault()}'.", e);
-			}
-
-			var values = new object?[Source.Parameters.Count];
-			for (var i = 0; i < values.Length; ++i)
-			{
-				// There shouldn't be any KNFExceptions because the type readers/preconditions
-				// are already setting default values and checking for undefined values
-				values[i] = dict[Source.Parameters[i].OriginalParameterName];
-			}
-			return Source.ExecuteAsync(context, values);
+			// There shouldn't be any KNFExceptions because the type readers/preconditions
+			// are already setting default values and checking for undefined values
+			return structured[parameter.OriginalParameterName];
 		}
 
 		private class GeneratedNamedArgumentsParameterPrecondition
