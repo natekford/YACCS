@@ -8,9 +8,7 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Interactivity
 {
-	public delegate Task<IResult> OnInput<TInput, TValue>(
-		TaskCompletionSource<TValue> task,
-		TInput input);
+	public delegate Task<IResult> OnInput<TInput>(TInput input);
 
 	public abstract class Interactivity<TContext, TInput> where TContext : IContext
 	{
@@ -19,16 +17,16 @@ namespace YACCS.Interactivity
 		protected virtual async Task<ITypeReaderResult<TValue>> HandleInteraction<TValue>(
 			TContext context,
 			IInteractivityOptions<TContext, TInput> options,
-			OnInput<TInput, TValue> handler)
+			TaskCompletionSource<TValue> eventTrigger,
+			OnInput<TInput> handler)
 		{
-			var eventTrigger = new TaskCompletionSource<TValue>();
 			var cancelTrigger = new TaskCompletionSource<bool>();
 			if (options.Token is CancellationToken token)
 			{
 				token.Register(() => cancelTrigger.SetResult(true));
 			}
 
-			await SubscribeAsync(eventTrigger, context, handler).ConfigureAwait(false);
+			await SubscribeAsync(context, handler).ConfigureAwait(false);
 			var @event = eventTrigger.Task;
 			var cancel = cancelTrigger.Task;
 			var delay = Task.Delay(options.Timeout ?? DefaultTimeout);
@@ -48,13 +46,8 @@ namespace YACCS.Interactivity
 			return TypeReaderResult<TValue>.FromSuccess(value);
 		}
 
-		protected abstract Task SubscribeAsync<TValue>(
-			TaskCompletionSource<TValue> task,
-			TContext context,
-			OnInput<TInput, TValue> onInput);
+		protected abstract Task SubscribeAsync(TContext context, OnInput<TInput> onInput);
 
-		protected abstract Task UnsubscribeAsync<TValue>(
-			TContext context,
-			OnInput<TInput, TValue> onInput);
+		protected abstract Task UnsubscribeAsync(TContext context, OnInput<TInput> onInput);
 	}
 }

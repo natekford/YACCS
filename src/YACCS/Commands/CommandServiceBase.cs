@@ -114,13 +114,7 @@ namespace YACCS.Commands
 			{
 				return new(CommandScore.FromTooManyArgs(command, context, startIndex));
 			}
-
-			return ProcessAllPreconditionsAsync(
-				context,
-				command,
-				input,
-				startIndex
-			);
+			return ProcessAllPreconditionsAsync(context, command, input, startIndex);
 		}
 
 		protected internal async ValueTask<CommandScore> ProcessAllPreconditionsAsync(

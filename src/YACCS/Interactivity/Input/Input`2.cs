@@ -33,7 +33,8 @@ namespace YACCS.Interactivity.Input
 			TContext context,
 			IInputOptions<TContext, TInput, TValue> options)
 		{
-			return HandleInteraction<TValue>(context, options, async (task, input) =>
+			var eventTrigger = new TaskCompletionSource<TValue>();
+			return HandleInteraction(context, options, eventTrigger, async input =>
 			{
 				foreach (var criterion in options.Criteria)
 				{
@@ -65,7 +66,7 @@ namespace YACCS.Interactivity.Input
 					}
 				}
 
-				task.SetResult(trResult.Value!);
+				eventTrigger.SetResult(trResult.Value!);
 				return SuccessResult.Instance;
 			});
 		}

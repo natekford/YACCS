@@ -25,10 +25,7 @@ namespace YACCS.Examples
 		protected override string GetInputString(string input)
 			=> input;
 
-		protected override async Task SubscribeAsync<TValue>(
-			TaskCompletionSource<TValue> task,
-			ConsoleContext context,
-			OnInput<string, TValue> onInput)
+		protected override async Task SubscribeAsync(ConsoleContext context, OnInput<string> onInput)
 		{
 			// Lock both input and output
 			// Input because we're using console input
@@ -56,15 +53,13 @@ namespace YACCS.Examples
 						continue;
 					}
 
-					var result = await onInput.Invoke(task, input).ConfigureAwait(false);
+					var result = await onInput.Invoke(input).ConfigureAwait(false);
 					_Console.WriteResult(result);
 				}
 			}, source.Token);
 		}
 
-		protected override Task UnsubscribeAsync<TValue>(
-			ConsoleContext context,
-			OnInput<string, TValue> onInput)
+		protected override Task UnsubscribeAsync(ConsoleContext context, OnInput<string> onInput)
 		{
 			// Only release input lock since output lock gets released when command is done
 			_Console.ReleaseInputLock();

@@ -22,7 +22,8 @@ namespace YACCS.Interactivity.Pagination
 			{
 				await displayer.DisplayAsync(context, page).ConfigureAwait(false);
 
-				var result = await HandleInteraction<int?>(context, options, async (task, input) =>
+				var eventTrigger = new TaskCompletionSource<int?>();
+				var result = await HandleInteraction(context, options, eventTrigger, async input =>
 				{
 					foreach (var criterion in options.Criteria)
 					{
@@ -33,7 +34,7 @@ namespace YACCS.Interactivity.Pagination
 						}
 					}
 
-					task.SetResult(displayer.Convert(input));
+					eventTrigger.SetResult(displayer.Convert(input));
 					return SuccessResult.Instance;
 				}).ConfigureAwait(false);
 				if (!result.InnerResult.IsSuccess || !result.Value.HasValue)
