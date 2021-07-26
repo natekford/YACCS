@@ -83,6 +83,15 @@ namespace YACCS.Results
 		}
 	}
 
+	public class InteractionEndedResult : LocalizedResult
+	{
+		public static InteractionEndedResult Instance { get; } = new();
+
+		public InteractionEndedResult() : base(false, Keys.InteractionEndedResult)
+		{
+		}
+	}
+
 	public class InvalidContextResult : LocalizedResult
 	{
 		public static InvalidContextResult Instance { get; } = new();

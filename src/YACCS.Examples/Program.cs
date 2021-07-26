@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 using YACCS.Commands;
+using YACCS.Examples.Interactivity;
 using YACCS.Help;
 using YACCS.Localization;
 using YACCS.Parsing;
@@ -24,7 +25,9 @@ namespace YACCS.Examples
 				.AddSingleton<ILocalizer>(Localize.Instance)
 				.AddSingleton<ConsoleCommandServiceFactory>()
 				.AddSingleton<ConsoleHandler>()
+				.AddSingleton<ConsoleInteractivityManager>()
 				.AddSingleton<ConsoleInput>()
+				.AddSingleton<ConsolePaginator>()
 				.AddSingleton<IEnumerable<Assembly>>(new[] { typeof(Program).Assembly })
 				// These 2 need to be transient so if the culture is changed
 				// the correct localized command service is retrieved

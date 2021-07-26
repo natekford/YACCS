@@ -4,33 +4,27 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using YACCS.Interactivity;
-using YACCS.Interactivity.Input;
-using YACCS.TypeReaders;
+using YACCS.Results;
 
-namespace YACCS.Examples
+namespace YACCS.Examples.Interactivity
 {
-	public sealed class ConsoleInput : Input<ConsoleContext, string>
+	public sealed class ConsoleInteractivityManager
 	{
-		private readonly ConsoleHandler _Console;
 		private readonly Dictionary<Guid, CancellationTokenSource> _Input = new();
 
-		public ConsoleInput(
-			IReadOnlyDictionary<Type, ITypeReader> readers,
-			ConsoleHandler console)
-			: base(readers)
+		public ConsoleHandler Console { get; }
+
+		public ConsoleInteractivityManager(ConsoleHandler console)
 		{
-			_Console = console;
+			Console = console;
 		}
 
-		protected override string GetInputString(string input)
-			=> input;
-
-		protected override async Task SubscribeAsync(ConsoleContext context, OnInput<string> onInput)
+		public async Task SubscribeAsync(ConsoleContext context, OnInput<string> onInput)
 		{
 			// Lock both input and output
 			// Input because we're using console input
 			// Ouput so the next "enter a command to execute" prints after this command is done
-			await _Console.WaitForBothIOLocksAsync().ConfigureAwait(false);
+			await Console.WaitForBothIOLocksAsync().ConfigureAwait(false);
 
 			var source = new CancellationTokenSource();
 			_Input.Add(context.Id, source);
@@ -41,7 +35,7 @@ namespace YACCS.Examples
 				// Only keep the loop going when not canceled
 				while (!source.IsCancellationRequested)
 				{
-					var input = await _Console.ReadLineAsync(source.Token).ConfigureAwait(false);
+					var input = await Console.ReadLineAsync(source.Token).ConfigureAwait(false);
 					// Even though we have the loop condition already checking this,
 					// check it again so we don't invoke the delegate after timeout/cancel
 					if (source.IsCancellationRequested)
@@ -54,15 +48,20 @@ namespace YACCS.Examples
 					}
 
 					var result = await onInput.Invoke(input).ConfigureAwait(false);
-					_Console.WriteResult(result);
+					// If interaction is ended, the locks have been released and
+					// if we print out the result, it will be out of order
+					if (result is not InteractionEndedResult)
+					{
+						Console.WriteResult(result);
+					}
 				}
 			}, source.Token);
 		}
 
-		protected override Task UnsubscribeAsync(ConsoleContext context, OnInput<string> onInput)
+		public Task UnsubscribeAsync(ConsoleContext context, OnInput<string> _)
 		{
 			// Only release input lock since output lock gets released when command is done
-			_Console.ReleaseInputLock();
+			Console.ReleaseInputLock();
 			if (_Input.Remove(context.Id, out var token))
 			{
 				token.Cancel();

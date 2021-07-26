@@ -11,7 +11,7 @@ namespace YACCS.Interactivity.Pagination
 	{
 		public IEnumerable<ICriterion<TContext, TInput>> Criteria { get; set; }
 			= Array.Empty<ICriterion<TContext, TInput>>();
-		public int? MaxPage { get; set; }
+		public int MaxPage { get; set; }
 		public int? StartingPage { get; set; }
 		public TimeSpan? Timeout { get; set; }
 		public CancellationToken? Token { get; set; }

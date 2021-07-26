@@ -80,6 +80,8 @@ namespace YACCS.Localization
 			= new(nameof(ExceptionAfterCommandResult), "An exception occurred after a command was executed.");
 		public static NeedsLocalization ExceptionDuringCommandResult { get; }
 			= new(nameof(ExceptionDuringCommandResult), "An exception occurred while a command was executing.");
+		public static NeedsLocalization InteractionEndedResult { get; }
+			= new(nameof(InteractionEndedResult), "Interaction ended.");
 		public static NeedsLocalization InvalidContextResult { get; }
 			= new(nameof(InvalidContextResult), "Invalid context type.");
 		public static NeedsLocalization InvalidParameterResult { get; }

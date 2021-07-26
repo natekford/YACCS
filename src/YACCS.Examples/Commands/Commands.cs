@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 using YACCS.Examples.Preconditions;
 using YACCS.Help.Attributes;
+using YACCS.Interactivity;
 using YACCS.Results;
 
 namespace YACCS.Examples.Commands
@@ -48,6 +50,17 @@ namespace YACCS.Examples.Commands
 		[Command(nameof(Exit))]
 		public void Exit()
 			=> Environment.Exit(0);
+
+		[Command(nameof(Pagination))]
+		public async Task Pagination()
+		{
+			var options = Paginator.CreateOptions().With(
+				maxPage: 100,
+				startingPage: 0,
+				timeout: TimeSpan.FromSeconds(30)
+			);
+			await Paginator.PaginateAsync(Context, options).ConfigureAwait(false);
+		}
 
 		[Command(nameof(Result))]
 		public IResult Result()

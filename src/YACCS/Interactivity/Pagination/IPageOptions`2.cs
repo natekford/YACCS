@@ -6,7 +6,7 @@ namespace YACCS.Interactivity.Pagination
 		: IInteractivityOptions<TContext, TInput>
 		where TContext : IContext
 	{
-		int? MaxPage { get; }
+		int MaxPage { get; }
 		int? StartingPage { get; }
 	}
 }

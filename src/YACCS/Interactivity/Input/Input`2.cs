@@ -15,14 +15,14 @@ namespace YACCS.Interactivity.Input
 		: Interactivity<TContext, TInput>, IInput<TContext, TInput>
 		where TContext : IContext
 	{
-		public IReadOnlyDictionary<Type, ITypeReader> TypeReaders { get; }
-
 		protected static IImmutableCommand EmptyCommand { get; }
 			= new DelegateCommand(
 				(Action)(() => { }),
 				new[] { new ImmutableName(new[] { "Input" }) },
 				typeof(TContext)
 			).ToImmutable();
+
+		protected IReadOnlyDictionary<Type, ITypeReader> TypeReaders { get; }
 
 		protected Input(IReadOnlyDictionary<Type, ITypeReader> typeReaders)
 		{
