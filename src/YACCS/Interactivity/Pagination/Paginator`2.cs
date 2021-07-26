@@ -12,12 +12,12 @@ namespace YACCS.Interactivity.Pagination
 	{
 		public virtual async Task<IResult> PaginateAsync(
 			TContext context,
-			IPageOptions<TContext, TInput> options)
+			IPaginatorOptions<TContext, TInput> options)
 		{
 			var page = options.StartingPage ?? 0;
 
 			// Display the starting page
-			await DisplayAsync(context, page).ConfigureAwait(false);
+			await options.DisplayCallback.Invoke(page).ConfigureAwait(false);
 
 			var eventTrigger = new TaskCompletionSource<object?>();
 			var result = await HandleInteraction(context, options, eventTrigger, async input =>
@@ -42,7 +42,7 @@ namespace YACCS.Interactivity.Pagination
 
 				page = GetNewPage(page, options.MaxPage, converted.Value);
 				// Display the new page
-				await DisplayAsync(context, page).ConfigureAwait(false);
+				await options.DisplayCallback.Invoke(page).ConfigureAwait(false);
 				return SuccessResult.Instance;
 			}).ConfigureAwait(false);
 
@@ -59,8 +59,6 @@ namespace YACCS.Interactivity.Pagination
 			=> b == 0 ? 0 : (int)(a - (b * Math.Floor((double)a / b)));
 
 		protected abstract Task<int?> ConvertAsync(TInput input);
-
-		protected abstract Task DisplayAsync(TContext context, int page);
 
 		protected virtual int GetNewPage(int current, int max, int diff)
 			=> Mod(current + diff, max);

@@ -17,17 +17,6 @@ namespace YACCS.Examples.Interactivity
 		protected override Task<int?> ConvertAsync(string input)
 			=> Task.FromResult<int?>(int.TryParse(input, out var result) ? result : null);
 
-		protected override Task DisplayAsync(ConsoleContext context, int page)
-		{
-			_Interactivity.Console.WriteLine(page switch
-			{
-				1 => "First Page",
-				2 => "Second Page",
-				_ => "Any Other Page",
-			});
-			return Task.CompletedTask;
-		}
-
 		protected override int GetNewPage(int current, int max, int diff)
 			=> diff;
 

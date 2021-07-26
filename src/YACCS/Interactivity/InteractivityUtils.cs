@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 using YACCS.Commands;
 using YACCS.Interactivity.Input;
@@ -46,16 +47,16 @@ namespace YACCS.Interactivity
 
 		public readonly struct PageOptionsFactory<TContext, TInput> where TContext : IContext
 		{
-			public PageOptions<TContext, TInput> With(
+			public PaginatorOptions<TContext, TInput> With(
 				int maxPage,
+				Func<int, Task> displayCallback,
 				IEnumerable<ICriterion<TContext, TInput>>? criteria = null,
 				int? startingPage = null,
 				TimeSpan? timeout = null,
 				CancellationToken? token = null)
 			{
-				var options = new PageOptions<TContext, TInput>();
+				var options = new PaginatorOptions<TContext, TInput>(maxPage, displayCallback);
 				options.Criteria = criteria ?? options.Criteria;
-				options.MaxPage = maxPage;
 				options.StartingPage = startingPage ?? options.StartingPage;
 				options.Timeout = timeout ?? options.Timeout;
 				options.Token = token ?? options.Token;

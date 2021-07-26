@@ -8,6 +8,7 @@ using YACCS.Commands.Models;
 using YACCS.Examples.Preconditions;
 using YACCS.Help.Attributes;
 using YACCS.Interactivity;
+using YACCS.NamedArguments;
 using YACCS.Results;
 
 namespace YACCS.Examples.Commands
@@ -27,6 +28,7 @@ namespace YACCS.Examples.Commands
 
 		[Command(nameof(Divide), "D")]
 		[Summary("Divides two numbers and returns the result (rounded down).")]
+		[GenerateNamedArguments]
 		public int Divide(
 			[Summary("The number being divided.")]
 			int numerator,
@@ -56,6 +58,11 @@ namespace YACCS.Examples.Commands
 		{
 			var options = Paginator.CreateOptions().With(
 				maxPage: 100,
+				displayCallback: page =>
+				{
+					Console.WriteLine($"Page #{page}");
+					return Task.CompletedTask;
+				},
 				startingPage: 0,
 				timeout: TimeSpan.FromSeconds(30)
 			);

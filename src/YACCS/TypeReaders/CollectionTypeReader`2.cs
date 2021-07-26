@@ -19,7 +19,7 @@ namespace YACCS.TypeReaders
 			// We don't need to handle having the correct context type because
 			// the type reader we retrieve handles that
 			var readers = context.Services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
-			var handler = context.Services.GetRequiredService<IArgumentHandler>();
+			var handler = default(IArgumentHandler);
 
 			var reader = readers.GetTypeReader<TElement>();
 			var values = await CreateCollectionAsync(context, input).ConfigureAwait(false);
@@ -35,6 +35,7 @@ namespace YACCS.TypeReaders
 
 				// Converting directly from the input string didn't work
 				// Try splitting the input string
+				handler ??= context.Services.GetRequiredService<IArgumentHandler>();
 				if (!handler.TrySplit(input.Span[i], out var args) || args.Length < 2)
 				{
 					return Error(iResult);

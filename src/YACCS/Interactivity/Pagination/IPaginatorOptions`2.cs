@@ -1,11 +1,15 @@
-﻿using YACCS.Commands;
+﻿using System;
+using System.Threading.Tasks;
+
+using YACCS.Commands;
 
 namespace YACCS.Interactivity.Pagination
 {
-	public interface IPageOptions<in TContext, in TInput>
+	public interface IPaginatorOptions<in TContext, in TInput>
 		: IInteractivityOptions<TContext, TInput>
 		where TContext : IContext
 	{
+		Func<int, Task> DisplayCallback { get; }
 		int MaxPage { get; }
 		int? StartingPage { get; }
 	}
