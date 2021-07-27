@@ -218,7 +218,7 @@ namespace YACCS.Commands
 			var afterExceptions = default(List<Exception>?);
 
 			// Handling preconditions which may need to modify state when the command to
-			// execute has been found, e.g. cooldown or prevent duplicate long running commands
+			// execute has been found, i.e. cooldown or prevent duplicate long running commands
 			foreach (var group in command.Preconditions)
 			{
 				foreach (var precondition in group.Value)
@@ -248,7 +248,7 @@ namespace YACCS.Commands
 			}
 
 			// Handling preconditions which may need to modify state after a command has
-			// finished executing, e.g. on exception remove user from cooldown or release
+			// finished executing, i.e. on exception remove user from cooldown or release
 			// long running command lock
 			foreach (var group in command.Preconditions)
 			{

@@ -22,9 +22,9 @@ namespace YACCS.TypeReaders
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
-			var commands = context.Services.GetRequiredService<ICommandService>();
+			var commandService = context.Services.GetRequiredService<ICommandService>();
 
-			var found = commands.Find(input);
+			var found = commandService.Find(input);
 			if (found.Count == 0)
 			{
 				return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailedTask;

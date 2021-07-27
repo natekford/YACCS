@@ -36,6 +36,21 @@ namespace YACCS.TypeReaders
 		public static ITask<ITypeReaderResult<T>> AsITask<T>(this ITypeReaderResult<T> result)
 			=> Task.FromResult(result).AsITask();
 
+		public static IEnumerable<TypeReaderInfo> GetCustomTypeReaders(this Assembly assembly)
+		{
+			foreach (var type in assembly.GetExportedTypes())
+			{
+				var attribute = type.GetCustomAttribute<TypeReaderTargetTypesAttribute>();
+				if (attribute is null)
+				{
+					continue;
+				}
+
+				var typeReader = type.CreateInstance<ITypeReader>();
+				yield return new(attribute, typeReader);
+			}
+		}
+
 		public static ITypeReader<T> GetTypeReader<T>(
 			this IReadOnlyDictionary<Type, ITypeReader> readers)
 		{
@@ -52,21 +67,6 @@ namespace YACCS.TypeReaders
 			IImmutableParameter parameter)
 			=> parameter.TypeReader ?? readers[parameter.ParameterType];
 
-		public static IEnumerable<TypeReaderInfo> GetTypeReaders(this Assembly assembly)
-		{
-			foreach (var type in assembly.GetExportedTypes())
-			{
-				var attribute = type.GetCustomAttribute<TypeReaderTargetTypesAttribute>();
-				if (attribute is null)
-				{
-					continue;
-				}
-
-				var typeReader = type.CreateInstance<ITypeReader>();
-				yield return new(attribute.TargetTypes, typeReader);
-			}
-		}
-
 		public static void RegisterTypeReaders(
 			this IDictionary<Type, ITypeReader> readers,
 			IEnumerable<TypeReaderInfo> typeReaders)
@@ -75,7 +75,24 @@ namespace YACCS.TypeReaders
 			{
 				foreach (var type in typeReader.TargetTypes)
 				{
-					readers[type] = typeReader.Instance;
+					if (typeReader.OverrideExistingTypeReaders)
+					{
+						readers[type] = typeReader.Instance;
+						continue;
+					}
+
+					try
+					{
+						readers.Add(type, typeReader.Instance);
+					}
+					catch (Exception e)
+					{
+						throw new InvalidOperationException("Attempted to register " +
+							$"{typeReader.Instance.GetType()} to {type} while that " +
+							"type already has a reader registered. " +
+							$"Set {nameof(TypeReaderTargetTypesAttribute.OverrideExistingTypeReaders)} " +
+							$"to {true} to replace the registered type reader.", e);
+					}
 				}
 			}
 		}

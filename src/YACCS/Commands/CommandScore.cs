@@ -108,7 +108,7 @@ namespace YACCS.Commands
 			const CommandStage STAGE = CommandStage.CanExecute;
 			// Subtract start index from int.MaxValue because the more args the less
 			// command name parts used, so the less specific the command is
-			// E.G. two commands:
+			// i.e. two commands:
 			// Echo Colored "text to echo" <-- Score = 2
 			// Echo "colored text to echo" <-- Score = 1
 			return new(command, null, context, result, STAGE, score, args);

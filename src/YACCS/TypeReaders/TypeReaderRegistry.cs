@@ -41,12 +41,12 @@ namespace YACCS.TypeReaders
 			RegisterWithNullable(new DateTimeTypeReader<DateTimeOffset>(DateTimeOffset.TryParse));
 			RegisterWithNullable(new TimeSpanTypeReader<TimeSpan>(TimeSpan.TryParse));
 
-			Items.RegisterTypeReaders(typeof(TypeReaderRegistry).Assembly.GetTypeReaders());
+			Items.RegisterTypeReaders(typeof(TypeReaderRegistry).Assembly.GetCustomTypeReaders());
 			if (assemblies is not null)
 			{
 				foreach (var assembly in assemblies)
 				{
-					Items.RegisterTypeReaders(assembly.GetTypeReaders());
+					Items.RegisterTypeReaders(assembly.GetCustomTypeReaders());
 				}
 			}
 		}
@@ -85,6 +85,16 @@ namespace YACCS.TypeReaders
 
 		protected virtual bool TryCreateReader(Type type, [NotNullWhen(true)] out ITypeReader reader)
 		{
+			var customTypeReaderProvider = type
+				.GetCustomAttributes()
+				.OfType<ITypeReaderGeneratorAttribute>()
+				.SingleOrDefault();
+			if (customTypeReaderProvider is not null)
+			{
+				reader = customTypeReaderProvider.GenerateTypeReader(type);
+				return true;
+			}
+
 			Type readerType;
 			if (type.IsEnum)
 			{
@@ -93,10 +103,6 @@ namespace YACCS.TypeReaders
 			else if (typeof(IContext).IsAssignableFrom(type))
 			{
 				readerType = typeof(ContextTypeReader<>).MakeGenericType(type);
-			}
-			else if (type.GetCustomAttribute<GenerateNamedArgumentsAttribute>() is not null)
-			{
-				readerType = typeof(NamedArgumentsTypeReader<>).MakeGenericType(type);
 			}
 			else if (type.TryGetCollectionType(out var cType) && Items.ContainsKey(cType))
 			{
