@@ -67,36 +67,6 @@ namespace YACCS.TypeReaders
 			IImmutableParameter parameter)
 			=> parameter.TypeReader ?? readers[parameter.ParameterType];
 
-		public static void RegisterTypeReaders(
-			this IDictionary<Type, ITypeReader> readers,
-			IEnumerable<TypeReaderInfo> typeReaders)
-		{
-			foreach (var typeReader in typeReaders)
-			{
-				foreach (var type in typeReader.TargetTypes)
-				{
-					if (typeReader.OverrideExistingTypeReaders)
-					{
-						readers[type] = typeReader.Instance;
-						continue;
-					}
-
-					try
-					{
-						readers.Add(type, typeReader.Instance);
-					}
-					catch (Exception e)
-					{
-						throw new InvalidOperationException("Attempted to register " +
-							$"{typeReader.Instance.GetType()} to {type} while that " +
-							"type already has a reader registered. " +
-							$"Set {nameof(TypeReaderTargetTypesAttribute.OverrideExistingTypeReaders)} " +
-							$"to {true} to replace the registered type reader.", e);
-					}
-				}
-			}
-		}
-
 		public static void ThrowIfInvalidTypeReader(this ITypeReader reader, Type type)
 		{
 			if (!type.IsAssignableFrom(reader.OutputType))

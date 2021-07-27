@@ -10,42 +10,42 @@ namespace YACCS.TypeReaders
 {
 	public class TypeReaderRegistry : TypeRegistry<ITypeReader>
 	{
-		private static readonly MethodInfo _RegisterNullable =
+		private static readonly MethodInfo _RegisterStruct =
 			typeof(TypeReaderRegistry)
 			.GetTypeInfo()
 			.DeclaredMethods
-			.Single(x => x.Name == nameof(RegisterWithNullable));
+			.Single(x => x.Name == nameof(RegisterStruct));
 
 		protected override IDictionary<Type, ITypeReader> Items { get; }
 			= new Dictionary<Type, ITypeReader>();
 
 		public TypeReaderRegistry(IEnumerable<Assembly>? assemblies = null)
 		{
-			Register(typeof(string), new StringTypeReader());
-			Register(typeof(Uri), new UriTypeReader());
-			RegisterWithNullable(new TryParseTypeReader<char>(char.TryParse));
-			RegisterWithNullable(new TryParseTypeReader<bool>(bool.TryParse));
-			RegisterWithNullable(new NumberTypeReader<sbyte>(sbyte.TryParse));
-			RegisterWithNullable(new NumberTypeReader<byte>(byte.TryParse));
-			RegisterWithNullable(new NumberTypeReader<short>(short.TryParse));
-			RegisterWithNullable(new NumberTypeReader<ushort>(ushort.TryParse));
-			RegisterWithNullable(new NumberTypeReader<int>(int.TryParse));
-			RegisterWithNullable(new NumberTypeReader<uint>(uint.TryParse));
-			RegisterWithNullable(new NumberTypeReader<long>(long.TryParse));
-			RegisterWithNullable(new NumberTypeReader<ulong>(ulong.TryParse));
-			RegisterWithNullable(new NumberTypeReader<float>(float.TryParse));
-			RegisterWithNullable(new NumberTypeReader<double>(double.TryParse));
-			RegisterWithNullable(new NumberTypeReader<decimal>(decimal.TryParse));
-			RegisterWithNullable(new DateTimeTypeReader<DateTime>(DateTime.TryParse));
-			RegisterWithNullable(new DateTimeTypeReader<DateTimeOffset>(DateTimeOffset.TryParse));
-			RegisterWithNullable(new TimeSpanTypeReader<TimeSpan>(TimeSpan.TryParse));
+			RegisterClass(new StringTypeReader());
+			RegisterClass(new UriTypeReader());
+			RegisterStruct(new TryParseTypeReader<char>(char.TryParse));
+			RegisterStruct(new TryParseTypeReader<bool>(bool.TryParse));
+			RegisterStruct(new NumberTypeReader<sbyte>(sbyte.TryParse));
+			RegisterStruct(new NumberTypeReader<byte>(byte.TryParse));
+			RegisterStruct(new NumberTypeReader<short>(short.TryParse));
+			RegisterStruct(new NumberTypeReader<ushort>(ushort.TryParse));
+			RegisterStruct(new NumberTypeReader<int>(int.TryParse));
+			RegisterStruct(new NumberTypeReader<uint>(uint.TryParse));
+			RegisterStruct(new NumberTypeReader<long>(long.TryParse));
+			RegisterStruct(new NumberTypeReader<ulong>(ulong.TryParse));
+			RegisterStruct(new NumberTypeReader<float>(float.TryParse));
+			RegisterStruct(new NumberTypeReader<double>(double.TryParse));
+			RegisterStruct(new NumberTypeReader<decimal>(decimal.TryParse));
+			RegisterStruct(new DateTimeTypeReader<DateTime>(DateTime.TryParse));
+			RegisterStruct(new DateTimeTypeReader<DateTimeOffset>(DateTimeOffset.TryParse));
+			RegisterStruct(new TimeSpanTypeReader<TimeSpan>(TimeSpan.TryParse));
 
-			Items.RegisterTypeReaders(typeof(TypeReaderRegistry).Assembly.GetCustomTypeReaders());
+			RegisterTypeReaders(typeof(TypeReaderRegistry).Assembly.GetCustomTypeReaders());
 			if (assemblies is not null)
 			{
 				foreach (var assembly in assemblies)
 				{
-					Items.RegisterTypeReaders(assembly.GetCustomTypeReaders());
+					RegisterTypeReaders(assembly.GetCustomTypeReaders());
 				}
 			}
 		}
@@ -54,18 +54,21 @@ namespace YACCS.TypeReaders
 		{
 			if (type.IsValueType)
 			{
-				_RegisterNullable.MakeGenericMethod(type).Invoke(this, new object[] { item });
+				_RegisterStruct.MakeGenericMethod(type).Invoke(this, new object[] { item });
 			}
 			else
 			{
-				Items[type] = item;
+				RegisterInternal(type, item);
 			}
 		}
 
-		public void RegisterWithNullable<T>(ITypeReader<T> item) where T : struct
+		public void RegisterClass<T>(ITypeReader<T> item) where T : class
+			=> RegisterInternal(typeof(T), item);
+
+		public void RegisterStruct<T>(ITypeReader<T> item) where T : struct
 		{
-			Items[typeof(T)] = item;
-			Items[typeof(T?)] = new NullableTypeReader<T>();
+			RegisterInternal(typeof(T), item);
+			RegisterInternal(typeof(T?), new NullableTypeReader<T>());
 		}
 
 		public override bool TryGetValue(Type type, [NotNullWhen(true)] out ITypeReader reader)
@@ -82,6 +85,37 @@ namespace YACCS.TypeReaders
 			return false;
 		}
 
+		protected void RegisterInternal(Type type, ITypeReader item)
+		{
+			if (!type.IsAssignableFrom(item.OutputType))
+			{
+				throw new ArgumentException("Unable to use a type reader with an output type " +
+					$"{item.OutputType} for the type {type}.", nameof(item));
+			}
+			Items[type] = item;
+		}
+
+		protected void RegisterTypeReaders(IEnumerable<TypeReaderInfo> typeReaders)
+		{
+			foreach (var typeReader in typeReaders)
+			{
+				foreach (var type in typeReader.TargetTypes)
+				{
+					if (typeReader.OverrideExistingTypeReaders || !Items.ContainsKey(type))
+					{
+						Register(type, typeReader.Instance);
+						continue;
+					}
+
+					throw new InvalidOperationException("Attempted to register " +
+						$"{typeReader.Instance.GetType()} to {type} while that " +
+						"type already has a reader registered. " +
+						$"Set {nameof(TypeReaderTargetTypesAttribute.OverrideExistingTypeReaders)} " +
+						$"to {true} to replace the registered type reader.");
+				}
+			}
+		}
+
 		protected virtual bool TryCreateReader(Type type, [NotNullWhen(true)] out ITypeReader reader)
 		{
 			var customReaders = type
@@ -96,8 +130,8 @@ namespace YACCS.TypeReaders
 			}
 			else if (customReaders.Count > 1)
 			{
-				var aggregate = typeof(AggregateTypeReader<>).MakeGenericType(type);
-				reader = aggregate.CreateInstance<ITypeReader>(customReaders);
+				var aggregateReaderType = typeof(AggregateTypeReader<>).MakeGenericType(type);
+				reader = aggregateReaderType.CreateInstance<ITypeReader>(customReaders);
 				return true;
 			}
 

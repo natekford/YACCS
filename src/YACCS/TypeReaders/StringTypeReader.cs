@@ -7,9 +7,9 @@ using YACCS.Parsing;
 
 namespace YACCS.TypeReaders
 {
-	public class StringTypeReader : TypeReader<string?>
+	public class StringTypeReader : TypeReader<string>
 	{
-		public override ITask<ITypeReaderResult<string?>> ReadAsync(
+		public override ITask<ITypeReaderResult<string>> ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
