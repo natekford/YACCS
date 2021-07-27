@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 
 using YACCS.Commands;
-using YACCS.NamedArguments;
 
 namespace YACCS.TypeReaders
 {

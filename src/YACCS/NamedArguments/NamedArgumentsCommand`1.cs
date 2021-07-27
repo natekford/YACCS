@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
@@ -19,23 +16,12 @@ namespace YACCS.NamedArguments
 
 		public NamedArgumentsCommand(IImmutableCommand source) : base(source)
 		{
-			var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(1);
-			try
+			Parameters = Source.CreateStructuredParameter<T>("NamedArgDictionary", x =>
 			{
-				var parameter = Commands.Linq.Parameters
-					.Create<T>("NamedArgDictionary")
-					.AddParameterPrecondition(new GeneratedNamedArgumentsParameterPrecondition(Source))
-					.SetTypeReader(new GeneratedNamedArgumentsTypeReader(Source))
-					.AddAttribute(new RemainderAttribute())
-					.ToImmutable();
-				parameters.Add(parameter);
-			}
-			catch (Exception e)
-			{
-				throw new InvalidOperationException("Unable to build named arguments " +
-					$"dictionary parameter for '{Source.Names?.FirstOrDefault()}'.", e);
-			}
-			Parameters = parameters.MoveToImmutable();
+				x.AddParameterPrecondition(new GeneratedNamedArgumentsParameterPrecondition(Source))
+				.SetTypeReader(new GeneratedNamedArgumentsTypeReader(Source))
+				.AddAttribute(new RemainderAttribute());
+			});
 		}
 
 		protected override object? GetValue(T structured, IImmutableParameter parameter)
