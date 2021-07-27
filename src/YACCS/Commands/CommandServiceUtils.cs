@@ -20,11 +20,11 @@ namespace YACCS.Commands
 		public static readonly IImmutableSet<char> Quotes = new[] { QUOTE }.ToImmutableHashSet();
 		internal const string DEBUGGER_DISPLAY = "{DebuggerDisplay,nq}";
 
-		public static void AddRange(
+		public static async Task AddRangeAsync(
 			this CommandServiceBase commandService,
-			IEnumerable<IImmutableCommand> enumerable)
+			IAsyncEnumerable<(Type, IImmutableCommand)> enumerable)
 		{
-			foreach (var command in enumerable)
+			await foreach (var (_, command) in enumerable)
 			{
 				commandService.Commands.Add(command);
 			}
@@ -64,7 +64,7 @@ namespace YACCS.Commands
 			}, (meta, context, value));
 		}
 
-		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
+		public static async IAsyncEnumerable<(Type, IImmutableCommand)> GetAllCommandsAsync(
 			this Type type,
 			IServiceProvider services)
 		{
@@ -81,7 +81,7 @@ namespace YACCS.Commands
 			}
 		}
 
-		public static async IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
+		public static async IAsyncEnumerable<(Type, IImmutableCommand)> GetAllCommandsAsync(
 			this IEnumerable<Assembly> assemblies,
 			IServiceProvider services)
 		{
@@ -94,7 +94,7 @@ namespace YACCS.Commands
 			}
 		}
 
-		public static IAsyncEnumerable<IImmutableCommand> GetAllCommandsAsync(
+		public static IAsyncEnumerable<(Type, IImmutableCommand)> GetAllCommandsAsync(
 			this Assembly assembly,
 			IServiceProvider services)
 			=> assembly.GetExportedTypes().GetDirectCommandsAsync(services);
@@ -149,7 +149,7 @@ namespace YACCS.Commands
 			return enumerable;
 		}
 
-		public static async IAsyncEnumerable<IImmutableCommand> GetDirectCommandsAsync(
+		public static async IAsyncEnumerable<(Type, IImmutableCommand)> GetDirectCommandsAsync(
 			this IEnumerable<Type> types,
 			IServiceProvider services)
 		{
@@ -162,7 +162,7 @@ namespace YACCS.Commands
 			}
 		}
 
-		public static async IAsyncEnumerable<IImmutableCommand> GetDirectCommandsAsync(
+		public static async IAsyncEnumerable<(Type, IImmutableCommand)> GetDirectCommandsAsync(
 			this Type type,
 			IServiceProvider services)
 		{
@@ -186,7 +186,7 @@ namespace YACCS.Commands
 			{
 				await foreach (var immutable in command.ToMultipleImmutableAsync(services))
 				{
-					yield return immutable;
+					yield return (type, immutable);
 				}
 			}
 		}

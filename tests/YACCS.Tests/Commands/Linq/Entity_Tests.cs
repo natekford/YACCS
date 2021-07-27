@@ -108,7 +108,7 @@ namespace YACCS.Tests.Commands.Linq
 		private async ValueTask<List<IImmutableCommand>> CreateCommandsAsync()
 		{
 			var commands = new List<IImmutableCommand>();
-			await foreach (var command in typeof(Querying_TestsGroup).GetAllCommandsAsync(EmptyServiceProvider.Instance))
+			await foreach (var (_, command) in typeof(Querying_TestsGroup).GetAllCommandsAsync(EmptyServiceProvider.Instance))
 			{
 				commands.Add(command);
 			}
