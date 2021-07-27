@@ -23,20 +23,13 @@ namespace YACCS.Examples
 			_Services = new ServiceCollection()
 				.AddSingleton<ICommandServiceConfig>(CommandServiceConfig.Instance)
 				.AddSingleton<ILocalizer>(Localize.Instance)
-				.AddSingleton<ConsoleCommandServiceFactory>()
+				.AddSingleton<ConsoleCommandService>()
 				.AddSingleton<ConsoleHandler>()
-				.AddSingleton<ConsoleInteractivityManager>()
 				.AddSingleton<ConsoleInput>()
+				.AddSingleton<ConsoleInteractivityManager>()
 				.AddSingleton<ConsolePaginator>()
 				.AddSingleton<IEnumerable<Assembly>>(new[] { typeof(Program).Assembly })
-				// These 2 need to be transient so if the culture is changed
-				// the correct localized command service is retrieved
-				.AddTransient<ICommandService>(x => x.GetRequiredService<ConsoleCommandService>())
-				.AddTransient<ConsoleCommandService>(x =>
-				{
-					return x.GetRequiredService<ConsoleCommandServiceFactory>()
-						.GetCommandService();
-				})
+				.AddSingleton<ICommandService>(x => x.GetRequiredService<ConsoleCommandService>())
 				.AddSingleton<IArgumentHandler, ArgumentHandler>()
 				.AddSingleton<IFormatProvider, ConsoleTagFormatter>()
 				.AddSingleton<IHelpFormatter, HelpFormatter>()

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 
 using YACCS.Commands;
+using YACCS.Commands.Models;
 using YACCS.Parsing;
 using YACCS.TypeReaders;
 
@@ -11,6 +13,16 @@ namespace YACCS.Tests
 {
 	public static class Utils
 	{
+		public static async Task AddRangeAsync(
+			this CommandServiceBase commandService,
+			IAsyncEnumerable<(Type, IImmutableCommand)> enumerable)
+		{
+			await foreach (var (_, command) in enumerable)
+			{
+				commandService.Commands.Add(command);
+			}
+		}
+
 		public static IServiceCollection CreateServiceCollection(ICommandServiceConfig? config = null)
 		{
 			config ??= CommandServiceConfig.Instance;

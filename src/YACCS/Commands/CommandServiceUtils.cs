@@ -20,26 +20,6 @@ namespace YACCS.Commands
 		public static readonly IImmutableSet<char> Quotes = new[] { QUOTE }.ToImmutableHashSet();
 		internal const string DEBUGGER_DISPLAY = "{DebuggerDisplay,nq}";
 
-		public static async Task AddRangeAsync(
-			this CommandServiceBase commandService,
-			IAsyncEnumerable<(Type, IImmutableCommand)> enumerable)
-		{
-			await foreach (var (_, command) in enumerable)
-			{
-				commandService.Commands.Add(command);
-			}
-		}
-
-		public static async Task AddRangeAsync(
-			this CommandServiceBase commandService,
-			IAsyncEnumerable<IImmutableCommand> enumerable)
-		{
-			await foreach (var command in enumerable)
-			{
-				commandService.Commands.Add(command);
-			}
-		}
-
 		public static ValueTask<IResult> CanExecuteAsync(
 			this IImmutableCommand command,
 			IContext context)

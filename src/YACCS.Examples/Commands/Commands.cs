@@ -71,11 +71,11 @@ namespace YACCS.Examples.Commands
 
 		[Command(nameof(Result))]
 		public IResult Result()
-			=> new SuccessResult("i give a success result for no reason");
+			=> new SuccessResult("This command gives a success result for no reason.");
 
 		[Command(nameof(Throws))]
 		public void Throws()
-			=> throw new InvalidOperationException("i throw for no reason");
+			=> throw new InvalidOperationException("This command throws for no reason.");
 
 		[Command(nameof(Time), "T")]
 		[Summary("Prints out the current time in UTC, optionally converted to a specified timezone.")]

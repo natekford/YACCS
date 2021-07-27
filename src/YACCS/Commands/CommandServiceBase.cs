@@ -15,11 +15,11 @@ namespace YACCS.Commands
 {
 	public abstract class CommandServiceBase : ICommandService
 	{
-		public ITrie<string, IImmutableCommand> Commands { get; set; }
+		public virtual ITrie<string, IImmutableCommand> Commands { get; }
 		IReadOnlyCollection<IImmutableCommand> ICommandService.Commands => Commands;
-		protected ICommandServiceConfig Config { get; set; }
-		protected IArgumentHandler Handler { get; set; }
-		protected IReadOnlyDictionary<Type, ITypeReader> Readers { get; set; }
+		protected virtual ICommandServiceConfig Config { get; }
+		protected virtual IArgumentHandler Handler { get; }
+		protected virtual IReadOnlyDictionary<Type, ITypeReader> Readers { get; }
 
 		protected CommandServiceBase(
 			ICommandServiceConfig config,
