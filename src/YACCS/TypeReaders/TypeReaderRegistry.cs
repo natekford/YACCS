@@ -84,13 +84,20 @@ namespace YACCS.TypeReaders
 
 		protected virtual bool TryCreateReader(Type type, [NotNullWhen(true)] out ITypeReader reader)
 		{
-			var customTypeReaderProvider = type
+			var customReaders = type
 				.GetCustomAttributes()
 				.OfType<ITypeReaderGeneratorAttribute>()
-				.SingleOrDefault();
-			if (customTypeReaderProvider is not null)
+				.Select(x => x.GenerateTypeReader(type))
+				.ToList();
+			if (customReaders.Count == 1)
 			{
-				reader = customTypeReaderProvider.GenerateTypeReader(type);
+				reader = customReaders[0];
+				return true;
+			}
+			else if (customReaders.Count > 1)
+			{
+				var aggregate = typeof(AggregateTypeReader<>).MakeGenericType(type);
+				reader = aggregate.CreateInstance<ITypeReader>(customReaders);
 				return true;
 			}
 
