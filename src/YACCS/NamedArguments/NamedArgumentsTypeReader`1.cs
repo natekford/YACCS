@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 using YACCS.Commands.Models;
@@ -50,6 +51,7 @@ namespace YACCS.NamedArguments
 			var name = Expression.Parameter(typeof(string), "Name");
 			var value = Expression.Parameter(typeof(object), "Value");
 
+			var returnLabel = Expression.Label();
 			var setters = typeof(T).CreateExpressionsForWritableMembers<Expression>(instance, x =>
 			{
 				// If Name == memberInfo.Name
@@ -59,12 +61,13 @@ namespace YACCS.NamedArguments
 				// Then set member and return
 				var valueCast = Expression.Convert(value, x.Type);
 				var assign = Expression.Assign(x, valueCast);
-				var @null = Expression.Constant(null);
-				var body = Expression.Block(assign, @null);
+				var @return = Expression.Return(returnLabel);
+				var body = Expression.Block(assign, @return);
 
 				return Expression.IfThen(isMember, body);
 			});
-			var body = Expression.Block(setters);
+			var @return = Expression.Label(returnLabel);
+			var body = Expression.Block(setters.Append(@return));
 
 			var lambda = Expression.Lambda<Action<T, string, object?>>(
 				body,

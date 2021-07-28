@@ -49,7 +49,7 @@ namespace YACCS.NamedArguments
 			var instance = Expression.Parameter(typeof(T), "Instance");
 			var name = Expression.Parameter(typeof(string), "Name");
 
-			var objectLabel = Expression.Label(typeof(object));
+			var returnLabel = Expression.Label(typeof(object));
 			var getters = typeof(T).CreateExpressionsForWritableMembers<Expression>(instance, x =>
 			{
 				// If Name == memberInfo.Name
@@ -58,13 +58,13 @@ namespace YACCS.NamedArguments
 
 				// Then get member and return
 				var cast = Expression.Convert(x, typeof(object));
-				var @return = Expression.Return(objectLabel, cast);
+				var @return = Expression.Return(returnLabel, cast);
 
 				return Expression.IfThen(isMember, @return);
 			});
 			var notFound = Expression.Constant(NotFound);
-			var returnLabel = Expression.Label(objectLabel, notFound);
-			var body = Expression.Block(getters.Append(notFound).Append(returnLabel));
+			var @return = Expression.Label(returnLabel, notFound);
+			var body = Expression.Block(getters.Append(@return));
 
 			var lambda = Expression.Lambda<Func<T, string, object>>(
 				body,

@@ -186,13 +186,12 @@ namespace YACCS.Commands.Models
 					var @new = Expression.New(groupType);
 					var assignGroup = Expression.Assign(group, @new);
 
-					var memberCount = 0;
 					var setters = groupType.CreateExpressionsForWritableMembers<Expression>(group, x =>
 					{
 						// Create temp variable
 						var typeArgument = Expression.Constant(x.Type);
 						var getService = Expression.Call(provider, _GetService, typeArgument);
-						var temp = Expression.Variable(typeof(object), $"__var{memberCount++}");
+						var temp = Expression.Variable(typeof(object), "__var");
 						var tempAssign = Expression.Assign(temp, getService);
 
 						// Make sure the temp variable is not null

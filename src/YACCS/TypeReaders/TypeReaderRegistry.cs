@@ -54,21 +54,21 @@ namespace YACCS.TypeReaders
 		{
 			if (type.IsValueType)
 			{
-				_RegisterStruct.MakeGenericMethod(type).Invoke(this, new object[] { item });
+				_RegisterStruct.MakeGenericMethod(type).Invoke(this, new[] { item });
 			}
 			else
 			{
-				RegisterInternal(type, item);
+				ValidatedRegister(type, item);
 			}
 		}
 
 		public void RegisterClass<T>(ITypeReader<T> item) where T : class
-			=> RegisterInternal(typeof(T), item);
+			=> ValidatedRegister(typeof(T), item);
 
 		public void RegisterStruct<T>(ITypeReader<T> item) where T : struct
 		{
-			RegisterInternal(typeof(T), item);
-			RegisterInternal(typeof(T?), new NullableTypeReader<T>());
+			ValidatedRegister(typeof(T), item);
+			ValidatedRegister(typeof(T?), new NullableTypeReader<T>());
 		}
 
 		public override bool TryGetValue(Type type, [NotNullWhen(true)] out ITypeReader reader)
@@ -83,16 +83,6 @@ namespace YACCS.TypeReaders
 				return true;
 			}
 			return false;
-		}
-
-		protected void RegisterInternal(Type type, ITypeReader item)
-		{
-			if (!type.IsAssignableFrom(item.OutputType))
-			{
-				throw new ArgumentException("Unable to use a type reader with an output type " +
-					$"{item.OutputType} for the type {type}.", nameof(item));
-			}
-			Items[type] = item;
 		}
 
 		protected void RegisterTypeReaders(IEnumerable<TypeReaderInfo> typeReaders)
@@ -161,6 +151,16 @@ namespace YACCS.TypeReaders
 
 			reader = readerType.CreateInstance<ITypeReader>();
 			return true;
+		}
+
+		protected void ValidatedRegister(Type type, ITypeReader item)
+		{
+			if (!type.IsAssignableFrom(item.OutputType))
+			{
+				throw new ArgumentException("Unable to use a type reader with an output type " +
+					$"{item.OutputType} for the type {type}.", nameof(item));
+			}
+			Items[type] = item;
 		}
 	}
 }
