@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
@@ -24,6 +25,13 @@ namespace YACCS.Examples.Commands
 			// CultureInfo.CurrentX and async interact together
 			CultureInfo.CurrentUICulture = culture;
 			return $"Successfully changed the current UI culture to {culture}.";
+		}
+
+		[Command(nameof(Delay))]
+		public async Task<string> Delay()
+		{
+			await Task.Delay(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
+			return "I delayed for 10 seconds";
 		}
 
 		[Command(nameof(Divide), "D")]
@@ -72,6 +80,13 @@ namespace YACCS.Examples.Commands
 		[Command(nameof(Result))]
 		public IResult Result()
 			=> new SuccessResult("This command gives a success result for no reason.");
+
+		[Command(nameof(Sleep))]
+		public string Sleep()
+		{
+			Thread.Sleep(TimeSpan.FromSeconds(10));
+			return "I slept for 10 seconds";
+		}
 
 		[Command(nameof(Throws))]
 		public void Throws()

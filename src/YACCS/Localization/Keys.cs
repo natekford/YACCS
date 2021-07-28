@@ -92,8 +92,6 @@ namespace YACCS.Localization
 			= new(nameof(NamedArgBadCountResult), "There is not an even number of arguments supplied.");
 		public static NeedsLocalization NamedArgDuplicateResult { get; }
 			= new(nameof(NamedArgDuplicateResult), "Duplicate value for named argument {0}.");
-		public static NeedsLocalization NamedArgMissingValueResult { get; }
-			= new(nameof(NamedArgMissingValueResult), "Missing a value for named argument {0}.");
 		public static NeedsLocalization NamedArgNonExistentResult { get; }
 			= new(nameof(NamedArgNonExistentResult), "Nonexistent named argument {0}.");
 		public static NeedsLocalization NotEnoughArgsResult { get; }
@@ -104,6 +102,8 @@ namespace YACCS.Localization
 			= new(nameof(ParseFailedResult), "Failed to parse {0}.");
 		public static NeedsLocalization QuoteMismatchResult { get; }
 			= new(nameof(QuoteMismatchResult), "There is a quote mismatch.");
+		public static NeedsLocalization StructuredArgMissingValueResult { get; }
+			= new(nameof(StructuredArgMissingValueResult), "Missing a value for argument {0}.");
 		public static NeedsLocalization TimedOutResult { get; }
 			= new(nameof(TimedOutResult), "An operation timed out.");
 		public static NeedsLocalization TooManyArgsResult { get; }

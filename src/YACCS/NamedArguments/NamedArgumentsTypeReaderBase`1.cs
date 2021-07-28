@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 using MorseCode.ITask;
 
@@ -17,50 +19,47 @@ namespace YACCS.NamedArguments
 		protected char[] TrimEnd { get; set; } = new[] { ':' };
 		protected char[] TrimStart { get; set; } = new[] { '/', '-' };
 
-		public override ITask<ITypeReaderResult<T>> ReadAsync(
+		public override async ITask<ITypeReaderResult<T>> ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
+		{
+			var (result, dict) = await TryCreateDictAsync(input).ConfigureAwait(false);
+			if (!result.InnerResult.IsSuccess)
+			{
+				return result;
+			}
+			return await ReadDictIntoInstanceAsync(context, dict).ConfigureAwait(false);
+		}
+
+		protected abstract void SetProperty(T instance, string property, object? value);
+
+		protected virtual ValueTask<(ITypeReaderResult<T>, IReadOnlyDictionary<string, string>)>
+			TryCreateDictAsync(ReadOnlyMemory<string> input)
 		{
 			// Flags aren't supported, so if the input is an odd length
 			// we know something is missing
 			if (input.Length % 2 != 0)
 			{
-				return CachedResults<T>.NamedArgBadCountTask;
+				return new((CachedResults<T>.NamedArgBadCount, default!));
 			}
 
-			var result = TryCreateDict(input.Span, out var dict);
-			if (!result.IsSuccess)
-			{
-				return Error(result).AsITask();
-			}
-			return ReadDictIntoInstanceAsync(context, dict);
-		}
-
-		protected abstract void SetProperty(T instance, string property, object? value);
-
-		protected virtual IResult TryCreateDict(
-			ReadOnlySpan<string> input,
-			out IReadOnlyDictionary<string, string> dict)
-		{
-			var mutable = new Dictionary<string, string>();
-			dict = mutable;
-
+			var dict = new Dictionary<string, string>();
 			for (var i = 0; i < input.Length; i += 2)
 			{
-				var name = input[i].TrimStart(TrimStart).TrimEnd(TrimEnd);
+				var name = input.Span[i].TrimStart(TrimStart).TrimEnd(TrimEnd);
 				if (!Parameters.TryGetValue(name, out var parameter))
 				{
-					return new NamedArgNonExistentResult(name);
+					return new((Error(new NamedArgNonExistentResult(name)), dict));
 				}
 
 				var property = parameter.ParameterName;
 				if (dict.ContainsKey(property))
 				{
-					return new NamedArgDuplicateResult(property);
+					return new((Error(new NamedArgDuplicateResult(property)), dict));
 				}
-				mutable.Add(property, input[i + 1]);
+				dict.Add(property, input.Span[i + 1]);
 			}
-			return SuccessResult.Instance;
+			return new((Success(default!), dict));
 		}
 
 		private async ITask<ITypeReaderResult<T>> ReadDictIntoInstanceAsync(

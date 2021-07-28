@@ -140,7 +140,7 @@ namespace YACCS.Tests.NamedArguments
 			const string INPUT = nameof(CommandsGroup.Test3);
 			var result = await commandService.ExecuteAsync(context, INPUT).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
-			Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgMissingValueResult));
+			Assert.IsInstanceOfType(result.InnerResult, typeof(StructuredArgMissingValueResult));
 		}
 
 		private async ValueTask<(CommandService, SetMe, FakeContext)> CreateAsync()

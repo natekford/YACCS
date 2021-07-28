@@ -42,7 +42,7 @@ namespace YACCS.Commands
 			{
 				return new(CommandScore.CommandNotFound);
 			}
-			return PrivateExecuteAsync(context, args);
+			return ExecuteInternalAsync(context, args);
 		}
 
 		public virtual IReadOnlyCollection<IImmutableCommand> Find(ReadOnlyMemory<string> input)
@@ -200,13 +200,31 @@ namespace YACCS.Commands
 			return reader.ReadAsync(context, sliced);
 		}
 
-		protected virtual Task DisposeCommandAsync(CommandExecutedEventArgs e)
+		protected virtual Task DisposeContextAsync(CommandExecutedEventArgs e)
 		{
 			if (e.Context is IDisposable disposable)
 			{
 				disposable.Dispose();
 			}
 			return Task.CompletedTask;
+		}
+
+		protected virtual async ValueTask<ICommandResult> ExecuteInternalAsync(
+			IContext context,
+			ReadOnlyMemory<string> args)
+		{
+			var best = await GetBestMatchAsync(context, args).ConfigureAwait(false);
+			// If a command is found and args are parsed, execute command in background
+			if (best.InnerResult.IsSuccess && best.Command is not null && best.Args is not null)
+			{
+				_ = Task.Run(async () =>
+				{
+					var e = await HandleCommandAsync(context, best.Command, best.Args).ConfigureAwait(false);
+					await OnCommandExecutedAsync(e).ConfigureAwait(false);
+					await DisposeContextAsync(e).ConfigureAwait(false);
+				});
+			}
+			return best;
 		}
 
 		protected virtual async ValueTask<CommandExecutedEventArgs> HandleCommandAsync(
@@ -280,28 +298,5 @@ namespace YACCS.Commands
 			=> CommandScore.Max(a, b);
 
 		protected abstract Task OnCommandExecutedAsync(CommandExecutedEventArgs e);
-
-		private async ValueTask<ICommandResult> PrivateExecuteAsync(
-			IContext context,
-			ReadOnlyMemory<string> args)
-		{
-			var best = await GetBestMatchAsync(context, args).ConfigureAwait(false);
-			// If a command is found and args are parsed, execute command in background
-			if (best.InnerResult.IsSuccess && best.Command is not null && best.Args is not null)
-			{
-				_ = PrivateHandleCommandAsync(context, best.Command, best.Args);
-			}
-			return best;
-		}
-
-		private async Task PrivateHandleCommandAsync(
-			IContext context,
-			IImmutableCommand command,
-			object?[] args)
-		{
-			var e = await HandleCommandAsync(context, command, args).ConfigureAwait(false);
-			await OnCommandExecutedAsync(e).ConfigureAwait(false);
-			await DisposeCommandAsync(e).ConfigureAwait(false);
-		}
 	}
 }

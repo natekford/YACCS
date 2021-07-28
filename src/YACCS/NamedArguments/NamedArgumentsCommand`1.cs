@@ -25,11 +25,9 @@ namespace YACCS.NamedArguments
 		}
 
 		protected override object? GetValue(T structured, IImmutableParameter parameter)
-		{
 			// There shouldn't be any KNFExceptions because the type readers/preconditions
 			// are already setting default values and checking for undefined values
-			return structured[parameter.OriginalParameterName];
-		}
+			=> structured[parameter.OriginalParameterName];
 
 		private class GeneratedNamedArgumentsParameterPrecondition
 			: NamedArgumentsParameterPreconditionBase<T>

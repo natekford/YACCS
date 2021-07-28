@@ -27,7 +27,7 @@ namespace YACCS.NamedArguments
 			{
 				if (!TryGetProperty(value, property, out var propertyValue))
 				{
-					return new NamedArgMissingValueResult(property);
+					return new StructuredArgMissingValueResult(property);
 				}
 
 				var newMeta = new CommandMeta(meta.Command, parameter);
