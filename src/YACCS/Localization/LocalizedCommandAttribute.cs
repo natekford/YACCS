@@ -6,7 +6,7 @@ using YACCS.Commands.Attributes;
 
 namespace YACCS.Localization
 {
-	[AttributeUsage(AttributeTargets.Class | AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
+	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
 	public class LocalizedCommandAttribute : CommandAttribute
 	{
 		public IReadOnlyList<string> Keys { get; }

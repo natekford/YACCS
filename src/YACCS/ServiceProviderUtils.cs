@@ -3,10 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace YACCS
 {
-	// These are only here to prevent needing to add a service provider implementation dependency.
+	// These are only here to prevent adding a service provider implementation dependency.
 	internal static class ServiceProviderUtils
 	{
-		public static T GetRequiredService<T>(this IServiceProvider provider)
+		internal static T GetRequiredService<T>(this IServiceProvider provider)
 		{
 			var service = provider.GetService(typeof(T));
 			if (service is T t)
@@ -18,7 +18,7 @@ namespace YACCS
 		}
 
 		[return: MaybeNull]
-		public static T GetService<T>(this IServiceProvider provider)
+		internal static T GetService<T>(this IServiceProvider provider)
 			=> provider.GetService(typeof(T)) is T t ? t : default;
 	}
 }

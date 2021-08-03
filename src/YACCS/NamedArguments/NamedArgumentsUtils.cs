@@ -7,7 +7,7 @@ using YACCS.Commands.Models;
 
 namespace YACCS.NamedArguments
 {
-	public static class NamedArgumentsUtils
+	internal static class NamedArgumentsUtils
 	{
 		internal static ImmutableDictionary<string, IImmutableParameter> CreateParamDict(
 			this Type type,

@@ -25,6 +25,13 @@ namespace YACCS.Tests.NamedArguments
 		{
 			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
+			var tcs = new TaskCompletionSource();
+			commandService.CommandExecuted += (e) =>
+			{
+				tcs.SetResult();
+				return Task.CompletedTask;
+			};
+
 			var input = nameof(CommandsGroup.Test2) +
 				$" {CommandsGroup.I}: {INT}" +
 				$" {CommandsGroup.S}: {STRING}" +
@@ -32,6 +39,7 @@ namespace YACCS.Tests.NamedArguments
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 
+			await tcs.Task.ConfigureAwait(false);
 			Assert.AreEqual(INT, setMe.IntValue);
 			Assert.AreEqual(DOUBLE, setMe.DoubleValue);
 			Assert.AreEqual(STRING, setMe.StringValue);
@@ -101,7 +109,6 @@ namespace YACCS.Tests.NamedArguments
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 
 			await tcs.Task.ConfigureAwait(false);
-
 			Assert.AreEqual(INT, setMe.IntValue);
 			Assert.AreEqual(DOUBLE, setMe.DoubleValue);
 			Assert.AreEqual(STRING, setMe.StringValue);

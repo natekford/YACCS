@@ -34,6 +34,13 @@ namespace YACCS.Tests.SwappedArguments
 				$"\"{TIME}\"",
 			};
 
+			var tcs = new TaskCompletionSource();
+			commandService.CommandExecuted += (e) =>
+			{
+				tcs.SetResult();
+				return Task.CompletedTask;
+			};
+
 			foreach (var swapper in Swapper.CreateSwappers(new[] { 1, 2, 3 }))
 			{
 				var copy = args.ToArray();
@@ -43,12 +50,14 @@ namespace YACCS.Tests.SwappedArguments
 				var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 				Assert.IsTrue(result.InnerResult.IsSuccess);
 
+				await tcs.Task.ConfigureAwait(false);
 				Assert.AreEqual(AMOUNT, setMe.Amount);
 				Assert.AreEqual(USER, setMe.User);
 				Assert.AreEqual(CHANNEL, setMe.Channel);
 				Assert.AreEqual(TIME, setMe.Time);
 
 				setMe.Reset();
+				tcs = new TaskCompletionSource();
 			}
 		}
 

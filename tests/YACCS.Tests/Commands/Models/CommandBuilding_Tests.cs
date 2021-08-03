@@ -61,7 +61,7 @@ namespace YACCS.Tests.Commands.Models
 			Assert.AreEqual(names[0], command.Names[0]);
 			Assert.AreEqual(1, command.Parameters.Count);
 			Assert.AreEqual(1, command.Attributes.Count);
-			Assert.IsInstanceOfType(command.Attributes[0], typeof(DelegateCommandAttribute));
+			Assert.IsInstanceOfType(command.Attributes[0], typeof(Delegate));
 
 			var args = new object[] { new FakeContext() };
 			var result = await immutable.ExecuteAsync(null!, args).ConfigureAwait(false);
@@ -150,7 +150,7 @@ namespace YACCS.Tests.Commands.Models
 			Assert.AreEqual(1, command.Parameters.Count);
 			Assert.AreEqual(2, command.Attributes.Count);
 			Assert.IsInstanceOfType(command.Attributes[0], typeof(CompilerGeneratedAttribute));
-			Assert.IsInstanceOfType(command.Attributes[1], typeof(DelegateCommandAttribute));
+			Assert.IsInstanceOfType(command.Attributes[1], typeof(Delegate));
 
 			var args = new object[] { new FakeContext() };
 			var result = await immutable.ExecuteAsync(null!, args).ConfigureAwait(false);

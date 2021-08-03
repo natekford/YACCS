@@ -40,7 +40,7 @@ namespace YACCS.Commands.Models
 			}
 			AddAllParentsAttributes(groupType);
 
-			Attributes.Add(new MethodInfoCommandAttribute(Method));
+			Attributes.Add(Method);
 		}
 
 		public override IImmutableCommand ToImmutable()

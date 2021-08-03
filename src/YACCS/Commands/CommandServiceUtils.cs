@@ -44,6 +44,31 @@ namespace YACCS.Commands
 			}, (meta, context, value));
 		}
 
+		public static List<ICommand> CreateMutableCommands(this Type type)
+		{
+			const BindingFlags FLAGS = 0
+				| BindingFlags.Public
+				| BindingFlags.Instance
+				| BindingFlags.FlattenHierarchy;
+
+			var commands = new List<ICommand>();
+			foreach (var method in type.GetMethods(FLAGS))
+			{
+				var command = method
+					.GetCustomAttributes()
+					.OfType<ICommandAttribute>()
+					.SingleOrDefault();
+				if (command is null || (!command.AllowInheritance && type != method.DeclaringType))
+				{
+					continue;
+				}
+
+				commands.Add(new ReflectionCommand(method));
+			}
+
+			return commands;
+		}
+
 		public static async IAsyncEnumerable<(Type, IImmutableCommand)> GetAllCommandsAsync(
 			this Type type,
 			IServiceProvider services)
@@ -241,31 +266,6 @@ namespace YACCS.Commands
 			}
 
 			return PrivateProcessAsync(preconditions, converter, state);
-		}
-
-		internal static List<ICommand> CreateMutableCommands(this Type type)
-		{
-			const BindingFlags FLAGS = 0
-				| BindingFlags.Public
-				| BindingFlags.Instance
-				| BindingFlags.FlattenHierarchy;
-
-			var commands = new List<ICommand>();
-			foreach (var method in type.GetMethods(FLAGS))
-			{
-				var command = method
-					.GetCustomAttributes()
-					.OfType<ICommandAttribute>()
-					.SingleOrDefault();
-				if (command is null || (!command.AllowInheritance && type != method.DeclaringType))
-				{
-					continue;
-				}
-
-				commands.Add(new ReflectionCommand(method));
-			}
-
-			return commands;
 		}
 
 		internal static string FormatForDebuggerDisplay(this IQueryableCommand item)

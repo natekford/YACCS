@@ -39,7 +39,7 @@ namespace YACCS.Commands.Linq
 		public static IEnumerable<T> ByDelegate<T>(this IEnumerable<T> commands, Delegate @delegate, bool includeMethod = false)
 			where T : IQueryableCommand
 		{
-			var delegates = commands.ByAttribute((DelegateCommandAttribute x) => x.Delegate == @delegate);
+			var delegates = commands.ByAttribute((Delegate x) => x == @delegate);
 			if (!includeMethod)
 			{
 				return delegates;
@@ -72,7 +72,7 @@ namespace YACCS.Commands.Linq
 
 		public static IEnumerable<T> ByMethod<T>(this IEnumerable<T> commands, MethodInfo method)
 			where T : IQueryableCommand
-			=> commands.ByAttribute((MethodInfoCommandAttribute x) => x.Method == method);
+			=> commands.ByAttribute((MethodInfo x) => x == method);
 
 		public static IEnumerable<T> ByName<T>(
 			this IEnumerable<T> commands,
