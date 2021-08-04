@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using MorseCode.ITask;
@@ -62,11 +61,15 @@ namespace YACCS.NamedArguments
 			return new((Success(default!), dict));
 		}
 
+		[GetServiceMethod]
+		private static IReadOnlyDictionary<Type, ITypeReader> GetReaders(IServiceProvider services)
+			=> services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
+
 		private async ITask<ITypeReaderResult<T>> ReadDictIntoInstanceAsync(
 			IContext context,
 			IReadOnlyDictionary<string, string> dict)
 		{
-			var readers = context.Services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
+			var readers = GetReaders(context.Services);
 
 			var instance = new T();
 			foreach (var (property, input) in dict)

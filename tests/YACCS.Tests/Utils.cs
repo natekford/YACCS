@@ -43,7 +43,7 @@ namespace YACCS.Tests
 			=> CreateServiceCollection(config).BuildServiceProvider();
 
 		public static T Get<T>(this IServiceProvider services) where T : notnull
-			=> services.GetRequiredService<T>();
+			=> ServiceProviderServiceExtensions.GetRequiredService<T>(services);
 
 		public static T Get<T>(this IContext context) where T : notnull
 			=> context.Services.Get<T>();

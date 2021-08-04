@@ -48,6 +48,10 @@ namespace YACCS.Examples
 
 		private async Task RunAsync()
 		{
+			_Services
+				.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>()
+				.ThrowIfUnregisteredServices(_Services);
+
 			while (true)
 			{
 				var console = _Services.GetRequiredService<ConsoleHandler>();

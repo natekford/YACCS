@@ -13,9 +13,13 @@ namespace YACCS.TypeReaders
 			IContext context,
 			ReadOnlyMemory<string> input)
 		{
-			var handler = context.Services.GetRequiredService<IArgumentHandler>();
+			var handler = GetHandler(context.Services);
 
 			return Success(handler.Join(input)).AsITask();
 		}
+
+		[GetServiceMethod]
+		private static IArgumentHandler GetHandler(IServiceProvider services)
+			=> services.GetRequiredService<IArgumentHandler>();
 	}
 }

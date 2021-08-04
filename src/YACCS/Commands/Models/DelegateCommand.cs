@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-using YACCS.Commands.Attributes;
 using YACCS.Results;
 
 namespace YACCS.Commands.Models
