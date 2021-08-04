@@ -31,7 +31,7 @@ namespace YACCS.Examples.Commands
 		public async Task<string> Delay()
 		{
 			await Task.Delay(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
-			return "I delayed for 10 seconds";
+			return "I delayed for 10 seconds.";
 		}
 
 		[Command(nameof(Divide), "D")]
@@ -85,7 +85,7 @@ namespace YACCS.Examples.Commands
 		public string Sleep()
 		{
 			Thread.Sleep(TimeSpan.FromSeconds(10));
-			return "I slept for 10 seconds";
+			return "I slept for 10 seconds.";
 		}
 
 		[Command(nameof(Throws))]

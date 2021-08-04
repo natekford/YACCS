@@ -37,6 +37,10 @@ namespace YACCS.Examples
 				.AddSingleton<IReadOnlyDictionary<Type, string>, TypeNameRegistry>()
 				.BuildServiceProvider();
 
+			_Services
+				.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>()
+				.ThrowIfUnregisteredServices(_Services);
+
 #if DEBUG
 			Localize.Instance.KeyNotFound += (key, culture)
 				=> System.Diagnostics.Debug.WriteLine($"Unable to find the localization for '{key}' in '{culture}'.");

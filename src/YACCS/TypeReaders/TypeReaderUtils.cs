@@ -77,6 +77,44 @@ namespace YACCS.TypeReaders
 			}
 		}
 
+		public static void ThrowIfUnregisteredServices(
+			this IReadOnlyDictionary<Type, ITypeReader> readers,
+			IServiceProvider services)
+		{
+			foreach (var reader in readers.Values)
+			{
+				reader.ThrowIfUnregisteredServices(services);
+			}
+		}
+
+		public static void ThrowIfUnregisteredServices(
+			this ITypeReader reader,
+			IServiceProvider services)
+		{
+			const BindingFlags FLAGS = 0
+				| BindingFlags.Static
+				| BindingFlags.NonPublic;
+
+			var args = new[] { services };
+			foreach (var method in reader.GetType().GetMethods(FLAGS))
+			{
+				if (method.GetCustomAttribute<GetServiceMethodAttribute>() is null)
+				{
+					continue;
+				}
+
+				try
+				{
+					_ = method.Invoke(null, args);
+				}
+				catch (Exception e)
+				{
+					throw new InvalidOperationException("Unable to get service for " +
+						$"{method} declared in {method.DeclaringType}.", e);
+				}
+			}
+		}
+
 		public static bool TryGetCollectionType(
 			this Type type,
 			[NotNullWhen(true)] out Type? collectionType)
@@ -94,6 +132,21 @@ namespace YACCS.TypeReaders
 			this Type type,
 			[NotNullWhen(true)] out Type? setType)
 			=> type.TryGetEnumerableType(HashSetTypes, out setType);
+
+		// These are only here to prevent adding a service provider implementation dependency.
+		internal static T GetRequiredService<T>(this IServiceProvider provider)
+		{
+			var service = provider.GetService(typeof(T));
+			if (service is T t)
+			{
+				return t;
+			}
+			throw new InvalidOperationException(
+				$"{typeof(T).Name} does not have a registered service.");
+		}
+
+		internal static T GetService<T>(this IServiceProvider provider, T @default)
+			=> provider.GetService(typeof(T)) is T t ? t : @default;
 
 		private static bool TryGetEnumerableType(
 			this Type type,

@@ -18,8 +18,8 @@ namespace YACCS.TypeReaders
 		{
 			// We don't need to handle having the correct context type because
 			// the type reader we retrieve handles that
-			var readers = context.Services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
-			var handler = context.Services.GetRequiredService<IArgumentHandler>();
+			var readers = GetReaders(context.Services);
+			var handler = GetHandler(context.Services);
 
 			var reader = readers.GetTypeReader<TElement>();
 			var values = await CreateCollectionAsync(context, input).ConfigureAwait(false);
@@ -56,5 +56,13 @@ namespace YACCS.TypeReaders
 		protected abstract ValueTask<TCollection> CreateCollectionAsync(
 			IContext context,
 			ReadOnlyMemory<string> input);
+
+		[GetServiceMethod]
+		private static IArgumentHandler GetHandler(IServiceProvider services)
+			=> services.GetRequiredService<IArgumentHandler>();
+
+		[GetServiceMethod]
+		private static IReadOnlyDictionary<Type, ITypeReader> GetReaders(IServiceProvider services)
+			=> services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
 	}
 }
