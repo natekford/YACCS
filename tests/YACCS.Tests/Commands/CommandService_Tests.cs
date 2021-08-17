@@ -25,8 +25,6 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public void AddAndRemove_Test()
 		{
-			// Just to see if github actions notifies about this
-			throw new ArgumentException();
 			var commandService = Utils.CreateServices().Get<ICommandService>();
 			var trie = (ITrie<string, IImmutableCommand>)commandService.Commands;
 
