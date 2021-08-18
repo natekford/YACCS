@@ -29,9 +29,7 @@ namespace YACCS.Examples.Interactivity
 			_Input.Add(context.Id, source);
 
 			// Run in the background, treat this like an event
-			_ = GetLinesAsync(onInput, source);
-
-			async Task GetLinesAsync(OnInput<string> onInput, CancellationTokenSource source)
+			_ = Task.Run(async () =>
 			{
 				// Only keep the loop going when not canceled
 				while (!source.IsCancellationRequested)
@@ -57,7 +55,7 @@ namespace YACCS.Examples.Interactivity
 					// Since it's not InteractionEnded, we can print it out safely
 					_Console.WriteResult(result);
 				}
-			}
+			}, source.Token);
 		}
 
 		public Task UnsubscribeAsync(ConsoleContext context, OnInput<string> _)
