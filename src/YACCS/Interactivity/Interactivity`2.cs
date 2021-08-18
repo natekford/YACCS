@@ -35,11 +35,11 @@ namespace YACCS.Interactivity
 
 			if (task == cancel)
 			{
-				return CachedResults<TValue>.Canceled;
+				return CachedResults<TValue>.Canceled.Result;
 			}
 			if (task == delay)
 			{
-				return CachedResults<TValue>.TimedOut;
+				return CachedResults<TValue>.TimedOut.Result;
 			}
 
 			var value = await @event.ConfigureAwait(false);

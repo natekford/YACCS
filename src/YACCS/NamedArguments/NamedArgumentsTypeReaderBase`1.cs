@@ -14,6 +14,11 @@ namespace YACCS.NamedArguments
 	public abstract class NamedArgumentsTypeReaderBase<T> : TypeReader<IContext, T>
 		where T : new()
 	{
+		private readonly TypeReaderResultCache<T> _Duplicate
+			= new(x => new NamedArgDuplicateResult(x));
+		private readonly TypeReaderResultCache<T> _NonExistent
+			= new(x => new NamedArgNonExistentResult(x));
+
 		protected abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 		protected char[] TrimEnd { get; set; } = new[] { ':' };
 		protected char[] TrimStart { get; set; } = new[] { '/', '-' };
@@ -39,7 +44,7 @@ namespace YACCS.NamedArguments
 			// we know something is missing
 			if (input.Length % 2 != 0)
 			{
-				return new((CachedResults<T>.NamedArgBadCount, default!));
+				return new((CachedResults<T>.NamedArgBadCount.Result, default!));
 			}
 
 			var dict = new Dictionary<string, string>();
@@ -48,17 +53,17 @@ namespace YACCS.NamedArguments
 				var name = input.Span[i].TrimStart(TrimStart).TrimEnd(TrimEnd);
 				if (!Parameters.TryGetValue(name, out var parameter))
 				{
-					return new((Error(new NamedArgNonExistentResult(name)), dict));
+					return new((_NonExistent[name], dict));
 				}
 
 				var property = parameter.ParameterName;
 				if (dict.ContainsKey(property))
 				{
-					return new((Error(new NamedArgDuplicateResult(property)), dict));
+					return new((_Duplicate[property], dict));
 				}
 				dict.Add(property, input.Span[i + 1]);
 			}
-			return new((Success(default!), dict));
+			return new((CachedResults<T>.DefaultSuccess.Result, dict));
 		}
 
 		[GetServiceMethod]
@@ -80,7 +85,7 @@ namespace YACCS.NamedArguments
 				var result = await reader.ReadAsync(context, new[] { input }).ConfigureAwait(false);
 				if (!result.InnerResult.IsSuccess)
 				{
-					return Error(result);
+					return Error(result.InnerResult);
 				}
 				SetProperty(instance, parameter.OriginalParameterName, result.Value);
 			}

@@ -19,7 +19,7 @@ namespace YACCS.TypeReaders
 			var result = await _ListTypeReader.ReadAsync(context, input).ConfigureAwait(false);
 			if (!result.InnerResult.IsSuccess)
 			{
-				return Error(result);
+				return Error(result.InnerResult);
 			}
 			return Success(result.Value!.ToArray());
 		}

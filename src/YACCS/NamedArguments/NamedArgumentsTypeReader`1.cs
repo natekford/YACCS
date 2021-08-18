@@ -7,17 +7,16 @@ using YACCS.Commands.Models;
 
 namespace YACCS.NamedArguments
 {
-	public class NamedArgumentsTypeReader<T> : NamedArgumentsTypeReaderBase<T>
+	public sealed class NamedArgumentsTypeReader<T> : NamedArgumentsTypeReaderBase<T>
 		where T : new()
 	{
-		private readonly Lazy<IReadOnlyDictionary<string, IImmutableParameter>> _Parameters;
 		private readonly Action<T, string, object?> _Setter;
 
-		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters => _Parameters.Value;
+		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
 		public NamedArgumentsTypeReader()
 		{
-			_Parameters = new(() => typeof(T).CreateParamDict(x => x.ParameterName));
+			Parameters = typeof(T).CreateParamDict(x => x.ParameterName);
 			_Setter = ReflectionUtils.CreateDelegate(Setter, "setter");
 		}
 

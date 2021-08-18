@@ -18,7 +18,7 @@ namespace YACCS.TypeReaders
 			// In case someone ever calls this directly this should remain
 			if (context is not TContext tContext)
 			{
-				return CachedResults<TContext>.InvalidContextTask;
+				return CachedResults<TContext>.InvalidContext.Task;
 			}
 			return Success(tContext).AsITask();
 		}

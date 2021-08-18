@@ -31,7 +31,7 @@ namespace YACCS.TypeReaders
 					return result;
 				}
 			}
-			return CachedResults<T>.ParseFailed;
+			return CachedResults<T>.ParseFailed.Result;
 		}
 	}
 }

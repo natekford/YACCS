@@ -30,7 +30,7 @@ namespace YACCS.TypeReaders
 
 			if (!_Delegate(handler.Join(input), out var result))
 			{
-				return CachedResults<TValue>.ParseFailedTask;
+				return CachedResults<TValue>.ParseFailed.Task;
 			}
 			return Success(result).AsITask();
 		}

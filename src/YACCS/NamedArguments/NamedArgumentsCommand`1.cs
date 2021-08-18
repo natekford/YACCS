@@ -29,7 +29,7 @@ namespace YACCS.NamedArguments
 			// are already setting default values and checking for undefined values
 			=> structured[parameter.OriginalParameterName];
 
-		private class GeneratedNamedArgumentsParameterPrecondition
+		private sealed class GeneratedNamedArgumentsParameterPrecondition
 			: NamedArgumentsParameterPreconditionBase<T>
 		{
 			protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
@@ -57,7 +57,7 @@ namespace YACCS.NamedArguments
 			}
 		}
 
-		private class GeneratedNamedArgumentsTypeReader : NamedArgumentsTypeReaderBase<T>
+		private sealed class GeneratedNamedArgumentsTypeReader : NamedArgumentsTypeReaderBase<T>
 		{
 			protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 

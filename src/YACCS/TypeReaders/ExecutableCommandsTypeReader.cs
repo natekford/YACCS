@@ -34,7 +34,7 @@ namespace YACCS.TypeReaders
 
 			if (executableCommands.Count == 0)
 			{
-				return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailed;
+				return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailed.Result;
 			}
 			return Success(executableCommands);
 		}

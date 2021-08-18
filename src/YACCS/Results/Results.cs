@@ -9,29 +9,36 @@ namespace YACCS.Results
 {
 	public static class CachedResults<T>
 	{
-		public static ITypeReaderResult<T> Canceled { get; }
-			= TypeReaderResult<T>.FromError(CanceledResult.Instance);
+		public static CachedTypeReaderResult Canceled { get; }
+			= new(CanceledResult.Instance);
+		public static CachedTypeReaderResult DefaultSuccess { get; }
+			= new(default(T)!);
+		public static CachedTypeReaderResult InvalidContext { get; }
+			= new(InvalidContextResult.Instance);
+		public static CachedTypeReaderResult NamedArgBadCount { get; }
+			= new(NamedArgBadCountResult.Instance);
+		public static CachedTypeReaderResult ParseFailed { get; }
+			= new(new ParseFailedResult(typeof(T)));
+		public static CachedTypeReaderResult TimedOut { get; }
+			= new(TimedOutResult.Instance);
 
-		public static ITypeReaderResult<T> InvalidContext { get; }
-			= TypeReaderResult<T>.FromError(InvalidContextResult.Instance);
+		public class CachedTypeReaderResult
+		{
+			public ITypeReaderResult<T> Result { get; }
+			public ITask<ITypeReaderResult<T>> Task { get; }
 
-		public static ITask<ITypeReaderResult<T>> InvalidContextTask { get; }
-			= InvalidContext.AsITask();
+			public CachedTypeReaderResult(IResult result)
+			{
+				Result = TypeReaderResult<T>.FromError(result);
+				Task = Result.AsITask();
+			}
 
-		public static ITypeReaderResult<T> NamedArgBadCount { get; }
-			= TypeReaderResult<T>.FromError(NamedArgBadCountResult.Instance);
-
-		public static ITask<ITypeReaderResult<T>> NamedArgBadCountTask { get; }
-			= NamedArgBadCount.AsITask();
-
-		public static ITypeReaderResult<T> ParseFailed { get; }
-			= TypeReaderResult<T>.FromError(new ParseFailedResult(typeof(T)));
-
-		public static ITask<ITypeReaderResult<T>> ParseFailedTask { get; }
-			= ParseFailed.AsITask();
-
-		public static ITypeReaderResult<T> TimedOut { get; }
-			= TypeReaderResult<T>.FromError(TimedOutResult.Instance);
+			public CachedTypeReaderResult(T value)
+			{
+				Result = TypeReaderResult<T>.FromSuccess(value);
+				Task = Result.AsITask();
+			}
+		}
 	}
 
 	public class CanceledResult : LocalizedResult

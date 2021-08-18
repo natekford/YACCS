@@ -8,7 +8,7 @@ using YACCS.Commands.Models;
 namespace YACCS.StructuredArguments
 {
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-	public class GenerateXmlArgumentsAttribute : Attribute, ICommandGeneratorAttribute
+	public sealed class GenerateXmlArgumentsAttribute : Attribute, ICommandGeneratorAttribute
 	{
 		public ValueTask<IEnumerable<IImmutableCommand>> GenerateCommandsAsync(
 			IServiceProvider services,

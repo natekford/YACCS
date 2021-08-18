@@ -10,7 +10,7 @@ using YACCS.TypeReaders;
 namespace YACCS.NamedArguments
 {
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-	public class GenerateNamedArgumentsAttribute : Attribute,
+	public sealed class GenerateNamedArgumentsAttribute : Attribute,
 		ICommandGeneratorAttribute,
 		IParameterModifierAttribute,
 		ITypeReaderGeneratorAttribute

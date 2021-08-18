@@ -7,19 +7,18 @@ using YACCS.Commands.Models;
 
 namespace YACCS.NamedArguments
 {
-	public class NamedArgumentsParameterPrecondition<T>
+	public sealed class NamedArgumentsParameterPrecondition<T>
 		: NamedArgumentsParameterPreconditionBase<T>
 	{
 		private static readonly object NotFound = new();
 		private readonly Func<T, string, object> _Getter;
-		private readonly Lazy<IReadOnlyDictionary<string, IImmutableParameter>> _Parameters;
 
-		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters => _Parameters.Value;
+		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
 		public NamedArgumentsParameterPrecondition()
 		{
+			Parameters = typeof(T).CreateParamDict(x => x.OriginalParameterName);
 			_Getter = ReflectionUtils.CreateDelegate(Getter, "getter");
-			_Parameters = new(() => typeof(T).CreateParamDict(x => x.OriginalParameterName));
 		}
 
 		protected override bool TryGetProperty(T instance, string property, out object? value)

@@ -27,7 +27,7 @@ namespace YACCS.TypeReaders
 			var found = commands.Find(input);
 			if (found.Count == 0)
 			{
-				return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailedTask;
+				return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailed.Task;
 			}
 			return Success(found).AsITask();
 		}
