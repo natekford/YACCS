@@ -62,12 +62,12 @@ namespace YACCS.Tests.Commands.Linq
 		[TestMethod]
 		public void AsParameter_Test()
 		{
-			Assert.ThrowsException<ArgumentNullException>(() =>
+			Assert.ThrowsException<ArgumentNullException>(static () =>
 			{
 				var parameter = default(IQueryableEntity)!.AsParameter();
 			});
 
-			Assert.ThrowsException<ArgumentException>(() =>
+			Assert.ThrowsException<ArgumentException>(static () =>
 			{
 				var command = FakeDelegateCommand.New();
 				var parameter = command.AsParameter();

@@ -10,7 +10,7 @@ namespace YACCS
 	public class AsyncEvent<T> : IAsyncEvent<T> where T : HandledEventArgs
 	{
 		private readonly Lazy<AsyncEvent<ExceptionEventArgs<T>>> _Exception
-			= new(() => new());
+			= new(static () => new());
 		private readonly List<AsyncEventHandler<T>> _Handlers = new();
 		private readonly object _Lock = new();
 

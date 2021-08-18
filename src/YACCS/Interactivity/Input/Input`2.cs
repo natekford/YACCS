@@ -17,7 +17,7 @@ namespace YACCS.Interactivity.Input
 	{
 		protected static IImmutableCommand EmptyCommand { get; }
 			= new DelegateCommand(
-				(Action)(() => { }),
+				(Action)(static () => { }),
 				new[] { new ImmutableName(new[] { "Input" }) },
 				typeof(TContext)
 			).ToImmutable();
@@ -33,8 +33,8 @@ namespace YACCS.Interactivity.Input
 			TContext context,
 			IInputOptions<TContext, TInput, TValue> options)
 		{
-			var eventTrigger = new TaskCompletionSource<TValue>();
-			return HandleInteraction(context, options, eventTrigger, async input =>
+			var eventTrigger = new TaskCompletionSource<TValue>(TaskCreationOptions.RunContinuationsAsynchronously);
+			return HandleInteractionAsync(context, options, eventTrigger, async input =>
 			{
 				foreach (var criterion in options.Criteria)
 				{

@@ -14,32 +14,41 @@ namespace YACCS.Interactivity
 	{
 		protected virtual TimeSpan DefaultTimeout { get; } = TimeSpan.FromSeconds(5);
 
-		protected virtual async Task<ITypeReaderResult<TValue>> HandleInteraction<TValue>(
+		protected virtual async Task<ITypeReaderResult<TValue>> HandleInteractionAsync<TValue>(
 			TContext context,
 			IInteractivityOptions<TContext, TInput> options,
 			TaskCompletionSource<TValue> eventTrigger,
 			OnInput<TInput> handler)
 		{
-			var cancelTrigger = new TaskCompletionSource<bool>();
+			var cancelTrigger = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+			var cancelRegistration = default(CancellationTokenRegistration?);
 			if (options.Token is CancellationToken token)
 			{
 				token.Register(() => cancelTrigger.SetResult(true));
 			}
 
+			using var cts = new CancellationTokenSource();
+
 			await SubscribeAsync(context, handler).ConfigureAwait(false);
 			var @event = eventTrigger.Task;
 			var cancel = cancelTrigger.Task;
-			var delay = Task.Delay(options.Timeout ?? DefaultTimeout);
+			var delay = Task.Delay(options.Timeout ?? DefaultTimeout, cts.Token);
 			var task = await Task.WhenAny(@event, delay, cancel).ConfigureAwait(false);
 			await UnsubscribeAsync(context, handler).ConfigureAwait(false);
 
-			if (task == cancel)
+			if (cancelRegistration is not null)
 			{
-				return CachedResults<TValue>.Canceled.Result;
+				await cancelRegistration.Value.DisposeAsync().ConfigureAwait(false);
 			}
+			cts.Cancel();
+
 			if (task == delay)
 			{
 				return CachedResults<TValue>.TimedOut.Result;
+			}
+			if (task == cancel)
+			{
+				return CachedResults<TValue>.Canceled.Result;
 			}
 
 			var value = await @event.ConfigureAwait(false);

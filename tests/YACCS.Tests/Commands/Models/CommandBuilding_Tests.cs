@@ -44,7 +44,7 @@ namespace YACCS.Tests.Commands.Models
 		[TestMethod]
 		public void CommandBuildingThrowWhenStructs_Test()
 		{
-			Assert.ThrowsException<ArgumentException>(() =>
+			Assert.ThrowsException<ArgumentException>(static () =>
 			{
 				_ = typeof(GroupStruct).CreateMutableCommands();
 			});

@@ -29,7 +29,9 @@ namespace YACCS.Examples.Interactivity
 			_Input.Add(context.Id, source);
 
 			// Run in the background, treat this like an event
-			_ = Task.Run(async () =>
+			_ = GetLinesAsync(onInput, source);
+
+			async Task GetLinesAsync(OnInput<string> onInput, CancellationTokenSource source)
 			{
 				// Only keep the loop going when not canceled
 				while (!source.IsCancellationRequested)
@@ -47,14 +49,15 @@ namespace YACCS.Examples.Interactivity
 					}
 
 					var result = await onInput.Invoke(input).ConfigureAwait(false);
-					// If interaction is ended, the locks have been released and
-					// if we print out the result, it will be out of order
-					if (result is not InteractionEndedResult)
+					if (result is InteractionEndedResult)
 					{
-						_Console.WriteResult(result);
+						return;
 					}
+
+					// Since it's not InteractionEnded, we can print it out safely
+					_Console.WriteResult(result);
 				}
-			}, source.Token);
+			}
 		}
 
 		public Task UnsubscribeAsync(ConsoleContext context, OnInput<string> _)

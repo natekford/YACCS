@@ -180,10 +180,10 @@ namespace YACCS.Tests.Commands
 		public async Task EnsureDisposesContext_Test()
 		{
 			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-			var tcs = new TaskCompletionSource();
+			var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 			context = new DisposableContext(tcs);
 
-			var shouldGetArgs = new TaskCompletionSource<CommandExecutedEventArgs>();
+			var shouldGetArgs = new TaskCompletionSource<CommandExecutedEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
 			commandService.CommandExecuted += (e) =>
 			{
 				shouldGetArgs.SetResult(e);
@@ -203,7 +203,7 @@ namespace YACCS.Tests.Commands
 		public async Task ExecutionDelay_Test()
 		{
 			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-			var tcs = new TaskCompletionSource<CommandExecutedEventArgs>();
+			var tcs = new TaskCompletionSource<CommandExecutedEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
 			commandService.CommandExecuted += (e) =>
 			{
 				tcs.SetResult(e);
@@ -231,7 +231,7 @@ namespace YACCS.Tests.Commands
 		public async Task ExecutionExceptionAfter_Test()
 		{
 			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-			var tcs = new TaskCompletionSource<CommandExecutedEventArgs>();
+			var tcs = new TaskCompletionSource<CommandExecutedEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
 			commandService.CommandExecuted += (e) =>
 			{
 				tcs.SetResult(e);
@@ -255,7 +255,7 @@ namespace YACCS.Tests.Commands
 		public async Task ExecutionExceptionBefore_Test()
 		{
 			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-			var tcs = new TaskCompletionSource<CommandExecutedEventArgs>();
+			var tcs = new TaskCompletionSource<CommandExecutedEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
 			commandService.CommandExecuted += (e) =>
 			{
 				tcs.SetResult(e);
@@ -279,7 +279,7 @@ namespace YACCS.Tests.Commands
 		public async Task ExecutionExceptionDuring_Test()
 		{
 			var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-			var tcs = new TaskCompletionSource<CommandExecutedEventArgs>();
+			var tcs = new TaskCompletionSource<CommandExecutedEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
 			commandService.CommandExecuted += (e) =>
 			{
 				tcs.SetResult(e);

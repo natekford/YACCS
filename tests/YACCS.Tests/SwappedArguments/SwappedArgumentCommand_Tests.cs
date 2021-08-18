@@ -34,7 +34,7 @@ namespace YACCS.Tests.SwappedArguments
 				$"\"{TIME}\"",
 			};
 
-			var tcs = new TaskCompletionSource();
+			var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 			commandService.CommandExecuted += (e) =>
 			{
 				tcs.SetResult();
@@ -57,7 +57,7 @@ namespace YACCS.Tests.SwappedArguments
 				Assert.AreEqual(TIME, setMe.Time);
 
 				setMe.Reset();
-				tcs = new TaskCompletionSource();
+				tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 			}
 		}
 

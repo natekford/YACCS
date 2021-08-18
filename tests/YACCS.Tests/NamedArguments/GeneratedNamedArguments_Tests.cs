@@ -25,7 +25,7 @@ namespace YACCS.Tests.NamedArguments
 		{
 			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
-			var tcs = new TaskCompletionSource();
+			var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 			commandService.CommandExecuted += (e) =>
 			{
 				tcs.SetResult();
@@ -94,7 +94,7 @@ namespace YACCS.Tests.NamedArguments
 		{
 			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
-			var tcs = new TaskCompletionSource();
+			var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 			commandService.CommandExecuted += (e) =>
 			{
 				tcs.SetResult();
@@ -119,7 +119,7 @@ namespace YACCS.Tests.NamedArguments
 		{
 			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
-			var tcs = new TaskCompletionSource();
+			var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 			commandService.CommandExecuted += (e) =>
 			{
 				tcs.SetResult();

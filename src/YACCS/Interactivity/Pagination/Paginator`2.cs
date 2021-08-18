@@ -19,8 +19,8 @@ namespace YACCS.Interactivity.Pagination
 			// Display the starting page
 			await options.DisplayCallback.Invoke(page).ConfigureAwait(false);
 
-			var eventTrigger = new TaskCompletionSource<object?>();
-			var result = await HandleInteraction(context, options, eventTrigger, async input =>
+			var eventTrigger = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+			var result = await HandleInteractionAsync(context, options, eventTrigger, async input =>
 			{
 				foreach (var criterion in options.Criteria)
 				{
