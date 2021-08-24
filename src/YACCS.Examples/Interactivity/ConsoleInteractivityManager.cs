@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-using YACCS.Interactivity;
+﻿using YACCS.Interactivity;
 using YACCS.Results;
 
 namespace YACCS.Examples.Interactivity

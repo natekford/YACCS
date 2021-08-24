@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using YACCS.Interactivity;
+﻿using YACCS.Interactivity;
 using YACCS.Interactivity.Input;
 using YACCS.TypeReaders;
 

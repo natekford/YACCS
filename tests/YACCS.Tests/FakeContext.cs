@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 using YACCS.Commands;
 
 namespace YACCS.Tests

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
+﻿
 using YACCS.Help;
 
 namespace YACCS.Examples
