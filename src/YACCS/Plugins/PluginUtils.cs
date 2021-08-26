@@ -12,13 +12,31 @@ namespace YACCS.CommandAssemblies
 		public static void Add(this IDictionary<string, Assembly> dictionary, Assembly assembly)
 			=> dictionary.Add(assembly.FullName, assembly);
 
-		public static async Task Configure(
+		public static async Task AddServicesAsync<T>(
+			this IEnumerable<IServiceInstantiator> instantiators,
+			T services,
+			bool throwIfWrongType = false)
+		{
+			foreach (var instantiator in instantiators)
+			{
+				if (instantiator is IServiceInstantiator<T> typed)
+				{
+					await typed.AddServicesAsync(services).ConfigureAwait(false);
+				}
+				else if (throwIfWrongType)
+				{
+					await instantiator.AddServicesAsync(services!).ConfigureAwait(false);
+				}
+			}
+		}
+
+		public static async Task ConfigureServicesAsync(
 			this IEnumerable<IServiceInstantiator> instantiators,
 			IServiceProvider services)
 		{
 			foreach (var instantiator in instantiators)
 			{
-				await instantiator.AddServicesAsync(services).ConfigureAwait(false);
+				await instantiator.ConfigureServicesAsync(services).ConfigureAwait(false);
 			}
 		}
 
@@ -37,24 +55,6 @@ namespace YACCS.CommandAssemblies
 				}
 			}
 			return instantiators;
-		}
-
-		public static async Task Instantiate<T>(
-			this IEnumerable<IServiceInstantiator> instantiators,
-			T services,
-			bool throwIfWrongType = false)
-		{
-			foreach (var instantiator in instantiators)
-			{
-				if (instantiator is IServiceInstantiator<T> typed)
-				{
-					await typed.AddServicesAsync(services).ConfigureAwait(false);
-				}
-				else if (throwIfWrongType)
-				{
-					await instantiator.AddServicesAsync(services!).ConfigureAwait(false);
-				}
-			}
 		}
 
 		public static Dictionary<string, Assembly> Load(IEnumerable<string> files)
