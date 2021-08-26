@@ -1,0 +1,69 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using MorseCode.ITask;
+
+using YACCS.Commands;
+using YACCS.Commands.Attributes;
+using YACCS.Commands.Models;
+using YACCS.Results;
+
+namespace YACCS.TypeReaders
+{
+	/// <summary>
+	/// Gets commands which have all the supplied categories. Order is NOT guaranteed.
+	/// </summary>
+	public class CommandsCategoryTypeReader : TypeReader<IContext, IReadOnlyCollection<IImmutableCommand>>
+	{
+		public override ITask<ITypeReaderResult<IReadOnlyCollection<IImmutableCommand>>> ReadAsync(
+			IContext context,
+			ReadOnlyMemory<string> input)
+		{
+			if (input.Length == 0)
+			{
+				return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailed.Task;
+			}
+
+			var commands = GetCommands(context.Services);
+
+			// Create a hashset to remove duplicates and have a quicker Contains()
+			var categories = new HashSet<string>(input.Length, StringComparer.OrdinalIgnoreCase);
+			foreach (var category in input.Span)
+			{
+				categories.Add(category);
+			}
+
+			var found = new List<IImmutableCommand>();
+			foreach (var command in commands.Commands)
+			{
+				var categoryCount = 0;
+				foreach (var category in command.Attributes.OfType<ICategoryAttribute>())
+				{
+					if (categories.Contains(category.Category))
+					{
+						++categoryCount;
+					}
+
+					// An equal amount of categories found to categories searched for
+					// means all have been found so we can stop looking
+					if (categoryCount == categories.Count)
+					{
+						found.Add(command);
+						break;
+					}
+				}
+			}
+
+			if (found.Count == 0)
+			{
+				return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailed.Task;
+			}
+			return Success(found).AsITask();
+		}
+
+		[GetServiceMethod]
+		private static ICommandService GetCommands(IServiceProvider services)
+			=> services.GetRequiredService<ICommandService>();
+	}
+}

@@ -15,6 +15,7 @@ namespace YACCS.Commands.Models
 		public virtual IReadOnlyList<object> Attributes => Source.Attributes;
 		IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 		public virtual Type ContextType => Source.ContextType;
+		public virtual bool IsHidden => Source.IsHidden;
 		public virtual int MaxLength => Source.MaxLength;
 		public virtual int MinLength => Source.MinLength;
 		public virtual IReadOnlyList<IReadOnlyList<string>> Names => Source.Names;

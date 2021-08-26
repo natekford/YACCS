@@ -92,55 +92,55 @@ namespace YACCS.Tests.Commands
 			trie.Add(c4);
 
 			{
-				var found = commandService.Find(new[] { "" });
+				var found = commandService.FindByPath(new[] { "" });
 				Assert.AreEqual(0, found.Count);
 			}
 
 			{
-				var found = commandService.Find(new[] { "\"1" });
+				var found = commandService.FindByPath(new[] { "\"1" });
 				Assert.AreEqual(0, found.Count);
 			}
 
 			{
-				var found = commandService.Find(new[] { "1" });
+				var found = commandService.FindByPath(new[] { "1" });
 				Assert.AreEqual(1, found.Count);
 				Assert.AreSame(c1, found.Single());
 			}
 
 			{
-				var found = commandService.Find(new[] { "2" });
+				var found = commandService.FindByPath(new[] { "2" });
 				Assert.AreEqual(1, found.Count);
 				Assert.AreSame(c2, found.Single());
 			}
 
 			{
-				var found = commandService.Find(new[] { "3" });
+				var found = commandService.FindByPath(new[] { "3" });
 				Assert.AreEqual(1, found.Count);
 				Assert.AreSame(c2, found.Single());
 			}
 
 			{
-				var found = commandService.Find(new[] { "4" });
+				var found = commandService.FindByPath(new[] { "4" });
 				Assert.AreEqual(2, found.Count);
 				Assert.IsTrue(found.Contains(c3));
 				Assert.IsTrue(found.Contains(c4));
 			}
 
 			{
-				var found = commandService.Find(new[] { "4", "1" });
+				var found = commandService.FindByPath(new[] { "4", "1" });
 				Assert.AreEqual(2, found.Count);
 				Assert.IsTrue(found.Contains(c3));
 				Assert.IsTrue(found.Contains(c4));
 			}
 
 			{
-				var found = commandService.Find(new[] { "4", "2" });
+				var found = commandService.FindByPath(new[] { "4", "2" });
 				Assert.AreEqual(1, found.Count);
 				Assert.AreSame(c3, found.Single());
 			}
 
 			{
-				var found = commandService.Find(new[] { "asdf", "not", "a", "command" });
+				var found = commandService.FindByPath(new[] { "asdf", "not", "a", "command" });
 				Assert.AreEqual(0, found.Count);
 			}
 		}

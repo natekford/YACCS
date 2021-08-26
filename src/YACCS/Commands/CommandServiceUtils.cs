@@ -104,7 +104,7 @@ namespace YACCS.Commands
 			IServiceProvider services)
 			=> assembly.GetExportedTypes().GetDirectCommandsAsync(services);
 
-		public static IReadOnlyCollection<TValue> GetAllDistinctItems<TKey, TValue>(
+		public static HashSet<TValue> GetAllDistinctItems<TKey, TValue>(
 			this INode<TKey, TValue> node,
 			Func<TValue, bool>? predicate = null)
 		{

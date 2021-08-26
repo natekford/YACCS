@@ -13,6 +13,6 @@ namespace YACCS.Commands
 
 		ValueTask<ICommandResult> ExecuteAsync(IContext context, string input);
 
-		IReadOnlyCollection<IImmutableCommand> Find(ReadOnlyMemory<string> input);
+		IReadOnlyCollection<IImmutableCommand> FindByPath(ReadOnlyMemory<string> input);
 	}
 }

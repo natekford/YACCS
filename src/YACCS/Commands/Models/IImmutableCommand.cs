@@ -8,6 +8,7 @@ namespace YACCS.Commands.Models
 {
 	public interface IImmutableCommand : IImmutableEntityBase, IQueryableCommand
 	{
+		bool IsHidden { get; }
 		int MaxLength { get; }
 		int MinLength { get; }
 		new IReadOnlyList<IReadOnlyList<string>> Names { get; }

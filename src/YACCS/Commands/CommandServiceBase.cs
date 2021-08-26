@@ -45,7 +45,7 @@ namespace YACCS.Commands
 			return ExecuteInternalAsync(context, args);
 		}
 
-		public virtual IReadOnlyCollection<IImmutableCommand> Find(ReadOnlyMemory<string> input)
+		public virtual IReadOnlyCollection<IImmutableCommand> FindByPath(ReadOnlyMemory<string> input)
 		{
 			var node = Commands.Root;
 			foreach (var key in input.Span)

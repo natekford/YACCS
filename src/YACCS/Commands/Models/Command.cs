@@ -59,6 +59,7 @@ namespace YACCS.Commands.Models
 
 			public IReadOnlyList<object> Attributes { get; }
 			public Type ContextType { get; }
+			public bool IsHidden { get; }
 			public int MaxLength { get; }
 			public int MinLength { get; }
 			public IReadOnlyList<IReadOnlyList<string>> Names { get; }
@@ -148,6 +149,10 @@ namespace YACCS.Commands.Models
 
 						case IIdAttribute id:
 							PrimaryId ??= id.Id;
+							break;
+
+						case IHiddenAttribute:
+							IsHidden = true;
 							break;
 					}
 				}

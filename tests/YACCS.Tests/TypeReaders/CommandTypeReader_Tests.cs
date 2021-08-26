@@ -12,7 +12,7 @@ namespace YACCS.Tests.TypeReaders
 	public class CommandTypeReader_Tests : TypeReader_Tests<IReadOnlyCollection<IImmutableCommand>>
 	{
 		public override ITypeReader<IReadOnlyCollection<IImmutableCommand>> Reader { get; }
-			= new CommandsTypeReader();
+			= new CommandsNameTypeReader();
 
 		[TestMethod]
 		public async Task Valid_Test()

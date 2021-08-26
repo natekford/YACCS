@@ -20,42 +20,59 @@ namespace YACCS.Examples.Commands
 		[Disabled]
 		public override string Abstract() => "21";
 
+		[Command(nameof(Category))]
+		public Task<IResult> Category(
+			[OverrideTypeReader(typeof(CommandsCategoryTypeReader))]
+			[Remainder]
+			IReadOnlyCollection<IImmutableCommand> commands)
+			=> HelpCommand(commands);
+
 		[Command]
-		public async Task HelpCommand()
-		{
-			var i = 0;
-			foreach (var command in CommandService.Commands)
-			{
-				var canExecute = await command.CanExecuteAsync(Context).ConfigureAwait(false);
-				if (canExecute.IsSuccess)
-				{
-					Console.WriteLine($"\t{++i}. {command.Names[0]}");
-				}
-			}
-		}
+		public Task HelpCommand()
+			=> HelpCommand(CommandService.Commands);
 
 		[Command]
 		public async Task<IResult> HelpCommand(
-			[OverrideTypeReader(typeof(ExecutableCommandsTypeReader))]
+			[OverrideTypeReader(typeof(CommandsNameTypeReader))]
+			[Remainder]
 			IReadOnlyCollection<IImmutableCommand> commands)
 		{
-			IImmutableCommand command;
-			if (commands.Count == 1)
+			var executableCommands = new List<IImmutableCommand>(commands.Count);
+			foreach (var c in commands)
 			{
-				command = commands.First();
+				// If the command is hidden, don't show it
+				if (c.IsHidden)
+				{
+					continue;
+				}
+
+				var canExecute = await c.CanExecuteAsync(Context).ConfigureAwait(false);
+				if (canExecute.IsSuccess)
+				{
+					executableCommands.Add(c);
+				}
+			}
+
+			IImmutableCommand command;
+			if (executableCommands.Count == 0)
+			{
+				return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailed.Result.InnerResult;
+			}
+			else if (executableCommands.Count == 1)
+			{
+				command = executableCommands[0];
 			}
 			else
 			{
 				Console.WriteLine("Enter the position of the command you want to see: ");
-				var i = 0;
-				foreach (var c in commands)
+				for (var i = 0; i < executableCommands.Count; ++i)
 				{
-					Console.WriteLine($"\t{++i}. {c.Names[0]}");
+					Console.WriteLine($"\t{i + 1}. {executableCommands[i].Names[0]}");
 				}
 
 				var options = Input.CreateOptions().With(preconditions: new[]
 				{
-						new RangeParameterPrecondition(1, commands.Count)
+						new RangeParameterPrecondition(1, executableCommands.Count)
 				});
 				var result = await Input.GetAsync(Context, options).ConfigureAwait(false);
 				if (!result.InnerResult.IsSuccess)
@@ -63,7 +80,7 @@ namespace YACCS.Examples.Commands
 					return result.InnerResult;
 				}
 
-				command = commands.ElementAt(result.Value - 1);
+				command = executableCommands[result.Value - 1];
 			}
 
 			Console.WriteLine();
