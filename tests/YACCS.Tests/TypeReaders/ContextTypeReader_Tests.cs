@@ -1,5 +1,4 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.TypeReaders;
 
@@ -10,6 +9,14 @@ namespace YACCS.Tests.TypeReaders
 	{
 		public override ITypeReader<FakeContext2> Reader { get; }
 			= new ContextTypeReader<FakeContext2>();
+
+		[TestMethod]
+		public async Task DirectInvalid_Test()
+		{
+			var reader = (ContextTypeReader<FakeContext2>)Reader;
+			var result = await reader.ReadAsync(null!, new[] { Invalid }).ConfigureAwait(false);
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+		}
 
 		[TestMethod]
 		public async Task Valid_Test()

@@ -1,5 +1,4 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
@@ -9,7 +8,8 @@ using YACCS.TypeReaders;
 namespace YACCS.Tests.TypeReaders
 {
 	[TestClass]
-	public class CommandTypeReader_Tests : TypeReader_Tests<IReadOnlyCollection<IImmutableCommand>>
+	public class CommandsNamesTypeReader_Tests
+		: TypeReader_Tests<IReadOnlyCollection<IImmutableCommand>>
 	{
 		public override ITypeReader<IReadOnlyCollection<IImmutableCommand>> Reader { get; }
 			= new CommandsNameTypeReader();

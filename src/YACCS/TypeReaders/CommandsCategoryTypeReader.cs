@@ -35,24 +35,25 @@ namespace YACCS.TypeReaders
 			}
 
 			var found = new List<IImmutableCommand>();
+			var matchedCategories = new HashSet<string>(categories.Count, categories.Comparer);
 			foreach (var command in commands.Commands)
 			{
-				var categoryCount = 0;
 				foreach (var category in command.Attributes.OfType<ICategoryAttribute>())
 				{
 					if (categories.Contains(category.Category))
 					{
-						++categoryCount;
+						matchedCategories.Add(category.Category);
 					}
 
 					// An equal amount of categories found to categories searched for
 					// means all have been found so we can stop looking
-					if (categoryCount == categories.Count)
+					if (matchedCategories.Count == categories.Count)
 					{
 						found.Add(command);
 						break;
 					}
 				}
+				matchedCategories.Clear();
 			}
 
 			if (found.Count == 0)

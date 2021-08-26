@@ -14,13 +14,11 @@ namespace YACCS.TypeReaders
 			TContext context,
 			ReadOnlyMemory<string> input)
 		{
-			// This won't be hit because TypeReader`2 already checks for context type
-			// In case someone ever calls this directly this should remain
-			if (context is not TContext tContext)
+			if (context is null)
 			{
 				return CachedResults<TContext>.InvalidContext.Task;
 			}
-			return Success(tContext).AsITask();
+			return Success(context).AsITask();
 		}
 	}
 }
