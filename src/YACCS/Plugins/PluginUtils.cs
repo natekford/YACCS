@@ -22,24 +22,6 @@ namespace YACCS.CommandAssemblies
 			}
 		}
 
-		public static Dictionary<string, Assembly> Find(string directory)
-		{
-			var dictionary = new Dictionary<string, Assembly>();
-			foreach (var file in Directory.EnumerateFiles(directory, "*.dll", SearchOption.TopDirectoryOnly))
-			{
-				var assembly = Assembly.LoadFrom(file);
-				if (assembly.GetCustomAttribute<PluginAttribute>() is not null)
-				{
-					dictionary.Add(assembly);
-				}
-			}
-			if (dictionary.Count > 0)
-			{
-				return dictionary;
-			}
-			throw new DllNotFoundException("Unable to find any command assemblies.");
-		}
-
 		public static List<IServiceInstantiator> GetInstantiators(
 			this IEnumerable<Assembly> assemblies)
 		{
@@ -73,6 +55,32 @@ namespace YACCS.CommandAssemblies
 					await instantiator.AddServicesAsync(services!).ConfigureAwait(false);
 				}
 			}
+		}
+
+		public static Dictionary<string, Assembly> Load(IEnumerable<string> files)
+		{
+			var dictionary = new Dictionary<string, Assembly>();
+			foreach (var file in files)
+			{
+				var assembly = Assembly.LoadFrom(file);
+				if (assembly.GetCustomAttribute<PluginAttribute>() is not null)
+				{
+					dictionary.Add(assembly);
+				}
+			}
+			return dictionary;
+		}
+
+		public static Dictionary<string, Assembly> Load(string directory)
+			=> Load(Directory.EnumerateFiles(directory, "*.dll", SearchOption.TopDirectoryOnly));
+
+		public static T ThrowIfEmpty<T>(this T assemblies) where T : IDictionary<string, Assembly>
+		{
+			if (assemblies.Count == 0)
+			{
+				throw new DllNotFoundException("Unable to find any command assemblies.");
+			}
+			return assemblies;
 		}
 	}
 }
