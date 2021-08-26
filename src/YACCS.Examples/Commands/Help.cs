@@ -38,14 +38,8 @@ namespace YACCS.Examples.Commands
 			IReadOnlyCollection<IImmutableCommand> commands)
 		{
 			var executableCommands = new List<IImmutableCommand>(commands.Count);
-			foreach (var c in commands)
+			foreach (var c in commands.Where(x => !x.IsHidden))
 			{
-				// If the command is hidden, don't show it
-				if (c.IsHidden)
-				{
-					continue;
-				}
-
 				var canExecute = await c.CanExecuteAsync(Context).ConfigureAwait(false);
 				if (canExecute.IsSuccess)
 				{
