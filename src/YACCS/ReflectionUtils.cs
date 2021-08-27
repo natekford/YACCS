@@ -8,51 +8,6 @@ namespace YACCS
 {
 	public static class ReflectionUtils
 	{
-		public static TryExpression AddThrow<T>(
-			this Expression body,
-			Expression<Action<T>> createException)
-			where T : Exception
-		{
-			var createExceptionBody = (NewExpression)createException.Body;
-			var caughtException = createExceptionBody.Arguments
-				.OfType<ParameterExpression>()
-				.Single(x => x.Type == typeof(T));
-			var @throw = Expression.Throw(createExceptionBody);
-			var @catch = Expression.Catch(caughtException, @throw);
-			return Expression.TryCatch(body, @catch);
-		}
-
-		public static T CreateDelegate<T>(Func<T> factory, string name)
-		{
-			try
-			{
-				return factory();
-			}
-			catch (Exception ex)
-			{
-				throw new ArgumentException($"Unable to create the delegate '{name}'.", ex);
-			}
-		}
-
-		public static IEnumerable<T> CreateExpressionsForWritableMembers<T>(
-			this Type type,
-			Expression instance,
-			Func<MemberExpression, T> createExpression)
-			where T : Expression
-		{
-			T Convert(MemberInfo x)
-			{
-				var instanceCast = Expression.Convert(instance, x.DeclaringType);
-				var access = Expression.MakeMemberAccess(instanceCast, x);
-				return createExpression(access);
-			}
-
-			var (properties, fields) = type.GetWritableMembers();
-			var propertyExpressions = properties.Select(Convert);
-			var fieldExpressions = fields.Select(Convert);
-			return propertyExpressions.Concat(fieldExpressions);
-		}
-
 		public static T CreateInstance<T>(this Type type, params object[] args)
 		{
 			object instance;
@@ -73,7 +28,52 @@ namespace YACCS
 				$"{type.Name} does not implement {typeof(T).FullName}.", nameof(type));
 		}
 
-		public static (Expression Body, ParameterExpression Args) CreateInvokeExpressionFromObjectArrayArgs(
+		internal static TryExpression AddThrow<T>(
+			this Expression body,
+			Expression<Action<T>> createException)
+			where T : Exception
+		{
+			var createExceptionBody = (NewExpression)createException.Body;
+			var caughtException = createExceptionBody.Arguments
+				.OfType<ParameterExpression>()
+				.Single(x => x.Type == typeof(T));
+			var @throw = Expression.Throw(createExceptionBody);
+			var @catch = Expression.Catch(caughtException, @throw);
+			return Expression.TryCatch(body, @catch);
+		}
+
+		internal static T CreateDelegate<T>(Func<T> factory, string name)
+		{
+			try
+			{
+				return factory();
+			}
+			catch (Exception ex)
+			{
+				throw new ArgumentException($"Unable to create the delegate '{name}'.", ex);
+			}
+		}
+
+		internal static IEnumerable<T> CreateExpressionsForWritableMembers<T>(
+			this Type type,
+			Expression instance,
+			Func<MemberExpression, T> createExpression)
+			where T : Expression
+		{
+			T Convert(MemberInfo x)
+			{
+				var instanceCast = Expression.Convert(instance, x.DeclaringType);
+				var access = Expression.MakeMemberAccess(instanceCast, x);
+				return createExpression(access);
+			}
+
+			var (properties, fields) = type.GetWritableMembers();
+			var propertyExpressions = properties.Select(Convert);
+			var fieldExpressions = fields.Select(Convert);
+			return propertyExpressions.Concat(fieldExpressions);
+		}
+
+		internal static (Expression Body, ParameterExpression Args) CreateInvokeExpressionFromObjectArrayArgs(
 			this Expression? instance,
 			MethodInfo method)
 		{
@@ -108,7 +108,7 @@ namespace YACCS
 			return (body, args);
 		}
 
-		public static (IEnumerable<PropertyInfo>, IEnumerable<FieldInfo>) GetWritableMembers(
+		internal static (IEnumerable<PropertyInfo>, IEnumerable<FieldInfo>) GetWritableMembers(
 			this Type type)
 		{
 			const BindingFlags FLAGS = BindingFlags.Public | BindingFlags.Instance;
@@ -121,7 +121,7 @@ namespace YACCS
 			return (properties, fields);
 		}
 
-		public static bool IsGenericOf(this Type type, Type definition)
+		internal static bool IsGenericOf(this Type type, Type definition)
 			=> type.IsGenericType && type.GetGenericTypeDefinition() == definition;
 	}
 }
