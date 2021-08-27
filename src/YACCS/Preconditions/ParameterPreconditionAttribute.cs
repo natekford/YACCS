@@ -2,11 +2,12 @@
 using System.Threading.Tasks;
 
 using YACCS.Commands;
+using YACCS.Commands.Attributes;
 using YACCS.Results;
 
 namespace YACCS.Preconditions
 {
-	[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+	[AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
 	public abstract class ParameterPreconditionAttribute
 		: GroupablePreconditionAttribute, IParameterPrecondition
 	{

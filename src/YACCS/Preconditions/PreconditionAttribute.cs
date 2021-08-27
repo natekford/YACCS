@@ -2,12 +2,13 @@
 using System.Threading.Tasks;
 
 using YACCS.Commands;
+using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 using YACCS.Results;
 
 namespace YACCS.Preconditions
 {
-	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
 	public abstract class PreconditionAttribute : GroupablePreconditionAttribute, IPrecondition
 	{
 		public virtual Task AfterExecutionAsync(IImmutableCommand command, IContext context, Exception? exception)

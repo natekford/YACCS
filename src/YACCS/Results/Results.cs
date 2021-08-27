@@ -77,6 +77,34 @@ namespace YACCS.Results
 		}
 	}
 
+	public class ExistenceMustExist : LocalizedResult, IFormattable
+	{
+		public override string Response => ToString(null, null);
+		public Type Type { get; }
+
+		public ExistenceMustExist(Type type) : base(false, Keys.ExistenceMustExist)
+		{
+			Type = type;
+		}
+
+		public string ToString(string? ignored, IFormatProvider? formatProvider)
+			=> string.Format(formatProvider, base.Response, Type);
+	}
+
+	public class ExistenceMustNotExist : LocalizedResult, IFormattable
+	{
+		public override string Response => ToString(null, null);
+		public Type Type { get; }
+
+		public ExistenceMustNotExist(Type type) : base(false, Keys.ExistenceMustNotExist)
+		{
+			Type = type;
+		}
+
+		public string ToString(string? ignored, IFormatProvider? formatProvider)
+			=> string.Format(formatProvider, base.Response, Type);
+	}
+
 	public class FailureResult : Result
 	{
 		public static FailureResult Instance { get; } = new();
