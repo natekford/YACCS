@@ -1,19 +1,21 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using YACCS.Results;
 using YACCS.TypeReaders;
 
 namespace YACCS.Tests.TypeReaders
 {
 	[TestClass]
-	public class ContextTypeReader_Tests : TypeReader_Tests<ContextTypeReader_Tests.FakeContext2>
+	public class ContextTypeReader_Tests : TypeReader_Tests<OtherContext>
 	{
-		public override ITypeReader<FakeContext2> Reader { get; }
-			= new ContextTypeReader<FakeContext2>();
+		public override Type ExpectedInvalidResultType => typeof(InvalidContextResult);
+		public override ITypeReader<OtherContext> Reader { get; }
+			= new ContextTypeReader<OtherContext>();
 
 		[TestMethod]
 		public async Task DirectInvalid_Test()
 		{
-			var reader = (ContextTypeReader<FakeContext2>)Reader;
+			var reader = (ContextTypeReader<OtherContext>)Reader;
 			var result = await reader.ReadAsync(null!, new[] { Invalid }).ConfigureAwait(false);
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 		}
@@ -21,15 +23,9 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task Valid_Test()
 		{
-			var context = new FakeContext2();
-			var result = await Reader.ReadAsync(context, new[] { "" }).ConfigureAwait(false);
-			Assert.IsTrue(result.InnerResult.IsSuccess);
-			Assert.IsInstanceOfType(result.Value, typeof(FakeContext2));
-			Assert.AreEqual(context, result.Value);
-		}
-
-		public sealed class FakeContext2 : FakeContext
-		{
+			var context = new OtherContext();
+			var value = await AssertSuccessAsync(Array.Empty<string>(), context).ConfigureAwait(false);
+			Assert.AreEqual(context, value);
 		}
 	}
 }

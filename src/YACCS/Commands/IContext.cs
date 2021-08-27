@@ -7,5 +7,6 @@ namespace YACCS.Commands
 		Guid Id { get; }
 		IServiceProvider Services { get; }
 		object Source { get; }
+		DateTime Start { get; }
 	}
 }

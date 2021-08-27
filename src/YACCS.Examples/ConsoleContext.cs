@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 using YACCS.Commands;
 
@@ -11,6 +10,7 @@ namespace YACCS.Examples
 		public string Input { get; }
 		public IServiceScope Scope { get; }
 		public IServiceProvider Services => Scope.ServiceProvider;
+		public DateTime Start { get; } = DateTime.UtcNow;
 		string IContext<string>.Source => Input;
 		object IContext.Source => Input;
 

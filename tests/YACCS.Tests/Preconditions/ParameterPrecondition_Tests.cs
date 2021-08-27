@@ -2,7 +2,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using YACCS.Commands;
 using YACCS.Preconditions;
 using YACCS.Results;
 
@@ -15,7 +14,7 @@ namespace YACCS.Tests.Preconditions
 		public async Task InvalidContext_Test()
 		{
 			IParameterPrecondition precondition = new IsNullOrNotNegativeParameterPrecondition();
-			var result = await precondition.CheckAsync(default, new InvalidContext(), 1).ConfigureAwait(false);
+			var result = await precondition.CheckAsync(default, new OtherContext(), 1).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
 			Assert.IsInstanceOfType(result, typeof(InvalidContextResult));
 		}
@@ -95,13 +94,6 @@ namespace YACCS.Tests.Preconditions
 				var result = await precondition.CheckAsync(default, new FakeContext(), 1).ConfigureAwait(false);
 				Assert.IsTrue(result.IsSuccess);
 			}
-		}
-
-		private class InvalidContext : IContext
-		{
-			public Guid Id => throw new NotImplementedException();
-			public IServiceProvider Services => throw new NotImplementedException();
-			public object Source => throw new NotImplementedException();
 		}
 
 		private class IsNullOrNotNegativeParameterPrecondition : ParameterPrecondition<FakeContext, int?>

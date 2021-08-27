@@ -3,6 +3,7 @@
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
+using YACCS.Results;
 using YACCS.TypeReaders;
 
 namespace YACCS.Tests.TypeReaders
@@ -16,36 +17,27 @@ namespace YACCS.Tests.TypeReaders
 
 		[TestMethod]
 		public async Task Empty_Test()
-		{
-			await SetupAsync().ConfigureAwait(false);
-			var result = await Reader.ReadAsync(Context, Array.Empty<string>()).ConfigureAwait(false);
-			Assert.IsFalse(result.InnerResult.IsSuccess);
-			Assert.IsNull(result.Value);
-		}
+			=> await AssertFailureAsync<ParseFailedResult>(Array.Empty<string>()).ConfigureAwait(false);
 
 		[TestMethod]
 		public async Task OneCategory_Test()
 		{
-			await SetupAsync().ConfigureAwait(false);
-			var result = await Reader.ReadAsync(Context, new[]
+			var value = await AssertSuccessAsync(new[]
 			{
 				FakeCommandGroup._Category1
 			}).ConfigureAwait(false);
-			Assert.IsTrue(result.InnerResult.IsSuccess);
-			Assert.AreEqual(2, result.Value!.Count);
+			Assert.AreEqual(2, value.Count);
 		}
 
 		[TestMethod]
 		public async Task TwoCategories_Test()
 		{
-			await SetupAsync().ConfigureAwait(false);
-			var result = await Reader.ReadAsync(Context, new[]
+			var value = await AssertSuccessAsync(new[]
 			{
 				FakeCommandGroup._Category1,
 				FakeCommandGroup._Category2
 			}).ConfigureAwait(false);
-			Assert.IsTrue(result.InnerResult.IsSuccess);
-			Assert.AreEqual(1, result.Value!.Count);
+			Assert.AreEqual(1, value.Count);
 		}
 
 		protected override Task SetupAsync()

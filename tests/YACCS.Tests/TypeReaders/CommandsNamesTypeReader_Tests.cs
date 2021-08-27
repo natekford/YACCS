@@ -17,11 +17,11 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task Valid_Test()
 		{
-			await SetupAsync().ConfigureAwait(false);
-			var result = await Reader.ReadAsync(Context, new[] { FakeCommandGroup._Name }).ConfigureAwait(false);
-			Assert.IsTrue(result.InnerResult.IsSuccess);
-			Assert.IsInstanceOfType(result.Value, typeof(IReadOnlyCollection<IImmutableCommand>));
-			Assert.AreEqual(1, result.Value!.Count);
+			var value = await AssertSuccessAsync(new[]
+			{
+				FakeCommandGroup._Name
+			}).ConfigureAwait(false);
+			Assert.AreEqual(1, value.Count);
 		}
 
 		protected override Task SetupAsync()

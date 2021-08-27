@@ -21,7 +21,7 @@ namespace YACCS.Tests.Commands
 
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				Group.AfterExecutionAsync(_Command, new InvalidContext(), null!);
+				Group.AfterExecutionAsync(_Command, new OtherContext(), null!);
 			});
 		}
 
@@ -40,7 +40,7 @@ namespace YACCS.Tests.Commands
 
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				Group.BeforeExecutionAsync(_Command, new InvalidContext());
+				Group.BeforeExecutionAsync(_Command, new OtherContext());
 			});
 
 			Assert.IsNull(_Concrete.Command);
@@ -48,13 +48,6 @@ namespace YACCS.Tests.Commands
 			await Group.BeforeExecutionAsync(_Command, _Context).ConfigureAwait(false);
 			Assert.AreSame(_Command, _Concrete.Command);
 			Assert.AreSame(_Context, _Concrete.Context);
-		}
-
-		private sealed class InvalidContext : IContext
-		{
-			public Guid Id => throw new NotImplementedException();
-			public IServiceProvider Services => throw new NotImplementedException();
-			public object Source => throw new NotImplementedException();
 		}
 
 		private sealed class TestGroup : CommandGroup<FakeContext>

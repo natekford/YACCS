@@ -1,10 +1,10 @@
-﻿
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 using YACCS.Commands;
-using YACCS.Commands.Models;
 using YACCS.Parsing;
 using YACCS.TypeReaders;
+
+using static YACCS.Commands.CommandServiceUtils;
 
 namespace YACCS.Tests
 {
@@ -12,7 +12,7 @@ namespace YACCS.Tests
 	{
 		public static async Task AddRangeAsync(
 			this CommandServiceBase commandService,
-			IAsyncEnumerable<(Type, IImmutableCommand)> enumerable)
+			IAsyncEnumerable<CreatedCommand> enumerable)
 		{
 			await foreach (var (_, command) in enumerable)
 			{

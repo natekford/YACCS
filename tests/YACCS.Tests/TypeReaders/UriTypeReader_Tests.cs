@@ -1,6 +1,6 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using YACCS.Results;
 using YACCS.TypeReaders;
 
 namespace YACCS.Tests.TypeReaders
@@ -11,36 +11,23 @@ namespace YACCS.Tests.TypeReaders
 		public override ITypeReader<Uri> Reader { get; } = new UriTypeReader();
 
 		[TestMethod]
+		public async Task Empty_Test()
+			=> await AssertFailureAsync<ParseFailedResult>("").ConfigureAwait(false);
+
+		[TestMethod]
 		public async Task Escaped_Test()
-		{
-			var result = await Reader.ReadAsync(Context, new[] { "<https://www.google.com>" }).ConfigureAwait(false);
-			Assert.IsTrue(result.InnerResult.IsSuccess);
-			Assert.IsInstanceOfType(result.Value, typeof(Uri));
-		}
+			=> await AssertSuccessAsync("<https://www.google.com>").ConfigureAwait(false);
 
 		[TestMethod]
 		public async Task Exception_Test()
-		{
-			var result = await Reader.ReadAsync(Context, new[] { "www.google.com" }).ConfigureAwait(false);
-			Assert.IsFalse(result.InnerResult.IsSuccess);
-		}
+			=> await AssertFailureAsync<ParseFailedResult>("www.google.com").ConfigureAwait(false);
 
 		[TestMethod]
-		public async Task NullOrEmpty_Test()
-		{
-			var nullResult = await Reader.ReadAsync(Context, new[] { default(string)! }).ConfigureAwait(false);
-			Assert.IsFalse(nullResult.InnerResult.IsSuccess);
-
-			var emptyResult = await Reader.ReadAsync(Context, new[] { "" }).ConfigureAwait(false);
-			Assert.IsFalse(emptyResult.InnerResult.IsSuccess);
-		}
+		public async Task Null_Test()
+			=> await AssertFailureAsync<ParseFailedResult>(default(string)!).ConfigureAwait(false);
 
 		[TestMethod]
 		public async Task Valid_Test()
-		{
-			var result = await Reader.ReadAsync(Context, new[] { "https://www.google.com" }).ConfigureAwait(false);
-			Assert.IsTrue(result.InnerResult.IsSuccess);
-			Assert.IsInstanceOfType(result.Value, typeof(Uri));
-		}
+			=> await AssertSuccessAsync("https://www.google.com").ConfigureAwait(false);
 	}
 }

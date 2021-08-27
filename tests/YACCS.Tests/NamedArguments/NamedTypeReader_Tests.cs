@@ -1,5 +1,4 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.NamedArguments;
 using YACCS.Results;
@@ -11,15 +10,16 @@ namespace YACCS.Tests.NamedArguments
 	[TestClass]
 	public class NamedTypeReader_Tests : TypeReader_Tests<NamedTypeReader_Tests.NamedClass>
 	{
+		private const int NUM = 1;
+		private const string STR = "joe";
+		public override Type ExpectedInvalidResultType => typeof(NamedArgBadCountResult);
 		public override ITypeReader<NamedClass> Reader { get; }
 			= new NamedArgumentsTypeReader<NamedClass>();
 
 		[TestMethod]
 		public async Task DuplicateKey_Test()
 		{
-			const int NUM = 1;
-			const string STR = "joe";
-			var input = new[]
+			await AssertFailureAsync<NamedArgDuplicateResult>(new[]
 			{
 				nameof(NamedClass.Number),
 				NUM.ToString(),
@@ -27,20 +27,13 @@ namespace YACCS.Tests.NamedArguments
 				STR,
 				nameof(NamedClass.String),
 				STR
-			};
-
-			var context = new FakeContext();
-			var result = await Reader.ReadAsync(context, input).ConfigureAwait(false);
-			Assert.IsFalse(result.InnerResult.IsSuccess);
-			Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgDuplicateResult));
+			}).ConfigureAwait(false);
 		}
 
 		[TestMethod]
 		public async Task InvalidKey_Test()
 		{
-			const int NUM = 1;
-			const string STR = "joe";
-			var input = new[]
+			await AssertFailureAsync<NamedArgNonExistentResult>(new[]
 			{
 				nameof(NamedClass.Number),
 				NUM.ToString(),
@@ -48,20 +41,13 @@ namespace YACCS.Tests.NamedArguments
 				STR,
 				"test",
 				STR
-			};
-
-			var context = new FakeContext();
-			var result = await Reader.ReadAsync(context, input).ConfigureAwait(false);
-			Assert.IsFalse(result.InnerResult.IsSuccess);
-			Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgNonExistentResult));
+			}).ConfigureAwait(false);
 		}
 
 		[TestMethod]
 		public async Task Success_Test()
 		{
-			const int NUM = 1;
-			const string STR = "joe";
-			var input = new[]
+			var value = await AssertSuccessAsync(new[]
 			{
 				nameof(NamedClass.Number),
 				NUM.ToString(),
@@ -69,19 +55,10 @@ namespace YACCS.Tests.NamedArguments
 				STR,
 				nameof(NamedClass.FieldString),
 				STR
-			};
-
-			var context = new FakeContext();
-			var result = await Reader.ReadAsync(context, input).ConfigureAwait(false);
-			Assert.IsTrue(result.InnerResult.IsSuccess);
-			if (result.Value is null)
-			{
-				Assert.Fail();
-				return;
-			}
-			Assert.AreEqual(NUM, result.Value.Number);
-			Assert.AreEqual(STR, result.Value.String);
-			Assert.AreEqual(STR, result.Value.FieldString);
+			}).ConfigureAwait(false);
+			Assert.AreEqual(NUM, value.Number);
+			Assert.AreEqual(STR, value.String);
+			Assert.AreEqual(STR, value.FieldString);
 		}
 
 		public class NamedClass

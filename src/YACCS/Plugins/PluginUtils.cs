@@ -1,9 +1,15 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+
+using YACCS.Commands;
+
+using static YACCS.Commands.CommandServiceUtils;
 
 namespace YACCS.CommandAssemblies
 {
@@ -13,20 +19,12 @@ namespace YACCS.CommandAssemblies
 			=> dictionary.Add(assembly.FullName, assembly);
 
 		public static async Task AddServicesAsync<T>(
-			this IEnumerable<IServiceInstantiator> instantiators,
-			T services,
-			bool throwIfWrongType = false)
+			this IEnumerable<IServiceInstantiator<T>> instantiators,
+			T services)
 		{
 			foreach (var instantiator in instantiators)
 			{
-				if (instantiator is IServiceInstantiator<T> typed)
-				{
-					await typed.AddServicesAsync(services).ConfigureAwait(false);
-				}
-				else if (throwIfWrongType)
-				{
-					await instantiator.AddServicesAsync(services!).ConfigureAwait(false);
-				}
+				await instantiator.AddServicesAsync(services).ConfigureAwait(false);
 			}
 		}
 
@@ -40,21 +38,61 @@ namespace YACCS.CommandAssemblies
 			}
 		}
 
-		public static List<IServiceInstantiator> GetInstantiators(
+		public static async Task<IDictionary<CultureInfo, List<CreatedCommand>>> GetCommandsInSupportedCultures(
+			this IEnumerable<Assembly> assemblies,
+			IServiceProvider services)
+		{
+			var dict = new ConcurrentDictionary<CultureInfo, List<CreatedCommand>>();
+			var originalCulture = CultureInfo.CurrentUICulture;
+			foreach (var assembly in assemblies)
+			{
+				var attr = assembly.GetCustomAttribute<SupportedCulturesAttribute>();
+				if (attr is null)
+				{
+					continue;
+				}
+
+				foreach (var culture in attr.SupportedCultures)
+				{
+					// In case any commands have to be initialized in the culture they're
+					// going to be used in
+					CultureInfo.CurrentUICulture = culture;
+
+					await foreach (var command in assembly.GetAllCommandsAsync(services))
+					{
+						dict.GetOrAdd(culture, _ => new()).Add(command);
+					}
+				}
+			}
+			CultureInfo.CurrentUICulture = originalCulture;
+			return dict;
+		}
+
+		public static List<IServiceInstantiator<T>> GetInstantiators<T>(
 			this IEnumerable<Assembly> assemblies)
 		{
-			var instantiators = new List<IServiceInstantiator>();
+			var instantiators = new List<IServiceInstantiator<T>>();
 			foreach (var assembly in assemblies)
 			{
 				var attribute = assembly.CustomAttributes
 					.OfType<ServiceInstantiatorAttribute>()
 					.SingleOrDefault();
-				if (attribute?.Instantiator is IServiceInstantiator instantiator)
+				if (attribute?.Instantiator is IServiceInstantiator<T> instantiator)
 				{
 					instantiators.Add(instantiator);
 				}
 			}
 			return instantiators;
+		}
+
+		public static async Task Instantiate<T>(
+			this IEnumerable<IServiceInstantiator<T>> instantiators,
+			T services,
+			Func<T, IServiceProvider> providerFactory)
+		{
+			await instantiators.AddServicesAsync(services).ConfigureAwait(false);
+			var provider = providerFactory.Invoke(services);
+			await instantiators.ConfigureServicesAsync(provider).ConfigureAwait(false);
 		}
 
 		public static Dictionary<string, Assembly> Load(IEnumerable<string> files)

@@ -69,7 +69,7 @@ namespace YACCS.Commands
 			return commands;
 		}
 
-		public static async IAsyncEnumerable<(Type, IImmutableCommand)> GetAllCommandsAsync(
+		public static async IAsyncEnumerable<CreatedCommand> GetAllCommandsAsync(
 			this Type type,
 			IServiceProvider services)
 		{
@@ -86,7 +86,7 @@ namespace YACCS.Commands
 			}
 		}
 
-		public static async IAsyncEnumerable<(Type, IImmutableCommand)> GetAllCommandsAsync(
+		public static async IAsyncEnumerable<CreatedCommand> GetAllCommandsAsync(
 			this IEnumerable<Assembly> assemblies,
 			IServiceProvider services)
 		{
@@ -99,7 +99,7 @@ namespace YACCS.Commands
 			}
 		}
 
-		public static IAsyncEnumerable<(Type, IImmutableCommand)> GetAllCommandsAsync(
+		public static IAsyncEnumerable<CreatedCommand> GetAllCommandsAsync(
 			this Assembly assembly,
 			IServiceProvider services)
 			=> assembly.GetExportedTypes().GetDirectCommandsAsync(services);
@@ -154,7 +154,7 @@ namespace YACCS.Commands
 			return enumerable;
 		}
 
-		public static async IAsyncEnumerable<(Type, IImmutableCommand)> GetDirectCommandsAsync(
+		public static async IAsyncEnumerable<CreatedCommand> GetDirectCommandsAsync(
 			this IEnumerable<Type> types,
 			IServiceProvider services)
 		{
@@ -167,7 +167,7 @@ namespace YACCS.Commands
 			}
 		}
 
-		public static async IAsyncEnumerable<(Type, IImmutableCommand)> GetDirectCommandsAsync(
+		public static async IAsyncEnumerable<CreatedCommand> GetDirectCommandsAsync(
 			this Type type,
 			IServiceProvider services)
 		{
@@ -191,7 +191,7 @@ namespace YACCS.Commands
 			{
 				await foreach (var immutable in command.ToMultipleImmutableAsync(services))
 				{
-					yield return (type, immutable);
+					yield return new(type, immutable);
 				}
 			}
 		}
@@ -279,5 +279,23 @@ namespace YACCS.Commands
 
 		internal static string FormatForDebuggerDisplay(this IResult item)
 			=> $"IsSuccess = {item.IsSuccess}, Response = {item.Response}";
+
+		public readonly struct CreatedCommand
+		{
+			public IImmutableCommand Command { get; }
+			public Type DefiningType { get; }
+
+			public CreatedCommand(Type definingType, IImmutableCommand command)
+			{
+				Command = command;
+				DefiningType = definingType;
+			}
+
+			public void Deconstruct(out Type definingType, out IImmutableCommand command)
+			{
+				definingType = DefiningType;
+				command = Command;
+			}
+		}
 	}
 }

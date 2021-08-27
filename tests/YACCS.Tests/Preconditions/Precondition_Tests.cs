@@ -1,7 +1,5 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using YACCS.Commands;
 using YACCS.Commands.Models;
 using YACCS.Preconditions;
 using YACCS.Results;
@@ -16,7 +14,7 @@ namespace YACCS.Tests.Preconditions
 		{
 			IPrecondition precondition = new FakePrecondition();
 			var command = FakeDelegateCommand.New().ToImmutable();
-			var context = new FakeContext2();
+			var context = new OtherContext();
 
 			var result = await precondition.CheckAsync(command, context).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
@@ -44,13 +42,6 @@ namespace YACCS.Tests.Preconditions
 
 			var after = precondition.AfterExecutionAsync(command, context, null);
 			Assert.AreSame(Task.CompletedTask, after);
-		}
-
-		private class FakeContext2 : IContext
-		{
-			public Guid Id => throw new NotImplementedException();
-			public IServiceProvider Services => throw new NotImplementedException();
-			public object Source => throw new NotImplementedException();
 		}
 
 		private class FakePrecondition : Precondition<FakeContext>

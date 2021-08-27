@@ -11,7 +11,7 @@ namespace YACCS.TypeReaders
 	{
 		private static readonly NullValidator _Null = new();
 		private static readonly ITask<ITypeReaderResult<TValue?>> _NullResult
-			= TypeReaderResult<TValue?>.FromSuccess(null).AsITask();
+			= TypeReaderResult<TValue?>.FromSuccess(default).AsITask();
 
 		public override ITask<ITypeReaderResult<TValue?>> ReadAsync(
 			IContext context,

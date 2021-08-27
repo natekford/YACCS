@@ -191,7 +191,7 @@ namespace YACCS.Tests.Commands
 
 			var @delegate = (Action<string>)Delegate;
 			var command = new DelegateCommand(@delegate, new[] { new[] { "joe" } }, typeof(FakeContext));
-			command.Parameters[0].TypeReader = new TestTypeReader(typeof(NotRelatedToFakeContext));
+			command.Parameters[0].TypeReader = new TestTypeReader(typeof(OtherContext));
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
 				_Trie.Add(command.ToImmutable());
@@ -236,17 +236,6 @@ namespace YACCS.Tests.Commands
 
 			public ITask<ITypeReaderResult> ReadAsync(IContext context, ReadOnlyMemory<string> input)
 				=> throw new NotImplementedException();
-		}
-
-		private sealed class FakeContextChild : FakeContext
-		{
-		}
-
-		private sealed class NotRelatedToFakeContext : IContext
-		{
-			public Guid Id => throw new NotImplementedException();
-			public IServiceProvider Services => throw new NotImplementedException();
-			public object Source => throw new NotImplementedException();
 		}
 	}
 }

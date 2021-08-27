@@ -1,5 +1,4 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.TypeReaders;
 
@@ -14,10 +13,8 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task Valid_Test()
 		{
-			var result = await Reader.ReadAsync(Context, new[] { "00:00:01" }).ConfigureAwait(false);
-			Assert.IsTrue(result.InnerResult.IsSuccess);
-			Assert.IsInstanceOfType(result.Value, typeof(TimeSpan));
-			Assert.AreEqual(TimeSpan.FromSeconds(1), result.Value);
+			var value = await AssertSuccessAsync("00:00:01").ConfigureAwait(false);
+			Assert.AreEqual(TimeSpan.FromSeconds(1), value);
 		}
 	}
 }

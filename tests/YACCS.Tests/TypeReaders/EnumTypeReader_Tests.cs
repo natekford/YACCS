@@ -15,10 +15,9 @@ namespace YACCS.Tests.TypeReaders
 		[TestMethod]
 		public async Task Valid_Test()
 		{
-			var result = await Reader.ReadAsync(Context, new[] { nameof(BindingFlags.CreateInstance) }).ConfigureAwait(false);
-			Assert.IsTrue(result.InnerResult.IsSuccess);
-			Assert.IsInstanceOfType(result.Value, typeof(BindingFlags));
-			Assert.AreEqual(BindingFlags.CreateInstance, result.Value);
+			const BindingFlags FLAGS = BindingFlags.CreateInstance;
+			var value = await AssertSuccessAsync(FLAGS.ToString()).ConfigureAwait(false);
+			Assert.AreEqual(FLAGS, value);
 		}
 	}
 }

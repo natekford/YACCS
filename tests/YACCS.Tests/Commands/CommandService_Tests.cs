@@ -340,7 +340,7 @@ namespace YACCS.Tests.Commands
 			return (commandService, context);
 		}
 
-		public class DisposableContext : FakeContext, IDisposable
+		private sealed class DisposableContext : FakeContext, IDisposable
 		{
 			private readonly TaskCompletionSource _Tcs;
 
@@ -440,7 +440,7 @@ namespace YACCS.Tests.Commands
 		{
 			var (commandService, _, command, _) = Create(true, DISALLOWED_VALUE);
 			var score = await commandService.GetCommandScoreAsync(
-				new InvalidContext(),
+				new OtherContext(),
 				command.ToImmutable(),
 				Array.Empty<string>(),
 				0
@@ -518,13 +518,6 @@ namespace YACCS.Tests.Commands
 
 			var context = new FakeContext();
 			return (context.Get<CommandService>(), context, commandBuilder, commandBuilder.Parameters[0]);
-		}
-
-		public class InvalidContext : IContext
-		{
-			public Guid Id { get; set; }
-			public IServiceProvider Services { get; set; } = EmptyServiceProvider.Instance;
-			public object Source => throw new NotImplementedException();
 		}
 	}
 

@@ -79,10 +79,10 @@ namespace YACCS.Tests.Commands.Linq
 			var parent = _Commands.ById(PARENT_ID).Single();
 			var child = _Commands.ById(CHILD_ID).Single();
 
-			var child_parent = parent.AsContext<GroupChild.FakeContextChild>();
-			Assert.IsInstanceOfType(child_parent, typeof(ICommand<GroupChild.FakeContextChild>));
-			var child_child = child.AsContext<GroupChild.FakeContextChild>();
-			Assert.IsInstanceOfType(child_child, typeof(ICommand<GroupChild.FakeContextChild>));
+			var child_parent = parent.AsContext<FakeContextChild>();
+			Assert.IsInstanceOfType(child_parent, typeof(ICommand<FakeContextChild>));
+			var child_child = child.AsContext<FakeContextChild>();
+			Assert.IsInstanceOfType(child_child, typeof(ICommand<FakeContextChild>));
 
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
@@ -106,7 +106,7 @@ namespace YACCS.Tests.Commands.Linq
 			}
 
 			{
-				var parameters = _Commands.GetCommandsByType<NeverContext>();
+				var parameters = _Commands.GetCommandsByType<OtherContext>();
 				Assert.AreEqual(3, parameters.Count());
 			}
 		}
@@ -119,23 +119,12 @@ namespace YACCS.Tests.Commands.Linq
 			}
 		}
 
-		private class GroupChild : CommandGroup<GroupChild.FakeContextChild>
+		private class GroupChild : CommandGroup<FakeContextChild>
 		{
 			[Command("joe")]
 			public void CommandChild()
 			{
 			}
-
-			public class FakeContextChild : FakeContext
-			{
-			}
-		}
-
-		private class NeverContext : IContext
-		{
-			public Guid Id { get; set; }
-			public IServiceProvider Services { get; set; } = EmptyServiceProvider.Instance;
-			public object Source => throw new NotImplementedException();
 		}
 
 		private sealed class NotSevenPM : Precondition<FakeContext>
