@@ -17,8 +17,8 @@ namespace YACCS.Commands
 	{
 		public const char QUOTE = '"';
 		public const char SPACE = ' ';
-		public static readonly IImmutableSet<char> Quotes = new[] { QUOTE }.ToImmutableHashSet();
 		internal const string DEBUGGER_DISPLAY = "{DebuggerDisplay,nq}";
+		public static IImmutableSet<char> Quotes { get; } = new[] { QUOTE }.ToImmutableHashSet();
 
 		public static ValueTask<IResult> CanExecuteAsync(
 			this IImmutableCommand command,
@@ -44,14 +44,14 @@ namespace YACCS.Commands
 			}, (meta, context, value));
 		}
 
-		public static List<ICommand> CreateMutableCommands(this Type type)
+		public static List<ReflectionCommand> CreateMutableCommands(this Type type)
 		{
 			const BindingFlags FLAGS = 0
 				| BindingFlags.Public
 				| BindingFlags.Instance
 				| BindingFlags.FlattenHierarchy;
 
-			var commands = new List<ICommand>();
+			var commands = new List<ReflectionCommand>();
 			foreach (var method in type.GetMethods(FLAGS))
 			{
 				var command = method
@@ -182,8 +182,10 @@ namespace YACCS.Commands
 				yield break;
 			}
 
-			var group = type.CreateInstance<ICommandGroup>();
-			await group.OnCommandBuildingAsync(services, commands).ConfigureAwait(false);
+			foreach (var attr in type.GetCustomAttributes<OnCommandBuildingAttribute>())
+			{
+				await attr.ModifyCommands(services, commands).ConfigureAwait(false);
+			}
 
 			// Commands have been modified by whoever implemented them
 			// We can now return them in an immutable state

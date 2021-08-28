@@ -1,4 +1,4 @@
-﻿
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
@@ -103,13 +103,19 @@ namespace YACCS.Tests.Commands.Linq
 
 		private async ValueTask<List<IImmutableCommand>> CreateCommandsAsync()
 		{
+			var wasIReached = new WasIReached();
+			var services = new ServiceCollection()
+				.AddSingleton(wasIReached)
+				.BuildServiceProvider();
+
 			var commands = new List<IImmutableCommand>();
-			await foreach (var (_, command) in typeof(Querying_TestsGroup).GetAllCommandsAsync(EmptyServiceProvider.Instance))
+			await foreach (var (_, command) in typeof(Querying_TestsGroup).GetAllCommandsAsync(services))
 			{
 				commands.Add(command);
 			}
 
 			Assert.AreEqual(4, commands.Count);
+			Assert.IsTrue(wasIReached.WasReached);
 			return commands;
 		}
 
@@ -130,6 +136,7 @@ namespace YACCS.Tests.Commands.Linq
 			public const string _PositionId = "position_id";
 
 			[Command(_4, _5, _6)]
+			[HelpOnCommandBuilding]
 			public sealed class Help : CommandGroup<IContext>
 			{
 				[Command]
@@ -150,15 +157,25 @@ namespace YACCS.Tests.Commands.Linq
 				public IResult CommandTwo(string arg)
 					=> SuccessResult.Instance;
 
-				public override Task OnCommandBuildingAsync(IServiceProvider services, IList<ICommand> commands)
+				[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+				private class HelpOnCommandBuildingAttribute : OnCommandBuildingAttribute
 				{
-					var parameters = commands.SelectMany(x => x.Parameters);
-					var position = parameters.ById(_PositionId).Single().AsType<int>();
-					Assert.IsNotNull(position);
+					public override Task ModifyCommands(IServiceProvider services, List<ReflectionCommand> commands)
+					{
+						var parameters = commands.SelectMany(x => x.Parameters);
+						var position = parameters.ById(_PositionId).Single().AsType<int>();
+						Assert.IsNotNull(position);
 
-					return base.OnCommandBuildingAsync(services, commands);
+						services.GetRequiredService<WasIReached>().WasReached = true;
+						return Task.CompletedTask;
+					}
 				}
 			}
+		}
+
+		private sealed class WasIReached
+		{
+			public bool WasReached { get; set; }
 		}
 	}
 }

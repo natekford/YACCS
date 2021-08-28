@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using YACCS.Commands.Models;
 using YACCS.Results;
@@ -12,7 +10,5 @@ namespace YACCS.Commands
 		Task AfterExecutionAsync(IImmutableCommand command, IContext context, IResult result);
 
 		Task BeforeExecutionAsync(IImmutableCommand command, IContext context);
-
-		Task OnCommandBuildingAsync(IServiceProvider services, IList<ICommand> commands);
 	}
 }

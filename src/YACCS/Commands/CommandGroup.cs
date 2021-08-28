@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Models;
@@ -30,9 +29,6 @@ namespace YACCS.Commands
 			Context = context;
 			return Task.CompletedTask;
 		}
-
-		public virtual Task OnCommandBuildingAsync(IServiceProvider services, IList<ICommand> commands)
-			=> Task.CompletedTask;
 
 		Task ICommandGroup.AfterExecutionAsync(IImmutableCommand command, IContext context, IResult result)
 		{

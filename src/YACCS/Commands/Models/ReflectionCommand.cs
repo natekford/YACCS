@@ -178,7 +178,7 @@ namespace YACCS.Commands.Models
 				 *	}
 				 */
 
-				return _ConstructorCache.GetOrAdd(_GroupType, (groupType) =>
+				return _ConstructorCache.GetOrAdd(_GroupType, groupType =>
 				{
 					var provider = Expression.Parameter(typeof(IServiceProvider), "Provider");
 
