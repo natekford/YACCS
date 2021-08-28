@@ -1,13 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Threading.Tasks;
 
+using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
-using YACCS.StructuredArguments;
+using YACCS.Results;
 
 namespace YACCS.NamedArguments
 {
-	public class NamedArgumentsCommand<T> : StructuredArgumentsCommand<T>
+	public class NamedArgumentsCommand<T> : GeneratedCommand
 		where T : IDictionary<string, object?>, new()
 	{
 		public override int MaxLength => int.MaxValue;
@@ -16,18 +21,45 @@ namespace YACCS.NamedArguments
 
 		public NamedArgumentsCommand(IImmutableCommand source) : base(source)
 		{
-			Parameters = Source.CreateStructuredParameter<T>("NamedArgDictionary", x =>
+			var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(1);
+			try
 			{
-				x.AddParameterPrecondition(new GeneratedNamedArgumentsParameterPrecondition(Source))
-				.SetTypeReader(new GeneratedNamedArgumentsTypeReader(Source))
-				.AddAttribute(new RemainderAttribute());
-			});
+				var parameter = Commands.Linq.Parameters.Create<T>("NamedArgDictionary");
+				parameter.AddParameterPrecondition(new GeneratedNamedArgumentsParameterPrecondition(Source))
+					.SetTypeReader(new GeneratedNamedArgumentsTypeReader(Source))
+					.AddAttribute(new RemainderAttribute());
+				parameters.Add(parameter.ToImmutable());
+			}
+			catch (Exception e)
+			{
+				throw new InvalidOperationException($"Unable to build {typeof(T).Name} " +
+					$"parameter for '{source.Names?.FirstOrDefault()}'.", e);
+			}
+			Parameters = parameters.MoveToImmutable();
 		}
 
-		protected override object? GetValue(T structured, IImmutableParameter parameter)
-			// There shouldn't be any KNFExceptions because the type readers/preconditions
-			// are already setting default values and checking for undefined values
-			=> structured[parameter.OriginalParameterName];
+		public override ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
+		{
+			T dict;
+			try
+			{
+				dict = (T)args.Single()!;
+			}
+			catch (Exception e)
+			{
+				throw new ArgumentException($"Expected one {typeof(T)} and no " +
+					$"other arguments for '{Source.Names?.FirstOrDefault()}'.", e);
+			}
+
+			var values = new object?[Source.Parameters.Count];
+			for (var i = 0; i < values.Length; ++i)
+			{
+				// There shouldn't be any KNFExceptions because the type readers/preconditions
+				// are already setting default values and checking for undefined values
+				values[i] = dict[Source.Parameters[i].OriginalParameterName];
+			}
+			return Source.ExecuteAsync(context, values);
+		}
 
 		private sealed class GeneratedNamedArgumentsParameterPrecondition
 			: NamedArgumentsParameterPreconditionBase<T>

@@ -25,7 +25,7 @@ namespace YACCS.Preconditions.Existence
 		{
 			// TODO: once generic attributes are allowed, rewrite this so we don't have to
 			// rely on value.GetType().
-			// Not going to bother writing null checks or caching results until then
+			// Not going to bother writing null checks/caching/virtual methods until then
 			var exists = await DoesExistAsync(meta, context, value).ConfigureAwait(false);
 			if (exists && Status == Item.MustNotExist)
 			{
