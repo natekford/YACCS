@@ -4,7 +4,7 @@ using YACCS.Commands;
 using YACCS.Parsing;
 using YACCS.TypeReaders;
 
-using static YACCS.Commands.CommandServiceUtils;
+using static YACCS.Commands.CommandCreationUtils;
 
 namespace YACCS.Tests
 {

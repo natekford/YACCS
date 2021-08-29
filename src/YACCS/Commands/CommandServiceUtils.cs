@@ -13,37 +13,8 @@ using YACCS.Results;
 
 namespace YACCS.Commands
 {
-	public static class CommandServiceUtils
+	public static class CommandCreationUtils
 	{
-		public const char QUOTE = '"';
-		public const char SPACE = ' ';
-		internal const string DEBUGGER_DISPLAY = "{DebuggerDisplay,nq}";
-		public static IImmutableSet<char> Quotes { get; } = new[] { QUOTE }.ToImmutableHashSet();
-
-		public static ValueTask<IResult> CanExecuteAsync(
-			this IImmutableCommand command,
-			IContext context)
-		{
-			return command.Preconditions.ProcessAsync((precondition, state) =>
-			{
-				var (command, context) = state;
-				return precondition.CheckAsync(command, context);
-			}, (command, context));
-		}
-
-		public static ValueTask<IResult> CanExecuteAsync(
-			this IImmutableParameter parameter,
-			CommandMeta meta,
-			IContext context,
-			object? value)
-		{
-			return parameter.Preconditions.ProcessAsync((precondition, state) =>
-			{
-				var (meta, context, value) = state;
-				return precondition.CheckAsync(meta, context, value);
-			}, (meta, context, value));
-		}
-
 		public static List<ReflectionCommand> CreateMutableCommands(this Type type)
 		{
 			const BindingFlags FLAGS = 0
@@ -104,6 +75,100 @@ namespace YACCS.Commands
 			IServiceProvider services)
 			=> assembly.GetExportedTypes().GetDirectCommandsAsync(services);
 
+		public static async IAsyncEnumerable<CreatedCommand> GetDirectCommandsAsync(
+			this IEnumerable<Type> types,
+			IServiceProvider services)
+		{
+			foreach (var type in types)
+			{
+				await foreach (var command in type.GetDirectCommandsAsync(services))
+				{
+					yield return command;
+				}
+			}
+		}
+
+		public static async IAsyncEnumerable<CreatedCommand> GetDirectCommandsAsync(
+			this Type type,
+			IServiceProvider services)
+		{
+			if (type.IsAbstract)
+			{
+				yield break;
+			}
+
+			var commands = type.CreateMutableCommands();
+			if (commands.Count == 0)
+			{
+				yield break;
+			}
+
+			foreach (var attr in type.GetCustomAttributes<OnCommandBuildingAttribute>())
+			{
+				await attr.ModifyCommands(services, commands).ConfigureAwait(false);
+			}
+
+			// Commands have been modified by whoever implemented them
+			// We can now return them in an immutable state
+			foreach (var command in commands)
+			{
+				await foreach (var immutable in command.ToMultipleImmutableAsync(services))
+				{
+					yield return new(type, immutable);
+				}
+			}
+		}
+
+		public readonly struct CreatedCommand
+		{
+			public IImmutableCommand Command { get; }
+			public Type DefiningType { get; }
+
+			public CreatedCommand(Type definingType, IImmutableCommand command)
+			{
+				Command = command;
+				DefiningType = definingType;
+			}
+
+			public void Deconstruct(out Type definingType, out IImmutableCommand command)
+			{
+				definingType = DefiningType;
+				command = Command;
+			}
+		}
+	}
+
+	public static class CommandServiceUtils
+	{
+		public const char QUOTE = '"';
+		public const char SPACE = ' ';
+		internal const string DEBUGGER_DISPLAY = "{DebuggerDisplay,nq}";
+		public static IImmutableSet<char> Quotes { get; } = new[] { QUOTE }.ToImmutableHashSet();
+
+		public static ValueTask<IResult> CanExecuteAsync(
+			this IImmutableCommand command,
+			IContext context)
+		{
+			return command.Preconditions.ProcessAsync((precondition, state) =>
+			{
+				var (command, context) = state;
+				return precondition.CheckAsync(command, context);
+			}, (command, context));
+		}
+
+		public static ValueTask<IResult> CanExecuteAsync(
+			this IImmutableParameter parameter,
+			CommandMeta meta,
+			IContext context,
+			object? value)
+		{
+			return parameter.Preconditions.ProcessAsync((precondition, state) =>
+			{
+				var (meta, context, value) = state;
+				return precondition.CheckAsync(meta, context, value);
+			}, (meta, context, value));
+		}
+
 		public static HashSet<TValue> GetAllDistinctItems<TKey, TValue>(
 			this INode<TKey, TValue> node,
 			Func<TValue, bool>? predicate = null)
@@ -152,50 +217,6 @@ namespace YACCS.Commands
 				enumerable = enumerable.Concat(e.AfterExceptions);
 			}
 			return enumerable;
-		}
-
-		public static async IAsyncEnumerable<CreatedCommand> GetDirectCommandsAsync(
-			this IEnumerable<Type> types,
-			IServiceProvider services)
-		{
-			foreach (var type in types)
-			{
-				await foreach (var command in type.GetDirectCommandsAsync(services))
-				{
-					yield return command;
-				}
-			}
-		}
-
-		public static async IAsyncEnumerable<CreatedCommand> GetDirectCommandsAsync(
-			this Type type,
-			IServiceProvider services)
-		{
-			if (type.IsAbstract)
-			{
-				yield break;
-			}
-
-			var commands = type.CreateMutableCommands();
-			if (commands.Count == 0)
-			{
-				yield break;
-			}
-
-			foreach (var attr in type.GetCustomAttributes<OnCommandBuildingAttribute>())
-			{
-				await attr.ModifyCommands(services, commands).ConfigureAwait(false);
-			}
-
-			// Commands have been modified by whoever implemented them
-			// We can now return them in an immutable state
-			foreach (var command in commands)
-			{
-				await foreach (var immutable in command.ToMultipleImmutableAsync(services))
-				{
-					yield return new(type, immutable);
-				}
-			}
 		}
 
 		public static bool HasPrefix(
@@ -281,23 +302,5 @@ namespace YACCS.Commands
 
 		internal static string FormatForDebuggerDisplay(this IResult item)
 			=> $"IsSuccess = {item.IsSuccess}, Response = {item.Response}";
-
-		public readonly struct CreatedCommand
-		{
-			public IImmutableCommand Command { get; }
-			public Type DefiningType { get; }
-
-			public CreatedCommand(Type definingType, IImmutableCommand command)
-			{
-				Command = command;
-				DefiningType = definingType;
-			}
-
-			public void Deconstruct(out Type definingType, out IImmutableCommand command)
-			{
-				definingType = DefiningType;
-				command = Command;
-			}
-		}
 	}
 }

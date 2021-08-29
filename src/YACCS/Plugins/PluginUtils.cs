@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 using YACCS.Commands;
 
-using static YACCS.Commands.CommandServiceUtils;
+using static YACCS.Commands.CommandCreationUtils;
 
 namespace YACCS.CommandAssemblies
 {
