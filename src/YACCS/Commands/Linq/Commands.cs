@@ -69,7 +69,28 @@ namespace YACCS.Commands.Linq
 		}
 
 		public static bool IsValidContext(this IQueryableCommand command, Type type)
-			=> command.ContextType?.IsAssignableFrom(type) ?? true;
+		{
+			var context = command.ContextType;
+			// Null context means success since one isn't required
+			// If type can be assigned to context then it's valid
+			if (context?.IsAssignableFrom(type) != false)
+			{
+				return true;
+			}
+			// If context is generic, check that type implements all constraints
+			if (context.IsGenericTypeParameter)
+			{
+				foreach (var constraint in context.GetGenericParameterConstraints())
+				{
+					if (!constraint.IsAssignableFrom(type))
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+			return false;
+		}
 
 		[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 		private sealed class Command<TContext> : ICommand<TContext> where TContext : IContext
