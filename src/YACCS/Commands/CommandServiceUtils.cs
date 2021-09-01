@@ -98,14 +98,14 @@ namespace YACCS.Commands
 			}
 
 			var commands = type.CreateMutableCommands();
-			if (commands.Count == 0)
-			{
-				yield break;
-			}
-
 			foreach (var attr in type.GetCustomAttributes<OnCommandBuildingAttribute>())
 			{
 				await attr.ModifyCommands(services, commands).ConfigureAwait(false);
+			}
+
+			if (commands.Count == 0)
+			{
+				yield break;
 			}
 
 			// Commands have been modified by whoever implemented them

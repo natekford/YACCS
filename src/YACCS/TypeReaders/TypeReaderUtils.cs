@@ -91,9 +91,7 @@ namespace YACCS.TypeReaders
 			this ITypeReader reader,
 			IServiceProvider services)
 		{
-			const BindingFlags FLAGS = 0
-				| BindingFlags.Static
-				| BindingFlags.NonPublic;
+			const BindingFlags FLAGS = BindingFlags.Static | BindingFlags.NonPublic;
 
 			var args = new[] { services };
 			foreach (var method in reader.GetType().GetMethods(FLAGS))

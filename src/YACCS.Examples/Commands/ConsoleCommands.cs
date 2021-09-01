@@ -14,12 +14,12 @@ namespace YACCS.Examples.Commands
 
 		[Command(nameof(Abstract), AllowInheritance = true)]
 		public abstract string Abstract();
-	}
 
-	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-	public class OnConsoleCommandsBuildingAttribute : OnCommandBuildingAttribute
-	{
-		public override Task ModifyCommands(IServiceProvider services, List<ReflectionCommand> commands)
-			=> throw new InvalidOperationException("Should not have been reached.");
+		[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+		protected class OnConsoleCommandsBuildingAttribute : OnCommandBuildingAttribute
+		{
+			public override Task ModifyCommands(IServiceProvider services, List<ReflectionCommand> commands)
+				=> throw new InvalidOperationException("Should not have been reached.");
+		}
 	}
 }

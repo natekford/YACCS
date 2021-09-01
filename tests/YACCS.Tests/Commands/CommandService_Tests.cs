@@ -442,7 +442,7 @@ namespace YACCS.Tests.Commands
 			var score = await commandService.GetCommandScoreAsync(
 				new OtherContext(),
 				command.ToImmutable(),
-				Array.Empty<string>(),
+				new[] { "a" },
 				0
 			).ConfigureAwait(false);
 			Assert.IsFalse(score.InnerResult.IsSuccess);

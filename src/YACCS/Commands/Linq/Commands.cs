@@ -68,7 +68,7 @@ namespace YACCS.Commands.Linq
 			}
 		}
 
-		public static bool IsValidContext(this IQueryableCommand command, Type? type)
+		public static bool IsValidContext(this IQueryableCommand command, Type type)
 			=> command.ContextType?.IsAssignableFrom(type) ?? true;
 
 		[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]

@@ -87,15 +87,15 @@ namespace YACCS.Examples.Commands
 			Console.WriteLine(_Separator);
 			return SuccessResult.Instance;
 		}
-	}
 
-	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-	public class OnHelpBuildingAttribute : OnCommandBuildingAttribute
-	{
-		public override Task ModifyCommands(IServiceProvider services, List<ReflectionCommand> commands)
+		[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+		protected class OnHelpBuildingAttribute : OnCommandBuildingAttribute
 		{
-			Debug.WriteLine($"{nameof(OnHelpBuildingAttribute)}: {commands.Count} commands created.");
-			return Task.CompletedTask;
+			public override Task ModifyCommands(IServiceProvider services, List<ReflectionCommand> commands)
+			{
+				Debug.WriteLine($"{nameof(OnHelpBuildingAttribute)}: {commands.Count} commands created.");
+				return Task.CompletedTask;
+			}
 		}
 	}
 }

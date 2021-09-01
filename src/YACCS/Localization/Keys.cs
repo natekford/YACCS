@@ -7,7 +7,7 @@ namespace YACCS.Localization
 	public static class Keys
 	{
 		public static ImmutableArray<NeedsLocalization> AllKeys { get; }
-			= typeof(Keys).GetProperties(BindingFlags.Static | BindingFlags.Public)
+			= typeof(Keys).GetProperties(BindingFlags.Public | BindingFlags.Static)
 			.Where(x => x.PropertyType == typeof(NeedsLocalization))
 			.Select(x => (NeedsLocalization)x.GetValue(null))
 			.ToImmutableArray();
