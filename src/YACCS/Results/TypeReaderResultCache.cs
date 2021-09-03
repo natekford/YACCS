@@ -11,7 +11,7 @@ namespace YACCS.Results
 		private readonly Func<string, IResult> _Factory;
 
 		public ITypeReaderResult<T> this[string key]
-			=> _Cache.GetOrAdd(key, (x, f) => TypeReaderResult<T>.FromError(f(x)), _Factory);
+			=> _Cache.GetOrAdd(key, static (x, f) => TypeReaderResult<T>.FromError(f(x)), _Factory);
 
 		public TypeReaderResultCache(Func<string, IResult> factory)
 		{

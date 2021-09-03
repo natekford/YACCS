@@ -169,7 +169,7 @@ namespace YACCS.Commands
 
 			public Node GetOrAdd(TKey key)
 			{
-				return _Edges.GetOrAdd(key, (key, parent) =>
+				return _Edges.GetOrAdd(key, static (key, parent) =>
 				{
 					return new(key, parent, parent._Comparer);
 				}, this);

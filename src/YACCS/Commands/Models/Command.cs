@@ -35,6 +35,13 @@ namespace YACCS.Commands.Models
 			Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IParameter>();
 		}
 
+		public virtual bool IsValidContext(Type type)
+		{
+			return ContextType.IsAssignableFrom(type) && Attributes
+				.OfType<IContextConstraint>()
+				.All(x => x.DoesTypeSatisfy(type));
+		}
+
 		public abstract IImmutableCommand ToImmutable();
 
 		public virtual async IAsyncEnumerable<IImmutableCommand> ToMultipleImmutableAsync(
@@ -56,6 +63,7 @@ namespace YACCS.Commands.Models
 		protected abstract class ImmutableCommand : IImmutableCommand
 		{
 			private readonly Lazy<Func<Task, object>> _TaskResult;
+			private readonly ConcurrentDictionary<Type, bool> _ValidContexts = new();
 
 			public IReadOnlyList<object> Attributes { get; }
 			public Type ContextType { get; }
@@ -166,6 +174,16 @@ namespace YACCS.Commands.Models
 			}
 
 			public abstract ValueTask<IResult> ExecuteAsync(IContext context, object?[] args);
+
+			public virtual bool IsValidContext(Type type)
+			{
+				return _ValidContexts.GetOrAdd(type, static (type, args) =>
+				{
+					return args.ContextType.IsAssignableFrom(type) && args.Attributes
+						.OfType<IContextConstraint>()
+						.All(x => x.DoesTypeSatisfy(type));
+				}, (ContextType, Attributes));
+			}
 
 			protected virtual ValueTask<IResult> ConvertValueAsync(object? value)
 			{

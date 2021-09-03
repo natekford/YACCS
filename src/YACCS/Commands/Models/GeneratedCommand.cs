@@ -33,5 +33,8 @@ namespace YACCS.Commands.Models
 		}
 
 		public abstract ValueTask<IResult> ExecuteAsync(IContext context, object?[] args);
+
+		public virtual bool IsValidContext(Type type)
+			=> Source.IsValidContext(type);
 	}
 }

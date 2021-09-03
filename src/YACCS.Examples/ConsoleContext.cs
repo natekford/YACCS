@@ -4,8 +4,10 @@ using YACCS.Commands;
 
 namespace YACCS.Examples
 {
-	public sealed class ConsoleContext : IContext<string>, IDisposable
+	public sealed class ConsoleContext : IContext<string>, IDisposable, IMessagable
 	{
+		private readonly ConsoleHandler _Console;
+
 		public Guid Id { get; } = Guid.NewGuid();
 		public string Input { get; }
 		public IServiceScope Scope { get; }
@@ -18,12 +20,19 @@ namespace YACCS.Examples
 		{
 			Scope = scope;
 			Input = input;
+			_Console = Scope.ServiceProvider.GetRequiredService<ConsoleHandler>();
 		}
 
 		public void Dispose()
 		{
-			Scope.ServiceProvider.GetRequiredService<ConsoleHandler>().ReleaseIOLocks();
+			_Console.ReleaseIOLocks();
 			Scope.Dispose();
+		}
+
+		public Task SendMessageAsync(string message)
+		{
+			_Console.WriteLine(message);
+			return Task.CompletedTask;
 		}
 	}
 }
