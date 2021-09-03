@@ -57,29 +57,14 @@ namespace YACCS.Commands.Models
 			}
 
 			public override ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
-			{
-				var value = _Execute.Invoke(args);
-				return ConvertValueAsync(value);
-			}
+				=> ConvertValueAsync(_Execute.Invoke(args));
 
 			private Func<object?[], object> Execute()
 			{
-				/*
-				 *	(object?[] Args) =>
-				 *	{
-				 *		return ((DelegateType)Delegate).Invoke((ParamType)Args[0], (ParamType)Args[1], ...);
-				 *	}
-				 */
-
-				var instance = _Delegate.Target is null ? null : Expression.Constant(_Delegate.Target);
-
-				var (body, args) = instance.CreateInvokeExpressionFromObjectArrayArgs(_Delegate.Method);
-
-				var lambda = Expression.Lambda<Func<object?[], object>>(
-					body,
-					args
+				return ExpressionUtils.GetInvokeFromObjectArray<Func<object?[], object>>(
+					_Delegate.Target is null ? null : Expression.Constant(_Delegate.Target),
+					_Delegate.Method
 				);
-				return lambda.Compile();
 			}
 		}
 	}

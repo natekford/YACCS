@@ -220,23 +220,10 @@ namespace YACCS.Commands.Models
 
 			private Func<ICommandGroup, object?[], object> Execute()
 			{
-				/*
-				 *	(ICommandGroup Group, object?[] Args) =>
-				 *	{
-				 *		return ((DeclaringType)Group).Method((ParamType)Args[0], (ParamType)Args[1], ...);
-				 *	}
-				 */
-
-				var instance = Expression.Parameter(typeof(ICommandGroup), "Group");
-
-				var (body, args) = instance.CreateInvokeExpressionFromObjectArrayArgs(_Method);
-
-				var lambda = Expression.Lambda<Func<ICommandGroup, object?[], object>>(
-					body,
-					instance,
-					args
+				return ExpressionUtils.GetInvokeFromObjectArray<Func<ICommandGroup, object?[], object>>(
+					Expression.Parameter(typeof(ICommandGroup), "Group"),
+					_Method
 				);
-				return lambda.Compile();
 			}
 		}
 	}
