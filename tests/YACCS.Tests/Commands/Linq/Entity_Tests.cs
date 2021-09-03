@@ -137,7 +137,6 @@ namespace YACCS.Tests.Commands.Linq
 			public const string _PositionId = "position_id";
 
 			[Command(_4, _5, _6)]
-			[HelpOnCommandBuilding]
 			public sealed class Help : CommandGroup<IContext>
 			{
 				[Command]
@@ -158,18 +157,14 @@ namespace YACCS.Tests.Commands.Linq
 				public IResult CommandTwo(string arg)
 					=> SuccessResult.Instance;
 
-				[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-				private class HelpOnCommandBuildingAttribute : OnCommandBuildingAttribute
+				public override Task ModifyCommandsAsync(IServiceProvider services, List<ReflectionCommand> commands)
 				{
-					public override Task ModifyCommands(IServiceProvider services, List<ReflectionCommand> commands)
-					{
-						var parameters = commands.SelectMany(x => x.Parameters);
-						var position = parameters.ById(_PositionId).Single().AsType<int>();
-						Assert.IsNotNull(position);
+					var parameters = commands.SelectMany(x => x.Parameters);
+					var position = parameters.ById(_PositionId).Single().AsType<int>();
+					Assert.IsNotNull(position);
 
-						services.GetRequiredService<WasIReached>().WasReached = true;
-						return Task.CompletedTask;
-					}
+					services.GetRequiredService<WasIReached>().WasReached = true;
+					return base.ModifyCommandsAsync(services, commands);
 				}
 			}
 		}

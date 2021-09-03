@@ -1,12 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
+using YACCS.Commands.Building;
 using YACCS.Commands.Models;
 using YACCS.Results;
 
 namespace YACCS.Commands
 {
-	public abstract class CommandGroup<TContext> : ICommandGroup<TContext> where TContext : IContext
+	public abstract class CommandGroup<TContext>
+		: ICommandGroup<TContext>, IOnCommandBuilding
+		where TContext : IContext
 	{
 		public IImmutableCommand Command { get; protected set; } = null!;
 		public TContext Context { get; protected set; } = default!;
@@ -27,6 +35,26 @@ namespace YACCS.Commands
 
 			Command = command;
 			Context = context;
+			return Task.CompletedTask;
+		}
+
+		public virtual Task ModifyCommandsAsync(IServiceProvider services, List<ReflectionCommand> commands)
+		{
+			Debug.WriteLine($"{GetType().Name}: {commands.Count} command(s) created.");
+
+			var (properties, fields) = GetType().GetWritableMembers();
+			var pConstraints = properties
+				.Where(x => x.GetCustomAttribute<InjectContextAttribute>() is not null)
+				.Select(x => x.PropertyType);
+			var fConstraints = fields
+				.Where(x => x.GetCustomAttribute<InjectContextAttribute>() is not null)
+				.Select(x => x.FieldType);
+			var constraints = pConstraints.Concat(fConstraints).Distinct().ToImmutableArray();
+			foreach (var command in commands)
+			{
+				command.Attributes.Add(new ContextMustImplementAttribute(constraints));
+			}
+
 			return Task.CompletedTask;
 		}
 

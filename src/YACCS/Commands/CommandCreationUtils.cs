@@ -95,27 +95,15 @@ namespace YACCS.Commands
 			}
 
 			var commands = type.CreateMutableCommands();
-			foreach (var attr in type.GetCustomAttributes<OnCommandBuildingAttribute>())
+			if (typeof(IOnCommandBuilding).IsAssignableFrom(type))
 			{
-				await attr.ModifyCommands(services, commands).ConfigureAwait(false);
+				var instance = type.CreateInstance<IOnCommandBuilding>();
+				await instance.ModifyCommandsAsync(services, commands).ConfigureAwait(false);
 			}
 
 			if (commands.Count == 0)
 			{
 				yield break;
-			}
-
-			var (properties, fields) = type.GetWritableMembers();
-			var pConstraints = properties
-				.Where(x => x.GetCustomAttribute<InjectContextAttribute>() is not null)
-				.Select(x => x.PropertyType);
-			var fConstraints = fields
-				.Where(x => x.GetCustomAttribute<InjectContextAttribute>() is not null)
-				.Select(x => x.FieldType);
-			var constraints = pConstraints.Concat(fConstraints).Distinct().ToImmutableArray();
-			foreach (var command in commands)
-			{
-				command.Attributes.Add(new ContextMustImplementAttribute(constraints));
 			}
 
 			// Commands have been modified by whoever implemented them

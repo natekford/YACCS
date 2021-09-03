@@ -13,7 +13,6 @@ using YACCS.TypeReaders;
 namespace YACCS.Examples.Commands
 {
 	[Command(nameof(Help))]
-	[OnHelpBuilding]
 	public class Help : ConsoleCommands
 	{
 		private static readonly string _Separator = new('-', 10);
@@ -89,16 +88,6 @@ namespace YACCS.Examples.Commands
 			Console.WriteLine(text);
 			Console.WriteLine(_Separator);
 			return SuccessResult.Instance;
-		}
-
-		[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-		protected class OnHelpBuildingAttribute : OnCommandBuildingAttribute
-		{
-			public override Task ModifyCommands(IServiceProvider services, List<ReflectionCommand> commands)
-			{
-				Debug.WriteLine($"{nameof(OnHelpBuildingAttribute)}: {commands.Count} commands created.");
-				return Task.CompletedTask;
-			}
 		}
 	}
 }
