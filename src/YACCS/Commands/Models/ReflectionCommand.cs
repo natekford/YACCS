@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Building;
 using YACCS.Results;
 
 namespace YACCS.Commands.Models
@@ -34,13 +35,24 @@ namespace YACCS.Commands.Models
 			GroupType = groupType;
 			Method = method;
 
+			Attributes.Add(Method);
+
+			// Add in all names
 			foreach (var name in GetFullNames(groupType, method))
 			{
 				Names.Add(name);
 			}
-			AddAllParentsAttributes(groupType);
 
-			Attributes.Add(Method);
+			// Add in all attributes
+			var type = groupType;
+			while (type is not null)
+			{
+				foreach (var attribute in type.GetCustomAttributes(true))
+				{
+					Attributes.Add(attribute);
+				}
+				type = type.DeclaringType;
+			}
 		}
 
 		public override IImmutableCommand ToImmutable()
@@ -106,25 +118,11 @@ namespace YACCS.Commands.Models
 			return output.Select(x => new ImmutableName(x));
 		}
 
-		private void AddAllParentsAttributes(Type type)
-		{
-			while (type is not null)
-			{
-				foreach (var attribute in type.GetCustomAttributes(true))
-				{
-					Attributes.Add(attribute);
-				}
-				type = type.DeclaringType;
-			}
-		}
-
 		private sealed class ImmutableReflectionCommand : ImmutableCommand
 		{
-			private static readonly ConcurrentDictionary<Type, Func<IServiceProvider, ICommandGroup>> _ConstructorCache = new();
-			private static readonly MethodInfo _GetService = typeof(IServiceProvider)
-				.GetMethod(nameof(IServiceProvider.GetService));
+			private static readonly ConcurrentDictionary<Type, Func<IContext, ICommandGroup>> _ConstructorCache = new();
 
-			private readonly Func<IServiceProvider, ICommandGroup> _Constructor;
+			private readonly Func<IContext, ICommandGroup> _Constructor;
 			private readonly Func<ICommandGroup, object?[], object> _Execute;
 			private readonly Type _GroupType;
 			private readonly MethodInfo _Method;
@@ -144,7 +142,7 @@ namespace YACCS.Commands.Models
 				// Don't catch exceptions in here, it's easier for the command handler to
 				// catch them itself + this makes testing easier
 
-				var group = _Constructor.Invoke(context.Services);
+				var group = _Constructor.Invoke(context);
 				await group.BeforeExecutionAsync(this, context).ConfigureAwait(false);
 
 				var value = _Execute.Invoke(group, args);
@@ -154,19 +152,23 @@ namespace YACCS.Commands.Models
 				return result;
 			}
 
-			private Func<IServiceProvider, ICommandGroup> Constructor()
+			private Func<IContext, ICommandGroup> Constructor()
 			{
 				/*
-				 *	(IServiceProvider Provider) =>
+				 *	(IContext Context) =>
 				 *	{
+				 *		var provider = Context.Provider;
 				 *		var group = new GroupType();
+				 *
+				 *		((DeclaringType)group).ContextInterface = (ContextInterface)Context;
+				 *
 				 *		try
 				 *		{
-				 *			var __var0 = Provider.GetService(typeof(ServiceA));
+				 *			var __var = Provider.GetService(typeof(ServiceA));
 				 *
-				 *			if (__var0 is ServiceA)
+				 *			if (__var is ServiceA)
 				 *			{
-				 *				((DeclaringType)group).ServiceA = (ServiceA)__var0;
+				 *				((DeclaringType)group).ServiceA = (ServiceA)__var;
 				 *			}
 				 *		}
 				 *		catch (Exception e)
@@ -180,39 +182,30 @@ namespace YACCS.Commands.Models
 
 				return _ConstructorCache.GetOrAdd(_GroupType, groupType =>
 				{
-					var provider = Expression.Parameter(typeof(IServiceProvider), "Provider");
+					var context = Expression.Parameter(typeof(IContext), "Context");
 
 					var group = Expression.Variable(groupType, "group");
 					var @new = Expression.New(groupType);
 					var assignGroup = Expression.Assign(group, @new);
 
-					var setters = groupType.CreateExpressionsForWritableMembers<Expression>(group, x =>
+					var setters = groupType.SelectWritableMembers(group, member =>
 					{
-						// Create temp variable
-						var typeArgument = Expression.Constant(x.Type);
-						var getService = Expression.Call(provider, _GetService, typeArgument);
-						var temp = Expression.Variable(typeof(object), "__var");
-						var tempAssign = Expression.Assign(temp, getService);
-
-						// Make sure the temp variable is not null
-						var isType = Expression.TypeIs(temp, x.Type);
-
-						// Set member to temp variable
-						var serviceCast = Expression.Convert(temp, x.Type);
-						var assignService = Expression.Assign(x, serviceCast);
-
-						var ifThen = Expression.IfThen(isType, assignService);
-						var body = Expression.Block(new[] { temp }, tempAssign, ifThen);
-
-						// Catch any exceptions and throw a more informative one
-						var message = $"Failed setting a service for {groupType.FullName}.";
-						return body.AddThrow((Exception e) => new ArgumentException(message, x.Member.Name, e));
+						var injector = member.Member.GetCustomAttribute<InjectableAttribute>();
+						if (injector is null)
+						{
+							throw new InvalidOperationException("Unable to find a specified way " +
+								$"to set the public property '{member.Member}' for '{member.Member.ReflectedType}'.");
+						}
+						return injector.CreateInjection(context, member);
 					});
-					var body = Expression.Block(new[] { group }, setters.Prepend(assignGroup).Append(group));
+					var body = Expression.Block(new[]
+					{
+						group
+					}, setters.Prepend(assignGroup).Append(group));
 
-					var lambda = Expression.Lambda<Func<IServiceProvider, ICommandGroup>>(
+					var lambda = Expression.Lambda<Func<IContext, ICommandGroup>>(
 						body,
-						provider
+						context
 					);
 					return lambda.Compile();
 				});

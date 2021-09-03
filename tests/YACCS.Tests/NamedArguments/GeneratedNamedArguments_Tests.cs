@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Building;
 using YACCS.Commands.Models;
 using YACCS.NamedArguments;
 using YACCS.Preconditions;
@@ -181,6 +182,7 @@ namespace YACCS.Tests.NamedArguments
 			public const string S = "val_s";
 			public const string S_DEFAULT = "73 xd";
 
+			[InjectService]
 			public SetMe SetMe { get; set; } = null!;
 
 			[Command(nameof(Test))]

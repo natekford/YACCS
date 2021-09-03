@@ -8,7 +8,7 @@ namespace YACCS.Commands
 {
 	public abstract class CommandGroup<TContext> : ICommandGroup<TContext> where TContext : IContext
 	{
-		public IImmutableCommand Command { get; protected set; } = default!;
+		public IImmutableCommand Command { get; protected set; } = null!;
 		public TContext Context { get; protected set; } = default!;
 
 		public virtual Task AfterExecutionAsync(IImmutableCommand command, TContext context, IResult result)

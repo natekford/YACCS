@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 
 using YACCS.Commands.Attributes;
 
-namespace YACCS.Commands
+namespace YACCS.Commands.Building
 {
 	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = true, Inherited = true)]
 	public class ContextMustImplementAttribute : Attribute, IContextConstraint

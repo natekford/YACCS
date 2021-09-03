@@ -2,6 +2,7 @@
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Building;
 using YACCS.Commands.Models;
 using YACCS.Examples.Preconditions;
 using YACCS.Help;
@@ -17,7 +18,9 @@ namespace YACCS.Examples.Commands
 	{
 		private static readonly string _Separator = new('-', 10);
 
+		[InjectService]
 		public ICommandService CommandService { get; set; } = null!;
+		[InjectService]
 		public IHelpFormatter HelpFormatter { get; set; } = null!;
 
 		[Disabled]

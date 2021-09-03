@@ -51,15 +51,15 @@ namespace YACCS.NamedArguments
 			var value = Expression.Parameter(typeof(object), "Value");
 
 			var returnLabel = Expression.Label();
-			var setters = typeof(T).CreateExpressionsForWritableMembers<Expression>(instance, x =>
+			var setters = typeof(T).SelectWritableMembers(instance, access =>
 			{
 				// If Name == memberInfo.Name
-				var memberName = Expression.Constant(x.Member.Name);
+				var memberName = Expression.Constant(access.Member.Name);
 				var isMember = Expression.Equal(memberName, name);
 
 				// Then set member and return
-				var valueCast = Expression.Convert(value, x.Type);
-				var assign = Expression.Assign(x, valueCast);
+				var valueCast = Expression.Convert(value, access.Type);
+				var assign = Expression.Assign(access, valueCast);
 				var @return = Expression.Return(returnLabel);
 				var body = Expression.Block(assign, @return);
 

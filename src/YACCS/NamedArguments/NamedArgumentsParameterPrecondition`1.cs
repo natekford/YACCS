@@ -49,14 +49,14 @@ namespace YACCS.NamedArguments
 			var name = Expression.Parameter(typeof(string), "Name");
 
 			var returnLabel = Expression.Label(typeof(object));
-			var getters = typeof(T).CreateExpressionsForWritableMembers<Expression>(instance, x =>
+			var getters = typeof(T).SelectWritableMembers(instance, access =>
 			{
 				// If Name == memberInfo.Name
-				var memberName = Expression.Constant(x.Member.Name);
+				var memberName = Expression.Constant(access.Member.Name);
 				var isMember = Expression.Equal(memberName, name);
 
 				// Then get member and return
-				var cast = Expression.Convert(x, typeof(object));
+				var cast = Expression.Convert(access, typeof(object));
 				var @return = Expression.Return(returnLabel, cast);
 
 				return Expression.IfThen(isMember, @return);

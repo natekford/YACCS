@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 using YACCS.Commands.Models;
 
-namespace YACCS.Commands
+namespace YACCS.Commands.Building
 {
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 	public abstract class OnCommandBuildingAttribute : Attribute

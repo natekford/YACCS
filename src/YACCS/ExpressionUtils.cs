@@ -22,25 +22,6 @@ namespace YACCS
 			return Expression.TryCatch(body, @catch);
 		}
 
-		internal static IEnumerable<T> CreateExpressionsForWritableMembers<T>(
-			this Type type,
-			Expression instance,
-			Func<MemberExpression, T> createExpression)
-			where T : Expression
-		{
-			T Convert(MemberInfo x)
-			{
-				var instanceCast = Expression.Convert(instance, x.DeclaringType);
-				var access = Expression.MakeMemberAccess(instanceCast, x);
-				return createExpression(access);
-			}
-
-			var (properties, fields) = type.GetWritableMembers();
-			var propertyExpressions = properties.Select(Convert);
-			var fieldExpressions = fields.Select(Convert);
-			return propertyExpressions.Concat(fieldExpressions);
-		}
-
 		internal static T GetInvokeFromObjectArray<T>(
 			Expression? instance,
 			MethodInfo method)
@@ -96,6 +77,24 @@ namespace YACCS
 				parameters
 			);
 			return lambda.Compile();
+		}
+
+		internal static IEnumerable<Expression> SelectWritableMembers(
+			this Type type,
+			ParameterExpression instance,
+			Func<MemberExpression, Expression> createExpression)
+		{
+			Expression Convert(MemberInfo info)
+			{
+				var instanceCast = Expression.Convert(instance, info.DeclaringType);
+				var access = Expression.MakeMemberAccess(instanceCast, info);
+				return createExpression(access);
+			}
+
+			var (properties, fields) = type.GetWritableMembers();
+			var propertyExpressions = properties.Select(Convert);
+			var fieldExpressions = fields.Select(Convert);
+			return propertyExpressions.Concat(fieldExpressions);
 		}
 	}
 }

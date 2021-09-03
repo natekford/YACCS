@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Building;
 using YACCS.SwappedArguments;
 
 namespace YACCS.Tests.SwappedArguments
@@ -92,6 +93,7 @@ namespace YACCS.Tests.SwappedArguments
 
 		private class CommandsGroup : CommandGroup<IContext>
 		{
+			[InjectService]
 			public SetMe SetMe { get; set; } = null!;
 
 			[Command(nameof(RemoveMessages))]

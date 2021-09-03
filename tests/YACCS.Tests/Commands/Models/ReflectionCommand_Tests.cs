@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Building;
 using YACCS.Commands.Models;
 using YACCS.Results;
 
@@ -62,16 +63,18 @@ namespace YACCS.Tests.Commands.Models
 		{
 			public const string INJECTED_VALUE = "injected";
 
+			[InjectService]
 			public string? InjectMeField;
+			[InjectService]
 			public string? InjectMeProperty { get; set; }
 			public string? WontBeInjectedBecauseNoSetter { get; }
-			public Guid? WontBeInjectedBecauseNotRegistered { get; set; }
+			public Guid? WontBeInjectedBecauseProtectedSetter { get; protected set; }
 
 			public override Task AfterExecutionAsync(IImmutableCommand command, FakeContext context, IResult result)
 			{
 				Assert.AreEqual(INJECTED_VALUE, InjectMeField);
 				Assert.AreEqual(INJECTED_VALUE, InjectMeProperty);
-				Assert.IsNull(WontBeInjectedBecauseNotRegistered);
+				Assert.IsNull(WontBeInjectedBecauseProtectedSetter);
 				Assert.IsNull(WontBeInjectedBecauseNoSetter);
 
 				return base.AfterExecutionAsync(command, context, result);
