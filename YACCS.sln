@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YACCS.Tests", "tests\YACCS.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YACCS.Examples", "src\YACCS.Examples\YACCS.Examples.csproj", "{0FBDBBDD-4758-4124-A42B-CAA97ABF7E70}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{10FCBB6D-D1B0-42FD-AF49-FF59687E09BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +32,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D86D69CA-9443-40A8-B5B4-443B14796864} = {10FCBB6D-D1B0-42FD-AF49-FF59687E09BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {36DF2B61-7B58-40C6-AA2D-99DF4537B1EB}
