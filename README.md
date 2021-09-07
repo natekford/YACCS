@@ -6,7 +6,7 @@ Yet another custom command service inspired by [Discord.Net.Commands](https://gi
 
 ## Examples
 
-For examples of command definitions, see [this](https://github.com/advorange/YACCS/tree/master/src/YACCS.Examples/Commands).
+For an example of command definitions, see [this](https://github.com/advorange/YACCS/blob/master/src/YACCS.Examples/Commands/Commands.cs).
 
 For an example of commands instantiation and execution, see [this](https://github.com/advorange/YACCS/blob/master/src/YACCS.Examples/Program.cs).
 
