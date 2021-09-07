@@ -1,6 +1,6 @@
 # YACCS
 
-A command service which is highly customizable.
+A command service which is highly customizable and can accept any input which is converted to [IContext](https://github.com/advorange/YACCS/blob/master/src/YACCS/Commands/IContext.cs).
 
 Yet another custom command service inspired by [Discord.Net.Commands](https://github.com/discord-net/Discord.Net/tree/dev/src/Discord.Net.Commands).
 
