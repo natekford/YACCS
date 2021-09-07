@@ -14,15 +14,6 @@ namespace YACCS.Examples.Commands
 	{
 		public override string Abstract() => "What's 9 + 10?";
 
-		[Command(nameof(ChangeUICulture))]
-		public string ChangeUICulture(CultureInfo culture)
-		{
-			// This command effectively does nothing due to the way that
-			// CultureInfo.CurrentX and async interact together
-			CultureInfo.CurrentUICulture = culture;
-			return $"Successfully changed the current UI culture to {culture}.";
-		}
-
 		[Command(nameof(Delay))]
 		public async Task<string> Delay()
 		{
