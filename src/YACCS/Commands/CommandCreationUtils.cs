@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 
@@ -10,8 +9,25 @@ using YACCS.Commands.Models;
 
 namespace YACCS.Commands
 {
+	/// <summary>
+	/// Utilites for creating commands.
+	/// </summary>
 	public static class CommandCreationUtils
 	{
+		/// <summary>
+		/// Uses reflection to gather commands from <paramref name="type"/>.
+		/// <br/>
+		/// A command is any method which is:
+		///		<see langword="public"/>,
+		///		not <see langword="static"/>,
+		///		and marked with <see cref="ICommandAttribute"/>.
+		/// </summary>
+		/// <param name="type">
+		/// The type to gather commands from.
+		/// This must implement <see cref="ICommandGroup{TContext}"/> if there are any
+		/// commands defined inside it.
+		/// </param>
+		/// <returns>A list of <see cref="ReflectionCommand"/></returns>
 		public static List<ReflectionCommand> CreateMutableCommands(this Type type)
 		{
 			const BindingFlags FLAGS = 0
@@ -37,7 +53,15 @@ namespace YACCS.Commands
 			return commands;
 		}
 
-		public static async IAsyncEnumerable<CreatedCommand> GetAllCommandsAsync(
+		/// <summary>
+		/// Calls <see cref="GetDirectCommandsAsync(Type, IServiceProvider)"/> for
+		/// <paramref name="type"/> and all nested <see cref="Type"/>s within
+		/// <paramref name="type"/>.
+		/// </summary>
+		/// <param name="type">The type to gather commands from.</param>
+		/// <param name="services">The services used for dependency injection.</param>
+		/// <returns>An async enumerable of <see cref="ReflectedCommand"/>.</returns>
+		public static async IAsyncEnumerable<ReflectedCommand> GetAllCommandsAsync(
 			this Type type,
 			IServiceProvider services)
 		{
@@ -54,7 +78,15 @@ namespace YACCS.Commands
 			}
 		}
 
-		public static async IAsyncEnumerable<CreatedCommand> GetAllCommandsAsync(
+		/// <summary>
+		/// Calls <see cref="GetDirectCommandsAsync(Type, IServiceProvider)"/> for
+		/// every <see cref="Type"/> defined within each <see cref="Assembly"/>
+		/// from <paramref name="assemblies"/>.
+		/// </summary>
+		/// <param name="assemblies">The assemblies to gather commands from.</param>
+		/// <param name="services">The services used for dependency injection.</param>
+		/// <returns>An async enumerable of <see cref="ReflectedCommand"/>.</returns>
+		public static async IAsyncEnumerable<ReflectedCommand> GetAllCommandsAsync(
 			this IEnumerable<Assembly> assemblies,
 			IServiceProvider services)
 		{
@@ -67,12 +99,26 @@ namespace YACCS.Commands
 			}
 		}
 
-		public static IAsyncEnumerable<CreatedCommand> GetAllCommandsAsync(
+		/// <summary>
+		/// Calls <see cref="GetDirectCommandsAsync(Type, IServiceProvider)"/> for
+		/// every <see cref="Type"/> defined within <paramref name="assembly"/>.
+		/// </summary>
+		/// <param name="assembly">The assembly to gather commands from.</param>
+		/// <param name="services">The services used for dependency injection.</param>
+		/// <returns>An async enumerable of <see cref="ReflectedCommand"/>.</returns>
+		public static IAsyncEnumerable<ReflectedCommand> GetAllCommandsAsync(
 			this Assembly assembly,
 			IServiceProvider services)
 			=> assembly.GetExportedTypes().GetDirectCommandsAsync(services);
 
-		public static async IAsyncEnumerable<CreatedCommand> GetDirectCommandsAsync(
+		/// <summary>
+		/// Calls <see cref="GetDirectCommandsAsync(Type, IServiceProvider)"/> for
+		/// every <see cref="Type"/> within <paramref name="types"/>.
+		/// </summary>
+		/// <param name="types">The types to gather commands from.</param>
+		/// <param name="services">The services used for dependency injection.</param>
+		/// <returns>An async enumerable of <see cref="ReflectedCommand"/>.</returns>
+		public static async IAsyncEnumerable<ReflectedCommand> GetDirectCommandsAsync(
 			this IEnumerable<Type> types,
 			IServiceProvider services)
 		{
@@ -85,7 +131,18 @@ namespace YACCS.Commands
 			}
 		}
 
-		public static async IAsyncEnumerable<CreatedCommand> GetDirectCommandsAsync(
+		/// <summary>
+		/// Calls <see cref="CreateMutableCommands(Type)"/> and then modifies the
+		/// resulting commands.
+		/// </summary>
+		/// <param name="type">
+		/// The type to gather commands from.
+		/// <br/>
+		/// Abstract classes are ignored.
+		/// </param>
+		/// <param name="services">The services used for dependency injection.</param>
+		/// <returns>An async enumerable of <see cref="ReflectedCommand"/>.</returns>
+		public static async IAsyncEnumerable<ReflectedCommand> GetDirectCommandsAsync(
 			this Type type,
 			IServiceProvider services)
 		{
@@ -117,17 +174,39 @@ namespace YACCS.Commands
 			}
 		}
 
-		public readonly struct CreatedCommand
+		/// <summary>
+		/// A newly created command and the <see cref="Type"/> which defined it.
+		/// </summary>
+		public readonly struct ReflectedCommand
 		{
+			/// <summary>
+			/// The newly created command.
+			/// </summary>
 			public IImmutableCommand Command { get; }
+			/// <summary>
+			/// The <see cref="Type"/> that defined <see cref="Command"/>.
+			/// </summary>
 			public Type DefiningType { get; }
 
-			public CreatedCommand(Type definingType, IImmutableCommand command)
+			/// <summary>
+			/// Creates a new <see cref="ReflectedCommand"/> and sets
+			/// <see cref="Command"/> to <paramref name="command"/> and
+			/// <see cref="DefiningType"/> to <paramref name="definingType"/>.
+			/// </summary>
+			/// <param name="definingType"></param>
+			/// <param name="command"></param>
+			public ReflectedCommand(Type definingType, IImmutableCommand command)
 			{
 				Command = command;
 				DefiningType = definingType;
 			}
 
+			/// <summary>
+			/// Deconstructs this object into <see cref="DefiningType"/> and
+			/// <see cref="Command"/>.
+			/// </summary>
+			/// <param name="definingType"><see cref="DefiningType"/></param>
+			/// <param name="command"><see cref="Command"/></param>
 			public void Deconstruct(out Type definingType, out IImmutableCommand command)
 			{
 				definingType = DefiningType;

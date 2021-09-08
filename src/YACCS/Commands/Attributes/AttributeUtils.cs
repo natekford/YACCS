@@ -2,12 +2,23 @@
 
 namespace YACCS.Commands.Attributes
 {
+	/// <summary>
+	/// Utilities for attributes.
+	/// </summary>
 	public static class AttributeUtils
 	{
+		/// <summary>
+		/// Specifies that this attribute can only target <see cref="AttributeTargets.Class"/>
+		/// and <see cref="AttributeTargets.Method"/>.
+		/// </summary>
 		public const AttributeTargets COMMANDS = 0
 			| AttributeTargets.Class
 			| AttributeTargets.Method;
 
+		/// <summary>
+		/// Specifies that this attribute can only target <see cref="AttributeTargets.Parameter"/>,
+		/// <see cref="AttributeTargets.Property"/>, and <see cref="AttributeTargets.Field"/>.
+		/// </summary>
 		public const AttributeTargets PARAMETERS = 0
 			| AttributeTargets.Parameter
 			| AttributeTargets.Property

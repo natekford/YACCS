@@ -10,6 +10,7 @@ namespace YACCS
 		{
 		}
 
+		/// <inheritdoc />
 		public object? GetService(Type serviceType) => null;
 	}
 }

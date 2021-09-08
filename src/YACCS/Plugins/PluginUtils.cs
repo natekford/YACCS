@@ -38,11 +38,11 @@ namespace YACCS.CommandAssemblies
 			}
 		}
 
-		public static async Task<IDictionary<CultureInfo, List<CreatedCommand>>> GetCommandsInSupportedCultures(
+		public static async Task<IDictionary<CultureInfo, List<ReflectedCommand>>> GetCommandsInSupportedCultures(
 			this IEnumerable<Assembly> assemblies,
 			IServiceProvider services)
 		{
-			var dict = new ConcurrentDictionary<CultureInfo, List<CreatedCommand>>();
+			var dict = new ConcurrentDictionary<CultureInfo, List<ReflectedCommand>>();
 			var originalCulture = CultureInfo.CurrentUICulture;
 			foreach (var assembly in assemblies)
 			{

@@ -19,7 +19,9 @@ namespace YACCS.Commands.Models
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public abstract class Command : EntityBase, ICommand
 	{
+		/// <inheritdoc />
 		public Type ContextType { get; protected set; }
+		/// <inheritdoc />
 		public IList<IReadOnlyList<string>> Names { get; set; }
 		public IReadOnlyList<IParameter> Parameters { get; protected set; }
 		public IImmutableCommand? Source { get; protected set; }
@@ -36,6 +38,7 @@ namespace YACCS.Commands.Models
 			Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IParameter>();
 		}
 
+		/// <inheritdoc />
 		public virtual bool IsValidContext(Type type)
 		{
 			return ContextType.IsAssignableFrom(type) && Attributes
@@ -43,8 +46,10 @@ namespace YACCS.Commands.Models
 				.All(x => x.DoesTypeSatisfy(type));
 		}
 
+		/// <inheritdoc />
 		public abstract IImmutableCommand ToImmutable();
 
+		/// <inheritdoc />
 		public virtual async IAsyncEnumerable<IImmutableCommand> ToMultipleImmutableAsync(
 			IServiceProvider services)
 		{

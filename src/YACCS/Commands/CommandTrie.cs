@@ -21,7 +21,8 @@ namespace YACCS.Commands
 			_Readers = readers;
 		}
 
-		public override int Add(IImmutableCommand item)
+		/// <inheritdoc />
+		public override void Add(IImmutableCommand item)
 		{
 			// Commands cannot be added directly to ROOT
 			if (item.Names.Count == 0)
@@ -70,9 +71,10 @@ namespace YACCS.Commands
 				}
 			}
 
-			return base.Add(item);
+			base.Add(item);
 		}
 
+		/// <inheritdoc />
 		protected override IEnumerable<IReadOnlyList<string>> GetPaths(IImmutableCommand item)
 			=> item.Names;
 	}

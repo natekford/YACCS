@@ -12,16 +12,25 @@ using YACCS.Results;
 
 namespace YACCS.Commands
 {
+	/// <inheritdoc cref="ICommandGroup{TContext}" />
 	public abstract class CommandGroup<TContext>
 		: ICommandGroup<TContext>, IOnCommandBuilding
 		where TContext : IContext
 	{
+		/// <summary>
+		/// The command being executed.
+		/// </summary>
 		public IImmutableCommand Command { get; protected set; } = null!;
+		/// <summary>
+		/// The context executing this command.
+		/// </summary>
 		public TContext Context { get; protected set; } = default!;
 
+		/// <inheritdoc />
 		public virtual Task AfterExecutionAsync(IImmutableCommand command, TContext context, IResult result)
 			=> Task.CompletedTask;
 
+		/// <inheritdoc />
 		public virtual Task BeforeExecutionAsync(IImmutableCommand command, TContext context)
 		{
 			if (command is null)
@@ -38,6 +47,7 @@ namespace YACCS.Commands
 			return Task.CompletedTask;
 		}
 
+		/// <inheritdoc />
 		public virtual Task ModifyCommandsAsync(IServiceProvider services, List<ReflectionCommand> commands)
 		{
 			Debug.WriteLine($"{GetType().Name}: {commands.Count} command(s) created.");

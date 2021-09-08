@@ -11,6 +11,9 @@ using YACCS.Results;
 
 namespace YACCS.Commands
 {
+	/// <summary>
+	/// Utilities for command services.
+	/// </summary>
 	public static class CommandServiceUtils
 	{
 		public const char QUOTE = '"';

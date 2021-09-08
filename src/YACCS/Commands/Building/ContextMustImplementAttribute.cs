@@ -20,6 +20,7 @@ namespace YACCS.Commands.Building
 			Types = types;
 		}
 
+		/// <inheritdoc />
 		public bool DoesTypeSatisfy(Type type)
 		{
 			foreach (var constraint in Types)

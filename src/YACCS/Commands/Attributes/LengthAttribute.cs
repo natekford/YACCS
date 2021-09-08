@@ -7,26 +7,43 @@ using YACCS.Localization;
 
 namespace YACCS.Commands.Attributes
 {
+	/// <inheritdoc cref="ILengthAttribute" />
 	[AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
 	public class LengthAttribute : Attribute, ILengthAttribute, IRuntimeFormattableAttribute
 	{
+		/// <inheritdoc />
 		public int? Length { get; }
 
+		/// <summary>
+		/// Creates a new <see cref="LengthAttribute"/>
+		/// with <see cref="Length"/> set to <see langword="null"/>.
+		/// </summary>
 		public LengthAttribute()
 		{
 			Length = null;
 		}
 
+		/// <summary>
+		/// Creates a new <see cref="LengthAttribute"/>
+		/// with <see cref="Length"/> set to <paramref name="length"/>.
+		/// </summary>
+		/// <param name="length"></param>
 		public LengthAttribute(int length)
 		{
 			Length = length;
 		}
 
+		/// <summary>
+		/// Creates a new <see cref="LengthAttribute"/>
+		/// with <see cref="Length"/> set to <paramref name="length"/>.
+		/// </summary>
+		/// <param name="length"></param>
 		public LengthAttribute(int? length)
 		{
 			Length = length;
 		}
 
+		/// <inheritdoc />
 		public virtual ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
 		{
 			var value = Length ?? (object?)Keys.Remainder;

@@ -11,7 +11,7 @@ namespace YACCS.Commands
 	{
 		protected IAsyncEvent<CommandExecutedEventArgs> CommandExecutedEvent { get; set; }
 
-		public event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted
+		public event Func<CommandExecutedEventArgs, Task> CommandExecuted
 		{
 			add => CommandExecutedEvent.Add(value);
 			remove => CommandExecutedEvent.Remove(value);

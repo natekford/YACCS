@@ -2,6 +2,9 @@
 
 namespace YACCS.Commands.Models
 {
+	/// <summary>
+	/// Exposes the attributes an entity contains.
+	/// </summary>
 	public interface IQueryableEntity
 	{
 		/// <summary>

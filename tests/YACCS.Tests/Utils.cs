@@ -12,7 +12,7 @@ namespace YACCS.Tests
 	{
 		public static async Task AddRangeAsync(
 			this CommandServiceBase commandService,
-			IAsyncEnumerable<CreatedCommand> enumerable)
+			IAsyncEnumerable<ReflectedCommand> enumerable)
 		{
 			await foreach (var (_, command) in enumerable)
 			{

@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-using YACCS.Commands;
+﻿using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Building;
 using YACCS.Commands.Models;

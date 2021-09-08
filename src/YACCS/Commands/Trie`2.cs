@@ -6,15 +6,20 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace YACCS.Commands
 {
+	/// <inheritdoc cref="ITrie{TKey, TValue}" />
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public abstract class Trie<TKey, TValue> : ITrie<TKey, TValue>
 	{
 		private readonly ConcurrentDictionary<TValue, byte> _Items;
 		private readonly Node _Root;
 
+		/// <inheritdoc />
 		public bool IsReadOnly => false;
+		/// <inheritdoc />
 		public IReadOnlyCollection<TValue> Items => (IReadOnlyCollection<TValue>)_Items.Keys;
+		/// <inheritdoc />
 		public INode<TKey, TValue> Root => _Root;
+		/// <inheritdoc />
 		public int Count => _Items.Count;
 		private string DebuggerDisplay => $"Count = {Count}";
 
@@ -24,14 +29,14 @@ namespace YACCS.Commands
 			_Root = new(default!, null, comparer);
 		}
 
-		public virtual int Add(TValue item)
+		/// <inheritdoc />
+		public virtual void Add(TValue item)
 		{
 			if (!_Items.TryAdd(item, 0))
 			{
-				return 0;
+				return;
 			}
 
-			var added = 0;
 			foreach (var path in GetPaths(item))
 			{
 				var node = _Root;
@@ -40,23 +45,22 @@ namespace YACCS.Commands
 					node = node.GetOrAdd(key);
 				}
 				// Node will always not be null because we add any missing paths
-				if (node.Add(item))
-				{
-					++added;
-				}
+				node.Add(item);
 			}
-			return added;
 		}
 
+		/// <inheritdoc />
 		public void Clear()
 		{
 			_Root.Clear();
 			_Items.Clear();
 		}
 
+		/// <inheritdoc />
 		public bool Contains(TValue item)
 			=> _Items.ContainsKey(item);
 
+		/// <inheritdoc />
 		public void CopyTo(TValue[] array, int arrayIndex)
 		{
 			foreach (var command in this)
@@ -65,17 +69,19 @@ namespace YACCS.Commands
 			}
 		}
 
+		/// <inheritdoc />
 		public IEnumerator<TValue> GetEnumerator()
 			=> Items.GetEnumerator();
 
-		public int Remove(TValue item)
+		/// <inheritdoc />
+		public bool Remove(TValue item)
 		{
 			if (!_Items.TryRemove(item, out _))
 			{
-				return 0;
+				return false;
 			}
 
-			var removed = 0;
+			var removed = false;
 			foreach (var path in GetPaths(item))
 			{
 				var node = _Root;
@@ -89,20 +95,14 @@ namespace YACCS.Commands
 				// Node will only not be null if the path is successful
 				if (node?.Remove(item) == true)
 				{
-					++removed;
+					removed = true;
 				}
 			}
 			return removed;
 		}
 
-		void ICollection<TValue>.Add(TValue item)
-			=> Add(item);
-
 		IEnumerator IEnumerable.GetEnumerator()
 			=> GetEnumerator();
-
-		bool ICollection<TValue>.Remove(TValue item)
-			=> Remove(item) > 0;
 
 		protected abstract IEnumerable<IReadOnlyList<TKey>> GetPaths(TValue item);
 
