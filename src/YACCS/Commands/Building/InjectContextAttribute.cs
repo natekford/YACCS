@@ -6,6 +6,7 @@ namespace YACCS.Commands.Building
 	[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
 	public class InjectContextAttribute : InjectableAttribute
 	{
+		/// <inheritdoc />
 		public override Expression CreateInjection(
 			ParameterExpression context,
 			MemberExpression member)

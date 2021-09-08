@@ -10,6 +10,7 @@ namespace YACCS.Commands.Building
 		private static readonly MethodInfo _GetService = typeof(IServiceProvider)
 			.GetMethod(nameof(IServiceProvider.GetService));
 
+		/// <inheritdoc />
 		public override Expression CreateInjection(
 			ParameterExpression context,
 			MemberExpression member)

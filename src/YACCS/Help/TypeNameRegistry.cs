@@ -34,8 +34,10 @@ namespace YACCS.Help
 			};
 		});
 
+		/// <inheritdoc />
 		protected override IDictionary<Type, string> Items => Localized.GetCurrent();
 
+		/// <inheritdoc />
 		public override bool TryGetValue(Type key, [NotNullWhen(true)] out string value)
 		{
 			if (Items.TryGetValue(key, out value))
@@ -61,12 +63,22 @@ namespace YACCS.Help
 			return true;
 		}
 
+		/// <summary>
+		/// Creates a <see cref="string"/> representing <paramref name="type"/> as an enumerable.
+		/// </summary>
+		/// <param name="type">The type to create a list name for.</param>
+		/// <returns>A name for an enumerable of <paramref name="type"/>.</returns>
 		protected virtual string GenerateListName(Type type)
 		{
 			var name = Items.TryGetValue(type, out var item) ? item : type.Name;
 			return string.Format(Localization.Keys.ListNameFormat, name);
 		}
 
+		/// <summary>
+		/// Creates a <see cref="string"/> representing <paramref name="type"/> as a nullable.
+		/// </summary>
+		/// <param name="type">The type to create a nullable name for.</param>
+		/// <returns>The name for a nullable of <see cref="Type"/>.</returns>
 		protected virtual string GenerateNullableName(Type type)
 		{
 			var name = Items.TryGetValue(type, out var item) ? item : type.Name;

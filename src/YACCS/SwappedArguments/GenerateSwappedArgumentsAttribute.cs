@@ -12,9 +12,10 @@ namespace YACCS.SwappedArguments
 	{
 		public int PriorityDifference { get; set; } = -1;
 
+		/// <inheritdoc />
 		public ValueTask<IEnumerable<IImmutableCommand>> GenerateCommandsAsync(
 			IServiceProvider services,
-			IImmutableCommand original)
-			=> new(original.GenerateSwappedArgumentsVersions(PriorityDifference));
+			IImmutableCommand source)
+			=> new(source.GenerateSwappedArgumentsVersions(PriorityDifference));
 	}
 }

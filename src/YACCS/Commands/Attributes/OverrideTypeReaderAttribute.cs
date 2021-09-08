@@ -15,7 +15,7 @@ namespace YACCS.Commands.Attributes
 		/// Creates a new <see cref="OverrideTypeReaderAttribute"/> and sets
 		/// <see cref="Reader"/> to an instance of <paramref name="type"/>.
 		/// </summary>
-		/// <param name="type"></param>
+		/// <param name="type">The type of reader to use.</param>
 		public OverrideTypeReaderAttribute(Type type)
 		{
 			Reader = type.CreateInstance<ITypeReader>();

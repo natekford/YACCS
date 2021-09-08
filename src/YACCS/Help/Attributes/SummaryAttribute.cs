@@ -10,10 +10,11 @@ namespace YACCS.Help.Attributes
 		public virtual string Summary { get; }
 
 		/// <summary>
-		/// Creates a new <see cref="Summary"/> and sets <see cref="Summary"/>
-		/// to <paramref name="summary"/>.
+		/// Creates a new <see cref="Summary"/>.
 		/// </summary>
-		/// <param name="summary"></param>
+		/// <param name="summary">
+		/// <inheritdoc cref="Summary" path="/summary"/>
+		/// </param>
 		public SummaryAttribute(string summary)
 		{
 			Summary = summary;

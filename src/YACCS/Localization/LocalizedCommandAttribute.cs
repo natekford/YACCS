@@ -6,10 +6,12 @@ using YACCS.Commands.Attributes;
 
 namespace YACCS.Localization
 {
+	/// <inheritdoc />
 	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
 	public class LocalizedCommandAttribute : CommandAttribute
 	{
 		public IReadOnlyList<string> Keys { get; }
+		/// <inheritdoc />
 		public override IReadOnlyList<string> Names
 		{
 			get
@@ -28,6 +30,10 @@ namespace YACCS.Localization
 			}
 		}
 
+		/// <summary>
+		/// Creates a new <see cref="LocalizedCommandAttribute"/>.
+		/// </summary>
+		/// <param name="keys"></param>
 		public LocalizedCommandAttribute(params string[] keys) : this(keys.ToImmutableArray())
 		{
 		}

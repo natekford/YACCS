@@ -184,17 +184,19 @@ namespace YACCS.Commands
 			/// </summary>
 			public IImmutableCommand Command { get; }
 			/// <summary>
-			/// The <see cref="Type"/> that defined <see cref="Command"/>.
+			/// The <see cref="Type"/> that defined this command.
 			/// </summary>
 			public Type DefiningType { get; }
 
 			/// <summary>
-			/// Creates a new <see cref="ReflectedCommand"/> and sets
-			/// <see cref="Command"/> to <paramref name="command"/> and
-			/// <see cref="DefiningType"/> to <paramref name="definingType"/>.
+			/// Creates a new <see cref="ReflectedCommand"/>.
 			/// </summary>
-			/// <param name="definingType"></param>
-			/// <param name="command"></param>
+			/// <param name="definingType">
+			/// <inheritdoc cref="DefiningType" path="/summary"/>
+			/// </param>
+			/// <param name="command">
+			/// <inheritdoc cref="Command" path="/summary"/>
+			/// </param>
 			public ReflectedCommand(Type definingType, IImmutableCommand command)
 			{
 				Command = command;

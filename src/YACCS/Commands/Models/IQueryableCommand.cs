@@ -15,7 +15,7 @@ namespace YACCS.Commands.Models
 		/// <summary>
 		/// The full paths that lead to this command.
 		/// </summary>
-		IEnumerable<IReadOnlyList<string>> Names { get; }
+		IEnumerable<IReadOnlyList<string>> Paths { get; }
 		/// <summary>
 		/// The parameters this command requires.
 		/// </summary>

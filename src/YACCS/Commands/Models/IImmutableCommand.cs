@@ -24,8 +24,8 @@ namespace YACCS.Commands.Models
 		/// The minimum possible length for all the parameters added together.
 		/// </summary>
 		int MinLength { get; }
-		/// <inheritdoc cref="IQueryableCommand.Names"/>
-		new IReadOnlyList<IReadOnlyList<string>> Names { get; }
+		/// <inheritdoc cref="IQueryableCommand.Paths"/>
+		new IReadOnlyList<IReadOnlyList<string>> Paths { get; }
 		/// <inheritdoc cref="IQueryableCommand.Parameters"/>
 		new IReadOnlyList<IImmutableParameter> Parameters { get; }
 		/// <summary>

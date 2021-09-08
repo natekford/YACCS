@@ -169,7 +169,7 @@ namespace YACCS.Commands
 
 		internal static string FormatForDebuggerDisplay(this IQueryableCommand item)
 		{
-			var name = item.Names?.FirstOrDefault()?.ToString() ?? "NULL";
+			var name = item.Paths?.FirstOrDefault()?.ToString() ?? "NULL";
 			return $"Name = {name}, Parameter Count = {item.Parameters.Count}";
 		}
 

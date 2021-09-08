@@ -8,7 +8,7 @@ namespace YACCS.Commands
 	public class CommandServiceConfig
 	{
 		/// <summary>
-		/// An immutable singleton instance of <see cref="ICommandServiceConfig"/>.
+		/// A singleton instance of <see cref="ICommandServiceConfig"/>.
 		/// </summary>
 		public static ICommandServiceConfig Instance { get; }
 			= new CommandServiceConfig().ToImmutable();

@@ -23,13 +23,13 @@ namespace YACCS.Commands.Models
 		/// <inheritdoc />
 		public Type ContextType { get; protected set; }
 		/// <inheritdoc />
-		public IList<IReadOnlyList<string>> Names { get; set; }
-		/// <inheritdoc />
 		public IReadOnlyList<IParameter> Parameters { get; protected set; }
 		/// <inheritdoc />
+		public IList<IReadOnlyList<string>> Paths { get; set; }
+		/// <inheritdoc />
 		public IImmutableCommand? Source { get; protected set; }
-		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
 		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
+		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Paths => Paths;
 		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 		/// <summary>
@@ -43,7 +43,7 @@ namespace YACCS.Commands.Models
 		{
 			Source = source;
 			ContextType = contextType;
-			Names = new List<IReadOnlyList<string>>();
+			Paths = new List<IReadOnlyList<string>>();
 			Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IParameter>();
 		}
 
@@ -92,9 +92,9 @@ namespace YACCS.Commands.Models
 			/// <inheritdoc />
 			public int MinLength { get; }
 			/// <inheritdoc />
-			public IReadOnlyList<IReadOnlyList<string>> Names { get; }
-			/// <inheritdoc />
 			public IReadOnlyList<IImmutableParameter> Parameters { get; }
+			/// <inheritdoc />
+			public IReadOnlyList<IReadOnlyList<string>> Paths { get; }
 			/// <inheritdoc />
 			public IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions { get; }
 			/// <inheritdoc />
@@ -104,8 +104,8 @@ namespace YACCS.Commands.Models
 			/// <inheritdoc />
 			public IImmutableCommand? Source { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
-			IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
 			IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
+			IEnumerable<IReadOnlyList<string>> IQueryableCommand.Paths => Paths;
 			/// <summary>
 			/// The return type for this command.
 			/// </summary>
@@ -113,11 +113,10 @@ namespace YACCS.Commands.Models
 			private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 			/// <summary>
-			/// Creates a new <see cref="ImmutableCommand"/> and sets various properties
-			/// with the values of <see cref="EntityBase.Attributes"/> from <paramref name="mutable"/>.
+			/// Creates a new <see cref="ImmutableCommand"/>.
 			/// </summary>
-			/// <param name="mutable"></param>
-			/// <param name="returnType"></param>
+			/// <param name="mutable">The mutable instance of this command.</param>
+			/// <param name="returnType">The return type of the object being wrapped.</param>
 			protected ImmutableCommand(Command mutable, Type returnType)
 			{
 				ReturnType = returnType;
@@ -125,12 +124,12 @@ namespace YACCS.Commands.Models
 				Source = mutable.Source;
 				_TaskResult = new(() => ReflectionUtils.CreateDelegate(TaskResult, "task result"));
 
-				var names = ImmutableArray.CreateBuilder<IReadOnlyList<string>>(mutable.Names.Count);
-				foreach (var name in mutable.Names)
+				var names = ImmutableArray.CreateBuilder<IReadOnlyList<string>>(mutable.Paths.Count);
+				foreach (var name in mutable.Paths)
 				{
-					names.Add(new ImmutableName(name));
+					names.Add(new ImmutablePath(name));
 				}
-				Names = names.MoveToImmutable();
+				Paths = names.MoveToImmutable();
 
 				var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(mutable.Parameters.Count);
 				for (var i = 0; i < mutable.Parameters.Count; ++i)
@@ -148,7 +147,7 @@ namespace YACCS.Commands.Models
 						}
 
 						var orig = immutable.OriginalParameterName;
-						var name = Names?.FirstOrDefault();
+						var name = Paths?.FirstOrDefault();
 						throw new InvalidOperationException($"'{orig}' from '{name}' " +
 							"must be the final parameter because it is a remainder.");
 					}

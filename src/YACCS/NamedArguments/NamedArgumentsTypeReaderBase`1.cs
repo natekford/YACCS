@@ -23,6 +23,7 @@ namespace YACCS.NamedArguments
 		protected char[] TrimEnd { get; set; } = new[] { ':' };
 		protected char[] TrimStart { get; set; } = new[] { '/', '-' };
 
+		/// <inheritdoc />
 		public override async ITask<ITypeReaderResult<T>> ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)

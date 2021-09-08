@@ -13,20 +13,18 @@ namespace YACCS.Commands.Attributes
 		/// <inheritdoc />
 		public virtual IReadOnlyList<string> Names { get; }
 
-		/// <summary>
-		/// Creates a new <see cref="CommandAttribute"/> and sets <see cref="Names"/>
-		/// to <paramref name="names"/>.
-		/// </summary>
-		/// <param name="names"></param>
+		/// <inheritdoc cref="CommandAttribute()"/>
+		/// <param name="names">
+		/// <inheritdoc cref="Names" path="/summary"/>
+		/// </param>
 		public CommandAttribute(params string[] names) : this(names.ToImmutableArray())
 		{
 		}
 
-		/// <summary>
-		/// Creates a new <see cref="CommandAttribute"/> and sets <see cref="Names"/>
-		/// to <paramref name="names"/>.
-		/// </summary>
-		/// <param name="names"></param>
+		/// <inheritdoc cref="CommandAttribute()"/>
+		/// <param name="names">
+		/// <inheritdoc cref="Names" path="/summary"/>
+		/// </param>
 		public CommandAttribute(IReadOnlyList<string> names)
 		{
 			Names = names;

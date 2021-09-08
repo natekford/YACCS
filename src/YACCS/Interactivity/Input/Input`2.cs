@@ -15,12 +15,11 @@ namespace YACCS.Interactivity.Input
 		: Interactivity<TContext, TInput>, IInput<TContext, TInput>
 		where TContext : IContext
 	{
-		protected static IImmutableCommand EmptyCommand { get; }
-			= new DelegateCommand(
-				(Action)(static () => { }),
-				new[] { new ImmutableName(new[] { "Input" }) },
-				typeof(TContext)
-			).ToImmutable();
+		protected static IImmutableCommand EmptyCommand { get; } = new DelegateCommand(
+			static () => { },
+			new[] { new ImmutablePath(new[] { "Input" }) },
+			typeof(TContext)
+		).ToImmutable();
 
 		protected IReadOnlyDictionary<Type, ITypeReader> TypeReaders { get; }
 
@@ -73,22 +72,29 @@ namespace YACCS.Interactivity.Input
 
 		protected abstract string GetInputString(TInput input);
 
+		/// <inheritdoc cref="IImmutableParameter"/>
 		protected sealed class EmptyParameter<T> : IImmutableParameter
 		{
+			private readonly object[] _Attributes = Array.Empty<object>();
+			private readonly string _Name = $"Input_{typeof(T).FullName}";
+
+			/// <summary>
+			/// A singleton instance of <see cref="EmptyParameter{T}"/>.
+			/// </summary>
 			public static EmptyParameter<T> Instance { get; } = new();
 
-			public IReadOnlyList<object> Attributes { get; } = Array.Empty<object>();
-			public object? DefaultValue => null;
-			public bool HasDefaultValue => false;
-			public int? Length => int.MaxValue;
-			public string OriginalParameterName { get; } = $"Input_{typeof(T).FullName}";
-			public string ParameterName => OriginalParameterName;
-			public Type ParameterType { get; } = typeof(T);
-			public IReadOnlyDictionary<string, IReadOnlyList<IParameterPrecondition>> Preconditions { get; }
+			IReadOnlyList<object> IImmutableEntityBase.Attributes => _Attributes;
+			IEnumerable<object> IQueryableEntity.Attributes => _Attributes;
+			object? IImmutableParameter.DefaultValue => null;
+			bool IImmutableParameter.HasDefaultValue => false;
+			int? IImmutableParameter.Length => int.MaxValue;
+			string IQueryableParameter.OriginalParameterName => _Name;
+			string IImmutableParameter.ParameterName => _Name;
+			Type IQueryableParameter.ParameterType { get; } = typeof(T);
+			IReadOnlyDictionary<string, IReadOnlyList<IParameterPrecondition>> IImmutableParameter.Preconditions { get; }
 				= ImmutableDictionary.Create<string, IReadOnlyList<IParameterPrecondition>>();
-			public string PrimaryId { get; } = typeof(T).FullName;
-			public ITypeReader? TypeReader => null;
-			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
+			string IImmutableEntityBase.PrimaryId { get; } = typeof(T).FullName;
+			ITypeReader? IImmutableParameter.TypeReader => null;
 		}
 	}
 }

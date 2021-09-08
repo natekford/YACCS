@@ -12,10 +12,12 @@ using YACCS.Results;
 namespace YACCS.TypeReaders
 {
 	/// <summary>
-	/// Gets commands which have all the supplied categories. Order is NOT guaranteed.
+	/// Parses commands which have all the supplied categories.
 	/// </summary>
+	/// <remarks>Order is NOT guaranteed</remarks>
 	public class CommandsCategoryTypeReader : TypeReader<IContext, IReadOnlyCollection<IImmutableCommand>>
 	{
+		/// <inheritdoc />
 		public override ITask<ITypeReaderResult<IReadOnlyCollection<IImmutableCommand>>> ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)

@@ -13,6 +13,7 @@ namespace YACCS.NamedArguments
 	{
 		protected abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
+		/// <inheritdoc />
 		public override async ValueTask<IResult> CheckAsync(
 			CommandMeta meta,
 			IContext context,

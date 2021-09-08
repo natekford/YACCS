@@ -8,6 +8,8 @@ namespace YACCS.Commands.Attributes
 {
 	public interface ICommandGeneratorAttribute
 	{
-		ValueTask<IEnumerable<IImmutableCommand>> GenerateCommandsAsync(IServiceProvider services, IImmutableCommand original);
+		ValueTask<IEnumerable<IImmutableCommand>> GenerateCommandsAsync(
+			IServiceProvider services,
+			IImmutableCommand source);
 	}
 }

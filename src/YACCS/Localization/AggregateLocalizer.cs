@@ -4,14 +4,27 @@ using System.Globalization;
 
 namespace YACCS.Localization
 {
+	/// <summary>
+	/// Combines multiple <see cref="ILocalizer"/> into one.
+	/// </summary>
 	public class AggregateLocalizer : ILocalizer
 	{
 		private readonly List<ILocalizer> _NestedLocalizers = new();
 
+		/// <summary>
+		/// Whether or not there are any localizers inside this one.
+		/// </summary>
 		public bool IsEmpty => _NestedLocalizers.Count == 0;
 
+		/// <summary>
+		/// Fires when a key isn't found in any of the localizers.
+		/// </summary>
 		public event Action<string, CultureInfo>? KeyNotFound;
 
+		/// <summary>
+		/// Adds <paramref name="localizer"/> to the end of the list.
+		/// </summary>
+		/// <param name="localizer">The localizer to add.</param>
 		public void Append(ILocalizer localizer)
 		{
 			lock (_NestedLocalizers)
@@ -20,6 +33,7 @@ namespace YACCS.Localization
 			}
 		}
 
+		/// <inheritdoc />
 		public string? Get(string key, CultureInfo? culture = null)
 		{
 			culture ??= CultureInfo.CurrentUICulture;
@@ -39,6 +53,10 @@ namespace YACCS.Localization
 			return null;
 		}
 
+		/// <summary>
+		/// Adds <paramref name="localizer"/> to the beginning of the list.
+		/// </summary>
+		/// <param name="localizer">The localizer to add.</param>
 		public void Prepend(ILocalizer localizer)
 		{
 			lock (_NestedLocalizers)

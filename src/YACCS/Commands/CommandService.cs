@@ -26,6 +26,7 @@ namespace YACCS.Commands
 			CommandExecutedEvent = new AsyncEvent<CommandExecutedEventArgs>();
 		}
 
+		/// <inheritdoc />
 		protected override Task OnCommandExecutedAsync(CommandExecutedEventArgs e)
 			=> CommandExecutedEvent.InvokeAsync(e);
 	}

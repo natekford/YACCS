@@ -14,14 +14,17 @@ namespace YACCS.Tests.Commands
 	public class CommandTrie_Tests
 	{
 		private const string DUPE_ID = "dupe_id";
-		private readonly CommandTrie _Trie
-			= new(new TypeReaderRegistry(), CommandServiceConfig.Instance);
+		private readonly CommandTrie _Trie = new(
+			new TypeReaderRegistry(),
+			CommandServiceConfig.Instance.Separator,
+			CommandServiceConfig.Instance.CommandNameComparer
+		);
 
 		[TestMethod]
 		public void AddAndRemove_Test()
 		{
 			var c1 = FakeDelegateCommand.New()
-				.AddName(new[] { "1" })
+				.AddPath(new[] { "1" })
 				.ToImmutable();
 			_Trie.Add(c1);
 			Assert.AreEqual(1, _Trie.Count);
@@ -30,8 +33,8 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(1, _Trie.Root["1"].Items.Count);
 
 			var c2 = FakeDelegateCommand.New()
-				.AddName(new[] { "2" })
-				.AddName(new[] { "3" })
+				.AddPath(new[] { "2" })
+				.AddPath(new[] { "3" })
 				.ToImmutable();
 			_Trie.Add(c2);
 			Assert.AreEqual(2, _Trie.Count);
@@ -42,9 +45,9 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(1, _Trie.Root["3"].Items.Count);
 
 			var c3 = FakeDelegateCommand.New()
-				.AddName(new[] { "4", "1" })
-				.AddName(new[] { "4", "2" })
-				.AddName(new[] { "4", "3" })
+				.AddPath(new[] { "4", "1" })
+				.AddPath(new[] { "4", "2" })
+				.AddPath(new[] { "4", "3" })
 				.ToImmutable();
 			_Trie.Add(c3);
 			Assert.AreEqual(3, _Trie.Count);
@@ -56,7 +59,7 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(1, _Trie.Root["4"]["3"].GetAllDistinctItems().Count);
 
 			var c4 = FakeDelegateCommand.New()
-				.AddName(new[] { "4", "1" })
+				.AddPath(new[] { "4", "1" })
 				.ToImmutable();
 			_Trie.Add(c4);
 			Assert.AreEqual(4, _Trie.Count);
@@ -69,7 +72,7 @@ namespace YACCS.Tests.Commands
 
 			var c5 = FakeDelegateCommand.New()
 				.AddAttribute(new IdAttribute(DUPE_ID))
-				.AddName(new[] { "5" })
+				.AddPath(new[] { "5" })
 				.ToImmutable();
 			_Trie.Add(c5);
 			Assert.AreEqual(5, _Trie.Count);
@@ -78,7 +81,7 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(1, _Trie.Root["5"].Items.Count);
 
 			var c6 = FakeDelegateCommand.New()
-				.AddName(new[] { "4" })
+				.AddPath(new[] { "4" })
 				.ToImmutable();
 			Assert.IsTrue(_Trie.Remove(c4));
 			_Trie.Add(c6);
@@ -134,7 +137,7 @@ namespace YACCS.Tests.Commands
 			const int COUNT = 100000;
 			for (var i = 0; i < COUNT; ++i)
 			{
-				command.AddName(new[] { i.ToString() });
+				command.AddPath(new[] { i.ToString() });
 			}
 			var immutable = command.ToImmutable();
 
@@ -148,7 +151,7 @@ namespace YACCS.Tests.Commands
 		public void Duplicate_Test()
 		{
 			var c1 = FakeDelegateCommand.New()
-				.AddName(new[] { "a" })
+				.AddPath(new[] { "a" })
 				.AddAttribute(new IdAttribute(DUPE_ID))
 				.ToImmutable();
 			_Trie.Add(c1);
@@ -157,7 +160,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsTrue(_Trie.Contains(c1));
 
 			var c2 = FakeDelegateCommand.New()
-				.AddName(new[] { "a" })
+				.AddPath(new[] { "a" })
 				.AddAttribute(new IdAttribute(DUPE_ID))
 				.ToImmutable();
 			Assert.IsFalse(_Trie.Contains(c2));
@@ -165,7 +168,7 @@ namespace YACCS.Tests.Commands
 			Assert.IsTrue(_Trie.Contains(c2));
 
 			var c3 = FakeDelegateCommand.New()
-				.AddName(new[] { "b" })
+				.AddPath(new[] { "b" })
 				.AddAttribute(new IdAttribute(DUPE_ID))
 				.ToImmutable();
 			_Trie.Add(c3);
@@ -207,7 +210,7 @@ namespace YACCS.Tests.Commands
 		public void NameWithSeparator_Test()
 		{
 			var command = FakeDelegateCommand.New()
-				.AddName(new[] { "asdf asdf", "bob" })
+				.AddPath(new[] { "asdf asdf", "bob" })
 				.ToImmutable();
 			Assert.ThrowsException<ArgumentException>(() =>
 			{

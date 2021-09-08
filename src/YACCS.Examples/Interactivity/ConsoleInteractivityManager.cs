@@ -6,14 +6,13 @@ namespace YACCS.Examples.Interactivity
 	public sealed class ConsoleInteractivityManager
 	{
 		private readonly ConsoleHandler _Console;
-		private readonly Dictionary<Guid, CancellationTokenSource> _Input = new();
 
 		public ConsoleInteractivityManager(ConsoleHandler console)
 		{
 			_Console = console;
 		}
 
-		public async Task SubscribeAsync(ConsoleContext context, OnInput<string> onInput)
+		public async Task<IAsyncDisposable> SubscribeAsync(OnInput<string> onInput)
 		{
 			// Lock both input and output
 			// Input because we're using console input
@@ -21,8 +20,6 @@ namespace YACCS.Examples.Interactivity
 			await _Console.WaitForBothIOLocksAsync().ConfigureAwait(false);
 
 			var source = new CancellationTokenSource();
-			_Input.Add(context.Id, source);
-
 			// Run in the background, treat this like an event
 			_ = Task.Run(async () =>
 			{
@@ -51,17 +48,28 @@ namespace YACCS.Examples.Interactivity
 					_Console.WriteResult(result);
 				}
 			}, source.Token);
+
+			return new ConsoleSubscription(_Console, source);
 		}
 
-		public Task UnsubscribeAsync(ConsoleContext context, OnInput<string> _)
+		private sealed class ConsoleSubscription : IAsyncDisposable
 		{
-			// Only release input lock since output lock gets released when command is done
-			_Console.ReleaseInputLock();
-			if (_Input.Remove(context.Id, out var token))
+			private readonly ConsoleHandler _Console;
+			private readonly CancellationTokenSource _Source;
+
+			public ConsoleSubscription(ConsoleHandler console, CancellationTokenSource source)
 			{
-				token.Cancel();
+				_Console = console;
+				_Source = source;
 			}
-			return Task.CompletedTask;
+
+			public ValueTask DisposeAsync()
+			{
+				// Only release input lock since output lock gets released when command is done
+				_Console.ReleaseInputLock();
+				_Source.Cancel();
+				return new();
+			}
 		}
 	}
 }

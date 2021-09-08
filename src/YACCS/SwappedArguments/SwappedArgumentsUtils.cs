@@ -25,7 +25,7 @@ namespace YACCS.SwappedArguments
 				{
 					throw new InvalidOperationException(
 						$"Cannot swap the parameter '{parameter.OriginalParameterName}' " +
-						$"from '{command.Names?.FirstOrDefault()}' because it is a remainder.");
+						$"from '{command.Paths?.FirstOrDefault()}' because it is a remainder.");
 				}
 				indices.Add(i);
 			}

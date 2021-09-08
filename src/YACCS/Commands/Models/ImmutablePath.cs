@@ -7,18 +7,28 @@ using YACCS.Localization;
 
 namespace YACCS.Commands.Models
 {
+	/// <summary>
+	/// An immutable list of strings which supports localization
+	/// through <see cref="Localize.This(string, string?)"/>.
+	/// </summary>
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-	public sealed class ImmutableName : IReadOnlyList<string>
+	public sealed class ImmutablePath : IReadOnlyList<string>
 	{
 		private readonly ImmutableArray<string> _Keys;
+		/// <inheritdoc />
 		public int Count => _Keys.Length;
 		private string DebuggerDisplay => $"Name = {ToString()}, Count = {_Keys.Length}";
 
+		/// <inheritdoc />
 		public string this[int index] => Localize.This(_Keys[index]);
 
-		public ImmutableName(IEnumerable<string> keys)
+		/// <summary>
+		/// Creates a new <see cref="ImmutablePath"/>.
+		/// </summary>
+		/// <param name="keys">The values to use as parts of the name.</param>
+		public ImmutablePath(IEnumerable<string> keys)
 		{
-			if (keys is ImmutableName name)
+			if (keys is ImmutablePath name)
 			{
 				_Keys = name._Keys;
 			}
@@ -28,6 +38,7 @@ namespace YACCS.Commands.Models
 			}
 		}
 
+		/// <inheritdoc />
 		public IEnumerator<string> GetEnumerator()
 		{
 			foreach (var key in _Keys)
@@ -36,6 +47,7 @@ namespace YACCS.Commands.Models
 			}
 		}
 
+		/// <inheritdoc />
 		public override string ToString()
 			=> string.Join(CommandServiceUtils.SPACE, this);
 

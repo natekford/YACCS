@@ -71,6 +71,7 @@ namespace YACCS.TypeReaders
 			ValidatedRegister(typeof(T?), new NullableTypeReader<T>());
 		}
 
+		/// <inheritdoc />
 		public override bool TryGetValue(Type type, [NotNullWhen(true)] out ITypeReader reader)
 		{
 			if (Items.TryGetValue(type, out reader))

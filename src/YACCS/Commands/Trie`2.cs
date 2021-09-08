@@ -23,6 +23,10 @@ namespace YACCS.Commands
 		public int Count => _Items.Count;
 		private string DebuggerDisplay => $"Count = {Count}";
 
+		/// <summary>
+		/// Creates a new <see cref="Trie{TKey, TValue}"/>.
+		/// </summary>
+		/// <param name="comparer">The comparer to use when comparing keys.</param>
 		protected Trie(IEqualityComparer<TKey> comparer)
 		{
 			_Items = new();
@@ -104,6 +108,11 @@ namespace YACCS.Commands
 		IEnumerator IEnumerable.GetEnumerator()
 			=> GetEnumerator();
 
+		/// <summary>
+		/// Gets the paths to use as keys for <paramref name="item"/>.
+		/// </summary>
+		/// <param name="item">The item to get paths for.</param>
+		/// <returns>An enumerable of paths.</returns>
 		protected abstract IEnumerable<IReadOnlyList<TKey>> GetPaths(TValue item);
 
 		[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]

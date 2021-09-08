@@ -31,7 +31,7 @@ namespace YACCS.Tests.Commands.Linq
 			}
 
 			{
-				var command = new DelegateCommand(@delegate, Array.Empty<ImmutableName>());
+				var command = new DelegateCommand(@delegate, Array.Empty<ImmutablePath>());
 				commands.Add(command.ToImmutable());
 
 				var result = commands.ByDelegate(@delegate, includeMethod: false).ToArray();

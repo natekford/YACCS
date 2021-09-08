@@ -12,6 +12,9 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Commands
 {
+	/// <summary>
+	/// The base class for a command service.
+	/// </summary>
 	public abstract class CommandServiceBase : ICommandService
 	{
 		public virtual ITrie<string, IImmutableCommand> Commands { get; }
@@ -28,9 +31,10 @@ namespace YACCS.Commands
 			Config = config;
 			Readers = readers;
 			Handler = handler;
-			Commands = new CommandTrie(readers, config);
+			Commands = new CommandTrie(readers, config.Separator, config.CommandNameComparer);
 		}
 
+		/// <inheritdoc />
 		public virtual ValueTask<ICommandResult> ExecuteAsync(IContext context, string input)
 		{
 			if (!Handler.TrySplit(input, out var args))
@@ -44,6 +48,7 @@ namespace YACCS.Commands
 			return ExecuteInternalAsync(context, args);
 		}
 
+		/// <inheritdoc />
 		public virtual IReadOnlyCollection<IImmutableCommand> FindByPath(ReadOnlyMemory<string> input)
 		{
 			var node = Commands.Root;
@@ -87,7 +92,7 @@ namespace YACCS.Commands
 					{
 						return CommandScore.MultiMatch;
 					}
-					best = Max(best, score);
+					best = GetBest(best, score);
 				}
 			}
 
@@ -226,6 +231,9 @@ namespace YACCS.Commands
 			return best;
 		}
 
+		protected virtual CommandScore? GetBest(CommandScore? a, CommandScore? b)
+			=> a > b ? a : b;
+
 		protected virtual async ValueTask<CommandExecutedEventArgs> HandleCommandAsync(
 			IContext context,
 			IImmutableCommand command,
@@ -292,9 +300,6 @@ namespace YACCS.Commands
 				result
 			);
 		}
-
-		protected virtual CommandScore? Max(CommandScore? a, CommandScore? b)
-			=> CommandScore.Max(a, b);
 
 		protected abstract Task OnCommandExecutedAsync(CommandExecutedEventArgs e);
 	}

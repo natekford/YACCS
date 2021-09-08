@@ -23,11 +23,7 @@ namespace YACCS.Commands.Attributes
 			Length = null;
 		}
 
-		/// <summary>
-		/// Creates a new <see cref="LengthAttribute"/>
-		/// with <see cref="Length"/> set to <paramref name="length"/>.
-		/// </summary>
-		/// <param name="length"></param>
+		/// <inheritdoc cref="LengthAttribute(int?)"/>
 		public LengthAttribute(int length)
 		{
 			Length = length;
@@ -37,7 +33,9 @@ namespace YACCS.Commands.Attributes
 		/// Creates a new <see cref="LengthAttribute"/>
 		/// with <see cref="Length"/> set to <paramref name="length"/>.
 		/// </summary>
-		/// <param name="length"></param>
+		/// <param name="length">
+		/// <inheritdoc cref="Length" path="/summary"/>
+		/// </param>
 		public LengthAttribute(int? length)
 		{
 			Length = length;

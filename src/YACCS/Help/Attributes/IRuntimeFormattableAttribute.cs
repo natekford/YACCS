@@ -15,7 +15,7 @@ namespace YACCS.Help.Attributes
 		/// Formats this attribute for being displayed to the end user.
 		/// </summary>
 		/// <param name="context">
-		/// The context used to get runtime items to format.
+		/// <inheritdoc cref="CommandGroup{TContext}.Context" path="/summary"/>
 		/// </param>
 		/// <param name="formatProvider">
 		/// The provider to format any <see cref="string.Format(IFormatProvider, string, object)"/>

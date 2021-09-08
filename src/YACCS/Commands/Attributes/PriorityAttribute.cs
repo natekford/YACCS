@@ -15,10 +15,11 @@ namespace YACCS.Commands.Attributes
 		public int Priority { get; }
 
 		/// <summary>
-		/// Creates a new <see cref="PriorityAttribute"/> and sets <see cref="Priority"/>
-		/// to <paramref name="priority"/>.
+		/// Creates a new <see cref="PriorityAttribute"/>.
 		/// </summary>
-		/// <param name="priority"></param>
+		/// <param name="priority">
+		/// <inheritdoc cref="Priority" path="/summary"/>
+		/// </param>
 		public PriorityAttribute(int priority)
 		{
 			Priority = priority;

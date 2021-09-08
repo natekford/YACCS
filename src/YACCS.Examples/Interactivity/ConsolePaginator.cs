@@ -1,5 +1,4 @@
-﻿
-using YACCS.Interactivity;
+﻿using YACCS.Interactivity;
 using YACCS.Interactivity.Pagination;
 
 namespace YACCS.Examples.Interactivity
@@ -19,10 +18,9 @@ namespace YACCS.Examples.Interactivity
 		protected override int GetNewPage(int current, int max, int diff)
 			=> diff;
 
-		protected override Task SubscribeAsync(ConsoleContext context, OnInput<string> onInput)
-			=> _Interactivity.SubscribeAsync(context, onInput);
-
-		protected override Task UnsubscribeAsync(ConsoleContext context, OnInput<string> onInput)
-			=> _Interactivity.UnsubscribeAsync(context, onInput);
+		protected override Task<IAsyncDisposable> SubscribeAsync(
+			ConsoleContext _,
+			OnInput<string> onInput)
+			=> _Interactivity.SubscribeAsync(onInput);
 	}
 }

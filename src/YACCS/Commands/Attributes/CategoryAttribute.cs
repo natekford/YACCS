@@ -10,10 +10,11 @@ namespace YACCS.Commands.Attributes
 		public virtual string Category { get; }
 
 		/// <summary>
-		/// Creates a new <see cref="CategoryAttribute"/> and sets <see cref="Category"/>
-		/// to <paramref name="category"/>.
+		/// Creates a new <see cref="CategoryAttribute"/>.
 		/// </summary>
-		/// <param name="category"></param>
+		/// <param name="category">
+		/// <inheritdoc cref="Category" path="/summary"/>
+		/// </param>
 		public CategoryAttribute(string category)
 		{
 			Category = category;

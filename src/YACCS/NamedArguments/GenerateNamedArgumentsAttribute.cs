@@ -15,17 +15,20 @@ namespace YACCS.NamedArguments
 		IParameterModifierAttribute,
 		ITypeReaderGeneratorAttribute
 	{
+		/// <inheritdoc />
 		public ValueTask<IEnumerable<IImmutableCommand>> GenerateCommandsAsync(
 			IServiceProvider services,
-			IImmutableCommand original)
-			=> new(new[] { new NamedArgumentsCommand(original) });
+			IImmutableCommand source)
+			=> new(new[] { new NamedArgumentsCommand(source) });
 
+		/// <inheritdoc />
 		public ITypeReader GenerateTypeReader(Type type)
 		{
 			var readerType = typeof(NamedArgumentsTypeReader<>).MakeGenericType(type);
 			return readerType.CreateInstance<ITypeReader>();
 		}
 
+		/// <inheritdoc />
 		public void ModifyParameter(IParameter parameter)
 		{
 			var pType = parameter.ParameterType;

@@ -15,10 +15,11 @@ namespace YACCS.Commands.Attributes
 		public virtual string Id { get; }
 
 		/// <summary>
-		/// Creates a new <see cref="IdAttribute"/> and sets <see cref="Id"/>
-		/// to <paramref name="id"/>.
+		/// Creates a new <see cref="IdAttribute"/>.
 		/// </summary>
-		/// <param name="id"></param>
+		/// <param name="id">
+		/// <inheritdoc cref="Id" path="/summary"/>
+		/// </param>
 		public IdAttribute(string id)
 		{
 			Id = id;

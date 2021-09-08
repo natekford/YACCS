@@ -7,37 +7,60 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Commands
 {
+	/// <summary>
+	/// A <see cref="Trie{TKey, TValue}"/> specifically for commands.
+	/// </summary>
 	public sealed class CommandTrie : Trie<string, IImmutableCommand>
 	{
-		private readonly ICommandServiceConfig _Config;
 		private readonly IReadOnlyDictionary<Type, ITypeReader> _Readers;
+		private readonly char _Separator;
 
+		/// <summary>
+		/// Creates a new <see cref="CommandTrie"/>.
+		/// </summary>
+		/// <param name="readers">
+		/// The type readers to search through when determining if each parameter has a
+		/// registered type reader.
+		/// </param>
+		/// <param name="separator">The character which cannot be directly in any path.</param>
+		/// <param name="comparer">The comparer to use when comparing keys.</param>
 		public CommandTrie(
 			IReadOnlyDictionary<Type, ITypeReader> readers,
-			ICommandServiceConfig config)
-			: base(config.CommandNameComparer)
+			char separator,
+			IEqualityComparer<string> comparer)
+			: base(comparer)
 		{
-			_Config = config;
+			_Separator = separator;
 			_Readers = readers;
 		}
 
 		/// <inheritdoc />
+		/// <exception cref="ArgumentException">
+		/// When <paramref name="item"/> contains a path with the separator character
+		/// - or -
+		/// When <paramref name="item"/> contains a parameter which does not have a value for
+		/// <see cref="IImmutableParameter.TypeReader"/> and <see cref="IQueryableParameter.ParameterType"/>
+		/// does not have a registered type reader.
+		/// - or -
+		/// When <paramref name="item"/> contains a parameter where its type reader context
+		/// type and <paramref name="item"/>'s context type can never be the same type.
+		/// </exception>
 		public override void Add(IImmutableCommand item)
 		{
 			// Commands cannot be added directly to ROOT
-			if (item.Names.Count == 0)
+			if (item.Paths.Count == 0)
 			{
 				throw new ArgumentException("Cannot add a command with no name.", nameof(item));
 			}
 
 			// Verify that every name is valid
-			foreach (var name in item.Names)
+			foreach (var path in item.Paths)
 			{
-				foreach (var part in name)
+				foreach (var part in path)
 				{
-					if (part.Contains(_Config.Separator))
+					if (part.Contains(_Separator))
 					{
-						throw new ArgumentException($"'{name}' cannot contain the separator character.", nameof(item));
+						throw new ArgumentException($"'{path}' cannot contain the separator character.", nameof(item));
 					}
 				}
 			}
@@ -54,7 +77,7 @@ namespace YACCS.Commands
 				catch (Exception e)
 				{
 					throw new ArgumentException("Unregistered type reader for " +
-						$"'{parameter.ParameterName}' from '{item.Names?.FirstOrDefault()}'.",
+						$"'{parameter.ParameterName}' from '{item.Paths?.FirstOrDefault()}'.",
 						nameof(item), e);
 				}
 
@@ -64,7 +87,7 @@ namespace YACCS.Commands
 					!item.ContextType.IsAssignableFrom(reader.ContextType))
 				{
 					throw new ArgumentException("Invalid type reader for " +
-						$"'{parameter.ParameterName}' from '{item.Names?.FirstOrDefault()}'. " +
+						$"'{parameter.ParameterName}' from '{item.Paths?.FirstOrDefault()}'. " +
 						$"Type reader accepts '{reader.ContextType}', " +
 						$"command accepts '{item.ContextType}'. " +
 						"The type reader will never receive a valid context.", nameof(item));
@@ -76,6 +99,6 @@ namespace YACCS.Commands
 
 		/// <inheritdoc />
 		protected override IEnumerable<IReadOnlyList<string>> GetPaths(IImmutableCommand item)
-			=> item.Names;
+			=> item.Paths;
 	}
 }

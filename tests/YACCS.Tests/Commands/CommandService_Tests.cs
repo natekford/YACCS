@@ -25,13 +25,13 @@ namespace YACCS.Tests.Commands
 			var trie = (ITrie<string, IImmutableCommand>)commandService.Commands;
 
 			var c1 = FakeDelegateCommand.New()
-				.AddName(new[] { "1" })
+				.AddPath(new[] { "1" })
 				.ToImmutable();
 			trie.Add(c1);
 			Assert.AreEqual(1, trie.Count);
 
 			var c2 = FakeDelegateCommand.New()
-				.AddName(new[] { "2" })
+				.AddPath(new[] { "2" })
 				.ToImmutable();
 			trie.Add(c2);
 			Assert.AreEqual(2, commandService.Commands.Count);
@@ -72,22 +72,22 @@ namespace YACCS.Tests.Commands
 			var trie = (ITrie<string, IImmutableCommand>)commandService.Commands;
 
 			var c1 = FakeDelegateCommand.New()
-				.AddName(new[] { "1" })
+				.AddPath(new[] { "1" })
 				.ToImmutable();
 			trie.Add(c1);
 			var c2 = FakeDelegateCommand.New()
-				.AddName(new[] { "2" })
-				.AddName(new[] { "3" })
+				.AddPath(new[] { "2" })
+				.AddPath(new[] { "3" })
 				.ToImmutable();
 			trie.Add(c2);
 			var c3 = FakeDelegateCommand.New()
-				.AddName(new[] { "4", "1" })
-				.AddName(new[] { "4", "2" })
-				.AddName(new[] { "4", "3" })
+				.AddPath(new[] { "4", "1" })
+				.AddPath(new[] { "4", "2" })
+				.AddPath(new[] { "4", "3" })
 				.ToImmutable();
 			trie.Add(c3);
 			var c4 = FakeDelegateCommand.New()
-				.AddName(new[] { "4", "1" })
+				.AddPath(new[] { "4", "1" })
 				.ToImmutable();
 			trie.Add(c4);
 
@@ -507,7 +507,7 @@ namespace YACCS.Tests.Commands
 			}
 
 			var @delegate = (Action<int>)Delegate;
-			var commandBuilder = new DelegateCommand(@delegate, Array.Empty<ImmutableName>(), typeof(FakeContext))
+			var commandBuilder = new DelegateCommand(@delegate, Array.Empty<ImmutablePath>(), typeof(FakeContext))
 				.AsContext<FakeContext>()
 				.AddPrecondition(new FakePrecondition(success))
 				.AddPrecondition(new WasIReachedPrecondition());
@@ -577,7 +577,7 @@ namespace YACCS.Tests.Commands
 			}
 
 			var @delegate = (Action<int>)Delegate;
-			var commandBuilder = new DelegateCommand(@delegate, Array.Empty<ImmutableName>());
+			var commandBuilder = new DelegateCommand(@delegate, Array.Empty<ImmutablePath>());
 			commandBuilder.Parameters[0]
 				.AsType<int>()
 				.AddParameterPrecondition(new FakeParameterPrecondition(disallowedValue))

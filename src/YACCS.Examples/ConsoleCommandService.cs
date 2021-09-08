@@ -33,7 +33,7 @@ namespace YACCS.Examples
 			_Console = console;
 			_Services = services;
 			_Initialize = new(_ => new(() => PrivateInitialize()));
-			_Commands = new(_ => new CommandTrie(Readers, Config));
+			_Commands = new(_ => new CommandTrie(Readers, Config.Separator, Config.CommandNameComparer));
 		}
 
 		public Task InitializeAsync()
@@ -57,7 +57,7 @@ namespace YACCS.Examples
 				=> a + b;
 
 			var @delegate = (Func<int, int, int>)Add;
-			var names = new[] { new ImmutableName(new[] { nameof(Add) }) };
+			var names = new[] { new ImmutablePath(new[] { nameof(Add) }) };
 			var add = new DelegateCommand(@delegate, names);
 			await foreach (var command in add.ToMultipleImmutableAsync(_Services))
 			{

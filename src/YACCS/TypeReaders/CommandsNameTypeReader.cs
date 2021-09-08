@@ -10,10 +10,12 @@ using YACCS.Results;
 namespace YACCS.TypeReaders
 {
 	/// <summary>
-	/// Gets commands which start with the provided value. Order is NOT guaranteed.
+	/// Parses commands which start with the provided value.
 	/// </summary>
+	/// <remarks>Order is NOT guaranteed</remarks>
 	public class CommandsNameTypeReader : TypeReader<IContext, IReadOnlyCollection<IImmutableCommand>>
 	{
+		/// <inheritdoc />
 		public override ITask<ITypeReaderResult<IReadOnlyCollection<IImmutableCommand>>> ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)

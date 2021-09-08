@@ -20,12 +20,14 @@
 		public string Localized => Localize.This(Key, Fallback);
 
 		/// <summary>
-		/// Creates a new <see cref="NeedsLocalization"/> and sets
-		/// <see cref="Fallback"/> to <paramref name="fallback"/> and
-		/// <see cref="Key"/> to <paramref name="key"/>.
+		/// Creates a new <see cref="NeedsLocalization"/>.
 		/// </summary>
-		/// <param name="key"></param>
-		/// <param name="fallback"></param>
+		/// <param name="key">
+		/// <inheritdoc cref="Key" path="/summary"/>
+		/// </param>
+		/// <param name="fallback">
+		/// <inheritdoc cref="Fallback" path="/summary"/>
+		/// </param>
 		public NeedsLocalization(string key, string? fallback = null)
 		{
 			Key = key;

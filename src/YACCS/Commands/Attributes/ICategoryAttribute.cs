@@ -3,7 +3,7 @@
 namespace YACCS.Commands.Attributes
 {
 	/// <summary>
-	/// An attribute which defines a category in <see cref="IQueryableEntity.Attributes"/>.
+	/// An attribute which defines a category for <see cref="IQueryableEntity.Attributes"/>.
 	/// </summary>
 	public interface ICategoryAttribute
 	{

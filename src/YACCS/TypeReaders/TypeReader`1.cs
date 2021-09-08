@@ -1,8 +1,4 @@
-﻿using System;
-
-using MorseCode.ITask;
-
-using YACCS.Commands;
+﻿using YACCS.Commands;
 
 namespace YACCS.TypeReaders
 {
@@ -13,9 +9,5 @@ namespace YACCS.TypeReaders
 	/// <typeparam name="TValue"></typeparam>
 	public abstract class TypeReader<TValue> : TypeReader<IContext, TValue>
 	{
-		protected override ITask<ITypeReaderResult<TValue>> ReadInternalAsync(
-			IContext context,
-			ReadOnlyMemory<string> input)
-			=> ReadAsync(context, input);
 	}
 }

@@ -93,14 +93,14 @@ namespace YACCS.Help
 
 			public virtual void AppendNames(IHelpCommand command)
 			{
-				if (command.Item.Names.Count == 0)
+				if (command.Item.Paths.Count == 0)
 				{
 					return;
 				}
 
 				Append(HeaderNames);
 				var separator = CultureInfo.CurrentCulture.TextInfo.ListSeparator + " ";
-				StringBuilder.AppendJoin(separator, command.Item.Names);
+				StringBuilder.AppendJoin(separator, command.Item.Paths);
 				AppendLine();
 			}
 

@@ -8,15 +8,15 @@ namespace YACCS.Commands.Models
 	/// </summary>
 	public interface ICommand : IEntityBase, IQueryableCommand
 	{
-		/// <inheritdoc cref="IQueryableCommand.Names"/>
-		new IList<IReadOnlyList<string>> Names { get; set; }
 		/// <inheritdoc cref="IQueryableCommand.Parameters"/>
 		new IReadOnlyList<IParameter> Parameters { get; }
+		/// <inheritdoc cref="IQueryableCommand.Paths"/>
+		new IList<IReadOnlyList<string>> Paths { get; set; }
 
 		/// <summary>
 		/// Creates a new <see cref="IImmutableCommand"/>.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>The immutable command.</returns>
 		IImmutableCommand ToImmutable();
 
 		/// <summary>
@@ -24,7 +24,7 @@ namespace YACCS.Commands.Models
 		/// any attributes to generate more commands.
 		/// </summary>
 		/// <param name="services">The services to use for dependency injection.</param>
-		/// <returns></returns>
+		/// <returns>The immutable command and any generated commands.</returns>
 		IAsyncEnumerable<IImmutableCommand> ToMultipleImmutableAsync(IServiceProvider services);
 	}
 }

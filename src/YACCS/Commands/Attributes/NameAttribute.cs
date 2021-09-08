@@ -10,10 +10,11 @@ namespace YACCS.Commands.Attributes
 		public virtual string Name { get; }
 
 		/// <summary>
-		/// Creates a new <see cref="NameAttribute"/> and sets <see cref="Name"/>
-		/// to <paramref name="name"/>.
+		/// Creates a new <see cref="NameAttribute"/>.
 		/// </summary>
-		/// <param name="name"></param>
+		/// <param name="name">
+		/// <inheritdoc cref="Name" path="/summary"/>
+		/// </param>
 		public NameAttribute(string name)
 		{
 			Name = name;

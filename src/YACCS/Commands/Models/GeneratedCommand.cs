@@ -9,7 +9,7 @@ using YACCS.Results;
 namespace YACCS.Commands.Models
 {
 	/// <summary>
-	/// A command generated from another command.
+	/// A generated command.
 	/// </summary>
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public abstract class GeneratedCommand : IImmutableCommand
@@ -28,11 +28,11 @@ namespace YACCS.Commands.Models
 		/// <inheritdoc />
 		public virtual int MinLength => Source.MinLength;
 		/// <inheritdoc />
-		public virtual IReadOnlyList<IReadOnlyList<string>> Names => Source.Names;
-		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
-		/// <inheritdoc />
 		public virtual IReadOnlyList<IImmutableParameter> Parameters => Source.Parameters;
 		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
+		/// <inheritdoc />
+		public virtual IReadOnlyList<IReadOnlyList<string>> Paths => Source.Paths;
+		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Paths => Paths;
 		/// <inheritdoc />
 		public virtual IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions => Source.Preconditions;
 		/// <inheritdoc />
@@ -42,10 +42,9 @@ namespace YACCS.Commands.Models
 		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 		/// <summary>
-		/// Creates a new <see cref="GeneratedCommand"/> and sets <see cref="Source"/>
-		/// to <paramref name="source"/>.
+		/// Creates a new <see cref="GeneratedCommand"/>.
 		/// </summary>
-		/// <param name="source"></param>
+		/// <param name="source">The source of this generated command.</param>
 		protected GeneratedCommand(IImmutableCommand source)
 		{
 			Source = source;

@@ -59,7 +59,7 @@ namespace YACCS.Commands.Linq
 		{
 			foreach (var command in commands)
 			{
-				foreach (var n in command.Names)
+				foreach (var n in command.Paths)
 				{
 					if (n[^1].Equals(name, comparisonType))
 					{
@@ -82,7 +82,7 @@ namespace YACCS.Commands.Linq
 		{
 			foreach (var command in commands)
 			{
-				foreach (var name in command.Names)
+				foreach (var name in command.Paths)
 				{
 					if (name.Count != parts.Count)
 					{

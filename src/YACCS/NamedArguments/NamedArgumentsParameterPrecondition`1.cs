@@ -13,6 +13,7 @@ namespace YACCS.NamedArguments
 		private static readonly object NotFound = new();
 		private readonly Func<T, string, object> _Getter;
 
+		/// <inheritdoc />
 		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
 		public NamedArgumentsParameterPrecondition()
@@ -21,6 +22,7 @@ namespace YACCS.NamedArguments
 			_Getter = ReflectionUtils.CreateDelegate(Getter, "getter");
 		}
 
+		/// <inheritdoc />
 		protected override bool TryGetProperty(T instance, string property, out object? value)
 			=> (value = _Getter.Invoke(instance, property)) != NotFound;
 
