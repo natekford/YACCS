@@ -2,9 +2,16 @@
 
 namespace YACCS.Commands.Models
 {
+	/// <summary>
+	/// The base interface for most immutable command objects.
+	/// </summary>
 	public interface IImmutableEntityBase : IQueryableEntity
 	{
+		/// <inheritdoc cref="IQueryableEntity.Attributes" />
 		new IReadOnlyList<object> Attributes { get; }
+		/// <summary>
+		/// The primary id of this entity.
+		/// </summary>
 		string PrimaryId { get; }
 	}
 }

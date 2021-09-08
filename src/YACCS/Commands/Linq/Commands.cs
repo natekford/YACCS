@@ -88,6 +88,7 @@ namespace YACCS.Commands.Linq
 			IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => _Actual.Names;
 			IReadOnlyList<IParameter> ICommand.Parameters => _Actual.Parameters;
 			IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => _Actual.Parameters;
+			IImmutableCommand? IQueryableCommand.Source => _Actual.Source;
 			private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 			public Command(ICommand actual)

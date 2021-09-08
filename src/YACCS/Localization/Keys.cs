@@ -1,4 +1,6 @@
-﻿using System.Collections.Immutable;
+﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 

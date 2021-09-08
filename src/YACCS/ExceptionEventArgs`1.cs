@@ -14,11 +14,5 @@ namespace YACCS
 			Exceptions = exceptions;
 			EventArgs = eventArgs;
 		}
-
-		public ExceptionEventArgs(Exception exception, T originalEventArgs)
-		{
-			Exceptions = new[] { exception };
-			EventArgs = originalEventArgs;
-		}
 	}
 }

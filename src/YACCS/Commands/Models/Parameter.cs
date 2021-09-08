@@ -13,6 +13,7 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Models
 {
+	/// <inheritdoc cref="IParameter"/>
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public sealed class Parameter : EntityBase, IParameter
 	{
@@ -20,7 +21,9 @@ namespace YACCS.Commands.Models
 
 		private ITypeReader? _OverriddenTypeReader;
 
+		/// <inheritdoc />
 		public object? DefaultValue { get; set; } = NoDefaultValue;
+		/// <inheritdoc />
 		public bool HasDefaultValue
 		{
 			get => DefaultValue != NoDefaultValue;
@@ -32,8 +35,11 @@ namespace YACCS.Commands.Models
 				}
 			}
 		}
+		/// <inheritdoc />
 		public string OriginalParameterName { get; }
+		/// <inheritdoc />
 		public Type ParameterType { get; }
+		/// <inheritdoc />
 		public ITypeReader? TypeReader
 		{
 			get => _OverriddenTypeReader;
@@ -45,6 +51,14 @@ namespace YACCS.Commands.Models
 		}
 		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
+		/// <summary>
+		/// Creates a new <see cref="Parameter"/> and sets
+		/// <see cref="OriginalParameterName"/> to <paramref name="name"/> and
+		/// <see cref="ParameterType"/> to <paramref name="type"/>.
+		/// </summary>
+		/// <param name="type">The type of this parameter.</param>
+		/// <param name="name">The original name of this parameter.</param>
+		/// <param name="provider">The object providing custom attributes.</param>
 		public Parameter(Type type, string name, ICustomAttributeProvider? provider)
 			: base(provider)
 		{
@@ -69,16 +83,34 @@ namespace YACCS.Commands.Models
 			}
 		}
 
+		/// <summary>
+		/// Creates a new <see cref="Parameter"/> via
+		/// <see cref="Parameter(Type, string, ICustomAttributeProvider?)"/>.
+		/// </summary>
+		/// <param name="field">The field to use as a paramter.</param>
 		public Parameter(FieldInfo field)
 			: this(field.FieldType, field.Name, field)
 		{
 		}
 
+		/// <summary>
+		/// Creates a new <see cref="Parameter"/> via
+		/// <see cref="Parameter(Type, string, ICustomAttributeProvider?)"/>.
+		/// </summary>
+		/// <param name="property">The property to use as a paramter.</param>
 		public Parameter(PropertyInfo property)
 			: this(property.PropertyType, property.Name, property)
 		{
 		}
 
+		/// <summary>
+		/// Creates a new <see cref="Parameter"/> via
+		/// <see cref="Parameter(Type, string, ICustomAttributeProvider?)"/>. Sets
+		/// <see cref="DefaultValue"/> to <see cref="ParameterInfo.DefaultValue"/> if
+		/// it has a value and marks this parameter as a remainder if
+		/// <paramref name="parameter"/> is marked with <see langword="params"/>.
+		/// </summary>
+		/// <param name="parameter">The parameter to use as a paramter.</param>
 		public Parameter(ParameterInfo parameter)
 			: this(parameter.ParameterType, parameter.Name, parameter)
 		{
@@ -90,6 +122,7 @@ namespace YACCS.Commands.Models
 			}
 		}
 
+		/// <inheritdoc />
 		public IImmutableParameter ToImmutable()
 			=> new ImmutableParameter(this);
 

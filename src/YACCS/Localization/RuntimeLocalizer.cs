@@ -8,6 +8,7 @@ namespace YACCS.Localization
 		public Localized<Dictionary<string, string>> Overrides { get; }
 			= Localized.Create<Dictionary<string, string>>();
 
+		/// <inheritdoc />
 		public string? Get(string key, CultureInfo? culture = null)
 			=> Overrides[culture].TryGetValue(key, out var value) ? value : null;
 	}

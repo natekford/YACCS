@@ -59,7 +59,7 @@ namespace YACCS.Commands
 		/// <paramref name="type"/>.
 		/// </summary>
 		/// <param name="type">The type to gather commands from.</param>
-		/// <param name="services">The services used for dependency injection.</param>
+		/// <param name="services">The services to use for dependency injection.</param>
 		/// <returns>An async enumerable of <see cref="ReflectedCommand"/>.</returns>
 		public static async IAsyncEnumerable<ReflectedCommand> GetAllCommandsAsync(
 			this Type type,
@@ -84,7 +84,7 @@ namespace YACCS.Commands
 		/// from <paramref name="assemblies"/>.
 		/// </summary>
 		/// <param name="assemblies">The assemblies to gather commands from.</param>
-		/// <param name="services">The services used for dependency injection.</param>
+		/// <param name="services">The services to use for dependency injection.</param>
 		/// <returns>An async enumerable of <see cref="ReflectedCommand"/>.</returns>
 		public static async IAsyncEnumerable<ReflectedCommand> GetAllCommandsAsync(
 			this IEnumerable<Assembly> assemblies,
@@ -104,7 +104,7 @@ namespace YACCS.Commands
 		/// every <see cref="Type"/> defined within <paramref name="assembly"/>.
 		/// </summary>
 		/// <param name="assembly">The assembly to gather commands from.</param>
-		/// <param name="services">The services used for dependency injection.</param>
+		/// <param name="services">The services to use for dependency injection.</param>
 		/// <returns>An async enumerable of <see cref="ReflectedCommand"/>.</returns>
 		public static IAsyncEnumerable<ReflectedCommand> GetAllCommandsAsync(
 			this Assembly assembly,
@@ -116,7 +116,7 @@ namespace YACCS.Commands
 		/// every <see cref="Type"/> within <paramref name="types"/>.
 		/// </summary>
 		/// <param name="types">The types to gather commands from.</param>
-		/// <param name="services">The services used for dependency injection.</param>
+		/// <param name="services">The services to use for dependency injection.</param>
 		/// <returns>An async enumerable of <see cref="ReflectedCommand"/>.</returns>
 		public static async IAsyncEnumerable<ReflectedCommand> GetDirectCommandsAsync(
 			this IEnumerable<Type> types,
@@ -140,7 +140,7 @@ namespace YACCS.Commands
 		/// <br/>
 		/// Abstract classes are ignored.
 		/// </param>
-		/// <param name="services">The services used for dependency injection.</param>
+		/// <param name="services">The services to use for dependency injection.</param>
 		/// <returns>An async enumerable of <see cref="ReflectedCommand"/>.</returns>
 		public static async IAsyncEnumerable<ReflectedCommand> GetDirectCommandsAsync(
 			this Type type,

@@ -10,6 +10,7 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Linq
 {
+	/// <inheritdoc />
 	public interface IParameter<in TValue> : IParameter
 	{
 	}

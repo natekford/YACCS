@@ -8,7 +8,7 @@ namespace YACCS.Commands.Attributes
 	public interface INameAttribute
 	{
 		/// <summary>
-		/// The name to use.
+		/// The name of this entity.
 		/// </summary>
 		string Name { get; }
 	}
