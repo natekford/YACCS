@@ -9,6 +9,10 @@ using YACCS.TypeReaders;
 
 namespace YACCS.NamedArguments
 {
+	/// <summary>
+	/// Specifies how to generate commands/type readers and modify parameters for
+	/// named arguments.
+	/// </summary>
 	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = false)]
 	public sealed class GenerateNamedArgumentsAttribute : Attribute,
 		ICommandGeneratorAttribute,

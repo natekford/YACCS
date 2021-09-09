@@ -6,7 +6,7 @@ namespace YACCS.Localization
 	/// <summary>
 	/// Wrapper for a <see cref="ResourceManager"/>.
 	/// </summary>
-	public class ResourceManagerLocalizer : ILocalizer
+	public sealed class ResourceManagerLocalizer : ILocalizer
 	{
 		private readonly ResourceManager _ResourceManager;
 

@@ -7,8 +7,14 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Help
 {
+	/// <summary>
+	/// A registry for outputting the names of <see cref="Type"/>s to the end user.
+	/// </summary>
 	public class TypeNameRegistry : TypeRegistry<string>
 	{
+		/// <summary>
+		/// The localized instance backing <see cref="Items"/>.
+		/// </summary>
 		protected Localized<IDictionary<Type, string>> Localized = new(_ =>
 		{
 			return new Dictionary<Type, string>()

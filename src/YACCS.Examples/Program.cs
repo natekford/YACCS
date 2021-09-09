@@ -27,7 +27,15 @@ namespace YACCS.Examples
 				.AddSingleton<ConsolePaginator>()
 				.AddSingleton<IEnumerable<Assembly>>(new[] { typeof(Program).Assembly })
 				.AddSingleton<ICommandService>(x => x.GetRequiredService<ConsoleCommandService>())
-				.AddSingleton<IArgumentHandler, ArgumentHandler>()
+				.AddSingleton<IArgumentHandler>(x =>
+				{
+					var config = x.GetRequiredService<ICommandServiceConfig>();
+					return new ArgumentHandler(
+						config.Separator,
+						config.StartQuotes,
+						config.EndQuotes
+					);
+				})
 				.AddSingleton<IFormatProvider, ConsoleTagFormatter>()
 				.AddSingleton<IHelpFormatter, HelpFormatter>()
 				.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>, TypeReaderRegistry>()

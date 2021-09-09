@@ -155,7 +155,7 @@ namespace YACCS.TypeReaders
 		/// </remarks>
 		/// <param name="type">The type to create a type reader for.</param>
 		/// <param name="reader">The created type reader.</param>
-		/// <returns>A bool indicating success.</returns>
+		/// <returns>A bool indicating success or failure.</returns>
 		protected virtual bool TryCreateReader(Type type, [NotNullWhen(true)] out ITypeReader reader)
 		{
 			var customReaders = type

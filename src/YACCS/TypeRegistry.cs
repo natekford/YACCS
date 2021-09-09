@@ -17,7 +17,9 @@ namespace YACCS
 		public IEnumerable<Type> Keys => Items.Keys;
 		/// <inheritdoc />
 		public IEnumerable<T> Values => Items.Values;
-		/// <inheritdoc />
+		/// <summary>
+		/// The dictionary this registry is wrapping.
+		/// </summary>
 		protected abstract IDictionary<Type, T> Items { get; }
 
 		/// <inheritdoc />

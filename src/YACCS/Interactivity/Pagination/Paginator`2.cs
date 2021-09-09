@@ -6,10 +6,16 @@ using YACCS.Results;
 
 namespace YACCS.Interactivity.Pagination
 {
+	/// <summary>
+	/// The base class for handling pagination.
+	/// </summary>
+	/// <typeparam name="TContext"></typeparam>
+	/// <typeparam name="TInput"></typeparam>
 	public abstract class Paginator<TContext, TInput>
 		: Interactivity<TContext, TInput>, IPaginator<TContext, TInput>
 		where TContext : IContext
 	{
+		/// <inheritdoc />
 		public virtual async Task<IResult> PaginateAsync(
 			TContext context,
 			IPaginatorOptions<TContext, TInput> options)
@@ -55,12 +61,32 @@ namespace YACCS.Interactivity.Pagination
 			return result.InnerResult;
 		}
 
-		protected static int Mod(int a, int b)
-			=> b == 0 ? 0 : (int)(a - (b * Math.Floor((double)a / b)));
-
+		/// <summary>
+		/// Converts <paramref name="input"/> into an <see cref="int"/>
+		/// so it can be used in pagination.
+		/// </summary>
+		/// <param name="input">The input to convert.</param>
+		/// <returns>An <see cref="int"/> representing <paramref name="input"/>.</returns>
 		protected abstract Task<int?> ConvertAsync(TInput input);
 
+		/// <summary>
+		/// Gets the new page to navigate to.
+		/// </summary>
+		/// <param name="current">The current page.</param>
+		/// <param name="max">The maximum allowed page.</param>
+		/// <param name="diff">The distance to move from the current page.</param>
+		/// <returns>An <see cref="int"/> representing the new page.</returns>
+		/// <remarks>
+		/// By default this supports wrapping around.
+		/// <br/>
+		/// (current: 5, max: 7: diff: 5) => current = 3
+		/// <br/>
+		/// (current: 5, max: 7: diff: -6) => current = 6
+		/// </remarks>
 		protected virtual int GetNewPage(int current, int max, int diff)
 			=> Mod(current + diff, max);
+
+		private static int Mod(int a, int b)
+			=> b == 0 ? 0 : (int)(a - (b * Math.Floor((double)a / b)));
 	}
 }

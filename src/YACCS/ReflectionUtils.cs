@@ -5,8 +5,18 @@ using System.Reflection;
 
 namespace YACCS
 {
+	/// <summary>
+	/// Utilities for reflection.
+	/// </summary>
 	public static class ReflectionUtils
 	{
+		/// <summary>
+		/// Creates a new <paramref name="type"/> and then casts it to <typeparamref name="T"/>.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="type">The type to create.</param>
+		/// <param name="args">The arguments for the constructor.</param>
+		/// <returns>A new instance of <typeparamref name="T"/>.</returns>
 		public static T CreateInstance<T>(this Type type, params object[] args)
 		{
 			object instance;

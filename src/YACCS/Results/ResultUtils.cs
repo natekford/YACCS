@@ -28,7 +28,7 @@ namespace YACCS.Results
 		/// <typeparam name="T"></typeparam>
 		/// <param name="result">The result to get a value from.</param>
 		/// <param name="value">The retrieved value.</param>
-		/// <returns>A bool indicating success.</returns>
+		/// <returns>A bool indicating success or failure.</returns>
 		public static bool TryGetValue<T>(
 			this IResult result,
 			[NotNullWhen(true)] out T value)

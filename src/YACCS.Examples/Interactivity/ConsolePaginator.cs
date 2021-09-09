@@ -15,9 +15,6 @@ namespace YACCS.Examples.Interactivity
 		protected override Task<int?> ConvertAsync(string input)
 			=> Task.FromResult<int?>(int.TryParse(input, out var result) ? result : null);
 
-		protected override int GetNewPage(int current, int max, int diff)
-			=> diff;
-
 		protected override Task<IAsyncDisposable> SubscribeAsync(
 			ConsoleContext _,
 			OnInput<string> onInput)

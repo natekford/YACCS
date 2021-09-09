@@ -11,23 +11,41 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Interactivity.Input
 {
+	/// <summary>
+	/// The base class for handling input.
+	/// </summary>
+	/// <typeparam name="TContext"></typeparam>
+	/// <typeparam name="TInput"></typeparam>
 	public abstract class Input<TContext, TInput>
 		: Interactivity<TContext, TInput>, IInput<TContext, TInput>
 		where TContext : IContext
 	{
+		/// <summary>
+		/// A singleton instance of an empty command.
+		/// </summary>
 		protected static IImmutableCommand EmptyCommand { get; } = new DelegateCommand(
 			static () => { },
 			new[] { new ImmutablePath(new[] { "Input" }) },
 			typeof(TContext)
 		).ToImmutable();
 
+		/// <summary>
+		/// The type readers used for parsing values.
+		/// </summary>
 		protected IReadOnlyDictionary<Type, ITypeReader> TypeReaders { get; }
 
+		/// <summary>
+		/// Creates a new <see cref="Input{TContext, TInput}"/>.
+		/// </summary>
+		/// <param name="typeReaders">
+		/// <inheritdoc cref="TypeReaders" path="/summary"/>
+		/// </param>
 		protected Input(IReadOnlyDictionary<Type, ITypeReader> typeReaders)
 		{
 			TypeReaders = typeReaders;
 		}
 
+		/// <inheritdoc />
 		public virtual Task<ITypeReaderResult<TValue>> GetAsync<TValue>(
 			TContext context,
 			IInputOptions<TContext, TInput, TValue> options)
@@ -70,6 +88,11 @@ namespace YACCS.Interactivity.Input
 			});
 		}
 
+		/// <summary>
+		/// Converts <paramref name="input"/> into a <see cref="string"/> so it can be parsed.
+		/// </summary>
+		/// <param name="input">The input to convert.</param>
+		/// <returns>A string representing <paramref name="input"/>.</returns>
 		protected abstract string GetInputString(TInput input);
 
 		/// <inheritdoc cref="IImmutableParameter"/>

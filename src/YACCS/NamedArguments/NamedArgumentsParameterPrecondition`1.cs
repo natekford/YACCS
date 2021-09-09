@@ -7,6 +7,10 @@ using YACCS.Commands.Models;
 
 namespace YACCS.NamedArguments
 {
+	/// <summary>
+	/// Validates every property for the instance of <typeparamref name="T"/> passed in.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
 	public sealed class NamedArgumentsParameterPrecondition<T>
 		: NamedArgumentsParameterPreconditionBase<T>
 	{
@@ -16,6 +20,9 @@ namespace YACCS.NamedArguments
 		/// <inheritdoc />
 		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
+		/// <summary>
+		/// Creates an instance of <see cref="NamedArgumentsParameterPrecondition{T}"/>.
+		/// </summary>
 		public NamedArgumentsParameterPrecondition()
 		{
 			Parameters = typeof(T).CreateParamDict(x => x.OriginalParameterName);

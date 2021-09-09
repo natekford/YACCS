@@ -18,7 +18,7 @@ namespace YACCS.TypeReaders
 	/// The resulting value. This may be <see langword="null"/>
 	/// when <see langword="false"/> is returned.
 	/// </param>
-	/// <returns>A bool indicating if parsing was successful.</returns>
+	/// <returns>A bool indicating success or failure.</returns>
 	public delegate bool TryParseDelegate<TValue>(
 		string input,
 		[MaybeNullWhen(false)] out TValue result);

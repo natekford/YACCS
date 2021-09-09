@@ -17,12 +17,34 @@ namespace YACCS.Commands
 	/// </summary>
 	public abstract class CommandServiceBase : ICommandService
 	{
+		/// <inheritdoc cref="ICommandService.Commands"/>
 		public virtual ITrie<string, IImmutableCommand> Commands { get; }
 		IReadOnlyCollection<IImmutableCommand> ICommandService.Commands => Commands;
+		/// <summary>
+		/// The configuration to use.
+		/// </summary>
 		protected virtual ICommandServiceConfig Config { get; }
+		/// <summary>
+		/// The argument handler to use for splitting input.
+		/// </summary>
 		protected virtual IArgumentHandler Handler { get; }
+		/// <summary>
+		/// The type readers to use for parsing.
+		/// </summary>
 		protected virtual IReadOnlyDictionary<Type, ITypeReader> Readers { get; }
 
+		/// <summary>
+		/// Creates a new <see cref="CommandServiceBase"/>.
+		/// </summary>
+		/// <param name="config">
+		/// <inheritdoc cref="Config" path="/summary"/>
+		/// </param>
+		/// <param name="handler">
+		/// <inheritdoc cref="Handler" path="/summary"/>
+		/// </param>
+		/// <param name="readers">
+		/// <inheritdoc cref="Readers" path="/summary"/>
+		/// </param>
 		protected CommandServiceBase(
 			ICommandServiceConfig config,
 			IArgumentHandler handler,

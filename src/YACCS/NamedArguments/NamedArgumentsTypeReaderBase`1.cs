@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,14 +11,22 @@ using YACCS.TypeReaders;
 
 namespace YACCS.NamedArguments
 {
+	/// <summary>
+	/// The base class for a named arguments type reader.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
 	public abstract class NamedArgumentsTypeReaderBase<T> : TypeReader<IContext, T>
 		where T : new()
 	{
 		private static readonly char[] _TrimEnd = new[] { ':' };
 		private static readonly char[] _TrimStart = new[] { '/', '-' };
-		private readonly ConcurrentDictionary<string, ITypeReaderResult<T>> _Duplicate = new();
-		private readonly ConcurrentDictionary<string, ITypeReaderResult<T>> _NonExistent = new();
 
+		/// <summary>
+		/// The parameters this type reader expects.
+		/// </summary>
+		/// <remarks>
+		/// The keys are the current localized parameter name, NOT the original parameter name.
+		/// </remarks>
 		protected abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
 		/// <inheritdoc />
@@ -35,8 +42,23 @@ namespace YACCS.NamedArguments
 			return await ReadDictIntoInstanceAsync(context, dictResult.Dictionary).ConfigureAwait(false);
 		}
 
+		/// <summary>
+		/// Sets a property on <paramref name="instance"/>.
+		/// </summary>
+		/// <param name="instance">The instance to modify.</param>
+		/// <param name="property">The property name.</param>
+		/// <param name="value">The value to set.</param>
 		protected abstract void SetProperty(T instance, string property, object? value);
 
+		/// <summary>
+		/// Attempts to create a dictionary from <paramref name="input"/>.
+		/// </summary>
+		/// <remarks>
+		/// Each odd numbered string in <paramref name="input"/> is a key, each even numbered
+		/// string is a value.
+		/// </remarks>
+		/// <param name="input">The input to create a dictionary from.</param>
+		/// <returns>A result indicating success and the created dictionary.</returns>
 		protected virtual ValueTask<DictResult> TryCreateDictAsync(ReadOnlyMemory<string> input)
 		{
 			// Flags aren't supported, so if the input is an odd length
@@ -52,19 +74,13 @@ namespace YACCS.NamedArguments
 				var name = input.Span[i].TrimStart(_TrimStart).TrimEnd(_TrimEnd);
 				if (!Parameters.TryGetValue(name, out var parameter))
 				{
-					return new(new DictResult(_NonExistent.GetOrAdd(name, static name =>
-					{
-						return Error(new NamedArgNonExistentResult(name));
-					}), dict));
+					return new(new DictResult(Error(new NamedArgNonExistentResult(name)), dict));
 				}
 
 				var property = parameter.ParameterName;
 				if (dict.ContainsKey(property))
 				{
-					return new(new DictResult(_Duplicate.GetOrAdd(property, static property =>
-					{
-						return Error(new NamedArgDuplicateResult(property));
-					}), dict));
+					return new(new DictResult(Error(new NamedArgDuplicateResult(name)), dict));
 				}
 				dict.Add(property, input.Span[i + 1]);
 			}

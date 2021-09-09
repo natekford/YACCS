@@ -23,7 +23,11 @@ namespace YACCS.Tests
 		public static IServiceCollection CreateServiceCollection(ICommandServiceConfig? config = null)
 		{
 			config ??= CommandServiceConfig.Instance;
-			var handler = new ArgumentHandler(config);
+			var handler = new ArgumentHandler(
+				config.Separator,
+				config.StartQuotes,
+				config.EndQuotes
+			);
 			var readers = new TypeReaderRegistry();
 			var commandService = new CommandService(config, handler, readers);
 
