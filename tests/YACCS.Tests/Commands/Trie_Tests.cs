@@ -50,10 +50,15 @@ namespace YACCS.Tests.Commands
 			// Ok, so even though count != SIZE somehow the exception is still not happening
 			// Maybe adding a sleep before it will for sure get some new items added and
 			// cause the exception.
+			//
+			// Debug and Release have no difference on my computer
+			// Increase the sleep and add an assert that the numbers aren't equal so maybe
+			// I can know that CopyTo on Github Actions is just never going to throw
 			var count = collection.Count;
 			if (count != SIZE)
 			{
-				Thread.Sleep(25);
+				Thread.Sleep(250);
+				Assert.AreNotEqual(count, collection.Count);
 				Assert.ThrowsException<ArgumentException>(() =>
 				{
 					var array = new int[count];
