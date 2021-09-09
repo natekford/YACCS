@@ -13,6 +13,7 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Models
 {
+	/// <inheritdoc cref="IParameter"/>
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public sealed class Parameter : EntityBase, IParameter
 	{
@@ -20,7 +21,9 @@ namespace YACCS.Commands.Models
 
 		private ITypeReader? _OverriddenTypeReader;
 
+		/// <inheritdoc />
 		public object? DefaultValue { get; set; } = NoDefaultValue;
+		/// <inheritdoc />
 		public bool HasDefaultValue
 		{
 			get => DefaultValue != NoDefaultValue;
@@ -32,8 +35,11 @@ namespace YACCS.Commands.Models
 				}
 			}
 		}
+		/// <inheritdoc />
 		public string OriginalParameterName { get; }
+		/// <inheritdoc />
 		public Type ParameterType { get; }
+		/// <inheritdoc />
 		public ITypeReader? TypeReader
 		{
 			get => _OverriddenTypeReader;
@@ -45,6 +51,12 @@ namespace YACCS.Commands.Models
 		}
 		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
+		/// <summary>
+		/// Creates a new <see cref="Parameter"/>.
+		/// </summary>
+		/// <param name="type">The type of this parameter.</param>
+		/// <param name="name">The original name of this parameter.</param>
+		/// <param name="provider">The object providing custom attributes.</param>
 		public Parameter(Type type, string name, ICustomAttributeProvider? provider)
 			: base(provider)
 		{
@@ -69,27 +81,34 @@ namespace YACCS.Commands.Models
 			}
 		}
 
+		/// <inheritdoc cref="Parameter(Type, string, ICustomAttributeProvider?)"/>
+		/// <param name="field">The field to use as a parameter.</param>
 		public Parameter(FieldInfo field)
 			: this(field.FieldType, field.Name, field)
 		{
 		}
 
+		/// <inheritdoc cref="Parameter(Type, string, ICustomAttributeProvider?)"/>
+		/// <param name="property">The property to use as a parameter.</param>
 		public Parameter(PropertyInfo property)
 			: this(property.PropertyType, property.Name, property)
 		{
 		}
 
+		/// <inheritdoc cref="Parameter(Type, string, ICustomAttributeProvider?)"/>
+		/// <param name="parameter">The parameter to use as a parameter.</param>
 		public Parameter(ParameterInfo parameter)
 			: this(parameter.ParameterType, parameter.Name, parameter)
 		{
 			DefaultValue = GetDefaultValue(parameter.DefaultValue);
 
-			if (this.Get<ParamArrayAttribute>().Any())
+			if (this.GetAttributes<ParamArrayAttribute>().Any())
 			{
 				this.MarkAsRemainder();
 			}
 		}
 
+		/// <inheritdoc />
 		public IImmutableParameter ToImmutable()
 			=> new ImmutableParameter(this);
 

@@ -5,11 +5,26 @@ using System.Linq;
 
 namespace YACCS.SwappedArguments
 {
+	/// <summary>
+	/// Swaps items to a new order and swaps them back to their original order.
+	/// </summary>
 	public sealed class Swapper
 	{
+		/// <summary>
+		/// The indices that will get swapped.
+		/// </summary>
 		public ImmutableArray<int> Indices { get; }
+		/// <summary>
+		/// The steps to take to swap <see cref="Indices"/>.
+		/// </summary>
 		public ImmutableArray<(int, int)> Swaps { get; }
 
+		/// <summary>
+		/// Creates a new <see cref="Swapper"/>.
+		/// </summary>
+		/// <param name="indices">
+		/// <inheritdoc cref="Indices" path="/summary"/>
+		/// </param>
 		public Swapper(IEnumerable<int> indices)
 		{
 			var copy = indices.ToList();
@@ -36,6 +51,15 @@ namespace YACCS.SwappedArguments
 			Swaps = swaps.ToImmutableArray();
 		}
 
+		/// <summary>
+		/// Creates permutations of <paramref name="indices"/> and then removes any indices
+		/// which are in order.
+		/// </summary>
+		/// <param name="indices">The indices to create permutations for.</param>
+		/// <returns>
+		/// An enumerable of every permutation which does not become empty after all
+		/// indices that are in order are removed.
+		/// </returns>
 		public static IEnumerable<Swapper> CreateSwappers(IEnumerable<int> indices)
 		{
 			static IEnumerable<IEnumerable<T>> GetPermutations<T>(
@@ -78,6 +102,11 @@ namespace YACCS.SwappedArguments
 				.Select(x => new Swapper(x));
 		}
 
+		/// <summary>
+		/// Swaps the items which have indices in <see cref="Indices"/>.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source">The list to reorder.</param>
 		public void Swap<T>(IList<T> source)
 		{
 			for (var i = 0; i < Swaps.Length; ++i)
@@ -86,6 +115,11 @@ namespace YACCS.SwappedArguments
 			}
 		}
 
+		/// <summary>
+		/// Returns the items to their original index.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source">The list to reorder.</param>
 		public void SwapBack<T>(IList<T> source)
 		{
 			for (var i = Swaps.Length - 1; i >= 0; --i)

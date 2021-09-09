@@ -53,8 +53,8 @@ namespace YACCS.Tests.Commands.Models
 			var names = new[] { new[] { "Joe" } };
 			var command = new DelegateCommand(@delegate, names);
 			var immutable = command.ToImmutable();
-			Assert.AreEqual(names.Length, command.Names.Count);
-			Assert.AreEqual(names[0], command.Names[0]);
+			Assert.AreEqual(names.Length, command.Paths.Count);
+			Assert.AreEqual(names[0], command.Paths[0]);
 			Assert.AreEqual(1, command.Parameters.Count);
 			Assert.AreEqual(1, command.Attributes.Count);
 			Assert.IsInstanceOfType(command.Attributes[0], typeof(Delegate));
@@ -141,8 +141,8 @@ namespace YACCS.Tests.Commands.Models
 			var names = new[] { new[] { "Joe" } };
 			var command = new DelegateCommand(@delegate, names);
 			var immutable = command.ToImmutable();
-			Assert.AreEqual(names.Length, command.Names.Count);
-			Assert.AreEqual(names[0], command.Names[0]);
+			Assert.AreEqual(names.Length, command.Paths.Count);
+			Assert.AreEqual(names[0], command.Paths[0]);
 			Assert.AreEqual(1, command.Parameters.Count);
 			Assert.AreEqual(2, command.Attributes.Count);
 			Assert.IsInstanceOfType(command.Attributes[0], typeof(CompilerGeneratedAttribute));

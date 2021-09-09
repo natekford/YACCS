@@ -12,7 +12,7 @@ namespace YACCS.Tests
 	{
 		public static async Task AddRangeAsync(
 			this CommandServiceBase commandService,
-			IAsyncEnumerable<CreatedCommand> enumerable)
+			IAsyncEnumerable<ReflectedCommand> enumerable)
 		{
 			await foreach (var (_, command) in enumerable)
 			{
@@ -23,7 +23,11 @@ namespace YACCS.Tests
 		public static IServiceCollection CreateServiceCollection(ICommandServiceConfig? config = null)
 		{
 			config ??= CommandServiceConfig.Instance;
-			var handler = new ArgumentHandler(config);
+			var handler = new ArgumentHandler(
+				config.Separator,
+				config.StartQuotes,
+				config.EndQuotes
+			);
 			var readers = new TypeReaderRegistry();
 			var commandService = new CommandService(config, handler, readers);
 

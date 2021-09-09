@@ -7,19 +7,28 @@ using YACCS.Commands.Models;
 
 namespace YACCS.NamedArguments
 {
+	/// <summary>
+	/// Parses a <typeparamref name="T"/> via named properties or arguments.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
 	public sealed class NamedArgumentsTypeReader<T> : NamedArgumentsTypeReaderBase<T>
 		where T : new()
 	{
 		private readonly Action<T, string, object?> _Setter;
 
+		/// <inheritdoc />
 		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
+			= typeof(T).CreateParamDict(x => x.ParameterName);
 
+		/// <summary>
+		/// Creates an instance of <see cref="NamedArgumentsTypeReader{T}"/>.
+		/// </summary>
 		public NamedArgumentsTypeReader()
 		{
-			Parameters = typeof(T).CreateParamDict(x => x.ParameterName);
 			_Setter = ReflectionUtils.CreateDelegate(Setter, "setter");
 		}
 
+		/// <inheritdoc />
 		protected override void SetProperty(T instance, string property, object? value)
 			=> _Setter.Invoke(instance, property, value);
 

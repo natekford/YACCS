@@ -7,12 +7,17 @@ using YACCS.Commands;
 
 namespace YACCS.TypeReaders
 {
+	/// <summary>
+	/// Parses a <typeparamref name="TValue"/> or <see langword="null"/>.
+	/// </summary>
+	/// <typeparam name="TValue"></typeparam>
 	public class NullableTypeReader<TValue> : TypeReader<TValue?> where TValue : struct
 	{
 		private static readonly NullValidator _Null = new();
 		private static readonly ITask<ITypeReaderResult<TValue?>> _NullResult
 			= TypeReaderResult<TValue?>.FromSuccess(default).AsITask();
 
+		/// <inheritdoc />
 		public override ITask<ITypeReaderResult<TValue?>> ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)

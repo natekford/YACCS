@@ -1,5 +1,4 @@
-﻿
-using YACCS.Commands;
+﻿using YACCS.Commands;
 using YACCS.Help.Attributes;
 using YACCS.Localization;
 using YACCS.Preconditions;
@@ -20,14 +19,14 @@ namespace YACCS.Examples.Preconditions
 			return new(SuccessResult.Instance);
 		}
 
-		public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
-			=> new(GetErrorMessage());
-
-		protected override ValueTask<IResult> CheckAsync(
+		public override ValueTask<IResult> CheckAsync(
 			CommandMeta meta,
 			IContext context,
 			object? value)
 			=> this.CheckAsync<IContext, int>(meta, context, value, CheckAsync);
+
+		public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
+			=> new(GetErrorMessage());
 
 		private string GetErrorMessage()
 			=> Localize.This("NotZero", FallbackErrorMessage);

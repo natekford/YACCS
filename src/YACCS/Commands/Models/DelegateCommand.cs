@@ -7,20 +7,37 @@ using YACCS.Results;
 
 namespace YACCS.Commands.Models
 {
+	/// <summary>
+	/// A mutable command created from a <see cref="System.Delegate"/>.
+	/// </summary>
 	public sealed class DelegateCommand : Command
 	{
+		/// <summary>
+		/// The delegate being wrapped.
+		/// </summary>
 		public Delegate Delegate { get; }
 
+		/// <summary>
+		/// Creates a new <see cref="DelegateCommand"/>.
+		/// </summary>
+		/// <param name="delegate">The delegate to wrap.</param>
+		/// <param name="paths">The paths for this command.</param>
+		/// <param name="contextType">The required context type.</param>
 		public DelegateCommand(
 			Delegate @delegate,
-			IEnumerable<IReadOnlyList<string>> names,
+			IEnumerable<IReadOnlyList<string>> paths,
 			Type? contextType = null)
-			: this(@delegate, contextType ?? typeof(IContext), null, names)
+			: this(@delegate, contextType ?? typeof(IContext), null, paths)
 		{
 		}
 
+		/// <summary>
+		/// Creates a new <see cref="DelegateCommand"/>.
+		/// </summary>
+		/// <param name="delegate">The delegate to wrap.</param>
+		/// <param name="source">The command this one is being marked as generated from.</param>
 		public DelegateCommand(Delegate @delegate, IImmutableCommand source)
-			: this(@delegate, source.ContextType, source, source.Names)
+			: this(@delegate, source.ContextType, source, source.Paths)
 		{
 		}
 
@@ -35,12 +52,13 @@ namespace YACCS.Commands.Models
 
 			foreach (var name in names)
 			{
-				Names.Add(name);
+				Paths.Add(name);
 			}
 
 			Attributes.Add(@delegate);
 		}
 
+		/// <inheritdoc />
 		public override IImmutableCommand ToImmutable()
 			=> new ImmutableDelegateCommand(this);
 

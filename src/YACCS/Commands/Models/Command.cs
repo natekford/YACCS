@@ -16,26 +16,38 @@ using YACCS.Results;
 
 namespace YACCS.Commands.Models
 {
+	/// <inheritdoc cref="ICommand"/>
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public abstract class Command : EntityBase, ICommand
 	{
+		/// <inheritdoc />
 		public Type ContextType { get; protected set; }
-		public IList<IReadOnlyList<string>> Names { get; set; }
+		/// <inheritdoc />
 		public IReadOnlyList<IParameter> Parameters { get; protected set; }
+		/// <inheritdoc />
+		public IList<IReadOnlyList<string>> Paths { get; set; }
+		/// <inheritdoc />
 		public IImmutableCommand? Source { get; protected set; }
-		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
 		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
+		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Paths => Paths;
 		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
+		/// <summary>
+		/// Creates an instance of <see cref="Command"/>
+		/// </summary>
+		/// <param name="method"></param>
+		/// <param name="contextType"></param>
+		/// <param name="source"></param>
 		protected Command(MethodInfo method, Type contextType, IImmutableCommand? source)
 			: base(method)
 		{
 			Source = source;
 			ContextType = contextType;
-			Names = new List<IReadOnlyList<string>>();
+			Paths = new List<IReadOnlyList<string>>();
 			Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IParameter>();
 		}
 
+		/// <inheritdoc />
 		public virtual bool IsValidContext(Type type)
 		{
 			return ContextType.IsAssignableFrom(type) && Attributes
@@ -43,15 +55,17 @@ namespace YACCS.Commands.Models
 				.All(x => x.DoesTypeSatisfy(type));
 		}
 
+		/// <inheritdoc />
 		public abstract IImmutableCommand ToImmutable();
 
+		/// <inheritdoc />
 		public virtual async IAsyncEnumerable<IImmutableCommand> ToMultipleImmutableAsync(
 			IServiceProvider services)
 		{
 			var immutable = ToImmutable();
 			yield return immutable;
 
-			foreach (var generator in this.Get<ICommandGeneratorAttribute>())
+			foreach (var generator in this.GetAttributes<ICommandGeneratorAttribute>())
 			{
 				foreach (var generated in await generator.GenerateCommandsAsync(services, immutable).ConfigureAwait(false))
 				{
@@ -60,29 +74,49 @@ namespace YACCS.Commands.Models
 			}
 		}
 
+		/// <inheritdoc cref="IImmutableCommand"/>
 		[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 		protected abstract class ImmutableCommand : IImmutableCommand
 		{
 			private readonly Lazy<Func<Task, object>> _TaskResult;
 			private readonly ConcurrentDictionary<Type, bool> _ValidContexts = new();
 
+			/// <inheritdoc />
 			public IReadOnlyList<object> Attributes { get; }
+			/// <inheritdoc />
 			public Type ContextType { get; }
+			/// <inheritdoc />
 			public bool IsHidden { get; }
+			/// <inheritdoc />
 			public int MaxLength { get; }
+			/// <inheritdoc />
 			public int MinLength { get; }
-			public IReadOnlyList<IReadOnlyList<string>> Names { get; }
+			/// <inheritdoc />
 			public IReadOnlyList<IImmutableParameter> Parameters { get; }
+			/// <inheritdoc />
+			public IReadOnlyList<IReadOnlyList<string>> Paths { get; }
+			/// <inheritdoc />
 			public IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions { get; }
+			/// <inheritdoc />
 			public string PrimaryId { get; }
+			/// <inheritdoc />
 			public int Priority { get; }
+			/// <inheritdoc />
 			public IImmutableCommand? Source { get; }
 			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
-			IEnumerable<IReadOnlyList<string>> IQueryableCommand.Names => Names;
 			IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
+			IEnumerable<IReadOnlyList<string>> IQueryableCommand.Paths => Paths;
+			/// <summary>
+			/// The return type for this command.
+			/// </summary>
 			protected Type ReturnType { get; }
 			private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
+			/// <summary>
+			/// Creates a new <see cref="ImmutableCommand"/>.
+			/// </summary>
+			/// <param name="mutable">The mutable instance of this command.</param>
+			/// <param name="returnType">The return type of the object being wrapped.</param>
 			protected ImmutableCommand(Command mutable, Type returnType)
 			{
 				ReturnType = returnType;
@@ -90,12 +124,12 @@ namespace YACCS.Commands.Models
 				Source = mutable.Source;
 				_TaskResult = new(() => ReflectionUtils.CreateDelegate(TaskResult, "task result"));
 
-				var names = ImmutableArray.CreateBuilder<IReadOnlyList<string>>(mutable.Names.Count);
-				foreach (var name in mutable.Names)
+				var names = ImmutableArray.CreateBuilder<IReadOnlyList<string>>(mutable.Paths.Count);
+				foreach (var name in mutable.Paths)
 				{
-					names.Add(new ImmutableName(name));
+					names.Add(new ImmutablePath(name));
 				}
-				Names = names.MoveToImmutable();
+				Paths = names.MoveToImmutable();
 
 				var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(mutable.Parameters.Count);
 				for (var i = 0; i < mutable.Parameters.Count; ++i)
@@ -113,7 +147,7 @@ namespace YACCS.Commands.Models
 						}
 
 						var orig = immutable.OriginalParameterName;
-						var name = Names?.FirstOrDefault();
+						var name = Paths?.FirstOrDefault();
 						throw new InvalidOperationException($"'{orig}' from '{name}' " +
 							"must be the final parameter because it is a remainder.");
 					}
@@ -174,8 +208,10 @@ namespace YACCS.Commands.Models
 				PrimaryId ??= Guid.NewGuid().ToString();
 			}
 
+			/// <inheritdoc />
 			public abstract ValueTask<IResult> ExecuteAsync(IContext context, object?[] args);
 
+			/// <inheritdoc />
 			public virtual bool IsValidContext(Type type)
 			{
 				return _ValidContexts.GetOrAdd(type, static (type, args) =>
@@ -186,6 +222,19 @@ namespace YACCS.Commands.Models
 				}, (ContextType, Attributes));
 			}
 
+			/// <summary>
+			/// Converts an <see cref="object"/> into an <see cref="IResult"/>.
+			/// <br/>
+			/// If the method we're wrapping is void, it returns a <see cref="SuccessResult"/>.
+			/// <br/>
+			/// If <paramref name="value"/> is an <see cref="IResult"/>, it returns <paramref name="value"/> directly.
+			/// <br/>
+			/// If <paramref name="value"/> is a <see cref="Task"/>, it calls <see cref="ConvertValueAsync(Task)"/>.
+			/// <br/>
+			/// Otherwise, it boxes <paramref name="value"/> with <see cref="ValueResult"/>.
+			/// </summary>
+			/// <param name="value">The <see cref="object"/> to convert.</param>
+			/// <returns>The converted value.</returns>
 			protected virtual ValueTask<IResult> ConvertValueAsync(object? value)
 			{
 				// Void method. No value to return, we're done
@@ -210,6 +259,11 @@ namespace YACCS.Commands.Models
 				return new(new ValueResult(value));
 			}
 
+			/// <summary>
+			/// Converts a <see cref="Task"/> into an <see cref="IResult"/>.
+			/// </summary>
+			/// <param name="task">The <see cref="Task"/> to convert.</param>
+			/// <returns>The converted value.</returns>
 			protected virtual async Task<IResult> ConvertValueAsync(Task task)
 			{
 				// Let's await it to actually complete it

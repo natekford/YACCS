@@ -13,36 +13,24 @@ using static YACCS.Commands.CommandCreationUtils;
 
 namespace YACCS.CommandAssemblies
 {
+	/// <summary>
+	/// Utilities for plugins.
+	/// </summary>
 	public static class PluginUtils
 	{
-		public static void Add(this IDictionary<string, Assembly> dictionary, Assembly assembly)
-			=> dictionary.Add(assembly.FullName, assembly);
-
-		public static async Task AddServicesAsync<T>(
-			this IEnumerable<IServiceInstantiator<T>> instantiators,
-			T services)
-		{
-			foreach (var instantiator in instantiators)
-			{
-				await instantiator.AddServicesAsync(services).ConfigureAwait(false);
-			}
-		}
-
-		public static async Task ConfigureServicesAsync(
-			this IEnumerable<IServiceInstantiator> instantiators,
-			IServiceProvider services)
-		{
-			foreach (var instantiator in instantiators)
-			{
-				await instantiator.ConfigureServicesAsync(services).ConfigureAwait(false);
-			}
-		}
-
-		public static async Task<IDictionary<CultureInfo, List<CreatedCommand>>> GetCommandsInSupportedCultures(
+		/// <summary>
+		/// For each assembly in <paramref name="assemblies"/>, gets each supported culture
+		/// via <see cref="SupportedCulturesAttribute"/> and then creates commands after
+		/// setting <see cref="CultureInfo.CurrentUICulture"/> to each subsequent culture.
+		/// </summary>
+		/// <param name="assemblies">The assemblies to look through.</param>
+		/// <param name="services">The services to use for dependency injection.</param>
+		/// <returns>A dictionary of cultures and reflected commands.</returns>
+		public static async Task<ConcurrentDictionary<CultureInfo, List<ReflectedCommand>>> GetCommandsInSupportedCultures(
 			this IEnumerable<Assembly> assemblies,
 			IServiceProvider services)
 		{
-			var dict = new ConcurrentDictionary<CultureInfo, List<CreatedCommand>>();
+			var dict = new ConcurrentDictionary<CultureInfo, List<ReflectedCommand>>();
 			var originalCulture = CultureInfo.CurrentUICulture;
 			foreach (var assembly in assemblies)
 			{
@@ -68,6 +56,13 @@ namespace YACCS.CommandAssemblies
 			return dict;
 		}
 
+		/// <summary>
+		/// Gets all instantiators defined via <see cref="ServiceInstantiatorAttribute"/> and
+		/// implement <see cref="IServiceInstantiator{T}"/>.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="assemblies">The assemblies to look through.</param>
+		/// <returns>A list of service instantiators.</returns>
 		public static List<IServiceInstantiator<T>> GetInstantiators<T>(
 			this IEnumerable<Assembly> assemblies)
 		{
@@ -85,33 +80,40 @@ namespace YACCS.CommandAssemblies
 			return instantiators;
 		}
 
-		public static async Task Instantiate<T>(
-			this IEnumerable<IServiceInstantiator<T>> instantiators,
-			T services,
-			Func<T, IServiceProvider> providerFactory)
-		{
-			await instantiators.AddServicesAsync(services).ConfigureAwait(false);
-			var provider = providerFactory.Invoke(services);
-			await instantiators.ConfigureServicesAsync(provider).ConfigureAwait(false);
-		}
-
-		public static Dictionary<string, Assembly> Load(IEnumerable<string> files)
+		/// <summary>
+		/// Loads each assembly and checks if it's marked with <see cref="PluginAttribute"/>.
+		/// </summary>
+		/// <param name="dlls">The dlls to check if they are plugins.</param>
+		/// <returns>A dictionary of plugin assemblies.</returns>
+		public static Dictionary<string, Assembly> Load(IEnumerable<string> dlls)
 		{
 			var dictionary = new Dictionary<string, Assembly>();
-			foreach (var file in files)
+			foreach (var file in dlls)
 			{
 				var assembly = Assembly.LoadFrom(file);
 				if (assembly.GetCustomAttribute<PluginAttribute>() is not null)
 				{
-					dictionary.Add(assembly);
+					dictionary.Add(assembly.FullName, assembly);
 				}
 			}
 			return dictionary;
 		}
 
+		/// <summary>
+		/// Calls <see cref="Load(IEnumerable{string})"/> with all dlls
+		/// in <paramref name="directory"/>.
+		/// </summary>
+		/// <param name="directory">The directory to gather dlls from</param>
+		/// <returns>A dictionary of plugin assemblies.</returns>
 		public static Dictionary<string, Assembly> Load(string directory)
 			=> Load(Directory.EnumerateFiles(directory, "*.dll", SearchOption.TopDirectoryOnly));
 
+		/// <summary>
+		/// Throws an exception if there are no assemblies in <paramref name="assemblies"/>.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="assemblies">The dictionary of assemblies.</param>
+		/// <returns>The passed in value after it has been checked.</returns>
 		public static T ThrowIfEmpty<T>(this T assemblies) where T : IDictionary<string, Assembly>
 		{
 			if (assemblies.Count == 0)

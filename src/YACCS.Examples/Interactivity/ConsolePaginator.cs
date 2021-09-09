@@ -1,5 +1,4 @@
-﻿
-using YACCS.Interactivity;
+﻿using YACCS.Interactivity;
 using YACCS.Interactivity.Pagination;
 
 namespace YACCS.Examples.Interactivity
@@ -16,13 +15,9 @@ namespace YACCS.Examples.Interactivity
 		protected override Task<int?> ConvertAsync(string input)
 			=> Task.FromResult<int?>(int.TryParse(input, out var result) ? result : null);
 
-		protected override int GetNewPage(int current, int max, int diff)
-			=> diff;
-
-		protected override Task SubscribeAsync(ConsoleContext context, OnInput<string> onInput)
-			=> _Interactivity.SubscribeAsync(context, onInput);
-
-		protected override Task UnsubscribeAsync(ConsoleContext context, OnInput<string> onInput)
-			=> _Interactivity.UnsubscribeAsync(context, onInput);
+		protected override Task<IAsyncDisposable> SubscribeAsync(
+			ConsoleContext _,
+			OnInput<string> onInput)
+			=> _Interactivity.SubscribeAsync(onInput);
 	}
 }

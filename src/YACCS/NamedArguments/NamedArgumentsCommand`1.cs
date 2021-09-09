@@ -12,13 +12,22 @@ using YACCS.Results;
 
 namespace YACCS.NamedArguments
 {
+	/// <inheritdoc />
+	/// <typeparam name="T"></typeparam>
 	public class NamedArgumentsCommand<T> : GeneratedCommand
 		where T : IDictionary<string, object?>, new()
 	{
+		/// <inheritdoc />
 		public override int MaxLength => int.MaxValue;
+		/// <inheritdoc />
 		public override int MinLength => 0;
+		/// <inheritdoc />
 		public override IReadOnlyList<IImmutableParameter> Parameters { get; }
 
+		/// <summary>
+		/// Creates a new <see cref="NamedArgumentsCommand{T}"/>.
+		/// </summary>
+		/// <inheritdoc cref="GeneratedCommand(IImmutableCommand)"/>
 		public NamedArgumentsCommand(IImmutableCommand source) : base(source)
 		{
 			var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(1);
@@ -33,11 +42,12 @@ namespace YACCS.NamedArguments
 			catch (Exception e)
 			{
 				throw new InvalidOperationException($"Unable to build {typeof(T).Name} " +
-					$"parameter for '{source.Names?.FirstOrDefault()}'.", e);
+					$"parameter for '{source.Paths?.FirstOrDefault()}'.", e);
 			}
 			Parameters = parameters.MoveToImmutable();
 		}
 
+		/// <inheritdoc />
 		public override ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
 		{
 			T dict;
@@ -48,7 +58,7 @@ namespace YACCS.NamedArguments
 			catch (Exception e)
 			{
 				throw new ArgumentException($"Expected one {typeof(T)} and no " +
-					$"other arguments for '{Source.Names?.FirstOrDefault()}'.", e);
+					$"other arguments for '{Source.Paths?.FirstOrDefault()}'.", e);
 			}
 
 			var values = new object?[Source.Parameters.Count];

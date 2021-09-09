@@ -9,9 +9,15 @@ using YACCS.Parsing;
 
 namespace YACCS.TypeReaders
 {
+	/// <summary>
+	/// Parses a collection of <typeparamref name="TElement"/>.
+	/// </summary>
+	/// <typeparam name="TElement"></typeparam>
+	/// <typeparam name="TCollection"></typeparam>
 	public abstract class CollectionTypeReader<TElement, TCollection> : TypeReader<TCollection>
 		where TCollection : ICollection<TElement>
 	{
+		/// <inheritdoc />
 		public override async ITask<ITypeReaderResult<TCollection>> ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
@@ -53,6 +59,11 @@ namespace YACCS.TypeReaders
 			return Success(values);
 		}
 
+		/// <summary>
+		/// Creates a collection of <typeparamref name="TElement"/>.
+		/// </summary>
+		/// <returns>A collection of <typeparamref name="TElement"/>.</returns>
+		/// <inheritdoc cref="ReadAsync(IContext, ReadOnlyMemory{string})"/>
 		protected abstract ValueTask<TCollection> CreateCollectionAsync(
 			IContext context,
 			ReadOnlyMemory<string> input);

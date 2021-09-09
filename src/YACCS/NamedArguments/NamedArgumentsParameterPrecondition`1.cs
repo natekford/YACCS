@@ -7,20 +7,29 @@ using YACCS.Commands.Models;
 
 namespace YACCS.NamedArguments
 {
+	/// <summary>
+	/// Validates every property for the instance of <typeparamref name="T"/> passed in.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
 	public sealed class NamedArgumentsParameterPrecondition<T>
 		: NamedArgumentsParameterPreconditionBase<T>
 	{
 		private static readonly object NotFound = new();
 		private readonly Func<T, string, object> _Getter;
 
+		/// <inheritdoc />
 		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
+		/// <summary>
+		/// Creates an instance of <see cref="NamedArgumentsParameterPrecondition{T}"/>.
+		/// </summary>
 		public NamedArgumentsParameterPrecondition()
 		{
 			Parameters = typeof(T).CreateParamDict(x => x.OriginalParameterName);
 			_Getter = ReflectionUtils.CreateDelegate(Getter, "getter");
 		}
 
+		/// <inheritdoc />
 		protected override bool TryGetProperty(T instance, string property, out object? value)
 			=> (value = _Getter.Invoke(instance, property)) != NotFound;
 

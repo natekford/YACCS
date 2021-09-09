@@ -25,13 +25,13 @@ namespace YACCS.Tests.Commands
 			var trie = (ITrie<string, IImmutableCommand>)commandService.Commands;
 
 			var c1 = FakeDelegateCommand.New()
-				.AddName(new[] { "1" })
+				.AddPath(new[] { "1" })
 				.ToImmutable();
 			trie.Add(c1);
 			Assert.AreEqual(1, trie.Count);
 
 			var c2 = FakeDelegateCommand.New()
-				.AddName(new[] { "2" })
+				.AddPath(new[] { "2" })
 				.ToImmutable();
 			trie.Add(c2);
 			Assert.AreEqual(2, commandService.Commands.Count);
@@ -72,22 +72,22 @@ namespace YACCS.Tests.Commands
 			var trie = (ITrie<string, IImmutableCommand>)commandService.Commands;
 
 			var c1 = FakeDelegateCommand.New()
-				.AddName(new[] { "1" })
+				.AddPath(new[] { "1" })
 				.ToImmutable();
 			trie.Add(c1);
 			var c2 = FakeDelegateCommand.New()
-				.AddName(new[] { "2" })
-				.AddName(new[] { "3" })
+				.AddPath(new[] { "2" })
+				.AddPath(new[] { "3" })
 				.ToImmutable();
 			trie.Add(c2);
 			var c3 = FakeDelegateCommand.New()
-				.AddName(new[] { "4", "1" })
-				.AddName(new[] { "4", "2" })
-				.AddName(new[] { "4", "3" })
+				.AddPath(new[] { "4", "1" })
+				.AddPath(new[] { "4", "2" })
+				.AddPath(new[] { "4", "3" })
 				.ToImmutable();
 			trie.Add(c3);
 			var c4 = FakeDelegateCommand.New()
-				.AddName(new[] { "4", "1" })
+				.AddPath(new[] { "4", "1" })
 				.ToImmutable();
 			trie.Add(c4);
 
@@ -374,8 +374,8 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(CommandStage.FailedTypeReader, result.Stage);
 			Assert.AreEqual(1, result.Score);
 
-			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
-			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsTrue(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -393,8 +393,8 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(CommandStage.FailedParameterPrecondition, result.Stage);
 			Assert.AreEqual(1, result.Score);
 
-			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
-			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsTrue(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -412,8 +412,8 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(CommandStage.FailedPrecondition, result.Stage);
 			Assert.AreEqual(0, result.Score);
 
-			Assert.IsFalse(command.Get<WasIReachedPrecondition>().Single().IWasReached);
-			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsFalse(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -431,8 +431,8 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(CommandStage.FailedTypeReader, result.Stage);
 			Assert.AreEqual(0, result.Score);
 
-			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
-			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsTrue(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -496,8 +496,8 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(CommandStage.CanExecute, result.Stage);
 			Assert.AreEqual(1, result.Score);
 
-			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
-			Assert.IsTrue(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsTrue(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsTrue(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		private static (CommandService, FakeContext, ICommand, IParameter) Create(bool success, int disallowedValue)
@@ -507,7 +507,7 @@ namespace YACCS.Tests.Commands
 			}
 
 			var @delegate = (Action<int>)Delegate;
-			var commandBuilder = new DelegateCommand(@delegate, Array.Empty<ImmutableName>(), typeof(FakeContext))
+			var commandBuilder = new DelegateCommand(@delegate, Array.Empty<ImmutablePath>(), typeof(FakeContext))
 				.AsContext<FakeContext>()
 				.AddPrecondition(new FakePrecondition(success))
 				.AddPrecondition(new WasIReachedPrecondition());
@@ -529,11 +529,11 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (context, meta) = Create(DISALLOWED_VALUE);
+			var (context, command, parameter) = Create(DISALLOWED_VALUE);
 			var arg = new[] { DISALLOWED_VALUE, DISALLOWED_VALUE + 1, DISALLOWED_VALUE + 2 };
-			var result = await meta.Parameter.CanExecuteAsync(meta, context, arg).ConfigureAwait(false);
+			var result = await command.CanExecuteAsync(parameter, context, arg).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
-			Assert.IsFalse(meta.Parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -541,11 +541,11 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (context, meta) = Create(DISALLOWED_VALUE);
+			var (context, command, parameter) = Create(DISALLOWED_VALUE);
 			var arg = new[] { DISALLOWED_VALUE + 1, DISALLOWED_VALUE + 2, DISALLOWED_VALUE + 3 };
-			var result = await meta.Parameter.CanExecuteAsync(meta, context, arg).ConfigureAwait(false);
+			var result = await command.CanExecuteAsync(parameter, context, arg).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsTrue(meta.Parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsTrue(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -553,10 +553,10 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (context, meta) = Create(DISALLOWED_VALUE);
-			var result = await meta.Parameter.CanExecuteAsync(meta, context, DISALLOWED_VALUE).ConfigureAwait(false);
+			var (context, command, parameter) = Create(DISALLOWED_VALUE);
+			var result = await command.CanExecuteAsync(parameter, context, DISALLOWED_VALUE).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
-			Assert.IsFalse(meta.Parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -564,20 +564,20 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (context, meta) = Create(DISALLOWED_VALUE);
-			var result = await meta.Parameter.CanExecuteAsync(meta, context, 1 + DISALLOWED_VALUE).ConfigureAwait(false);
+			var (context, command, parameter) = Create(DISALLOWED_VALUE);
+			var result = await command.CanExecuteAsync(parameter, context, 1 + DISALLOWED_VALUE).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsTrue(meta.Parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsTrue(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
-		private static (FakeContext, CommandMeta) Create(int disallowedValue)
+		private static (FakeContext, IImmutableCommand, IImmutableParameter) Create(int disallowedValue)
 		{
 			static void Delegate(int arg)
 			{
 			}
 
 			var @delegate = (Action<int>)Delegate;
-			var commandBuilder = new DelegateCommand(@delegate, Array.Empty<ImmutableName>());
+			var commandBuilder = new DelegateCommand(@delegate, Array.Empty<ImmutablePath>());
 			commandBuilder.Parameters[0]
 				.AsType<int>()
 				.AddParameterPrecondition(new FakeParameterPrecondition(disallowedValue))
@@ -585,8 +585,7 @@ namespace YACCS.Tests.Commands
 
 			var command = commandBuilder.ToImmutable();
 			var context = new FakeContext();
-			var meta = new CommandMeta(command, command.Parameters[0]);
-			return (context, meta);
+			return (context, command, command.Parameters[0]);
 		}
 	}
 
@@ -614,7 +613,7 @@ namespace YACCS.Tests.Commands
 				.ToImmutable();
 			var result = await command.CanExecuteAsync(new FakeContext()).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsFalse(command.Get<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -630,7 +629,7 @@ namespace YACCS.Tests.Commands
 				.ToImmutable();
 			var result = await command.CanExecuteAsync(new FakeContext()).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsFalse(command.Get<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -639,7 +638,7 @@ namespace YACCS.Tests.Commands
 			var (context, command) = Create(false);
 			var result = await command.CanExecuteAsync(context).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
-			Assert.IsFalse(command.Get<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -648,7 +647,7 @@ namespace YACCS.Tests.Commands
 			var (context, command) = Create(true);
 			var result = await command.CanExecuteAsync(context).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsTrue(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
 		}
 
 		private static (FakeContext, IImmutableCommand) Create(bool success)

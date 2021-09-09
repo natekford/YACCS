@@ -6,10 +6,15 @@ using YACCS.Commands;
 
 namespace YACCS.TypeReaders
 {
+	/// <summary>
+	/// Parses an array of <typeparamref name="T"/>.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
 	public class ArrayTypeReader<T> : TypeReader<T[]>
 	{
 		private readonly ListTypeReader<T> _ListTypeReader = new();
 
+		/// <inheritdoc />
 		public override async ITask<ITypeReaderResult<T[]>> ReadAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)

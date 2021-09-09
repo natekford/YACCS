@@ -7,8 +7,16 @@ using YACCS.Commands.Models;
 
 namespace YACCS.SwappedArguments
 {
+	/// <summary>
+	/// Utilties for swapped arguments.
+	/// </summary>
 	public static class SwappedArgumentsUtils
 	{
+		/// <inheritdoc cref="GenerateSwappedArgumentsVersions(IImmutableCommand, IReadOnlyList{int}, int)"/>
+		/// <exception cref="InvalidOperationException">
+		/// When a parameter marked with a <see cref="IImmutableParameter.Length"/> of
+		/// <see langword="null"/> is swapped.
+		/// </exception>
 		public static IEnumerable<SwappedArgumentsCommand> GenerateSwappedArgumentsVersions(
 			this IImmutableCommand command,
 			int priorityDifference)
@@ -17,7 +25,7 @@ namespace YACCS.SwappedArguments
 			for (var i = 0; i < command.Parameters.Count; ++i)
 			{
 				var parameter = command.Parameters[i];
-				if (!parameter.Get<ISwappableAttribute>().Any())
+				if (!parameter.GetAttributes<SwappableAttribute>().Any())
 				{
 					continue;
 				}
@@ -25,13 +33,23 @@ namespace YACCS.SwappedArguments
 				{
 					throw new InvalidOperationException(
 						$"Cannot swap the parameter '{parameter.OriginalParameterName}' " +
-						$"from '{command.Names?.FirstOrDefault()}' because it is a remainder.");
+						$"from '{command.Paths?.FirstOrDefault()}' because it is a remainder.");
 				}
 				indices.Add(i);
 			}
 			return command.GenerateSwappedArgumentsVersions(indices, priorityDifference);
 		}
 
+		/// <summary>
+		/// Creates permutations for <paramref name="indices"/> and then returns
+		/// <see cref="SwappedArgumentsCommand"/> for each one.
+		/// </summary>
+		/// <param name="command">The command which is being wrapped.</param>
+		/// <param name="indices">The indices to swap around.</param>
+		/// <param name="priorityDifference">
+		/// The amount to lower priority by for each step taken in reordering the indices.
+		/// </param>
+		/// <returns>An enumerable of commands with swapped arguments.</returns>
 		public static IEnumerable<SwappedArgumentsCommand> GenerateSwappedArgumentsVersions(
 			this IImmutableCommand command,
 			IReadOnlyList<int> indices,

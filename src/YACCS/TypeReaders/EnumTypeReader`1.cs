@@ -2,19 +2,33 @@
 
 namespace YACCS.TypeReaders
 {
+	/// <inheritdoc cref="Enum.TryParse{TEnum}(string, bool, out TEnum)"/>
 	public delegate bool EnumDelegate<TEnum>(
 		string input,
 		bool ignoreCase,
 		out TEnum result)
 		where TEnum : struct, Enum;
 
+	/// <summary>
+	/// Parses a <typeparamref name="TEnum"/> via <see cref="EnumDelegate{TEnum}"/>.
+	/// </summary>
+	/// <typeparam name="TEnum"></typeparam>
 	public class EnumTypeReader<TEnum> : TryParseTypeReader<TEnum> where TEnum : struct, Enum
 	{
-		public EnumTypeReader() : base(Convert(Enum.TryParse))
+		/// <inheritdoc cref="EnumTypeReader{TEnum}(EnumDelegate{TEnum})"/>
+		public EnumTypeReader() : this(Enum.TryParse)
 		{
 		}
 
-		public static TryParseDelegate<TEnum> Convert(EnumDelegate<TEnum> @delegate)
+		/// <summary>
+		/// Creates a new <see cref="EnumTypeReader{T}"/>.
+		/// </summary>
+		/// <param name="delegate">The delegate to use when parsing.</param>
+		public EnumTypeReader(EnumDelegate<TEnum> @delegate) : base(Convert(@delegate))
+		{
+		}
+
+		private static TryParseDelegate<TEnum> Convert(EnumDelegate<TEnum> @delegate)
 		{
 			return (string input, out TEnum result) =>
 			{

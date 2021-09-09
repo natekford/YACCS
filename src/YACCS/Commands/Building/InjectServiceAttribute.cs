@@ -4,12 +4,16 @@ using System.Reflection;
 
 namespace YACCS.Commands.Building
 {
+	/// <summary>
+	/// Specifies that the property/field is injected via <see cref="IServiceProvider"/>.
+	/// </summary>
 	[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-	public class InjectServiceAttribute : InjectableAttribute
+	public sealed class InjectServiceAttribute : InjectableAttribute
 	{
 		private static readonly MethodInfo _GetService = typeof(IServiceProvider)
 			.GetMethod(nameof(IServiceProvider.GetService));
 
+		/// <inheritdoc />
 		public override Expression CreateInjection(
 			ParameterExpression context,
 			MemberExpression member)

@@ -7,14 +7,21 @@ using YACCS.Commands.Models;
 
 namespace YACCS.SwappedArguments
 {
+	/// <summary>
+	/// Specifies that the applied command has arguments which can be swapped.
+	/// </summary>
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-	public class GenerateSwappedArgumentsAttribute : Attribute, ICommandGeneratorAttribute
+	public sealed class GenerateSwappedArgumentsAttribute : Attribute, ICommandGeneratorAttribute
 	{
-		public int PriorityDifference { get; set; } = -1;
+		/// <summary>
+		/// The amount to lower priority by for each step taken in reordering the indices.
+		/// </summary>
+		public int PriorityDifference { get; set; } = 1;
 
+		/// <inheritdoc />
 		public ValueTask<IEnumerable<IImmutableCommand>> GenerateCommandsAsync(
 			IServiceProvider services,
-			IImmutableCommand original)
-			=> new(original.GenerateSwappedArgumentsVersions(PriorityDifference));
+			IImmutableCommand source)
+			=> new(source.GenerateSwappedArgumentsVersions(PriorityDifference));
 	}
 }

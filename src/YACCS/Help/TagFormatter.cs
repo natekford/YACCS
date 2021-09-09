@@ -4,8 +4,14 @@ using System.Globalization;
 
 namespace YACCS.Help
 {
+	/// <summary>
+	/// A basic implementation of <see cref="ICustomFormatter"/>.
+	/// </summary>
 	public class TagFormatter : IFormatProvider, ICustomFormatter
 	{
+		/// <summary>
+		/// Specifies how to format a string for a given format.
+		/// </summary>
 		protected virtual Dictionary<string, Func<string, string>> Formatters { get; } = new(StringComparer.OrdinalIgnoreCase)
 		{
 			[Tag.Header] = x => $"{x}:",
@@ -13,6 +19,7 @@ namespace YACCS.Help
 			[Tag.Value] = x => x,
 		};
 
+		/// <inheritdoc />
 		public virtual string Format(
 			string? format,
 			object? arg,
@@ -36,6 +43,7 @@ namespace YACCS.Help
 			return arg.ToString();
 		}
 
+		/// <inheritdoc />
 		public object? GetFormat(Type formatType)
 			=> formatType == typeof(ICustomFormatter) ? this : null;
 	}

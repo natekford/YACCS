@@ -1,4 +1,6 @@
-﻿using System;
+﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+using System;
 using System.Diagnostics;
 
 using YACCS.Commands.Models;
@@ -7,7 +9,7 @@ using YACCS.Results;
 namespace YACCS.Commands
 {
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-	public class CommandScore : IComparable<CommandScore>, IComparable, ICommandResult
+	public class CommandScore : IComparable<CommandScore>, IComparable, IExecuteResult
 	{
 		// This class is a mess
 		public static CommandScore CommandNotFound { get; }
@@ -27,6 +29,18 @@ namespace YACCS.Commands
 		public CommandStage Stage { get; }
 		private string DebuggerDisplay => $"Stage = {Stage}, Score = {Score}, Success = {InnerResult.IsSuccess}";
 
+		/// <summary>
+		/// Creates a new <see cref="CommandScore"/>.
+		/// </summary>
+		/// <param name="command"></param>
+		/// <param name="parameter"></param>
+		/// <param name="context">
+		/// <inheritdoc cref="CommandGroup{TContext}.Context" path="/summary"/>
+		/// </param>
+		/// <param name="result"></param>
+		/// <param name="stage"></param>
+		/// <param name="score"></param>
+		/// <param name="args"></param>
 		protected CommandScore(
 			IImmutableCommand? command,
 			IImmutableParameter? parameter,
@@ -187,9 +201,6 @@ namespace YACCS.Commands
 			return new(command, null, context, result, STAGE, score, null);
 		}
 
-		public static CommandScore? Max(CommandScore? a, CommandScore? b)
-			=> a > b ? a : b;
-
 		public static bool operator !=(CommandScore? a, CommandScore? b)
 			=> !(a == b);
 
@@ -208,6 +219,7 @@ namespace YACCS.Commands
 		public static bool operator >=(CommandScore? a, CommandScore? b)
 			=> !(a < b);
 
+		/// <inheritdoc />
 		public int CompareTo(object obj)
 		{
 			if (obj is null)
@@ -221,12 +233,15 @@ namespace YACCS.Commands
 			throw new ArgumentException($"Not a {nameof(CommandScore)}.", nameof(obj));
 		}
 
+		/// <inheritdoc />
 		public int CompareTo(CommandScore other)
 			=> CompareTo(this, other);
 
+		/// <inheritdoc />
 		public override bool Equals(object obj)
 			=> obj is CommandScore other && CompareTo(other) == 0;
 
+		/// <inheritdoc />
 		public override int GetHashCode()
 			=> HashCode.Combine(Stage, InnerResult.IsSuccess, Priority, Score);
 	}

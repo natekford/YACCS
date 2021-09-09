@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-using YACCS.Commands;
+﻿using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Building;
 using YACCS.Commands.Models;
@@ -33,7 +31,7 @@ namespace YACCS.Examples.Commands
 			=> HelpCommand(commands);
 
 		[Command]
-		public Task HelpCommand()
+		public Task<IResult> HelpCommand()
 			=> HelpCommand(CommandService.Commands);
 
 		[Command]
@@ -66,7 +64,7 @@ namespace YACCS.Examples.Commands
 				Console.WriteLine("Enter the position of the command you want to see: ");
 				for (var i = 0; i < executableCommands.Count; ++i)
 				{
-					Console.WriteLine($"\t{i + 1}. {executableCommands[i].Names[0]}");
+					Console.WriteLine($"\t{i + 1}. {executableCommands[i].Paths[0]}");
 				}
 
 				var options = Input.CreateOptions().With(preconditions: new[]

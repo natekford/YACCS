@@ -8,6 +8,9 @@ using YACCS.Commands;
 
 namespace YACCS.TypeReaders
 {
+	/// <summary>
+	/// A registry for <see cref="ITypeReader"/>s.
+	/// </summary>
 	public class TypeReaderRegistry : TypeRegistry<ITypeReader>
 	{
 		private static readonly MethodInfo _RegisterStruct =
@@ -16,9 +19,14 @@ namespace YACCS.TypeReaders
 			.DeclaredMethods
 			.Single(x => x.Name == nameof(RegisterStruct));
 
+		/// <inheritdoc />
 		protected override IDictionary<Type, ITypeReader> Items { get; }
 			= new Dictionary<Type, ITypeReader>();
 
+		/// <summary>
+		/// Creates a new <see cref="TypeReaderRegistry"/>.
+		/// </summary>
+		/// <param name="assemblies">The assemblies to scan for type readers.</param>
 		public TypeReaderRegistry(IEnumerable<Assembly>? assemblies = null)
 		{
 			RegisterClass(new StringTypeReader());
@@ -50,27 +58,48 @@ namespace YACCS.TypeReaders
 			}
 		}
 
-		public void Register(Type type, ITypeReader item)
+		/// <summary>
+		/// Adds a type reader to this registry.
+		/// </summary>
+		/// <param name="type">The type the reader is for.</param>
+		/// <param name="reader">The reader to add.</param>
+		/// <exception cref="ArgumentException">
+		/// When the output type of <paramref name="reader"/> cannot be assigned to
+		/// a variable of <paramref name="type"/>.
+		/// </exception>
+		public void Register(Type type, ITypeReader reader)
 		{
+			reader.ThrowIfInvalidTypeReader(type);
 			if (type.IsValueType)
 			{
-				_RegisterStruct.MakeGenericMethod(type).Invoke(this, new[] { item });
+				_RegisterStruct.MakeGenericMethod(type).Invoke(this, new[] { reader });
 			}
 			else
 			{
-				ValidatedRegister(type, item);
+				Items[type] = reader;
 			}
 		}
 
-		public void RegisterClass<T>(ITypeReader<T> item) where T : class
-			=> ValidatedRegister(typeof(T), item);
+		/// <summary>
+		/// Adds a type reader to this registry.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="reader">The reader to add.</param>
+		public void RegisterClass<T>(ITypeReader<T> reader) where T : class
+			=> Items[typeof(T)] = reader;
 
-		public void RegisterStruct<T>(ITypeReader<T> item) where T : struct
+		/// <summary>
+		/// Adds a type reader and its nullable variant to this registry.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="reader">The reader to add.</param>
+		public void RegisterStruct<T>(ITypeReader<T> reader) where T : struct
 		{
-			ValidatedRegister(typeof(T), item);
-			ValidatedRegister(typeof(T?), new NullableTypeReader<T>());
+			Items[typeof(T)] = reader;
+			Items[typeof(T?)] = new NullableTypeReader<T>();
 		}
 
+		/// <inheritdoc />
 		public override bool TryGetValue(Type type, [NotNullWhen(true)] out ITypeReader reader)
 		{
 			if (Items.TryGetValue(type, out reader))
@@ -85,6 +114,14 @@ namespace YACCS.TypeReaders
 			return false;
 		}
 
+		/// <summary>
+		/// Adds the readers to this registry.
+		/// </summary>
+		/// <param name="typeReaders">The readers to add.</param>
+		/// <exception cref="InvalidOperationException">
+		/// When a reader has already been registered for a type and
+		/// <see cref="TypeReaderInfo.OverrideExistingTypeReaders"/> is false.
+		/// </exception>
 		protected void RegisterTypeReaders(IEnumerable<TypeReaderInfo> typeReaders)
 		{
 			foreach (var typeReader in typeReaders)
@@ -106,6 +143,19 @@ namespace YACCS.TypeReaders
 			}
 		}
 
+		/// <summary>
+		/// Tries to create a <see cref="ITypeReader"/> for <paramref name="type"/>.
+		/// </summary>
+		/// <remarks>
+		/// If <paramref name="type"/> has any attributes implementing
+		/// <see cref="ITypeReaderGeneratorAttribute"/> those will be used. Otherwise,
+		/// this supports <see cref="EnumTypeReader{TEnum}"/>,
+		/// <see cref="ContextTypeReader{TContext}"/>, <see cref="ArrayTypeReader{T}"/>,
+		/// <see cref="ListTypeReader{T}"/>, and <see cref="HashSetTypeReader{T}"/>.
+		/// </remarks>
+		/// <param name="type">The type to create a type reader for.</param>
+		/// <param name="reader">The created type reader.</param>
+		/// <returns>A bool indicating success or failure.</returns>
 		protected virtual bool TryCreateReader(Type type, [NotNullWhen(true)] out ITypeReader reader)
 		{
 			var customReaders = type
@@ -151,16 +201,6 @@ namespace YACCS.TypeReaders
 
 			reader = readerType.CreateInstance<ITypeReader>();
 			return true;
-		}
-
-		protected void ValidatedRegister(Type type, ITypeReader item)
-		{
-			if (!type.IsAssignableFrom(item.OutputType))
-			{
-				throw new ArgumentException("Unable to use a type reader with an output type " +
-					$"{item.OutputType} for the type {type}.", nameof(item));
-			}
-			Items[type] = item;
 		}
 	}
 }

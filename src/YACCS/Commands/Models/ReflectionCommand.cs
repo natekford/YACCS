@@ -12,16 +12,33 @@ using YACCS.Results;
 
 namespace YACCS.Commands.Models
 {
+	/// <summary>
+	/// A mutable command created from a <see cref="MethodInfo"/>.
+	/// </summary>
 	public sealed class ReflectionCommand : Command
 	{
+		/// <summary>
+		/// The generic parameter from <see cref="ICommandGroup{T}"/> that is implemented by
+		/// the defining class of <see cref="Method"/>.
+		/// </summary>
 		public Type GroupType { get; }
+		/// <summary>
+		/// The method being wrapped.
+		/// </summary>
 		public MethodInfo Method { get; }
 
-		public ReflectionCommand(MethodInfo method) : this(method, null)
+		/// <inheritdoc cref="ReflectionCommand(MethodInfo, IImmutableCommand)"/>
+		public ReflectionCommand(MethodInfo method)
+			: this(method, method.ReflectedType, null)
 		{
 		}
 
-		public ReflectionCommand(MethodInfo method, IImmutableCommand? source)
+		/// <summary>
+		/// Creates a new <see cref="ReflectionCommand"/>.
+		/// </summary>
+		/// <param name="method">The method to wrap.</param>
+		/// <param name="source">The command this one is being marked as generated from.</param>
+		public ReflectionCommand(MethodInfo method, IImmutableCommand source)
 			: this(method, method.ReflectedType, source)
 		{
 		}
@@ -38,9 +55,9 @@ namespace YACCS.Commands.Models
 			Attributes.Add(Method);
 
 			// Add in all names
-			foreach (var name in GetFullNames(groupType, method))
+			foreach (var name in GetFullPaths(groupType, method))
 			{
-				Names.Add(name);
+				Paths.Add(name);
 			}
 
 			// Add in all attributes
@@ -55,6 +72,7 @@ namespace YACCS.Commands.Models
 			}
 		}
 
+		/// <inheritdoc />
 		public override IImmutableCommand ToImmutable()
 			=> new ImmutableReflectionCommand(this);
 
@@ -77,7 +95,7 @@ namespace YACCS.Commands.Models
 				$"{groupType.FullName} must implement {typeof(ICommandGroup<>).FullName}.", nameof(groupType));
 		}
 
-		private static IEnumerable<IReadOnlyList<string>> GetFullNames(
+		private static IEnumerable<IReadOnlyList<string>> GetFullPaths(
 			Type group,
 			MethodInfo method)
 		{
@@ -115,7 +133,7 @@ namespace YACCS.Commands.Models
 				parent = parent.DeclaringType;
 			}
 
-			return output.Select(x => new ImmutableName(x));
+			return output.Select(x => new ImmutablePath(x));
 		}
 
 		private sealed class ImmutableReflectionCommand : ImmutableCommand

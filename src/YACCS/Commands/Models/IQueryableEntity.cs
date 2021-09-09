@@ -2,6 +2,9 @@
 
 namespace YACCS.Commands.Models
 {
+	/// <summary>
+	/// An entity which supports querying.
+	/// </summary>
 	public interface IQueryableEntity
 	{
 		/// <summary>

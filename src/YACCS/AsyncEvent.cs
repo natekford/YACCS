@@ -5,18 +5,19 @@ using System.Threading.Tasks;
 
 namespace YACCS
 {
-	public delegate Task AsyncEventHandler<T>(T e) where T : HandledEventArgs;
-
+	/// <inheritdoc cref="IAsyncEvent{T}"/>.
 	public class AsyncEvent<T> : IAsyncEvent<T> where T : HandledEventArgs
 	{
 		private readonly Lazy<AsyncEvent<ExceptionEventArgs<T>>> _Exception
 			= new(static () => new());
-		private readonly List<AsyncEventHandler<T>> _Handlers = new();
+		private readonly List<Func<T, Task>> _Handlers = new();
 		private readonly object _Lock = new();
 
+		/// <inheritdoc />
 		public IAsyncEvent<ExceptionEventArgs<T>> Exception => _Exception.Value;
 
-		public void Add(AsyncEventHandler<T> handler)
+		/// <inheritdoc />
+		public void Add(Func<T, Task> handler)
 		{
 			if (handler is null)
 			{
@@ -28,9 +29,10 @@ namespace YACCS
 			}
 		}
 
+		/// <inheritdoc />
 		public async Task InvokeAsync(T args)
 		{
-			AsyncEventHandler<T>[] handlers;
+			Func<T, Task>[] handlers;
 			lock (_Lock)
 			{
 				handlers = _Handlers.ToArray();
@@ -70,7 +72,8 @@ namespace YACCS
 			}
 		}
 
-		public void Remove(AsyncEventHandler<T> handler)
+		/// <inheritdoc />
+		public void Remove(Func<T, Task> handler)
 		{
 			if (handler is null)
 			{

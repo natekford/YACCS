@@ -10,25 +10,38 @@ using YACCS.Help.Attributes;
 
 namespace YACCS.Help.Models
 {
+	/// <inheritdoc cref="IHelpItem{T}"/>
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public class HelpItem<T> : IHelpItem<T> where T : notnull
 	{
+		/// <inheritdoc />
 		public IReadOnlyList<IHelpItem<object>> Attributes { get; }
+		/// <inheritdoc />
 		public T Item { get; }
+		/// <inheritdoc />
 		public INameAttribute? Name { get; }
+		/// <inheritdoc />
 		public ISummaryAttribute? Summary { get; }
 		private string DebuggerDisplay => $"Type = {Item.GetType()}, Attribute Count = {Attributes.Count}";
 
+		/// <inheritdoc cref="HelpItem(T, IReadOnlyList{object}, Func{object, bool})"/>
 		public HelpItem(T item)
 			: this(item, item.GetType().GetCustomAttributes(true))
 		{
 		}
 
+		/// <inheritdoc cref="HelpItem(T, IReadOnlyList{object}, Func{object, bool})"/>
 		public HelpItem(T item, IReadOnlyList<object> attributes)
 			: this(item, attributes, _ => true)
 		{
 		}
 
+		/// <summary>
+		/// Creates a new <see cref="HelpItem{T}"/>.
+		/// </summary>
+		/// <param name="item">The item to present information about.</param>
+		/// <param name="attributes">The attributes for this item.</param>
+		/// <param name="allowedAttributes">The filter to use for these attributes.</param>
 		public HelpItem(T item, IReadOnlyList<object> attributes, Func<object, bool> allowedAttributes)
 		{
 			Item = item;

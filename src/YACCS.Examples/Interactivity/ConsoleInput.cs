@@ -19,10 +19,9 @@ namespace YACCS.Examples.Interactivity
 		protected override string GetInputString(string input)
 			=> input;
 
-		protected override Task SubscribeAsync(ConsoleContext context, OnInput<string> onInput)
-			=> _Interactivity.SubscribeAsync(context, onInput);
-
-		protected override Task UnsubscribeAsync(ConsoleContext context, OnInput<string> onInput)
-			=> _Interactivity.UnsubscribeAsync(context, onInput);
+		protected override Task<IAsyncDisposable> SubscribeAsync(
+			ConsoleContext _,
+			OnInput<string> onInput)
+			=> _Interactivity.SubscribeAsync(onInput);
 	}
 }

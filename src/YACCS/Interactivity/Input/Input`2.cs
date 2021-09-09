@@ -11,24 +11,41 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Interactivity.Input
 {
+	/// <summary>
+	/// The base class for handling input.
+	/// </summary>
+	/// <typeparam name="TContext"></typeparam>
+	/// <typeparam name="TInput"></typeparam>
 	public abstract class Input<TContext, TInput>
 		: Interactivity<TContext, TInput>, IInput<TContext, TInput>
 		where TContext : IContext
 	{
-		protected static IImmutableCommand EmptyCommand { get; }
-			= new DelegateCommand(
-				(Action)(static () => { }),
-				new[] { new ImmutableName(new[] { "Input" }) },
-				typeof(TContext)
-			).ToImmutable();
+		/// <summary>
+		/// A singleton instance of an empty command.
+		/// </summary>
+		protected static IImmutableCommand EmptyCommand { get; } = new DelegateCommand(
+			static () => { },
+			new[] { new ImmutablePath(new[] { "Input" }) },
+			typeof(TContext)
+		).ToImmutable();
 
+		/// <summary>
+		/// The type readers used for parsing values.
+		/// </summary>
 		protected IReadOnlyDictionary<Type, ITypeReader> TypeReaders { get; }
 
+		/// <summary>
+		/// Creates a new <see cref="Input{TContext, TInput}"/>.
+		/// </summary>
+		/// <param name="typeReaders">
+		/// <inheritdoc cref="TypeReaders" path="/summary"/>
+		/// </param>
 		protected Input(IReadOnlyDictionary<Type, ITypeReader> typeReaders)
 		{
 			TypeReaders = typeReaders;
 		}
 
+		/// <inheritdoc />
 		public virtual Task<ITypeReaderResult<TValue>> GetAsync<TValue>(
 			TContext context,
 			IInputOptions<TContext, TInput, TValue> options)
@@ -71,24 +88,36 @@ namespace YACCS.Interactivity.Input
 			});
 		}
 
+		/// <summary>
+		/// Converts <paramref name="input"/> into a <see cref="string"/> so it can be parsed.
+		/// </summary>
+		/// <param name="input">The input to convert.</param>
+		/// <returns>A string representing <paramref name="input"/>.</returns>
 		protected abstract string GetInputString(TInput input);
 
+		/// <inheritdoc cref="IImmutableParameter"/>
 		protected sealed class EmptyParameter<T> : IImmutableParameter
 		{
+			private readonly object[] _Attributes = Array.Empty<object>();
+			private readonly string _Name = $"Input_{typeof(T).FullName}";
+
+			/// <summary>
+			/// A singleton instance of <see cref="EmptyParameter{T}"/>.
+			/// </summary>
 			public static EmptyParameter<T> Instance { get; } = new();
 
-			public IReadOnlyList<object> Attributes { get; } = Array.Empty<object>();
-			public object? DefaultValue => null;
-			public bool HasDefaultValue => false;
-			public int? Length => int.MaxValue;
-			public string OriginalParameterName { get; } = $"Input_{typeof(T).FullName}";
-			public string ParameterName => OriginalParameterName;
-			public Type ParameterType { get; } = typeof(T);
-			public IReadOnlyDictionary<string, IReadOnlyList<IParameterPrecondition>> Preconditions { get; }
+			IReadOnlyList<object> IImmutableEntityBase.Attributes => _Attributes;
+			IEnumerable<object> IQueryableEntity.Attributes => _Attributes;
+			object? IImmutableParameter.DefaultValue => null;
+			bool IImmutableParameter.HasDefaultValue => false;
+			int? IImmutableParameter.Length => int.MaxValue;
+			string IQueryableParameter.OriginalParameterName => _Name;
+			string IImmutableParameter.ParameterName => _Name;
+			Type IQueryableParameter.ParameterType { get; } = typeof(T);
+			IReadOnlyDictionary<string, IReadOnlyList<IParameterPrecondition>> IImmutableParameter.Preconditions { get; }
 				= ImmutableDictionary.Create<string, IReadOnlyList<IParameterPrecondition>>();
-			public string PrimaryId { get; } = typeof(T).FullName;
-			public ITypeReader? TypeReader => null;
-			IEnumerable<object> IQueryableEntity.Attributes => Attributes;
+			string IImmutableEntityBase.PrimaryId { get; } = typeof(T).FullName;
+			ITypeReader? IImmutableParameter.TypeReader => null;
 		}
 	}
 }

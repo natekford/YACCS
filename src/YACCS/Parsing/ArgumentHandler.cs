@@ -6,14 +6,33 @@ using YACCS.Commands;
 
 namespace YACCS.Parsing
 {
+	/// <summary>
+	/// Handles joining and splitting strings.
+	/// </summary>
 	public sealed class ArgumentHandler : IArgumentHandler
 	{
 		private readonly IImmutableSet<char> _End;
 		private readonly char _Separator;
 		private readonly IImmutableSet<char> _Start;
 
+		/// <summary>
+		/// Whether or not quotes are allowed to be escaped.
+		/// </summary>
 		public bool AllowEscaping { get; set; } = true;
 
+		/// <summary>
+		/// Creates a new <see cref="ArgumentHandler"/>.
+		/// </summary>
+		/// <param name="separator">The character to treat as a space.</param>
+		/// <param name="start">The characters to treat as the start of a quote.</param>
+		/// <param name="end">The characters to treat as the end of a quote.</param>
+		/// <remarks>
+		/// To prevent needing to backtrack, <paramref name="start"/> and <paramref name="end"/>
+		/// do not have to be the same type of quote to count as a single quote.
+		/// <br/>
+		/// <br/>
+		/// Both "blah blah" and «blah blah" will produce the output 'blah blah'
+		/// </remarks>
 		public ArgumentHandler(char separator, IImmutableSet<char> start, IImmutableSet<char> end)
 		{
 			_Start = start;
@@ -21,12 +40,7 @@ namespace YACCS.Parsing
 			_Separator = separator;
 		}
 
-		public ArgumentHandler(ICommandServiceConfig config) : this(
-			config.Separator,
-			config.StartQuotes,
-			config.EndQuotes)
-		{ }
-
+		/// <inheritdoc />
 		public string Join(ReadOnlyMemory<string> args)
 		{
 			if (args.Length == 0)
@@ -40,6 +54,7 @@ namespace YACCS.Parsing
 			return string.Join(_Separator, args.ToArray());
 		}
 
+		/// <inheritdoc />
 		public bool TrySplit(ReadOnlySpan<char> input, out ReadOnlyMemory<string> args)
 		{
 			var result = TryParse(input, out var temp);
