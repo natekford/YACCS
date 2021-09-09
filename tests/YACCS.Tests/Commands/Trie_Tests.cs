@@ -32,9 +32,13 @@ namespace YACCS.Tests.Commands
 			{
 			}
 
+			// Originally this was testing ToArray()/ToList() but that only seemed to
+			// throw about 75% of the time, so maybe calling CopyTo directly will
+			// throw 100% of the time?
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				_ = collection.ToArray();
+				var array = new int[collection.Count];
+				collection.CopyTo(array, 0);
 			});
 
 			Assert.ThrowsException<InvalidOperationException>(() =>
