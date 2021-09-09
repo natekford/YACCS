@@ -1,5 +1,7 @@
 ﻿#if true
 
+using System.Runtime.CompilerServices;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
@@ -18,6 +20,7 @@ namespace YACCS.Tests.Commands
 			Threading_Test(new TestTrie());
 		}
 
+		[MethodImpl(MethodImplOptions.NoOptimization)]
 		private static void Threading_Test(ICollection<int> collection)
 		{
 			_ = Task.Run(() =>
