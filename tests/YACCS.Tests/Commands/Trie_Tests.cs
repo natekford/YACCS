@@ -42,12 +42,18 @@ namespace YACCS.Tests.Commands
 			// Originally this was testing ToArray()/ToList() but that only seemed to
 			// throw about 75% of the time, so maybe calling CopyTo directly will
 			// throw 100% of the time?
+			//
 			// I don't know at this point, the only way I can think of the exception
 			// not being thrown is if the collection gets finished before this is called
 			// so I guess let's do that?
+			//
+			// Ok, so even though count != SIZE somehow the exception is still not happening
+			// Maybe adding a sleep before it will for sure get some new items added and
+			// cause the exception.
 			var count = collection.Count;
 			if (count != SIZE)
 			{
+				Thread.Sleep(25);
 				Assert.ThrowsException<ArgumentException>(() =>
 				{
 					var array = new int[count];
