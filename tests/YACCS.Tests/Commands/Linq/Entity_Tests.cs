@@ -13,92 +13,12 @@ namespace YACCS.Tests.Commands.Linq
 	public class Entity_Tests
 	{
 		[TestMethod]
-		public async Task ByDelegate_Test()
-		{
-			var commands = await CreateCommandsAsync().ConfigureAwait(false);
-
-			var t = new Querying_TestsGroup.Help();
-			var @delegate = (Func<IReadOnlyList<string>, IResult>)t.CommandFour;
-
-			{
-				var result = commands.ByDelegate(@delegate, includeMethod: true).ToArray();
-				Assert.AreEqual(1, result.Length);
-			}
-
-			{
-				var result = commands.ByDelegate(@delegate, includeMethod: false).ToArray();
-				Assert.AreEqual(0, result.Length);
-			}
-
-			{
-				var command = new DelegateCommand(@delegate, Array.Empty<ImmutablePath>());
-				commands.Add(command.ToImmutable());
-
-				var result = commands.ByDelegate(@delegate, includeMethod: false).ToArray();
-				Assert.AreEqual(1, result.Length);
-			}
-		}
-
-		[TestMethod]
 		public async Task ById_Test()
 		{
 			var commands = await CreateCommandsAsync().ConfigureAwait(false);
 
 			var result = commands.ById(Querying_TestsGroup._CommandTwoId).ToArray();
 			Assert.AreEqual(1, result.Length);
-		}
-
-		[TestMethod]
-		public async Task ByLastPartOfName_Test()
-		{
-			var commands = await CreateCommandsAsync().ConfigureAwait(false);
-
-			var result = commands.ByLastPartOfName(Querying_TestsGroup._7).ToArray();
-			Assert.AreEqual(1, result.Length);
-		}
-
-		[TestMethod]
-		public async Task ByMethod_Test()
-		{
-			var commands = await CreateCommandsAsync().ConfigureAwait(false);
-
-			var method = typeof(Querying_TestsGroup.Help)
-				.GetMethod(nameof(Querying_TestsGroup.Help.CommandFour));
-			var result = commands.ByMethod(method!).ToArray();
-			Assert.AreEqual(1, result.Length);
-		}
-
-		[TestMethod]
-		public async Task ByName_Test()
-		{
-			var commands = await CreateCommandsAsync().ConfigureAwait(false);
-
-			{
-				var result = commands.ByName(new[]
-				{
-					Querying_TestsGroup._1,
-					Querying_TestsGroup._4
-				}).ToArray();
-				Assert.AreEqual(3, result.Length);
-			}
-
-			{
-				var result = commands.ByName(new[]
-				{
-					Querying_TestsGroup._1.ToUpper(),
-					Querying_TestsGroup._4
-				}).ToArray();
-				Assert.AreEqual(0, result.Length);
-			}
-
-			{
-				var result = commands.ByName(new[]
-				{
-					Querying_TestsGroup._1.ToUpper(),
-					Querying_TestsGroup._4
-				}, StringComparison.OrdinalIgnoreCase).ToArray();
-				Assert.AreEqual(3, result.Length);
-			}
 		}
 
 		private async ValueTask<List<IImmutableCommand>> CreateCommandsAsync()

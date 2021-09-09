@@ -65,7 +65,7 @@ namespace YACCS.Commands.Models
 			var immutable = ToImmutable();
 			yield return immutable;
 
-			foreach (var generator in this.Get<ICommandGeneratorAttribute>())
+			foreach (var generator in this.GetAttributes<ICommandGeneratorAttribute>())
 			{
 				foreach (var generated in await generator.GenerateCommandsAsync(services, immutable).ConfigureAwait(false))
 				{

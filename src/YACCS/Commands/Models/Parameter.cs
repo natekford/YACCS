@@ -102,7 +102,7 @@ namespace YACCS.Commands.Models
 		{
 			DefaultValue = GetDefaultValue(parameter.DefaultValue);
 
-			if (this.Get<ParamArrayAttribute>().Any())
+			if (this.GetAttributes<ParamArrayAttribute>().Any())
 			{
 				this.MarkAsRemainder();
 			}

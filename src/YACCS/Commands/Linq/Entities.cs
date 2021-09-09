@@ -8,8 +8,18 @@ using YACCS.Commands.Models;
 
 namespace YACCS.Commands.Linq
 {
+	/// <summary>
+	/// Static methods for querying and modifying <see cref="IEntityBase"/>.
+	/// </summary>
 	public static class Entities
 	{
+		/// <summary>
+		/// Adds an attribute to <paramref name="entity"/>.
+		/// </summary>
+		/// <typeparam name="TEntity"></typeparam>
+		/// <param name="entity">The entity to modify.</param>
+		/// <param name="attribute">The attribute to add.</param>
+		/// <returns><paramref name="entity"/> after it has been modified.</returns>
 		public static TEntity AddAttribute<TEntity>(this TEntity entity, object attribute)
 			where TEntity : IEntityBase
 		{
@@ -17,6 +27,18 @@ namespace YACCS.Commands.Linq
 			return entity;
 		}
 
+		/// <summary>
+		/// Filters <paramref name="entities"/> by attributes that match
+		/// <paramref name="predicate"/>.
+		/// </summary>
+		/// <typeparam name="TEntity"></typeparam>
+		/// <typeparam name="TAttribute"></typeparam>
+		/// <param name="entities">The entities to query.</param>
+		/// <param name="predicate">The predicate to query with.</param>
+		/// <returns>
+		/// An enumerable of entities that have at least one attribute which satisfies
+		/// <paramref name="predicate"/>.
+		/// </returns>
 		public static IEnumerable<TEntity> ByAttribute<TEntity, TAttribute>(
 			this IEnumerable<TEntity> entities,
 			Func<TAttribute, bool> predicate)
@@ -36,80 +58,24 @@ namespace YACCS.Commands.Linq
 			}
 		}
 
-		public static IEnumerable<T> ByDelegate<T>(this IEnumerable<T> commands, Delegate @delegate, bool includeMethod = false)
-			where T : IQueryableCommand
-		{
-			var delegates = commands.ByAttribute((Delegate x) => x == @delegate);
-			if (!includeMethod)
-			{
-				return delegates;
-			}
-			return delegates.Union(commands.ByMethod(@delegate.Method));
-		}
-
-		public static IEnumerable<T> ById<T>(this IEnumerable<T> commands, string id)
+		/// <summary>
+		/// Filters <paramref name="entities"/> by id.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="entities">The entities to query.</param>
+		/// <param name="id">The id to search for.</param>
+		/// <returns>An enumerable of entities that have the id.</returns>
+		public static IEnumerable<T> ById<T>(this IEnumerable<T> entities, string id)
 			where T : IQueryableEntity
-			=> commands.ByAttribute((IIdAttribute x) => x.Id == id);
+			=> entities.ByAttribute((IIdAttribute x) => x.Id == id);
 
-		public static IEnumerable<T> ByLastPartOfName<T>(
-			this IEnumerable<T> commands,
-			string name,
-			StringComparison comparisonType = StringComparison.CurrentCulture)
-			where T : IQueryableCommand
-		{
-			foreach (var command in commands)
-			{
-				foreach (var n in command.Paths)
-				{
-					if (n[^1].Equals(name, comparisonType))
-					{
-						yield return command;
-						break;
-					}
-				}
-			}
-		}
-
-		public static IEnumerable<T> ByMethod<T>(this IEnumerable<T> commands, MethodInfo method)
-			where T : IQueryableCommand
-			=> commands.ByAttribute((MethodInfo x) => x == method);
-
-		public static IEnumerable<T> ByName<T>(
-			this IEnumerable<T> commands,
-			IReadOnlyList<string> parts,
-			StringComparison comparisonType = StringComparison.CurrentCulture)
-			where T : IQueryableCommand
-		{
-			foreach (var command in commands)
-			{
-				foreach (var name in command.Paths)
-				{
-					if (name.Count != parts.Count)
-					{
-						break;
-					}
-
-					var isMatch = true;
-					for (var i = 0; i < parts.Count; ++i)
-					{
-						if (!name[i].Equals(parts[i], comparisonType))
-						{
-							isMatch = false;
-							break;
-						}
-					}
-
-					if (isMatch)
-					{
-						yield return command;
-						// Break after returning once to only return one match for each command
-						break;
-					}
-				}
-			}
-		}
-
-		public static IEnumerable<T> Get<T>(this IQueryableEntity entity)
+		/// <summary>
+		/// Gets all attributes of type <typeparamref name="T"/> from <paramref name="entity"/>.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="entity">The entity to query the attributes from.</param>
+		/// <returns>An enumerable of attributes of type <typeparamref name="T"/>.</returns>
+		public static IEnumerable<T> GetAttributes<T>(this IQueryableEntity entity)
 		{
 			foreach (var attribute in entity.Attributes)
 			{

@@ -374,8 +374,8 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(CommandStage.FailedTypeReader, result.Stage);
 			Assert.AreEqual(1, result.Score);
 
-			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
-			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsTrue(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -393,8 +393,8 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(CommandStage.FailedParameterPrecondition, result.Stage);
 			Assert.AreEqual(1, result.Score);
 
-			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
-			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsTrue(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -412,8 +412,8 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(CommandStage.FailedPrecondition, result.Stage);
 			Assert.AreEqual(0, result.Score);
 
-			Assert.IsFalse(command.Get<WasIReachedPrecondition>().Single().IWasReached);
-			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsFalse(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -431,8 +431,8 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(CommandStage.FailedTypeReader, result.Stage);
 			Assert.AreEqual(0, result.Score);
 
-			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
-			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsTrue(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -496,8 +496,8 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(CommandStage.CanExecute, result.Stage);
 			Assert.AreEqual(1, result.Score);
 
-			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
-			Assert.IsTrue(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsTrue(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsTrue(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		private static (CommandService, FakeContext, ICommand, IParameter) Create(bool success, int disallowedValue)
@@ -533,7 +533,7 @@ namespace YACCS.Tests.Commands
 			var arg = new[] { DISALLOWED_VALUE, DISALLOWED_VALUE + 1, DISALLOWED_VALUE + 2 };
 			var result = await command.CanExecuteAsync(parameter, context, arg).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
-			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -545,7 +545,7 @@ namespace YACCS.Tests.Commands
 			var arg = new[] { DISALLOWED_VALUE + 1, DISALLOWED_VALUE + 2, DISALLOWED_VALUE + 3 };
 			var result = await command.CanExecuteAsync(parameter, context, arg).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsTrue(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsTrue(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -556,7 +556,7 @@ namespace YACCS.Tests.Commands
 			var (context, command, parameter) = Create(DISALLOWED_VALUE);
 			var result = await command.CanExecuteAsync(parameter, context, DISALLOWED_VALUE).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
-			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -567,7 +567,7 @@ namespace YACCS.Tests.Commands
 			var (context, command, parameter) = Create(DISALLOWED_VALUE);
 			var result = await command.CanExecuteAsync(parameter, context, 1 + DISALLOWED_VALUE).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsTrue(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsTrue(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		private static (FakeContext, IImmutableCommand, IImmutableParameter) Create(int disallowedValue)
@@ -613,7 +613,7 @@ namespace YACCS.Tests.Commands
 				.ToImmutable();
 			var result = await command.CanExecuteAsync(new FakeContext()).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsFalse(command.Get<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -629,7 +629,7 @@ namespace YACCS.Tests.Commands
 				.ToImmutable();
 			var result = await command.CanExecuteAsync(new FakeContext()).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsFalse(command.Get<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -638,7 +638,7 @@ namespace YACCS.Tests.Commands
 			var (context, command) = Create(false);
 			var result = await command.CanExecuteAsync(context).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
-			Assert.IsFalse(command.Get<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsFalse(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -647,7 +647,7 @@ namespace YACCS.Tests.Commands
 			var (context, command) = Create(true);
 			var result = await command.CanExecuteAsync(context).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsTrue(command.Get<WasIReachedPrecondition>().Single().IWasReached);
+			Assert.IsTrue(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
 		}
 
 		private static (FakeContext, IImmutableCommand) Create(bool success)

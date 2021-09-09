@@ -50,9 +50,9 @@ namespace YACCS.Tests.Commands.Linq
 		public void AddPrecondition_Test()
 		{
 			var command = _Commands.ById(NORM_ID).Single().AsContext<FakeContext>();
-			Assert.AreEqual(0, command.Get<IPrecondition>().Count());
+			Assert.AreEqual(0, command.GetAttributes<IPrecondition>().Count());
 			command.AddPrecondition(new NotSevenPM());
-			Assert.AreEqual(1, command.Get<IPrecondition>().Count());
+			Assert.AreEqual(1, command.GetAttributes<IPrecondition>().Count());
 		}
 
 		[TestMethod]

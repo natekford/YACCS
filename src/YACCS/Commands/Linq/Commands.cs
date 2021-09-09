@@ -80,7 +80,7 @@ namespace YACCS.Commands.Linq
 		/// Converts <paramref name="command"/> to a generic version.
 		/// </summary>
 		/// <typeparam name="TContext"></typeparam>
-		/// <param name="command">The command to validate.</param>
+		/// <param name="command">The command to convert.</param>
 		/// <returns>The generic version of <paramref name="command"/>.</returns>
 		/// <exception cref="ArgumentException">
 		/// When <typeparamref name="TContext"/> is invalid for <paramref name="command"/>.

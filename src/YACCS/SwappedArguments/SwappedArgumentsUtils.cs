@@ -25,7 +25,7 @@ namespace YACCS.SwappedArguments
 			for (var i = 0; i < command.Parameters.Count; ++i)
 			{
 				var parameter = command.Parameters[i];
-				if (!parameter.Get<SwappableAttribute>().Any())
+				if (!parameter.GetAttributes<SwappableAttribute>().Any())
 				{
 					continue;
 				}
