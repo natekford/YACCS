@@ -9,7 +9,7 @@ namespace YACCS.Tests.Commands
 	[TestClass]
 	public class Trie_Tests
 	{
-		private const int SIZE = 300000;
+		private const int SIZE = 1500000;
 
 		[TestMethod]
 		public void Threading_Test()
@@ -34,8 +34,10 @@ namespace YACCS.Tests.Commands
 
 			Assert.ThrowsException<InvalidOperationException>(() =>
 			{
+				var list = new List<int>(collection.Count);
 				foreach (var item in collection)
 				{
+					list.Add(item);
 				}
 			});
 
@@ -63,12 +65,11 @@ namespace YACCS.Tests.Commands
 			{
 				Thread.Sleep(250);
 				Assert.AreNotEqual(count, collection.Count);
-				/*
 				Assert.ThrowsException<ArgumentException>(() =>
 				{
 					var array = new int[count];
 					collection.CopyTo(array, 0);
-				});*/
+				});
 			}
 
 			while (collection.Count < SIZE)
