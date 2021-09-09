@@ -11,38 +11,40 @@ namespace YACCS.Tests.Commands
 	[TestClass]
 	public class Trie_Tests
 	{
-		private const int SIZE = 1500000;
+		private const int SIZE = 100;
 
 		[TestMethod]
-		public void Threading_Test()
+		public async Task Threading_Test()
 		{
-			Threading_Test(new HashSet<int>());
-			Threading_Test(new TestTrie());
+			await Threading_Test(new HashSet<int>()).ConfigureAwait(false);
+			await Threading_Test(new TestTrie()).ConfigureAwait(false);
 		}
 
 		[MethodImpl(MethodImplOptions.NoOptimization)]
-		private static void Threading_Test(ICollection<int> collection)
+		private static async Task Threading_Test(ICollection<int> collection)
 		{
-			_ = Task.Run(() =>
+			_ = Task.Run(async () =>
 			{
 				for (var i = 0; i < SIZE; ++i)
 				{
 					collection.Add(i);
+					await Task.Delay(1).ConfigureAwait(false);
 				}
 			});
 
-			while (collection.Count < 10)
+			while (collection.Count < SIZE / 10)
 			{
 			}
 
-			Assert.ThrowsException<InvalidOperationException>(() =>
+			await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
 			{
-				var list = new List<int>(collection.Count);
+				var sum = 0;
 				foreach (var item in collection)
 				{
-					list.Add(item);
+					sum += item;
+					await Task.Delay(2).ConfigureAwait(false);
 				}
-			});
+			}).ConfigureAwait(false);
 
 			// Originally this was testing ToArray()/ToList() but that only seemed to
 			// throw about 75% of the time, so maybe calling CopyTo directly will
@@ -66,7 +68,7 @@ namespace YACCS.Tests.Commands
 			var count = collection.Count;
 			if (count != SIZE)
 			{
-				Thread.Sleep(250);
+				await Task.Delay(250).ConfigureAwait(false);
 				Assert.AreNotEqual(count, collection.Count);
 				Assert.ThrowsException<ArgumentException>(() =>
 				{
