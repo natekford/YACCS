@@ -7,6 +7,11 @@ using YACCS.Results;
 
 namespace YACCS.TypeReaders
 {
+	/// <summary>
+	/// Parses a <typeparamref name="TValue"/>.
+	/// </summary>
+	/// <typeparam name="TContext"></typeparam>
+	/// <typeparam name="TValue"></typeparam>
 	public abstract class TypeReader<TContext, TValue> : ITypeReader<TContext, TValue>
 		where TContext : IContext
 	{
@@ -30,9 +35,19 @@ namespace YACCS.TypeReaders
 			ReadOnlyMemory<string> input)
 			=> PrivateReadAsync(context, input);
 
+		/// <summary>
+		/// Creates a failure result with <paramref name="result"/>.
+		/// </summary>
+		/// <param name="result">The result to wrap.</param>
+		/// <returns>A failure result.</returns>
 		protected static ITypeReaderResult<TValue> Error(IResult result)
 			=> TypeReaderResult<TValue>.FromError(result);
 
+		/// <summary>
+		/// Creates a success result with <paramref name="value"/>.
+		/// </summary>
+		/// <param name="value">The value which was parsed.</param>
+		/// <returns>A success result.</returns>
 		protected static ITypeReaderResult<TValue> Success(TValue value)
 			=> TypeReaderResult<TValue>.FromSuccess(value);
 

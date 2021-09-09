@@ -73,7 +73,7 @@ namespace YACCS.Examples
 			Console.ForegroundColor = oldColor;
 		}
 
-		public void WriteResult(ICommandResult result)
+		public void WriteResult(IExecuteResult result)
 		{
 			var response = FormatResult(result.InnerResult);
 			if (!string.IsNullOrWhiteSpace(response))

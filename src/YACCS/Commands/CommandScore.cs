@@ -7,7 +7,7 @@ using YACCS.Results;
 namespace YACCS.Commands
 {
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-	public class CommandScore : IComparable<CommandScore>, IComparable, ICommandResult
+	public class CommandScore : IComparable<CommandScore>, IComparable, IExecuteResult
 	{
 		// This class is a mess
 		public static CommandScore CommandNotFound { get; }

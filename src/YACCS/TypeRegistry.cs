@@ -5,6 +5,10 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace YACCS
 {
+	/// <summary>
+	/// The base class for a registry of <typeparamref name="T"/> with a key of <see cref="Type"/>.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
 	public abstract class TypeRegistry<T> : IReadOnlyDictionary<Type, T>
 	{
 		/// <inheritdoc />

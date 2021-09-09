@@ -25,7 +25,9 @@ namespace YACCS.SwappedArguments
 		/// Creates a new <see cref="SwappedArgumentsCommand"/>.
 		/// </summary>
 		/// <param name="swapper">The swapper to use for swapping arguments.</param>
-		/// <param name="priorityDifference">The priority to lower this command by.</param>
+		/// <param name="priorityDifference">
+		/// The amount to lower priority by for each step taken in reordering the indices.
+		/// </param>
 		/// <inheritdoc cref="GeneratedCommand(IImmutableCommand)"/>
 		/// <param name="source"></param>
 		public SwappedArgumentsCommand(
@@ -34,7 +36,7 @@ namespace YACCS.SwappedArguments
 			int priorityDifference) : base(source)
 		{
 			_Swapper = swapper;
-			Priority = source.Priority + (priorityDifference * _Swapper.Swaps.Length);
+			Priority = source.Priority - (priorityDifference * _Swapper.Swaps.Length);
 
 			var builder = ImmutableArray.CreateBuilder<IImmutableParameter>(Source.Parameters.Count);
 			builder.AddRange(source.Parameters);

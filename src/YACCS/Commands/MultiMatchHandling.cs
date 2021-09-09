@@ -1,7 +1,7 @@
 ﻿namespace YACCS.Commands
 {
 	/// <summary>
-	/// Indicates how to handle multiple successful commands matches.
+	/// Specifies how to handle multiple successful commands matches.
 	/// </summary>
 	public enum MultiMatchHandling
 	{

@@ -11,7 +11,7 @@ namespace YACCS.Commands
 	{
 		IReadOnlyCollection<IImmutableCommand> Commands { get; }
 
-		ValueTask<ICommandResult> ExecuteAsync(IContext context, string input);
+		ValueTask<IExecuteResult> ExecuteAsync(IContext context, string input);
 
 		IReadOnlyCollection<IImmutableCommand> FindByPath(ReadOnlyMemory<string> input);
 	}

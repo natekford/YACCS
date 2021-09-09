@@ -35,7 +35,7 @@ namespace YACCS.Commands
 		}
 
 		/// <inheritdoc />
-		public virtual ValueTask<ICommandResult> ExecuteAsync(IContext context, string input)
+		public virtual ValueTask<IExecuteResult> ExecuteAsync(IContext context, string input)
 		{
 			if (!Handler.TrySplit(input, out var args))
 			{
@@ -213,7 +213,7 @@ namespace YACCS.Commands
 			return Task.CompletedTask;
 		}
 
-		protected virtual async ValueTask<ICommandResult> ExecuteInternalAsync(
+		protected virtual async ValueTask<IExecuteResult> ExecuteInternalAsync(
 			IContext context,
 			ReadOnlyMemory<string> args)
 		{

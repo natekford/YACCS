@@ -2,8 +2,16 @@
 
 namespace YACCS.Results
 {
+	/// <summary>
+	/// Utilities for results.
+	/// </summary>
 	public static class ResultUtils
 	{
+		/// <summary>
+		/// Recursively searches for the most nested <see cref="INestedResult.InnerResult"/>.
+		/// </summary>
+		/// <param name="result">The result to get the inner result from.</param>
+		/// <returns>The inner most result.</returns>
 		public static IResult GetMostNestedResult(this INestedResult result)
 		{
 			var actual = result.InnerResult;
@@ -14,6 +22,13 @@ namespace YACCS.Results
 			return actual;
 		}
 
+		/// <summary>
+		/// Recursively searches for a <see cref="ValueResult"/> from <paramref name="result"/>.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="result">The result to get a value from.</param>
+		/// <param name="value">The retrieved value.</param>
+		/// <returns>A bool indicating success.</returns>
 		public static bool TryGetValue<T>(
 			this IResult result,
 			[NotNullWhen(true)] out T value)

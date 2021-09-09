@@ -175,7 +175,7 @@ namespace YACCS.Commands
 		}
 
 		/// <summary>
-		/// A newly created command and the <see cref="Type"/> which defined it.
+		/// Contains a newly created command and the <see cref="Type"/> which defined it.
 		/// </summary>
 		public readonly struct ReflectedCommand
 		{
