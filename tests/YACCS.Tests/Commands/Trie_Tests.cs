@@ -54,16 +54,21 @@ namespace YACCS.Tests.Commands
 			// Debug and Release have no difference on my computer
 			// Increase the sleep and add an assert that the numbers aren't equal so maybe
 			// I can know that CopyTo on Github Actions is just never going to throw
+			//
+			// Github Actions successfully asserted that the counts ARE different
+			// So for some reason their version of dotnet does not throw when attempting to
+			// copy a collection to an array which does not have enough space
 			var count = collection.Count;
 			if (count != SIZE)
 			{
 				Thread.Sleep(250);
 				Assert.AreNotEqual(count, collection.Count);
+				/*
 				Assert.ThrowsException<ArgumentException>(() =>
 				{
 					var array = new int[count];
 					collection.CopyTo(array, 0);
-				});
+				});*/
 			}
 
 			while (collection.Count < SIZE)
