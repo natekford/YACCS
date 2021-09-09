@@ -1,9 +1,4 @@
-﻿#if false
-
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
+﻿#if true
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -14,71 +9,56 @@ namespace YACCS.Tests.Commands
 	[TestClass]
 	public class Trie_Tests
 	{
-		private const int SIZE = 100000;
-		private readonly TestTrie _Trie = new();
+		private const int SIZE = 300000;
 
 		[TestMethod]
-		public void Stress_Test()
+		public void Threading_Test()
+		{
+			Threading_Test(new HashSet<int>());
+			Threading_Test(new TestTrie());
+		}
+
+		private static void Threading_Test(ICollection<int> collection)
 		{
 			_ = Task.Run(() =>
 			{
 				for (var i = 0; i < SIZE; ++i)
 				{
-					_Trie.Add(i);
+					collection.Add(i);
 				}
 			});
 
-			var removedOnce = false;
-			while (_Trie.Count < SIZE / 100)
+			while (collection.Count < SIZE / 100)
 			{
-				var removedCount = _Trie.Remove(2);
-				if (removedCount == 1)
+			}
+
+			Assert.ThrowsException<ArgumentException>(() =>
+			{
+				_ = collection.ToArray();
+			});
+
+			Assert.ThrowsException<InvalidOperationException>(() =>
+			{
+				foreach (var item in collection)
 				{
-					Assert.IsFalse(removedOnce);
-					removedOnce = true;
-					continue;
 				}
-				Assert.AreEqual(0, removedCount);
-			}
+			});
 
-			var items = new List<int>();
-			foreach (var item in _Trie)
-			{
-				items.Add(item);
-			}
-			// This ends up getting about 1500-2000 items
-			// Start at 5 because we remove 2
-			for (var i = 5; i < items.Count; ++i)
-			{
-				Assert.AreEqual(items[i - 1] + 1, items[i]);
-			}
-
-			while (_Trie.Count < SIZE - 1)
+			while (collection.Count < SIZE)
 			{
 			}
 
-			var dict = new ConcurrentDictionary<int, byte>();
-			foreach (var item in _Trie)
-			{
-				dict.TryAdd(item, 0);
-			}
+			var set = collection.ToHashSet();
+			Assert.IsTrue(set.Remove(50));
+			Assert.IsTrue(collection.Remove(50));
+			Assert.AreEqual(set.Count, collection.Count);
 
-			var swRemoveFromDict = new Stopwatch();
-			swRemoveFromDict.Start();
-			dict.TryRemove(50, out _);
-			swRemoveFromDict.Stop();
-
-			var swRemoveFromTrie = new Stopwatch();
-			swRemoveFromTrie.Start();
-			Assert.AreEqual(1, _Trie.Remove(50));
-			swRemoveFromTrie.Stop();
-
-			Assert.AreEqual(1, _Trie.Remove((int)(SIZE * 0.10)));
-			Assert.AreEqual(1, _Trie.Remove((int)(SIZE * 0.15)));
-			Assert.AreEqual(1, _Trie.Remove((int)(SIZE * 0.20)));
-			Assert.AreEqual(1, _Trie.Remove((int)(SIZE * 0.35)));
-			Assert.AreEqual(1, _Trie.Remove((int)(SIZE * 0.55)));
-			Assert.AreEqual(SIZE - 7, _Trie.Count);
+			Assert.IsTrue(collection.Remove((int)(SIZE * 0.10)));
+			Assert.IsTrue(collection.Remove((int)(SIZE * 0.15)));
+			Assert.IsTrue(collection.Remove((int)(SIZE * 0.20)));
+			Assert.IsTrue(collection.Remove((int)(SIZE * 0.35)));
+			Assert.IsTrue(collection.Remove((int)(SIZE * 0.55)));
+			Assert.AreEqual(SIZE - 6, collection.Count);
 		}
 
 		private sealed class TestTrie : Trie<int, int>
@@ -92,4 +72,5 @@ namespace YACCS.Tests.Commands
 		}
 	}
 }
+
 #endif

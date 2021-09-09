@@ -10,13 +10,13 @@ namespace YACCS.Commands
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public abstract class Trie<TKey, TValue> : ITrie<TKey, TValue>
 	{
-		private readonly ConcurrentDictionary<TValue, byte> _Items;
+		private readonly HashSet<TValue> _Items;
 		private readonly Node _Root;
 
 		/// <inheritdoc />
 		public bool IsReadOnly => false;
 		/// <inheritdoc />
-		public IReadOnlyCollection<TValue> Items => (IReadOnlyCollection<TValue>)_Items.Keys;
+		public IReadOnlyCollection<TValue> Items => _Items;
 		/// <inheritdoc />
 		public INode<TKey, TValue> Root => _Root;
 		/// <inheritdoc />
@@ -36,7 +36,7 @@ namespace YACCS.Commands
 		/// <inheritdoc />
 		public virtual void Add(TValue item)
 		{
-			if (!_Items.TryAdd(item, 0))
+			if (!_Items.Add(item))
 			{
 				return;
 			}
@@ -62,16 +62,11 @@ namespace YACCS.Commands
 
 		/// <inheritdoc />
 		public bool Contains(TValue item)
-			=> _Items.ContainsKey(item);
+			=> _Items.Contains(item);
 
 		/// <inheritdoc />
 		public void CopyTo(TValue[] array, int arrayIndex)
-		{
-			foreach (var command in this)
-			{
-				array[arrayIndex++] = command;
-			}
-		}
+			=> _Items.CopyTo(array, arrayIndex);
 
 		/// <inheritdoc />
 		public IEnumerator<TValue> GetEnumerator()
@@ -80,7 +75,7 @@ namespace YACCS.Commands
 		/// <inheritdoc />
 		public bool Remove(TValue item)
 		{
-			if (!_Items.TryRemove(item, out _))
+			if (!_Items.Remove(item))
 			{
 				return false;
 			}
@@ -119,15 +114,13 @@ namespace YACCS.Commands
 		private class Node : INode<TKey, TValue>
 		{
 			private readonly IEqualityComparer<TKey> _Comparer;
-			private readonly ConcurrentDictionary<TKey, Node> _Edges;
-			private readonly ConcurrentDictionary<TValue, byte> _Items;
+			private readonly Dictionary<TKey, Node> _Edges;
+			private readonly HashSet<TValue> _Items;
 			private readonly TKey _Key;
 			private readonly Node? _Parent;
 
-			public IReadOnlyCollection<TValue> Items
-				=> (IReadOnlyCollection<TValue>)_Items.Keys;
-			public IReadOnlyCollection<Node> Edges
-				=> (IReadOnlyCollection<Node>)_Edges.Values;
+			public IReadOnlyCollection<TValue> Items => _Items;
+			public IReadOnlyCollection<Node> Edges => _Edges.Values;
 			IReadOnlyCollection<INode<TKey, TValue>> INode<TKey, TValue>.Edges => Edges;
 			private string DebuggerDisplay
 			{
@@ -164,7 +157,7 @@ namespace YACCS.Commands
 			}
 
 			public bool Add(TValue item)
-				=> _Items.TryAdd(item, 0);
+				=> _Items.Add(item);
 
 			public void Clear()
 			{
@@ -174,19 +167,20 @@ namespace YACCS.Commands
 
 			public bool Contains(TValue item)
 				// Only direct items since the node has already been found via name
-				=> _Items.ContainsKey(item);
+				=> _Items.Contains(item);
 
 			public Node GetOrAdd(TKey key)
 			{
-				return _Edges.GetOrAdd(key, static (key, parent) =>
+				if (!_Edges.TryGetValue(key, out var node))
 				{
-					return new(key, parent, parent._Comparer);
-				}, this);
+					_Edges[key] = node = new(key, this, _Comparer);
+				}
+				return node;
 			}
 
 			public bool Remove(TValue item)
 			{
-				var isRemoved = _Items.TryRemove(item, out _);
+				var isRemoved = _Items.Remove(item);
 				if (isRemoved)
 				{
 					// Kill all empty nodes
@@ -194,7 +188,7 @@ namespace YACCS.Commands
 					{
 						if (node._Items.Count == 0 && node._Edges.Count == 0)
 						{
-							node._Parent._Edges.TryRemove(node._Key, out _);
+							node._Parent._Edges.Remove(node._Key);
 						}
 					}
 				}
