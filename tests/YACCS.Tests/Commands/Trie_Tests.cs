@@ -28,18 +28,9 @@ namespace YACCS.Tests.Commands
 				}
 			});
 
-			while (collection.Count < SIZE / 100)
+			while (collection.Count < 10)
 			{
 			}
-
-			// Originally this was testing ToArray()/ToList() but that only seemed to
-			// throw about 75% of the time, so maybe calling CopyTo directly will
-			// throw 100% of the time?
-			Assert.ThrowsException<ArgumentException>(() =>
-			{
-				var array = new int[collection.Count];
-				collection.CopyTo(array, 0);
-			});
 
 			Assert.ThrowsException<InvalidOperationException>(() =>
 			{
@@ -47,6 +38,22 @@ namespace YACCS.Tests.Commands
 				{
 				}
 			});
+
+			// Originally this was testing ToArray()/ToList() but that only seemed to
+			// throw about 75% of the time, so maybe calling CopyTo directly will
+			// throw 100% of the time?
+			// I don't know at this point, the only way I can think of the exception
+			// not being thrown is if the collection gets finished before this is called
+			// so I guess let's do that?
+			var count = collection.Count;
+			if (count != SIZE)
+			{
+				Assert.ThrowsException<ArgumentException>(() =>
+				{
+					var array = new int[count];
+					collection.CopyTo(array, 0);
+				});
+			}
 
 			while (collection.Count < SIZE)
 			{
