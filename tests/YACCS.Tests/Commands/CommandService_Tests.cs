@@ -529,11 +529,11 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (context, meta) = Create(DISALLOWED_VALUE);
+			var (context, command, parameter) = Create(DISALLOWED_VALUE);
 			var arg = new[] { DISALLOWED_VALUE, DISALLOWED_VALUE + 1, DISALLOWED_VALUE + 2 };
-			var result = await meta.Parameter.CanExecuteAsync(meta, context, arg).ConfigureAwait(false);
+			var result = await command.CanExecuteAsync(parameter, context, arg).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
-			Assert.IsFalse(meta.Parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -541,11 +541,11 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (context, meta) = Create(DISALLOWED_VALUE);
+			var (context, command, parameter) = Create(DISALLOWED_VALUE);
 			var arg = new[] { DISALLOWED_VALUE + 1, DISALLOWED_VALUE + 2, DISALLOWED_VALUE + 3 };
-			var result = await meta.Parameter.CanExecuteAsync(meta, context, arg).ConfigureAwait(false);
+			var result = await command.CanExecuteAsync(parameter, context, arg).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsTrue(meta.Parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsTrue(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -553,10 +553,10 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (context, meta) = Create(DISALLOWED_VALUE);
-			var result = await meta.Parameter.CanExecuteAsync(meta, context, DISALLOWED_VALUE).ConfigureAwait(false);
+			var (context, command, parameter) = Create(DISALLOWED_VALUE);
+			var result = await command.CanExecuteAsync(parameter, context, DISALLOWED_VALUE).ConfigureAwait(false);
 			Assert.IsFalse(result.IsSuccess);
-			Assert.IsFalse(meta.Parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsFalse(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
 		[TestMethod]
@@ -564,13 +564,13 @@ namespace YACCS.Tests.Commands
 		{
 			const int DISALLOWED_VALUE = 1;
 
-			var (context, meta) = Create(DISALLOWED_VALUE);
-			var result = await meta.Parameter.CanExecuteAsync(meta, context, 1 + DISALLOWED_VALUE).ConfigureAwait(false);
+			var (context, command, parameter) = Create(DISALLOWED_VALUE);
+			var result = await command.CanExecuteAsync(parameter, context, 1 + DISALLOWED_VALUE).ConfigureAwait(false);
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsTrue(meta.Parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
+			Assert.IsTrue(parameter.Get<WasIReachedParameterPrecondition>().Single().IWasReached);
 		}
 
-		private static (FakeContext, CommandMeta) Create(int disallowedValue)
+		private static (FakeContext, IImmutableCommand, IImmutableParameter) Create(int disallowedValue)
 		{
 			static void Delegate(int arg)
 			{
@@ -585,8 +585,7 @@ namespace YACCS.Tests.Commands
 
 			var command = commandBuilder.ToImmutable();
 			var context = new FakeContext();
-			var meta = new CommandMeta(command, command.Parameters[0]);
-			return (context, meta);
+			return (context, command, command.Parameters[0]);
 		}
 	}
 

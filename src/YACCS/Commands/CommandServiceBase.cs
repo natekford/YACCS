@@ -67,7 +67,23 @@ namespace YACCS.Commands
 			{
 				return new(CommandScore.CommandNotFound);
 			}
-			return ExecuteInternalAsync(context, args);
+			return ExecuteAsync(context, args);
+
+			async ValueTask<IExecuteResult> ExecuteAsync(IContext context, ReadOnlyMemory<string> args)
+			{
+				var best = await GetBestMatchAsync(context, args).ConfigureAwait(false);
+				// If a command is found and args are parsed, execute command in background
+				if (best.InnerResult.IsSuccess && best.Command is not null && best.Args is not null)
+				{
+					_ = Task.Run(async () =>
+					{
+						var e = await this.ExecuteAsync(context, best.Command, best.Args).ConfigureAwait(false);
+						await CommandExecutedAsync(e).ConfigureAwait(false);
+						await CommandFinishedAsync(e).ConfigureAwait(false);
+					});
+				}
+				return best;
+			}
 		}
 
 		/// <inheritdoc />
@@ -91,6 +107,16 @@ namespace YACCS.Commands
 			return node.GetAllDistinctItems(x => x.Source is null);
 		}
 
+		/// <summary>
+		/// Steps through <see cref="Commands"/> and parses each command at every edge it
+		/// goes to.
+		/// </summary>
+		/// <param name="context">The context invoking a command.</param>
+		/// <param name="input">The input being parsed.</param>
+		/// <returns>
+		/// The highest rated command score, this still can indicate either
+		/// success or failure.
+		/// </returns>
 		protected internal virtual async ValueTask<CommandScore> GetBestMatchAsync(
 			IContext context,
 			ReadOnlyMemory<string> input)
@@ -121,6 +147,11 @@ namespace YACCS.Commands
 			return best ?? CommandScore.CommandNotFound;
 		}
 
+		/// <summary>
+		/// Checks trivial cases like invalid context or invalid arg length, then invokes
+		/// <see cref="ProcessAllPreconditionsAsync(IContext, IImmutableCommand, ReadOnlyMemory{string}, int)"/>.
+		/// </summary>
+		/// <inheritdoc cref="ProcessAllPreconditionsAsync(IContext, IImmutableCommand, ReadOnlyMemory{string}, int)"/>
 		protected internal ValueTask<CommandScore> GetCommandScoreAsync(
 			IContext context,
 			IImmutableCommand command,
@@ -143,6 +174,16 @@ namespace YACCS.Commands
 			return ProcessAllPreconditionsAsync(context, command, input, startIndex);
 		}
 
+		/// <summary>
+		/// Processes all preconditions: command preconditions, argument parsing, and parameter
+		/// preconditions. If any single item fails, the returned <see cref="CommandScore"/>
+		/// will indicate failure.
+		/// </summary>
+		/// <param name="context">The context invoking a command.</param>
+		/// <param name="command">The command having its preconditions be parsed.</param>
+		/// <param name="input">The input being parsed.</param>
+		/// <param name="startIndex">The index to start at for <paramref name="input"/>.</param>
+		/// <returns>A command score indicating success or failure.</returns>
 		protected internal async ValueTask<CommandScore> ProcessAllPreconditionsAsync(
 			IContext context,
 			IImmutableCommand command,
@@ -200,8 +241,7 @@ namespace YACCS.Commands
 					return CommandScore.FromFailedOptionalArgs(command, parameter, context, currentIndex);
 				}
 
-				var meta = new CommandMeta(command, parameter);
-				var ppResult = await parameter.CanExecuteAsync(meta, context, value).ConfigureAwait(false);
+				var ppResult = await command.CanExecuteAsync(parameter, context, value).ConfigureAwait(false);
 				if (!ppResult.IsSuccess)
 				{
 					return CommandScore.FromFailedParameterPrecondition(command, parameter, context, ppResult, currentIndex);
@@ -212,6 +252,14 @@ namespace YACCS.Commands
 			return CommandScore.FromCanExecute(command, context, args, startIndex + 1);
 		}
 
+		/// <summary>
+		/// Parses a value for <paramref name="parameter"/> from <paramref name="input"/>.
+		/// </summary>
+		/// <param name="context">The context invoking a command.</param>
+		/// <param name="parameter">The parameter being parsed for.</param>
+		/// <param name="input">The input being parsed.</param>
+		/// <param name="startIndex">The index to start at for <paramref name="input"/>.</param>
+		/// <returns>A result indicating success or failure.</returns>
 		protected internal ITask<ITypeReaderResult> ProcessTypeReadersAsync(
 			IContext context,
 			IImmutableParameter parameter,
@@ -226,37 +274,43 @@ namespace YACCS.Commands
 			return reader.ReadAsync(context, sliced);
 		}
 
-		protected virtual Task DisposeContextAsync(CommandExecutedEventArgs e)
+		/// <summary>
+		/// Called directly after the command has been executed.
+		/// </summary>
+		/// <param name="e">The command executed args.</param>
+		/// <returns></returns>
+		protected abstract Task CommandExecutedAsync(CommandExecutedEventArgs e);
+
+		/// <summary>
+		/// Called at the very end, handles disposing the context and other cleanup.
+		/// </summary>
+		/// <param name="e">The command executed args.</param>
+		/// <returns></returns>
+		protected virtual Task CommandFinishedAsync(CommandExecutedEventArgs e)
 		{
 			if (e.Context is IDisposable disposable)
 			{
 				disposable.Dispose();
 			}
+			if (e.Context is IAsyncDisposable asyncDisposable)
+			{
+				return asyncDisposable.DisposeAsync().AsTask();
+			}
 			return Task.CompletedTask;
 		}
 
-		protected virtual async ValueTask<IExecuteResult> ExecuteInternalAsync(
-			IContext context,
-			ReadOnlyMemory<string> args)
-		{
-			var best = await GetBestMatchAsync(context, args).ConfigureAwait(false);
-			// If a command is found and args are parsed, execute command in background
-			if (best.InnerResult.IsSuccess && best.Command is not null && best.Args is not null)
-			{
-				_ = Task.Run(async () =>
-				{
-					var e = await HandleCommandAsync(context, best.Command, best.Args).ConfigureAwait(false);
-					await OnCommandExecutedAsync(e).ConfigureAwait(false);
-					await DisposeContextAsync(e).ConfigureAwait(false);
-				});
-			}
-			return best;
-		}
-
-		protected virtual CommandScore? GetBest(CommandScore? a, CommandScore? b)
-			=> a > b ? a : b;
-
-		protected virtual async ValueTask<CommandExecutedEventArgs> HandleCommandAsync(
+		/// <summary>
+		/// Executes a command, collects all the exceptions that occurs, and then creates
+		/// <see cref="CommandExecutedEventArgs"/>.
+		/// </summary>
+		/// <param name="context">The context which is executing a command.</param>
+		/// <param name="command">The command being executed.</param>
+		/// <param name="args">The arguments for the command.</param>
+		/// <returns>
+		/// A <see cref="CommandExecutedEventArgs"/> containing the result of this method
+		/// and any exceptions that occurred.
+		/// </returns>
+		protected virtual async ValueTask<CommandExecutedEventArgs> ExecuteAsync(
 			IContext context,
 			IImmutableCommand command,
 			object?[] args)
@@ -323,6 +377,13 @@ namespace YACCS.Commands
 			);
 		}
 
-		protected abstract Task OnCommandExecutedAsync(CommandExecutedEventArgs e);
+		/// <summary>
+		/// Gets the highest rated command score.
+		/// </summary>
+		/// <param name="a">The first command score.</param>
+		/// <param name="b">The second command score.</param>
+		/// <returns>The highest rated command score.</returns>
+		protected virtual CommandScore? GetBest(CommandScore? a, CommandScore? b)
+			=> a > b ? a : b;
 	}
 }

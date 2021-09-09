@@ -47,7 +47,7 @@ namespace YACCS.Commands
 		}
 
 		/// <inheritdoc />
-		protected override Task OnCommandExecutedAsync(CommandExecutedEventArgs e)
+		protected override Task CommandExecutedAsync(CommandExecutedEventArgs e)
 			=> CommandExecutedEvent.InvokeAsync(e);
 	}
 }

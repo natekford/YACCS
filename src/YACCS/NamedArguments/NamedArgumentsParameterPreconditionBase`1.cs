@@ -41,8 +41,7 @@ namespace YACCS.NamedArguments
 					return new StructuredArgMissingValueResult(property);
 				}
 
-				var newMeta = new CommandMeta(meta.Command, parameter);
-				var result = await parameter.CanExecuteAsync(newMeta, context, propertyValue).ConfigureAwait(false);
+				var result = await meta.Command.CanExecuteAsync(parameter, context, propertyValue).ConfigureAwait(false);
 				if (!result.IsSuccess)
 				{
 					return result;

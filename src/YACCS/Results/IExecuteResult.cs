@@ -11,7 +11,7 @@ namespace YACCS.Results
 	/// For the default implementation of <see cref="CommandServiceBase"/>,
 	/// these results will only be errors or <see cref="SuccessResult.Instance"/>.
 	/// All command results will get sent to
-	/// <see cref="CommandServiceBase.OnCommandExecutedAsync(CommandExecutedEventArgs)"/>.
+	/// <see cref="CommandServiceBase.CommandExecutedAsync(CommandExecutedEventArgs)"/>.
 	/// <br/>
 	/// <br/>
 	/// For the default implementation of <see cref="CommandService"/>, the above method

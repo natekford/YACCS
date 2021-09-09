@@ -216,7 +216,7 @@ Parameters:{TRAILING}
 				return new(SuccessResult.Instance);
 			}
 
-			protected override ValueTask<IResult> CheckAsync(
+			public override ValueTask<IResult> CheckAsync(
 				CommandMeta meta,
 				IContext context,
 				object? value)

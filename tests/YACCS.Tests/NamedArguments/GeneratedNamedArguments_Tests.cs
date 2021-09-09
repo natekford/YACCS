@@ -245,7 +245,7 @@ namespace YACCS.Tests.NamedArguments
 				return new(InvalidParameterResult.Instance);
 			}
 
-			protected override ValueTask<IResult> CheckAsync(
+			public override ValueTask<IResult> CheckAsync(
 				CommandMeta meta,
 				IContext context,
 				object? value)

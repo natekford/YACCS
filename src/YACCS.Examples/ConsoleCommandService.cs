@@ -39,7 +39,7 @@ namespace YACCS.Examples
 		public Task InitializeAsync()
 			=> _Initialize.GetCurrent().Value;
 
-		protected override Task OnCommandExecutedAsync(CommandExecutedEventArgs e)
+		protected override Task CommandExecutedAsync(CommandExecutedEventArgs e)
 		{
 			_Console.WriteResult(e.Result);
 			var exceptions = string.Join(Environment.NewLine, e.GetAllExceptions());

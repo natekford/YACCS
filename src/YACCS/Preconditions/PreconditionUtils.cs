@@ -9,16 +9,24 @@ using YACCS.Results;
 
 namespace YACCS.Preconditions
 {
+	/// <inheritdoc cref="IParameterPrecondition.CheckAsync(CommandMeta, IContext, object?)"/>
 	public delegate ValueTask<IResult> CheckAsync<TContext, TValue>(
 		CommandMeta meta,
 		TContext context,
 		TValue value);
 
+	/// <summary>
+	/// Utilities for preconditions.
+	/// </summary>
 	public static class PreconditionUtils
 	{
 		private static Task InvalidContext { get; }
 			= Task.FromResult(InvalidContextResult.Instance);
 
+		/// <summary>
+		/// Invokes <paramref name="checkAsync"/> after pattern matching arguments.
+		/// </summary>
+		/// <inheritdoc cref="IParameterPrecondition.CheckAsync(CommandMeta, IContext, object?)"/>
 		public static ValueTask<IResult> CheckAsync<TContext, TValue>(
 			this IParameterPrecondition _,
 			CommandMeta meta,
@@ -59,24 +67,11 @@ namespace YACCS.Preconditions
 			return new(InvalidParameterResult.Instance);
 		}
 
-		public static Task HandleAsync<TContext>(
-			this IPrecondition _,
-			IImmutableCommand command,
-			IContext context,
-			Func<IImmutableCommand, TContext, Task> afterExecutionAsync)
-			where TContext : IContext
-		{
-			if (context is not TContext tContext)
-			{
-				// We don't need to throw an exception here because CheckAsync should
-				// return a result indicating an invalid context type and this should not
-				// be called before CheckAsync
-				return InvalidContext;
-			}
-			return afterExecutionAsync(command, tContext);
-		}
-
-		public static ValueTask<IResult> HandleAsync<TContext>(
+		/// <summary>
+		/// Invokes <paramref name="checkAsync"/> after pattern matching arguments.
+		/// </summary>
+		/// <inheritdoc cref="IPrecondition.CheckAsync(IImmutableCommand, IContext)"/>
+		public static ValueTask<IResult> CheckAsync<TContext>(
 			this IPrecondition _,
 			IImmutableCommand command,
 			IContext context,
@@ -88,6 +83,27 @@ namespace YACCS.Preconditions
 				return new(InvalidContextResult.Instance);
 			}
 			return checkAsync(command, tContext);
+		}
+
+		/// <summary>
+		/// Invokes <paramref name="executionAsync"/> after pattern matching arguments.
+		/// </summary>
+		/// <inheritdoc cref="IPrecondition.AfterExecutionAsync(IImmutableCommand, IContext, Exception?)"/>
+		public static Task HandleAsync<TContext>(
+			this IPrecondition _,
+			IImmutableCommand command,
+			IContext context,
+			Func<IImmutableCommand, TContext, Task> executionAsync)
+			where TContext : IContext
+		{
+			if (context is not TContext tContext)
+			{
+				// We don't need to throw an exception here because CheckAsync should
+				// return a result indicating an invalid context type and this should not
+				// be called before CheckAsync
+				return InvalidContext;
+			}
+			return executionAsync(command, tContext);
 		}
 
 		private static async ValueTask<IResult> CheckAsync<TContext, TValue>(

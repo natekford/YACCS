@@ -1,5 +1,8 @@
 ﻿namespace YACCS.Preconditions
 {
+	/// <summary>
+	/// The operator to use for a <see cref="IGroupablePrecondition"/>.
+	/// </summary>
 	public enum BoolOp
 	{
 		/// <summary>
