@@ -1,6 +1,6 @@
 ﻿#if true
 
-using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,6 +12,7 @@ namespace YACCS.Tests.Commands
 	public class Trie_Tests
 	{
 		private const int SIZE = 100;
+		private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(1);
 
 		[TestMethod]
 		public async Task Threading_Test()
@@ -20,78 +21,65 @@ namespace YACCS.Tests.Commands
 			await Threading_Test(new TestTrie()).ConfigureAwait(false);
 		}
 
-		[MethodImpl(MethodImplOptions.NoOptimization)]
 		private static async Task Threading_Test(ICollection<int> collection)
 		{
-			_ = Task.Run(async () =>
+			var wrapper = new Wrapper(collection);
+			var tcs = new TaskCompletionSource();
+			var task = Task.Run(async () =>
 			{
 				for (var i = 0; i < SIZE; ++i)
 				{
+					if (!tcs.Task.IsCompleted && i >= (Delay * 5).TotalMilliseconds)
+					{
+						tcs.SetResult();
+					}
+
 					collection.Add(i);
-					await Task.Delay(1).ConfigureAwait(false);
+					await Task.Delay(Delay).ConfigureAwait(false);
 				}
 			});
 
-			while (collection.Count < SIZE / 10)
-			{
-			}
+			await tcs.Task.ConfigureAwait(false);
 
 			await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
 			{
-				var sum = 0;
-				foreach (var item in collection)
+				foreach (var _ in collection)
 				{
-					sum += item;
-					await Task.Delay(2).ConfigureAwait(false);
+					await Task.Delay(Delay * 2).ConfigureAwait(false);
 				}
 			}).ConfigureAwait(false);
 
-			// Originally this was testing ToArray()/ToList() but that only seemed to
-			// throw about 75% of the time, so maybe calling CopyTo directly will
-			// throw 100% of the time?
-			//
-			// I don't know at this point, the only way I can think of the exception
-			// not being thrown is if the collection gets finished before this is called
-			// so I guess let's do that?
-			//
-			// Ok, so even though count != SIZE somehow the exception is still not happening
-			// Maybe adding a sleep before it will for sure get some new items added and
-			// cause the exception.
-			//
-			// Debug and Release have no difference on my computer
-			// Increase the sleep and add an assert that the numbers aren't equal so maybe
-			// I can know that CopyTo on Github Actions is just never going to throw
-			//
-			// Github Actions successfully asserted that the counts ARE different
-			// So for some reason their version of dotnet does not throw when attempting to
-			// copy a collection to an array which does not have enough space
-			var count = collection.Count;
-			if (count != SIZE)
-			{
-				await Task.Delay(250).ConfigureAwait(false);
-				Assert.AreNotEqual(count, collection.Count);
-				Assert.ThrowsException<ArgumentException>(() =>
-				{
-					var array = new int[count];
-					collection.CopyTo(array, 0);
-				});
-			}
-
-			while (collection.Count < SIZE)
-			{
-			}
+			wrapper.Remove(2);
+			await task.ConfigureAwait(false);
 
 			var set = collection.ToHashSet();
-			Assert.IsTrue(set.Remove(50));
-			Assert.IsTrue(collection.Remove(50));
+			Assert.IsTrue(set.Remove(SIZE / 2));
+			wrapper.Remove(SIZE / 2);
 			Assert.AreEqual(set.Count, collection.Count);
 
-			Assert.IsTrue(collection.Remove((int)(SIZE * 0.10)));
-			Assert.IsTrue(collection.Remove((int)(SIZE * 0.15)));
-			Assert.IsTrue(collection.Remove((int)(SIZE * 0.20)));
-			Assert.IsTrue(collection.Remove((int)(SIZE * 0.35)));
-			Assert.IsTrue(collection.Remove((int)(SIZE * 0.55)));
-			Assert.AreEqual(SIZE - 6, collection.Count);
+			wrapper.Remove((int)(SIZE * 0.10));
+			wrapper.Remove((int)(SIZE * 0.15));
+			wrapper.Remove((int)(SIZE * 0.20));
+			wrapper.Remove((int)(SIZE * 0.35));
+			wrapper.Remove((int)(SIZE * 0.55));
+			Assert.AreEqual(wrapper.ExpectedCount, collection.Count);
+		}
+
+		private sealed class Wrapper
+		{
+			private readonly ICollection<int> _Collection;
+			public int ExpectedCount { get; set; } = SIZE;
+
+			public Wrapper(ICollection<int> collection)
+			{
+				_Collection = collection;
+			}
+
+			public void Remove(int value)
+			{
+				Assert.IsTrue(_Collection.Remove(value));
+				--ExpectedCount;
+			}
 		}
 
 		private sealed class TestTrie : Trie<int, int>
