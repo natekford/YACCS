@@ -18,7 +18,8 @@ namespace YACCS.Examples
 		private readonly Localized<Lazy<Task>> _Initialize;
 		private readonly IServiceProvider _Services;
 
-		public override ITrie<string, IImmutableCommand> Commands => _Commands.GetCurrent();
+		public override ICommandCollection<IImmutableCommand> Commands
+			=> _Commands.GetCurrent();
 
 		public ConsoleCommandService(
 			IServiceProvider services,

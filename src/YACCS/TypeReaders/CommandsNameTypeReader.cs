@@ -22,7 +22,7 @@ namespace YACCS.TypeReaders
 		{
 			var commands = GetCommands(context.Services);
 
-			var found = commands.FindByPath(input);
+			var found = commands.Commands.Find(input);
 			if (found.Count == 0)
 			{
 				return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailed.Task;

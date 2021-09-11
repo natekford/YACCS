@@ -204,8 +204,7 @@ namespace YACCS.Commands
 			}
 
 			/// <summary>
-			/// Deconstructs this object into <see cref="DefiningType"/> and
-			/// <see cref="Command"/>.
+			/// Deconstructs this struct.
 			/// </summary>
 			/// <param name="definingType"><see cref="DefiningType"/></param>
 			/// <param name="command"><see cref="Command"/></param>

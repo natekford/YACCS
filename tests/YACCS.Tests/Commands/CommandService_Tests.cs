@@ -11,6 +11,7 @@ using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Preconditions;
 using YACCS.Results;
+using YACCS.Trie;
 using YACCS.TypeReaders;
 
 namespace YACCS.Tests.Commands
@@ -21,39 +22,36 @@ namespace YACCS.Tests.Commands
 		[TestMethod]
 		public void AddAndRemove_Test()
 		{
-			var commandService = Utils.CreateServices().Get<ICommandService>();
-			var trie = (ITrie<string, IImmutableCommand>)commandService.Commands;
+			var commands = Utils.CreateServices().Get<CommandService>().Commands;
 
 			var c1 = FakeDelegateCommand.New()
 				.AddPath(new[] { "1" })
 				.ToImmutable();
-			trie.Add(c1);
-			Assert.AreEqual(1, trie.Count);
+			commands.Add(c1);
+			Assert.AreEqual(1, commands.Count);
 
 			var c2 = FakeDelegateCommand.New()
 				.AddPath(new[] { "2" })
 				.ToImmutable();
-			trie.Add(c2);
-			Assert.AreEqual(2, commandService.Commands.Count);
+			commands.Add(c2);
+			Assert.AreEqual(2, commands.Count);
 
-			trie.Remove(c1);
-			Assert.AreEqual(1, commandService.Commands.Count);
+			commands.Remove(c1);
+			Assert.AreEqual(1, commands.Count);
 
-			trie.Remove(c2);
-			Assert.AreEqual(0, commandService.Commands.Count);
+			commands.Remove(c2);
+			Assert.AreEqual(0, commands.Count);
 		}
 
 		[TestMethod]
 		public void AddWithParameters_Test()
 		{
-			var commandService = Utils.CreateServices().Get<ICommandService>();
-			var trie = (ITrie<string, IImmutableCommand>)commandService.Commands;
+			var commands = Utils.CreateServices().Get<CommandService>().Commands;
 
-			static void Method(Fake x) { }
-			var c1 = new DelegateCommand((Action<Fake>)Method, new[] { new[] { "1" } });
+			var c1 = new DelegateCommand((Fake _) => { }, new[] { new[] { "1" } });
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
-				trie.Add(c1.ToImmutable());
+				commands.Add(c1.ToImmutable());
 			});
 
 			c1.Parameters[0].TypeReader = new TryParseTypeReader<Fake>((string input, out Fake output) =>
@@ -61,86 +59,85 @@ namespace YACCS.Tests.Commands
 				output = null!;
 				return false;
 			});
-			trie.Add(c1.ToImmutable());
-			Assert.AreEqual(1, commandService.Commands.Count);
+			commands.Add(c1.ToImmutable());
+			Assert.AreEqual(1, commands.Count);
 		}
 
 		[TestMethod]
 		public void Find_Test()
 		{
-			var commandService = Utils.CreateServices().Get<ICommandService>();
-			var trie = (ITrie<string, IImmutableCommand>)commandService.Commands;
+			var commands = Utils.CreateServices().Get<CommandService>().Commands;
 
 			var c1 = FakeDelegateCommand.New()
 				.AddPath(new[] { "1" })
 				.ToImmutable();
-			trie.Add(c1);
+			commands.Add(c1);
 			var c2 = FakeDelegateCommand.New()
 				.AddPath(new[] { "2" })
 				.AddPath(new[] { "3" })
 				.ToImmutable();
-			trie.Add(c2);
+			commands.Add(c2);
 			var c3 = FakeDelegateCommand.New()
 				.AddPath(new[] { "4", "1" })
 				.AddPath(new[] { "4", "2" })
 				.AddPath(new[] { "4", "3" })
 				.ToImmutable();
-			trie.Add(c3);
+			commands.Add(c3);
 			var c4 = FakeDelegateCommand.New()
 				.AddPath(new[] { "4", "1" })
 				.ToImmutable();
-			trie.Add(c4);
+			commands.Add(c4);
 
 			{
-				var found = commandService.FindByPath(new[] { "" });
+				var found = commands.Find(new[] { "" });
 				Assert.AreEqual(0, found.Count);
 			}
 
 			{
-				var found = commandService.FindByPath(new[] { "\"1" });
+				var found = commands.Find(new[] { "\"1" });
 				Assert.AreEqual(0, found.Count);
 			}
 
 			{
-				var found = commandService.FindByPath(new[] { "1" });
+				var found = commands.Find(new[] { "1" });
 				Assert.AreEqual(1, found.Count);
 				Assert.AreSame(c1, found.Single());
 			}
 
 			{
-				var found = commandService.FindByPath(new[] { "2" });
+				var found = commands.Find(new[] { "2" });
 				Assert.AreEqual(1, found.Count);
 				Assert.AreSame(c2, found.Single());
 			}
 
 			{
-				var found = commandService.FindByPath(new[] { "3" });
+				var found = commands.Find(new[] { "3" });
 				Assert.AreEqual(1, found.Count);
 				Assert.AreSame(c2, found.Single());
 			}
 
 			{
-				var found = commandService.FindByPath(new[] { "4" });
+				var found = commands.Find(new[] { "4" });
 				Assert.AreEqual(2, found.Count);
 				Assert.IsTrue(found.Contains(c3));
 				Assert.IsTrue(found.Contains(c4));
 			}
 
 			{
-				var found = commandService.FindByPath(new[] { "4", "1" });
+				var found = commands.Find(new[] { "4", "1" });
 				Assert.AreEqual(2, found.Count);
 				Assert.IsTrue(found.Contains(c3));
 				Assert.IsTrue(found.Contains(c4));
 			}
 
 			{
-				var found = commandService.FindByPath(new[] { "4", "2" });
+				var found = commands.Find(new[] { "4", "2" });
 				Assert.AreEqual(1, found.Count);
 				Assert.AreSame(c3, found.Single());
 			}
 
 			{
-				var found = commandService.FindByPath(new[] { "asdf", "not", "a", "command" });
+				var found = commands.Find(new[] { "asdf", "not", "a", "command" });
 				Assert.AreEqual(0, found.Count);
 			}
 		}

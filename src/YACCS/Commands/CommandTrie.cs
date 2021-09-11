@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using YACCS.Commands.Models;
+using YACCS.Trie;
 using YACCS.TypeReaders;
 
 namespace YACCS.Commands
@@ -10,7 +11,8 @@ namespace YACCS.Commands
 	/// <summary>
 	/// A <see cref="Trie{TKey, TValue}"/> specifically for commands.
 	/// </summary>
-	public sealed class CommandTrie : Trie<string, IImmutableCommand>
+	public sealed class CommandTrie
+		: Trie<string, IImmutableCommand>, ICommandCollection<IImmutableCommand>
 	{
 		private readonly IReadOnlyDictionary<Type, ITypeReader> _Readers;
 		private readonly char _Separator;
@@ -95,6 +97,44 @@ namespace YACCS.Commands
 			}
 
 			base.Add(item);
+		}
+
+		/// <inheritdoc />
+		public IReadOnlyCollection<IImmutableCommand> Find(ReadOnlyMemory<string> path)
+		{
+			var node = Root;
+			foreach (var key in path.Span)
+			{
+				if (!node.TryGetEdge(key, out node))
+				{
+					break;
+				}
+			}
+			if (node is null)
+			{
+				return Array.Empty<IImmutableCommand>();
+			}
+
+			// Generated items have a source and that source gives them the same
+			// names/properties, so they should be ignored since they are copies
+			return node.GetAllDistinctItems(x => x.Source is null);
+		}
+
+		/// <inheritdoc />
+		public IEnumerable<WithDepth<IImmutableCommand>> Iterate(ReadOnlyMemory<string> path)
+		{
+			var node = Root;
+			for (var i = 0; i < path.Length; ++i)
+			{
+				if (!node.TryGetEdge(path.Span[i], out node))
+				{
+					yield break;
+				}
+				foreach (var command in node.Items)
+				{
+					yield return new(i, command);
+				}
+			}
 		}
 
 		/// <inheritdoc />

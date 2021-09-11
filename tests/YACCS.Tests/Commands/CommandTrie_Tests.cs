@@ -6,6 +6,7 @@ using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
+using YACCS.Trie;
 using YACCS.TypeReaders;
 
 namespace YACCS.Tests.Commands

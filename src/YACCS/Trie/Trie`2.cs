@@ -1,10 +1,11 @@
 ﻿using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace YACCS.Commands
+using YACCS.Commands;
+
+namespace YACCS.Trie
 {
 	/// <inheritdoc cref="ITrie{TKey, TValue}" />
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]

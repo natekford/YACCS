@@ -6,7 +6,6 @@ using MorseCode.ITask;
 
 using YACCS.Commands.Models;
 using YACCS.Parsing;
-using YACCS.Preconditions;
 using YACCS.Results;
 using YACCS.TypeReaders;
 
@@ -18,8 +17,8 @@ namespace YACCS.Commands
 	public abstract class CommandServiceBase : ICommandService
 	{
 		/// <inheritdoc cref="ICommandService.Commands"/>
-		public virtual ITrie<string, IImmutableCommand> Commands { get; }
-		IReadOnlyCollection<IImmutableCommand> ICommandService.Commands => Commands;
+		public virtual ICommandCollection<IImmutableCommand> Commands { get; }
+		IReadOnlyCommandCollection<IImmutableCommand> ICommandService.Commands => Commands;
 		/// <summary>
 		/// The configuration to use.
 		/// </summary>
@@ -86,27 +85,6 @@ namespace YACCS.Commands
 			}
 		}
 
-		/// <inheritdoc />
-		public virtual IReadOnlyCollection<IImmutableCommand> FindByPath(ReadOnlyMemory<string> input)
-		{
-			var node = Commands.Root;
-			foreach (var key in input.Span)
-			{
-				if (!node.TryGetEdge(key, out node))
-				{
-					break;
-				}
-			}
-			if (node is null)
-			{
-				return Array.Empty<IImmutableCommand>();
-			}
-
-			// Generated items have a source and that source gives them the same
-			// names/properties, so they should be ignored since they are copies
-			return node.GetAllDistinctItems(x => x.Source is null);
-		}
-
 		/// <summary>
 		/// Steps through <see cref="Commands"/> and parses each command at every edge it
 		/// goes to.
@@ -123,25 +101,17 @@ namespace YACCS.Commands
 		{
 			var best = default(CommandScore);
 
-			var node = Commands.Root;
-			for (var i = 0; i < input.Length; ++i)
+			foreach (var (i, command) in Commands.Iterate(input))
 			{
-				if (!node.TryGetEdge(input.Span[i], out node))
+				// Add 1 to i to account for how we're in a node
+				var score = await GetCommandScoreAsync(context, command, input, i + 1).ConfigureAwait(false);
+				if (Config.MultiMatchHandling == MultiMatchHandling.Error
+					&& best?.InnerResult.IsSuccess == true
+					&& score.InnerResult.IsSuccess)
 				{
-					break;
+					return CommandScore.MultiMatch;
 				}
-				foreach (var command in node.Items)
-				{
-					// Add 1 to i to account for how we're in a node
-					var score = await GetCommandScoreAsync(context, command, input, i + 1).ConfigureAwait(false);
-					if (Config.MultiMatchHandling == MultiMatchHandling.Error
-						&& best?.InnerResult.IsSuccess == true
-						&& score.InnerResult.IsSuccess)
-					{
-						return CommandScore.MultiMatch;
-					}
-					best = GetBest(best, score);
-				}
+				best = GetBest(best, score);
 			}
 
 			return best ?? CommandScore.CommandNotFound;

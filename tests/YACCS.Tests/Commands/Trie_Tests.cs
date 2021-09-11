@@ -1,10 +1,8 @@
 ﻿#if true
 
-using System.Diagnostics;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using YACCS.Commands;
+using YACCS.Trie;
 
 namespace YACCS.Tests.Commands
 {

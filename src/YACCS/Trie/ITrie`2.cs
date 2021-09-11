@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace YACCS.Commands
+namespace YACCS.Trie
 {
 	/// <summary>
 	/// A <a href="https://en.wikipedia.org/wiki/Trie">trie</a> data structure.

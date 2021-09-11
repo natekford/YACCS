@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using YACCS.Commands.Models;
 using YACCS.Results;
@@ -15,7 +13,7 @@ namespace YACCS.Commands
 		/// <summary>
 		/// The commands this command service has.
 		/// </summary>
-		IReadOnlyCollection<IImmutableCommand> Commands { get; }
+		IReadOnlyCommandCollection<IImmutableCommand> Commands { get; }
 
 		/// <summary>
 		/// Executes a command.
@@ -25,12 +23,5 @@ namespace YACCS.Commands
 		/// <returns>A failure result or <see cref="SuccessResult.Instance"/>.</returns>
 		/// <inheritdoc cref="IExecuteResult" path="/remarks"/>
 		ValueTask<IExecuteResult> ExecuteAsync(IContext context, string input);
-
-		/// <summary>
-		/// Finds a command via <paramref name="input"/>.
-		/// </summary>
-		/// <param name="input">The path to search for.</param>
-		/// <returns>A collection of matching commands.</returns>
-		IReadOnlyCollection<IImmutableCommand> FindByPath(ReadOnlyMemory<string> input);
 	}
 }

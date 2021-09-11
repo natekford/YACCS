@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace YACCS.Commands
+namespace YACCS.Trie
 {
 	/// <summary>
 	/// Defines the methods and properties of a node for a <see cref="ITrie{TKey, TValue}"/>.
