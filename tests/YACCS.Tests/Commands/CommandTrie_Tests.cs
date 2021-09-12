@@ -31,7 +31,7 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(1, _Trie.Count);
 			Assert.AreEqual(1, _Trie.Root.Edges.Count);
 			Assert.AreEqual(1, _Trie.Root["1"].GetAllDistinctItems().Count);
-			Assert.AreEqual(1, _Trie.Root["1"].Items.Count);
+			Assert.AreEqual(1, _Trie.Root["1"].Count);
 
 			var c2 = FakeDelegateCommand.New()
 				.AddPath(new[] { "2" })
@@ -41,9 +41,9 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(2, _Trie.Count);
 			Assert.AreEqual(3, _Trie.Root.Edges.Count);
 			Assert.AreEqual(1, _Trie.Root["2"].GetAllDistinctItems().Count);
-			Assert.AreEqual(1, _Trie.Root["2"].Items.Count);
+			Assert.AreEqual(1, _Trie.Root["2"].Count);
 			Assert.AreEqual(1, _Trie.Root["3"].GetAllDistinctItems().Count);
-			Assert.AreEqual(1, _Trie.Root["3"].Items.Count);
+			Assert.AreEqual(1, _Trie.Root["3"].Count);
 
 			var c3 = FakeDelegateCommand.New()
 				.AddPath(new[] { "4", "1" })
@@ -54,7 +54,7 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(3, _Trie.Count);
 			Assert.AreEqual(4, _Trie.Root.Edges.Count);
 			Assert.AreEqual(1, _Trie.Root["4"].GetAllDistinctItems().Count);
-			Assert.AreEqual(0, _Trie.Root["4"].Items.Count);
+			Assert.AreEqual(0, _Trie.Root["4"].Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["1"].GetAllDistinctItems().Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["2"].GetAllDistinctItems().Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["3"].GetAllDistinctItems().Count);
@@ -66,7 +66,7 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(4, _Trie.Count);
 			Assert.AreEqual(4, _Trie.Root.Edges.Count);
 			Assert.AreEqual(2, _Trie.Root["4"].GetAllDistinctItems().Count);
-			Assert.AreEqual(0, _Trie.Root["4"].Items.Count);
+			Assert.AreEqual(0, _Trie.Root["4"].Count);
 			Assert.AreEqual(2, _Trie.Root["4"]["1"].GetAllDistinctItems().Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["2"].GetAllDistinctItems().Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["3"].GetAllDistinctItems().Count);
@@ -79,7 +79,7 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(5, _Trie.Count);
 			Assert.AreEqual(5, _Trie.Root.Edges.Count);
 			Assert.AreEqual(1, _Trie.Root["5"].GetAllDistinctItems().Count);
-			Assert.AreEqual(1, _Trie.Root["5"].Items.Count);
+			Assert.AreEqual(1, _Trie.Root["5"].Count);
 
 			var c6 = FakeDelegateCommand.New()
 				.AddPath(new[] { "4" })
@@ -88,14 +88,14 @@ namespace YACCS.Tests.Commands
 			_Trie.Add(c6);
 			Assert.AreEqual(5, _Trie.Root.Edges.Count);
 			Assert.AreEqual(2, _Trie.Root["4"].GetAllDistinctItems().Count);
-			Assert.AreEqual(1, _Trie.Root["4"].Items.Count);
+			Assert.AreEqual(1, _Trie.Root["4"].Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["1"].GetAllDistinctItems().Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["2"].GetAllDistinctItems().Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["3"].GetAllDistinctItems().Count);
 
 			Assert.IsTrue(_Trie.Remove(c6));
 			Assert.AreEqual(1, _Trie.Root["4"].GetAllDistinctItems().Count);
-			Assert.AreEqual(0, _Trie.Root["4"].Items.Count);
+			Assert.AreEqual(0, _Trie.Root["4"].Count);
 			Assert.AreEqual(5, _Trie.Root.Edges.Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["1"].GetAllDistinctItems().Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["2"].GetAllDistinctItems().Count);
@@ -119,7 +119,7 @@ namespace YACCS.Tests.Commands
 				_Trie.Add(item);
 			}
 			Assert.AreEqual(1, _Trie.Root["4"].GetAllDistinctItems().Count);
-			Assert.AreEqual(0, _Trie.Root["4"].Items.Count);
+			Assert.AreEqual(0, _Trie.Root["4"].Count);
 			Assert.AreEqual(5, _Trie.Root.Edges.Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["1"].GetAllDistinctItems().Count);
 			Assert.AreEqual(1, _Trie.Root["4"]["2"].GetAllDistinctItems().Count);

@@ -19,6 +19,7 @@ namespace YACCS.Commands
 	{
 		/// <inheritdoc cref="ICommandService.Commands"/>
 		public virtual ITrie<string, IImmutableCommand> Commands { get; }
+		IReadOnlyTrie<string, IImmutableCommand> ICommandService.Commands => Commands;
 		/// <summary>
 		/// The configuration to use.
 		/// </summary>
@@ -108,7 +109,7 @@ namespace YACCS.Commands
 				{
 					break;
 				}
-				foreach (var command in node.Items)
+				foreach (var command in node)
 				{
 					// Add 1 to i to account for how we're in a node
 					var score = await GetCommandScoreAsync(context, command, input, i + 1).ConfigureAwait(false);

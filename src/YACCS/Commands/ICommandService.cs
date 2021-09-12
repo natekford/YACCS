@@ -14,7 +14,7 @@ namespace YACCS.Commands
 		/// <summary>
 		/// The commands this command service has.
 		/// </summary>
-		ITrie<string, IImmutableCommand> Commands { get; }
+		IReadOnlyTrie<string, IImmutableCommand> Commands { get; }
 
 		/// <summary>
 		/// Executes a command.

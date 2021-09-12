@@ -51,7 +51,7 @@ namespace YACCS.Trie
 		{
 			static IEnumerable<TValue> GetItems(INode<TKey, TValue> node)
 			{
-				foreach (var item in node.Items)
+				foreach (var item in node)
 				{
 					yield return item;
 				}

@@ -4,20 +4,16 @@ using System.Diagnostics.CodeAnalysis;
 namespace YACCS.Trie
 {
 	/// <summary>
-	/// Defines the methods and properties of a node for a <see cref="ITrie{TKey, TValue}"/>.
+	/// Defines the methods and properties of a node for a <see cref="IReadOnlyTrie{TKey, TValue}"/>.
 	/// </summary>
 	/// <typeparam name="TKey"></typeparam>
 	/// <typeparam name="TValue"></typeparam>
-	public interface INode<TKey, TValue>
+	public interface INode<TKey, TValue> : IReadOnlyCollection<TValue>
 	{
 		/// <summary>
 		/// All the edges of this node.
 		/// </summary>
 		IReadOnlyCollection<INode<TKey, TValue>> Edges { get; }
-		/// <summary>
-		/// All the items that are directly inside this node.
-		/// </summary>
-		IReadOnlyCollection<TValue> Items { get; }
 		/// <summary>
 		/// Gets the edge that is the value of <paramref name="key"/>.
 		/// </summary>

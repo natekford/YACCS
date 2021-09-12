@@ -7,7 +7,7 @@ using YACCS.Commands;
 
 namespace YACCS.Trie
 {
-	/// <inheritdoc cref="ITrie{TKey, TValue}" />
+	/// <inheritdoc cref="IReadOnlyTrie{TKey, TValue}" />
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public abstract class Trie<TKey, TValue> : ITrie<TKey, TValue>
 	{
@@ -16,8 +16,6 @@ namespace YACCS.Trie
 
 		/// <inheritdoc />
 		public bool IsReadOnly => false;
-		/// <inheritdoc />
-		public IReadOnlyCollection<TValue> Items => _Items;
 		/// <inheritdoc />
 		public INode<TKey, TValue> Root => _Root;
 		/// <inheritdoc />
@@ -71,7 +69,7 @@ namespace YACCS.Trie
 
 		/// <inheritdoc />
 		public IEnumerator<TValue> GetEnumerator()
-			=> Items.GetEnumerator();
+			=> _Items.GetEnumerator();
 
 		/// <inheritdoc />
 		public bool Remove(TValue item)
@@ -120,7 +118,7 @@ namespace YACCS.Trie
 			private readonly TKey _Key;
 			private readonly Node? _Parent;
 
-			public IReadOnlyCollection<TValue> Items => _Items;
+			public int Count => _Items.Count;
 			public IReadOnlyCollection<Node> Edges => _Edges.Values;
 			IReadOnlyCollection<INode<TKey, TValue>> INode<TKey, TValue>.Edges => Edges;
 			private string DebuggerDisplay
@@ -139,12 +137,12 @@ namespace YACCS.Trie
 					return $"Path = {path}, Count = {_Items.Count}";
 				}
 			}
-
 			public Node this[TKey key]
 			{
 				get => _Edges[key];
 				set => _Edges[key] = value;
 			}
+
 			INode<TKey, TValue> INode<TKey, TValue>.this[TKey key]
 				=> this[key];
 
@@ -169,6 +167,9 @@ namespace YACCS.Trie
 			public bool Contains(TValue item)
 				// Only direct items since the node has already been found via name
 				=> _Items.Contains(item);
+
+			public IEnumerator<TValue> GetEnumerator()
+				=> _Items.GetEnumerator();
 
 			public Node GetOrAdd(TKey key)
 			{
@@ -198,6 +199,9 @@ namespace YACCS.Trie
 
 			public bool TryGetEdge(TKey key, [NotNullWhen(true)] out Node? node)
 				=> _Edges.TryGetValue(key, out node);
+
+			IEnumerator IEnumerable.GetEnumerator()
+				=> GetEnumerator();
 
 			bool INode<TKey, TValue>.TryGetEdge(
 				TKey key,

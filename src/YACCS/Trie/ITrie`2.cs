@@ -7,17 +7,9 @@ namespace YACCS.Trie
 	/// </summary>
 	/// <typeparam name="TKey"></typeparam>
 	/// <typeparam name="TValue"></typeparam>
-	public interface ITrie<TKey, TValue> : IReadOnlyCollection<TValue>, ICollection<TValue>
+	public interface ITrie<TKey, TValue> : IReadOnlyTrie<TKey, TValue>, ICollection<TValue>
 	{
 		/// <inheritdoc cref="ICollection{T}.Count"/>
 		new int Count { get; }
-		/// <summary>
-		/// All items added to this trie, regardless of their positions.
-		/// </summary>
-		IReadOnlyCollection<TValue> Items { get; }
-		/// <summary>
-		/// The root element of this trie.
-		/// </summary>
-		INode<TKey, TValue> Root { get; }
 	}
 }
