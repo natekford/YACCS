@@ -188,6 +188,67 @@ namespace YACCS.Tests.Commands
 		}
 
 		[TestMethod]
+		public void Find_Test()
+		{
+			var c1 = FakeDelegateCommand.New()
+				.AddPath(new[] { "1" })
+				.ToImmutable();
+			_Trie.Add(c1);
+			var c2 = FakeDelegateCommand.New()
+				.AddPath(new[] { "2" })
+				.AddPath(new[] { "3" })
+				.ToImmutable();
+			_Trie.Add(c2);
+			var c3 = FakeDelegateCommand.New()
+				.AddPath(new[] { "4", "1" })
+				.AddPath(new[] { "4", "2" })
+				.AddPath(new[] { "4", "3" })
+				.ToImmutable();
+			_Trie.Add(c3);
+			var c4 = FakeDelegateCommand.New()
+				.AddPath(new[] { "4", "1" })
+				.ToImmutable();
+			_Trie.Add(c4);
+
+			AssertFindTest(new[] { "" }, null);
+			AssertFindTest(new[] { "not", "a", "command" }, null);
+			AssertFindTest(new[] { "\"1" }, null);
+			AssertFindTest(new[] { "1" }, 1, x =>
+			{
+				Assert.IsTrue(x.Contains(c1));
+			});
+			AssertFindTest(new[] { "2" }, 1, x =>
+			{
+				Assert.IsTrue(x.Contains(c2));
+			});
+			AssertFindTest(new[] { "3" }, 1, x =>
+			{
+				Assert.IsTrue(x.Contains(c2));
+			});
+			AssertFindTest(new[] { "4" }, 2, x =>
+			{
+				Assert.IsTrue(x.Contains(c3));
+				Assert.IsTrue(x.Contains(c4));
+			});
+			AssertFindTest(new[] { "4", "1" }, 2, x =>
+			{
+				Assert.IsTrue(x.Contains(c3));
+				Assert.IsTrue(x.Contains(c4));
+			});
+			AssertFindTest(new[] { "4", "2" }, 1, x =>
+			{
+				Assert.IsTrue(x.Contains(c3));
+			});
+			AssertFindTest(Array.Empty<string>(), 4, x =>
+			{
+				Assert.IsTrue(x.Contains(c1));
+				Assert.IsTrue(x.Contains(c2));
+				Assert.IsTrue(x.Contains(c3));
+				Assert.IsTrue(x.Contains(c4));
+			});
+		}
+
+		[TestMethod]
 		public void InvalidTypeReader_Test()
 		{
 			static void Delegate(string input)
@@ -228,6 +289,24 @@ namespace YACCS.Tests.Commands
 			{
 				_Trie.Add(command);
 			});
+		}
+
+		private void AssertFindTest(
+			string[] path,
+			int? expectedCount,
+			Action<HashSet<IImmutableCommand>>? assert = null)
+		{
+			var node = _Trie.Root.FollowPath(path);
+			if (expectedCount is null)
+			{
+				Assert.IsNull(node);
+				return;
+			}
+
+			Assert.IsNotNull(node);
+			var found = node!.GetAllDistinctItems();
+			Assert.AreEqual(expectedCount.Value, found.Count);
+			assert?.Invoke(found);
 		}
 
 		public sealed class TestTypeReader : ITypeReader

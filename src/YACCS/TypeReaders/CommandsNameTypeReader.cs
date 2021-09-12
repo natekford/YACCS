@@ -6,6 +6,7 @@ using MorseCode.ITask;
 using YACCS.Commands;
 using YACCS.Commands.Models;
 using YACCS.Results;
+using YACCS.Trie;
 
 namespace YACCS.TypeReaders
 {
@@ -22,8 +23,11 @@ namespace YACCS.TypeReaders
 		{
 			var commands = GetCommands(context.Services);
 
-			var found = commands.Commands.Find(input);
-			if (found.Count == 0)
+			var node = commands.Commands.Root.FollowPath(input.Span);
+			// Generated items have a source and that source gives them the same
+			// names/properties, so they should be ignored since they are copies
+			var found = node?.GetAllDistinctItems(x => x.Source is null);
+			if (found is null || found.Count == 0)
 			{
 				return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailed.Task;
 			}

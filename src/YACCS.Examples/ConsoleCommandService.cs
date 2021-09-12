@@ -6,6 +6,7 @@ using YACCS.Commands;
 using YACCS.Commands.Models;
 using YACCS.Localization;
 using YACCS.Parsing;
+using YACCS.Trie;
 using YACCS.TypeReaders;
 
 namespace YACCS.Examples
@@ -18,7 +19,7 @@ namespace YACCS.Examples
 		private readonly Localized<Lazy<Task>> _Initialize;
 		private readonly IServiceProvider _Services;
 
-		public override ICommandCollection<IImmutableCommand> Commands
+		public override ITrie<string, IImmutableCommand> Commands
 			=> _Commands.GetCurrent();
 
 		public ConsoleCommandService(

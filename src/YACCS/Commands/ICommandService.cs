@@ -2,6 +2,7 @@
 
 using YACCS.Commands.Models;
 using YACCS.Results;
+using YACCS.Trie;
 
 namespace YACCS.Commands
 {
@@ -13,7 +14,7 @@ namespace YACCS.Commands
 		/// <summary>
 		/// The commands this command service has.
 		/// </summary>
-		IReadOnlyCommandCollection<IImmutableCommand> Commands { get; }
+		ITrie<string, IImmutableCommand> Commands { get; }
 
 		/// <summary>
 		/// Executes a command.

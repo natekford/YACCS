@@ -7,6 +7,7 @@ using MorseCode.ITask;
 using YACCS.Commands.Models;
 using YACCS.Parsing;
 using YACCS.Results;
+using YACCS.Trie;
 using YACCS.TypeReaders;
 
 namespace YACCS.Commands
@@ -17,8 +18,7 @@ namespace YACCS.Commands
 	public abstract class CommandServiceBase : ICommandService
 	{
 		/// <inheritdoc cref="ICommandService.Commands"/>
-		public virtual ICommandCollection<IImmutableCommand> Commands { get; }
-		IReadOnlyCommandCollection<IImmutableCommand> ICommandService.Commands => Commands;
+		public virtual ITrie<string, IImmutableCommand> Commands { get; }
 		/// <summary>
 		/// The configuration to use.
 		/// </summary>
@@ -101,17 +101,25 @@ namespace YACCS.Commands
 		{
 			var best = default(CommandScore);
 
-			foreach (var (i, command) in Commands.Iterate(input))
+			var node = Commands.Root;
+			for (var i = 0; i < input.Length; ++i)
 			{
-				// Add 1 to i to account for how we're in a node
-				var score = await GetCommandScoreAsync(context, command, input, i + 1).ConfigureAwait(false);
-				if (Config.MultiMatchHandling == MultiMatchHandling.Error
-					&& best?.InnerResult.IsSuccess == true
-					&& score.InnerResult.IsSuccess)
+				if (!node.TryGetEdge(input.Span[i], out node))
 				{
-					return CommandScore.MultiMatch;
+					break;
 				}
-				best = GetBest(best, score);
+				foreach (var command in node.Items)
+				{
+					// Add 1 to i to account for how we're in a node
+					var score = await GetCommandScoreAsync(context, command, input, i + 1).ConfigureAwait(false);
+					if (Config.MultiMatchHandling == MultiMatchHandling.Error
+						&& best?.InnerResult.IsSuccess == true
+						&& score.InnerResult.IsSuccess)
+					{
+						return CommandScore.MultiMatch;
+					}
+					best = GetBest(best, score);
+				}
 			}
 
 			return best ?? CommandScore.CommandNotFound;
