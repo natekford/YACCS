@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Diagnostics;
+
+using Microsoft.Extensions.DependencyInjection;
 
 using YACCS.Commands;
 
@@ -13,6 +15,7 @@ namespace YACCS.Examples
 		public IServiceScope Scope { get; }
 		public IServiceProvider Services => Scope.ServiceProvider;
 		public DateTime Start { get; } = DateTime.UtcNow;
+		public Stopwatch Stopwatch { get; } = Stopwatch.StartNew();
 		string IContext<string>.Source => Input;
 		object IContext.Source => Input;
 
@@ -25,7 +28,8 @@ namespace YACCS.Examples
 
 		public void Dispose()
 		{
-			_Console.ReleaseIOLocks();
+			_Console.ReleaseIOLock();
+			Stopwatch.Stop();
 			Scope.Dispose();
 		}
 

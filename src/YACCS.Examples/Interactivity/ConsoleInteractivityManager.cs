@@ -12,13 +12,8 @@ namespace YACCS.Examples.Interactivity
 			_Console = console;
 		}
 
-		public async Task<IAsyncDisposable> SubscribeAsync(OnInput<string> onInput)
+		public Task<IAsyncDisposable> SubscribeAsync(OnInput<string> onInput)
 		{
-			// Lock both input and output
-			// Input because we're using console input
-			// Ouput so the next "enter a command to execute" prints after this command is done
-			await _Console.WaitForBothIOLocksAsync().ConfigureAwait(false);
-
 			var source = new CancellationTokenSource();
 			// Run in the background, treat this like an event
 			_ = Task.Run(async () =>
@@ -49,24 +44,21 @@ namespace YACCS.Examples.Interactivity
 				}
 			}, source.Token);
 
-			return new ConsoleSubscription(_Console, source);
+			var subscription = new ConsoleSubscription(source);
+			return Task.FromResult<IAsyncDisposable>(subscription);
 		}
 
 		private sealed class ConsoleSubscription : IAsyncDisposable
 		{
-			private readonly ConsoleHandler _Console;
 			private readonly CancellationTokenSource _Source;
 
-			public ConsoleSubscription(ConsoleHandler console, CancellationTokenSource source)
+			public ConsoleSubscription(CancellationTokenSource source)
 			{
-				_Console = console;
 				_Source = source;
 			}
 
 			public ValueTask DisposeAsync()
 			{
-				// Only release input lock since output lock gets released when command is done
-				_Console.ReleaseInputLock();
 				_Source.Cancel();
 				return new();
 			}

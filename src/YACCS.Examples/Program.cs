@@ -63,8 +63,10 @@ namespace YACCS.Examples
 				var commands = _Services.GetRequiredService<ConsoleCommandService>();
 				await commands.InitializeAsync().ConfigureAwait(false);
 
-				await console.WaitForBothIOLocksAsync().ConfigureAwait(false);
-				console.ReleaseIOLocks();
+				// Wait until the locks are released so we don't print out the
+				// prompt before the output from the command is printed
+				await console.WaitForIOLockAsync().ConfigureAwait(false);
+				console.ReleaseIOLock();
 				console.WriteLine("Enter a command and its arguments: ");
 
 				var input = await console.ReadLineAsync().ConfigureAwait(false);
@@ -73,14 +75,16 @@ namespace YACCS.Examples
 					continue;
 				}
 
+				// Locks get released when context is disposed by CommandFinishedAsync
+				await console.WaitForIOLockAsync().ConfigureAwait(false);
 				var context = new ConsoleContext(_Services.CreateScope(), input);
 				var result = await commands.ExecuteAsync(context, input).ConfigureAwait(false);
+				// If a command cannot be executed, context must be disposed here
 				if (!result.InnerResult.IsSuccess)
 				{
-					console.ReleaseIOLocks();
+					context.Dispose();
 				}
 				console.WriteResult(result);
-				console.WriteLine();
 			}
 		}
 	}

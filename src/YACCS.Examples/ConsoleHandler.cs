@@ -10,14 +10,12 @@ namespace YACCS.Examples
 	{
 		private readonly Channel<string?> _Channel;
 		private readonly IFormatProvider _FormatProvider;
-		private readonly SemaphoreSlim _Input;
-		private readonly SemaphoreSlim _Output;
+		private readonly SemaphoreSlim _IOLock;
 
 		public ConsoleHandler(IFormatProvider formatProvider)
 		{
 			_FormatProvider = formatProvider;
-			_Input = new SemaphoreSlim(1, 1);
-			_Output = new SemaphoreSlim(1, 1);
+			_IOLock = new SemaphoreSlim(1, 1);
 			_Channel = Channel.CreateUnbounded<string?>(new UnboundedChannelOptions
 			{
 				SingleReader = true,
@@ -47,23 +45,11 @@ namespace YACCS.Examples
 			}
 		}
 
-		public void ReleaseInputLock()
-			=> ReleaseIfZero(_Input);
+		public void ReleaseIOLock()
+			=> ReleaseIfZero(_IOLock);
 
-		public void ReleaseIOLocks()
-		{
-			ReleaseInputLock();
-			ReleaseOutputLock();
-		}
-
-		public void ReleaseOutputLock()
-			=> ReleaseIfZero(_Output);
-
-		public async Task WaitForBothIOLocksAsync(CancellationToken token = default)
-		{
-			await _Input.WaitAsync(token).ConfigureAwait(false);
-			await _Output.WaitAsync(token).ConfigureAwait(false);
-		}
+		public Task WaitForIOLockAsync(CancellationToken token = default)
+			=> _IOLock.WaitAsync(token);
 
 		public void WriteLine(string input = "", ConsoleColor? color = null)
 		{
@@ -84,6 +70,7 @@ namespace YACCS.Examples
 				}
 
 				WriteLine(response, result.InnerResult.IsSuccess ? ConsoleColor.Green : ConsoleColor.Red);
+				Console.WriteLine();
 			}
 		}
 
@@ -93,6 +80,7 @@ namespace YACCS.Examples
 			if (!string.IsNullOrWhiteSpace(response))
 			{
 				WriteLine(response, result.IsSuccess ? ConsoleColor.Green : ConsoleColor.Red);
+				Console.WriteLine();
 			}
 		}
 

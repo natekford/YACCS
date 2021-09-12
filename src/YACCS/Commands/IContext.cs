@@ -19,9 +19,5 @@ namespace YACCS.Commands
 		/// The item which initialized commands being searched for.
 		/// </summary>
 		object Source { get; }
-		/// <summary>
-		/// The time of creation for this context.
-		/// </summary>
-		DateTime Start { get; }
 	}
 }

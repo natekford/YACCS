@@ -1,11 +1,13 @@
-﻿using YACCS.Commands;
+﻿using System;
+
+using YACCS.Commands;
 using YACCS.Commands.Models;
 
 namespace YACCS.Results
 {
 	/// <summary>
 	/// A result returned from
-	/// <see cref="ICommandService.ExecuteAsync(IContext, string)"/>.
+	/// <see cref="ICommandService.ExecuteAsync(IContext, ReadOnlySpan{char})"/>.
 	/// </summary>
 	/// <remarks>
 	/// For the default implementation of <see cref="CommandServiceBase"/>,
