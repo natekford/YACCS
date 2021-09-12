@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 using YACCS.Commands.Models;
 using YACCS.Results;
@@ -23,6 +24,6 @@ namespace YACCS.Commands
 		/// <param name="input">The input to parse a command and arguments from.</param>
 		/// <returns>A failure result or <see cref="SuccessResult.Instance"/>.</returns>
 		/// <inheritdoc cref="IExecuteResult" path="/remarks"/>
-		ValueTask<IExecuteResult> ExecuteAsync(IContext context, string input);
+		ValueTask<IExecuteResult> ExecuteAsync(IContext context, ReadOnlySpan<char> input);
 	}
 }

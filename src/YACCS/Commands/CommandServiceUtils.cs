@@ -106,19 +106,14 @@ namespace YACCS.Commands
 		/// <param name="comparisonType">The comparison type for string equality.</param>
 		/// <returns>A bool indicating success or failure.</returns>
 		public static bool HasPrefix(
-			this string input,
-			string prefix,
-			[NotNullWhen(true)] out string? output,
+			this ReadOnlySpan<char> input,
+			ReadOnlySpan<char> prefix,
+			[NotNullWhen(true)] out ReadOnlySpan<char> output,
 			StringComparison comparisonType = StringComparison.OrdinalIgnoreCase)
 		{
-			if (input.Length <= prefix.Length || !input.StartsWith(prefix, comparisonType))
-			{
-				output = null;
-				return false;
-			}
-
-			output = input[prefix.Length..];
-			return true;
+			var success = input.StartsWith(prefix, comparisonType);
+			output = success ? input[prefix.Length..] : default;
+			return success;
 		}
 
 		internal static string FormatForDebuggerDisplay(this IQueryableCommand item)

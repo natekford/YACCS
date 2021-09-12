@@ -57,7 +57,9 @@ namespace YACCS.Commands
 		}
 
 		/// <inheritdoc />
-		public virtual ValueTask<IExecuteResult> ExecuteAsync(IContext context, string input)
+		public virtual ValueTask<IExecuteResult> ExecuteAsync(
+			IContext context,
+			ReadOnlySpan<char> input)
 		{
 			if (!Handler.TrySplit(input, out var args))
 			{
