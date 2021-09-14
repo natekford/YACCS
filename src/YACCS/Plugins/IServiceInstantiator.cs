@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace YACCS.CommandAssemblies
+﻿namespace YACCS.CommandAssemblies
 {
 	/// <summary>
 	/// Defines methods for adding and configuring services.

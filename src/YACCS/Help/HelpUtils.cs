@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace YACCS.Help
+﻿namespace YACCS.Help
 {
 	internal static class HelpUtils
 	{

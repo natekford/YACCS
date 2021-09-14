@@ -50,11 +50,11 @@ namespace YACCS.Tests.Commands.Models
 		public async Task CommandDelegateBuilding_Test()
 		{
 			var @delegate = (Func<IContext, bool>)((IContext arg) => true);
-			var names = new[] { new[] { "Joe" } };
-			var command = new DelegateCommand(@delegate, names);
+			var paths = new[] { new[] { "Joe" } };
+			var command = new DelegateCommand(@delegate, paths);
 			var immutable = command.ToImmutable();
-			Assert.AreEqual(names.Length, command.Paths.Count);
-			Assert.AreEqual(names[0], command.Paths[0]);
+			Assert.AreEqual(paths.Length, command.Paths.Count);
+			Assert.AreEqual(paths[0], command.Paths[0]);
 			Assert.AreEqual(1, command.Parameters.Count);
 			Assert.AreEqual(1, command.Attributes.Count);
 			Assert.IsInstanceOfType(command.Attributes[0], typeof(Delegate));
@@ -109,8 +109,8 @@ namespace YACCS.Tests.Commands.Models
 			}
 
 			var @delegate = (Action<string>)Delegate;
-			var names = new[] { new[] { "Joe" } };
-			var command = new DelegateCommand(@delegate, names);
+			var paths = new[] { new[] { "Joe" } };
+			var command = new DelegateCommand(@delegate, paths);
 			var immutable = command.ToImmutable();
 			Assert.AreEqual(1, immutable.Parameters.Count);
 			Assert.IsInstanceOfType(immutable.Parameters[0].TypeReader, typeof(FakeTypeReader));
@@ -124,8 +124,8 @@ namespace YACCS.Tests.Commands.Models
 			}
 
 			var @delegate = (Action<int>)Delegate;
-			var names = new[] { new[] { "Joe" } };
-			var command = new DelegateCommand(@delegate, names);
+			var paths = new[] { new[] { "Joe" } };
+			var command = new DelegateCommand(@delegate, paths);
 			Assert.ThrowsException<ArgumentException>(() =>
 			{
 				_ = command.ToImmutable();
@@ -138,11 +138,11 @@ namespace YACCS.Tests.Commands.Models
 			static bool Method(IContext arg) => true;
 
 			var @delegate = (Func<IContext, bool>)Method;
-			var names = new[] { new[] { "Joe" } };
-			var command = new DelegateCommand(@delegate, names);
+			var paths = new[] { new[] { "Joe" } };
+			var command = new DelegateCommand(@delegate, paths);
 			var immutable = command.ToImmutable();
-			Assert.AreEqual(names.Length, command.Paths.Count);
-			Assert.AreEqual(names[0], command.Paths[0]);
+			Assert.AreEqual(paths.Length, command.Paths.Count);
+			Assert.AreEqual(paths[0], command.Paths[0]);
 			Assert.AreEqual(1, command.Parameters.Count);
 			Assert.AreEqual(2, command.Attributes.Count);
 			Assert.IsInstanceOfType(command.Attributes[0], typeof(CompilerGeneratedAttribute));

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace YACCS.Commands.Models
+﻿namespace YACCS.Commands.Models
 {
 	/// <summary>
 	/// The base interface for most command objects.

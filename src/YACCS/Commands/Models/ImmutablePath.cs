@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 
@@ -37,6 +36,14 @@ namespace YACCS.Commands.Models
 				_Keys = keys.ToImmutableArray();
 			}
 		}
+
+		/// <summary>
+		/// Creates a new <see cref="ImmutablePath"/>.
+		/// </summary>
+		/// <param name="keys">The values to use as parts of the name.</param>
+		/// <returns>An immutable path.</returns>
+		public static ImmutablePath New(params string[] keys)
+			=> new(keys);
 
 		/// <inheritdoc />
 		public IEnumerator<string> GetEnumerator()

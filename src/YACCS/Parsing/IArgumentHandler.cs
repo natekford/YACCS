@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace YACCS.Parsing
+﻿namespace YACCS.Parsing
 {
 	/// <summary>
 	/// Defines methods for joining and splitting strings.

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace YACCS.Commands.Attributes
+﻿namespace YACCS.Commands.Attributes
 {
 	/// <summary>
 	/// Utilities for attributes.

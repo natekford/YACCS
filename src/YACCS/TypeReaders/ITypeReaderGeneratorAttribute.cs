@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace YACCS.TypeReaders
+﻿namespace YACCS.TypeReaders
 {
 	/// <summary>
 	/// Defines a method for generating a type reader from a <see cref="Type"/>.

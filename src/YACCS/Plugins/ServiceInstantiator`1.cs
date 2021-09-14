@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace YACCS.CommandAssemblies
+﻿namespace YACCS.CommandAssemblies
 {
 	/// <summary>
 	/// The base class for adding and configuring services in a plugin assembly.

@@ -1,13 +1,11 @@
-﻿#if true
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Trie;
 
 namespace YACCS.Tests.Commands
 {
 	[TestClass]
-	public class Trie_Tests
+	public sealed class Trie_Tests
 	{
 		private const int SIZE = 100;
 		private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(1);
@@ -63,6 +61,16 @@ namespace YACCS.Tests.Commands
 			Assert.AreEqual(wrapper.ExpectedCount, collection.Count);
 		}
 
+		private sealed class TestTrie : Trie<int, int>
+		{
+			public TestTrie() : base(EqualityComparer<int>.Default)
+			{
+			}
+
+			protected override IEnumerable<IReadOnlyList<int>> GetPaths(int item)
+				=> new[] { new[] { item } };
+		}
+
 		private sealed class Wrapper
 		{
 			private readonly ICollection<int> _Collection;
@@ -79,17 +87,5 @@ namespace YACCS.Tests.Commands
 				--ExpectedCount;
 			}
 		}
-
-		private sealed class TestTrie : Trie<int, int>
-		{
-			public TestTrie() : base(EqualityComparer<int>.Default)
-			{
-			}
-
-			protected override IEnumerable<IReadOnlyList<int>> GetPaths(int item)
-				=> new[] { new[] { item } };
-		}
 	}
 }
-
-#endif

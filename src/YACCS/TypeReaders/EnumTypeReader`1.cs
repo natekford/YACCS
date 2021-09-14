@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace YACCS.TypeReaders
+﻿namespace YACCS.TypeReaders
 {
 	/// <inheritdoc cref="Enum.TryParse{TEnum}(string, bool, out TEnum)"/>
 	public delegate bool EnumDelegate<TEnum>(

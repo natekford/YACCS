@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace YACCS.CommandAssemblies
+﻿namespace YACCS.CommandAssemblies
 {
 	/// <inheritdoc />
 	public interface IServiceInstantiator<T> : IServiceInstantiator

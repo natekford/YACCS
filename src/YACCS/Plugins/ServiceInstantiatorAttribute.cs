@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace YACCS.CommandAssemblies
+﻿namespace YACCS.CommandAssemblies
 {
 	/// <summary>
 	/// Specifies what type to use for adding and configuring services.

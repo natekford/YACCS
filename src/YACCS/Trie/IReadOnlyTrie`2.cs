@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace YACCS.Trie
+﻿namespace YACCS.Trie
 {
 	/// <summary>
 	/// A read-only <a href="https://en.wikipedia.org/wiki/Trie">trie</a> data structure.

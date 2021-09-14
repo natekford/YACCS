@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 using YACCS.Commands.Models;
 
 namespace YACCS.SwappedArguments

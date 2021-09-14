@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
@@ -25,7 +22,7 @@ namespace YACCS.Interactivity.Input
 		/// </summary>
 		protected static IImmutableCommand EmptyCommand { get; } = new DelegateCommand(
 			static () => { },
-			new[] { new ImmutablePath(new[] { "Input" }) },
+			new[] { ImmutablePath.New("Input") },
 			typeof(TContext)
 		).ToImmutable();
 

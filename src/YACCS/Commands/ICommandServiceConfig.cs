@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 
 namespace YACCS.Commands
 {
@@ -9,7 +8,7 @@ namespace YACCS.Commands
 	public interface ICommandServiceConfig
 	{
 		/// <summary>
-		/// How to compare names for equality.
+		/// How to compare paths for equality.
 		/// </summary>
 		IEqualityComparer<string> CommandNameComparer { get; }
 		/// <summary>

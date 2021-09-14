@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Attributes

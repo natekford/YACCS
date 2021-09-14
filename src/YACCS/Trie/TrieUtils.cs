@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace YACCS.Trie
+﻿namespace YACCS.Trie
 {
 	/// <summary>
 	/// Utilities for tries.

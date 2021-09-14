@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace YACCS.Help.Attributes
+﻿namespace YACCS.Help.Attributes
 {
 	/// <inheritdoc cref="ISummaryAttribute" />
 	[AttributeUsage(AttributeTargets.All, AllowMultiple = false)]

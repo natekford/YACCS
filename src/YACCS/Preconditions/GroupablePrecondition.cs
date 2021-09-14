@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace YACCS.Preconditions
+﻿namespace YACCS.Preconditions
 {
 	/// <summary>
 	/// The base class for a groupable precondition.

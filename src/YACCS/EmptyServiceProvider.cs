@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace YACCS
+﻿namespace YACCS
 {
 	/// <summary>
 	/// An empty <see cref="IServiceProvider"/>.

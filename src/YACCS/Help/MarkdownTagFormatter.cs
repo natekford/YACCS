@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace YACCS.Help
+﻿namespace YACCS.Help
 {
 	/// <summary>
 	/// An implementation of <see cref="TagFormatter"/> that will print out in markdown.

@@ -59,8 +59,8 @@ namespace YACCS.Examples
 				=> a + b;
 
 			var @delegate = (Func<int, int, int>)Add;
-			var names = new[] { new ImmutablePath(new[] { nameof(Add) }) };
-			var add = new DelegateCommand(@delegate, names);
+			var paths = new[] { ImmutablePath.New(nameof(Add)) };
+			var add = new DelegateCommand(@delegate, paths);
 			await foreach (var command in add.ToMultipleImmutableAsync(_Services))
 			{
 				Commands.Add(command);

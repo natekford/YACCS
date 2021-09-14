@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-
+﻿
 using YACCS.Commands.Attributes;
 using YACCS.Help.Attributes;
 

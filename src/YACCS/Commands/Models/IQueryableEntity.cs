@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace YACCS.Commands.Models
+﻿namespace YACCS.Commands.Models
 {
 	/// <summary>
 	/// An entity which supports querying.

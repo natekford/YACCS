@@ -60,6 +60,7 @@ namespace YACCS.Examples
 			while (true)
 			{
 				var console = _Services.GetRequiredService<ConsoleHandler>();
+				// This has to be inside the while loop to handle creating localized commands
 				var commands = _Services.GetRequiredService<ConsoleCommandService>();
 				await commands.InitializeAsync().ConfigureAwait(false);
 

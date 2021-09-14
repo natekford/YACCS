@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace YACCS.Preconditions
+﻿namespace YACCS.Preconditions
 {
 	/// <summary>
 	/// Defines properties for a precondition which can be grouped.

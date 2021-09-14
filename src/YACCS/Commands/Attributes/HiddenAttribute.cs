@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace YACCS.Commands.Attributes
+﻿namespace YACCS.Commands.Attributes
 {
 	/// <inheritdoc cref="IHiddenAttribute" />
 	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = false)]

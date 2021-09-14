@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace YACCS.TypeReaders
+﻿namespace YACCS.TypeReaders
 {
 	/// <summary>
 	/// Parses a <see cref="Uri"/>.

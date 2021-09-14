@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace YACCS.TypeReaders
+﻿namespace YACCS.TypeReaders
 {
 	/// <summary>
 	/// Contains a type reader and the types it targets.

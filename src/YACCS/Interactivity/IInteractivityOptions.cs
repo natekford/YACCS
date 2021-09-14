@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-
-namespace YACCS.Interactivity
+﻿namespace YACCS.Interactivity
 {
 	/// <summary>
 	/// The base interface for interactivity options.

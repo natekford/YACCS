@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
 
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Building;
@@ -124,12 +120,12 @@ namespace YACCS.Commands.Models
 				Source = mutable.Source;
 				_TaskResult = new(() => ReflectionUtils.CreateDelegate(TaskResult, "task result"));
 
-				var names = ImmutableArray.CreateBuilder<IReadOnlyList<string>>(mutable.Paths.Count);
-				foreach (var name in mutable.Paths)
+				var paths = ImmutableArray.CreateBuilder<IReadOnlyList<string>>(mutable.Paths.Count);
+				foreach (var path in mutable.Paths)
 				{
-					names.Add(new ImmutablePath(name));
+					paths.Add(new ImmutablePath(path));
 				}
-				Paths = names.MoveToImmutable();
+				Paths = paths.MoveToImmutable();
 
 				var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(mutable.Parameters.Count);
 				for (var i = 0; i < mutable.Parameters.Count; ++i)

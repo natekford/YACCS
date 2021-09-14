@@ -1,51 +1,31 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Help;
 
 namespace YACCS.Tests.Help
 {
 	[TestClass]
-	public class TypeNameRegistry_Tests
+	public sealed class TypeNameRegistry_Tests
 	{
+		private readonly TypeNameRegistry _Names = new();
+
 		[TestMethod]
 		public void Get_Test()
-		{
-			var names = new TypeNameRegistry();
-			var name = names[typeof(TimeSpan)];
-			Assert.AreEqual("time", name);
-		}
+			=> Assert.AreEqual("time", _Names[typeof(TimeSpan)]);
 
 		[TestMethod]
 		public void List_Test()
 		{
-			var names = new TypeNameRegistry();
-
-			{
-				var name = names[typeof(TimeSpan[])];
-				Assert.AreEqual("time list", name);
-			}
-
-			{
-				var name = names[typeof(IEnumerable<TimeSpan>)];
-				Assert.AreEqual("time list", name);
-			}
+			Assert.AreEqual("time list", _Names[typeof(TimeSpan[])]);
+			Assert.AreEqual("time list", _Names[typeof(IEnumerable<TimeSpan>)]);
 		}
 
 		[TestMethod]
 		public void NonRegistered_Test()
-		{
-			var names = new TypeNameRegistry();
-			var name = names[typeof(TypeNameRegistry_Tests)];
-			Assert.AreEqual(nameof(TypeNameRegistry_Tests), name);
-		}
+			=> Assert.AreEqual(nameof(Attribute), _Names[typeof(Attribute)]);
 
 		[TestMethod]
 		public void Nullable_Test()
-		{
-			var names = new TypeNameRegistry();
-			var name = names[typeof(TimeSpan?)];
-			Assert.AreEqual("time or null", name);
-		}
+			=> Assert.AreEqual("time or null", _Names[typeof(TimeSpan?)]);
 	}
 }

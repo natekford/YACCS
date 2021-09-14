@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace YACCS.Commands.Attributes
+﻿namespace YACCS.Commands.Attributes
 {
 	/// <inheritdoc cref="INameAttribute"/>
 	[AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
