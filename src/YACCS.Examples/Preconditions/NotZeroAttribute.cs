@@ -6,11 +6,14 @@ using YACCS.Results;
 
 namespace YACCS.Examples.Preconditions
 {
-	public class NotZero : ParameterPreconditionAttribute, IRuntimeFormattableAttribute
+	public class NotZero : ParameterPrecondition<IContext, int>, IRuntimeFormattableAttribute
 	{
 		public virtual string FallbackErrorMessage { get; set; } = "Cannot be zero.";
 
-		public ValueTask<IResult> CheckAsync(CommandMeta meta, IContext context, int value)
+		public override ValueTask<IResult> CheckAsync(
+			CommandMeta meta,
+			IContext context,
+			int value)
 		{
 			if (value == 0)
 			{
@@ -18,12 +21,6 @@ namespace YACCS.Examples.Preconditions
 			}
 			return new(SuccessResult.Instance);
 		}
-
-		public override ValueTask<IResult> CheckAsync(
-			CommandMeta meta,
-			IContext context,
-			object? value)
-			=> this.CheckAsync<IContext, int>(meta, context, value, CheckAsync);
 
 		public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
 			=> new(GetErrorMessage());

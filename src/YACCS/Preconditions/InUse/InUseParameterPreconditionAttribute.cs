@@ -1,5 +1,4 @@
-﻿
-using YACCS.Commands;
+﻿using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Results;
 
@@ -9,8 +8,9 @@ namespace YACCS.Preconditions.InUse
 	/// The base class for an in use parameter precondition attribute.
 	/// </summary>
 	[AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
-	public abstract class InUseParameterPreconditionAttribute
-		: ParameterPreconditionAttribute
+	public abstract class InUseParameterPrecondition<TContext, TValue>
+		: ParameterPrecondition<TContext, TValue>
+		where TContext : IContext
 	{
 		/// <summary>
 		/// The item status to match.
@@ -18,12 +18,12 @@ namespace YACCS.Preconditions.InUse
 		protected Item Status { get; set; }
 
 		/// <summary>
-		/// Creates a new <see cref="InUseParameterPreconditionAttribute"/>.
+		/// Creates a new <see cref="InUseParameterPrecondition{TContext, TValue}"/>.
 		/// </summary>
 		/// <param name="status">
 		/// <inheritdoc cref="Status" path="/summary"/>
 		/// </param>
-		protected InUseParameterPreconditionAttribute(Item status)
+		protected InUseParameterPrecondition(Item status)
 		{
 			Status = status;
 		}
@@ -31,20 +31,17 @@ namespace YACCS.Preconditions.InUse
 		/// <inheritdoc />
 		public override async ValueTask<IResult> CheckAsync(
 			CommandMeta meta,
-			IContext context,
-			object? value)
+			TContext context,
+			TValue? value)
 		{
-			// TODO: once generic attributes are allowed, rewrite this so we don't have to
-			// rely on value.GetType().
-			// Not going to bother writing null checks/caching/virtual methods until then
 			var exists = await IsInUseAsync(meta, context, value).ConfigureAwait(false);
 			if (exists && Status == Item.MustNotBeInUse)
 			{
-				return new InUseMustNotBeInUse(value!.GetType());
+				return new InUseMustNotBeInUse(typeof(TValue));
 			}
 			else if (!exists && Status == Item.MustBeInUser)
 			{
-				return new InUseMustBeInUse(value!.GetType());
+				return new InUseMustBeInUse(typeof(TValue));
 			}
 			return SuccessResult.Instance;
 		}
@@ -53,7 +50,7 @@ namespace YACCS.Preconditions.InUse
 		/// Determines if <paramref name="value"/> is already in use.
 		/// </summary>
 		/// <returns>A bool indicating if the searched for item is in use.</returns>
-		/// <inheritdoc cref="CheckAsync(CommandMeta, IContext, object?)"/>
+		/// <inheritdoc cref="CheckAsync(CommandMeta, TContext, TValue?)"/>
 		protected abstract ValueTask<bool> IsInUseAsync(
 			CommandMeta meta,
 			IContext context,

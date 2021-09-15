@@ -104,7 +104,7 @@ namespace YACCS.Tests.Commands.Models
 		[TestMethod]
 		public void OverriddenTypeReader_Test()
 		{
-			static void Delegate([OverrideTypeReader(typeof(FakeTypeReader))] string value)
+			static void Delegate([OverrideTypeReader<FakeTypeReader>] string value)
 			{
 			}
 
@@ -119,7 +119,7 @@ namespace YACCS.Tests.Commands.Models
 		[TestMethod]
 		public void OverriddenTypeReaderInvalidType_Test()
 		{
-			static void Delegate([OverrideTypeReader(typeof(FakeTypeReader))] int value)
+			static void Delegate([OverrideTypeReader<FakeTypeReader>] int value)
 			{
 			}
 

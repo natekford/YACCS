@@ -20,12 +20,12 @@ namespace YACCS.Examples.Commands
 		[InjectService]
 		public IHelpFormatter HelpFormatter { get; set; } = null!;
 
-		[Disabled]
+		[Disabled<IContext>]
 		public override string Abstract() => "21";
 
 		[Command(nameof(Category))]
 		public Task<IResult> Category(
-			[OverrideTypeReader(typeof(CommandsCategoryTypeReader))]
+			[OverrideTypeReader<CommandsCategoryTypeReader>]
 			[Remainder]
 			IReadOnlyCollection<IImmutableCommand> commands)
 			=> HelpCommand(commands);
@@ -36,7 +36,7 @@ namespace YACCS.Examples.Commands
 
 		[Command]
 		public async Task<IResult> HelpCommand(
-			[OverrideTypeReader(typeof(CommandsNameTypeReader))]
+			[OverrideTypeReader<CommandsNameTypeReader>]
 			[Remainder]
 			IReadOnlyCollection<IImmutableCommand> commands)
 		{
