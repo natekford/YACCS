@@ -8,7 +8,7 @@ using YACCS.Results;
 namespace YACCS.Commands
 {
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-	public class CommandScore : IComparable<CommandScore>, IComparable, IExecuteResult
+	public class CommandScore : IExecuteResult
 	{
 		// This class is a mess
 		public static CommandScore CommandNotFound { get; }
@@ -57,58 +57,6 @@ namespace YACCS.Commands
 			InnerResult = result;
 			Score = Math.Max(score, 0);
 			Stage = stage;
-		}
-
-		public static int CompareTo(CommandScore? a, CommandScore? b)
-		{
-			if (a is null)
-			{
-				if (b is null)
-				{
-					return 0;
-				}
-
-				return -1;
-			}
-			if (b is null)
-			{
-				return 1;
-			}
-
-			// If a CanExecute but b cannot, a > b and vice versa
-			// The instant a single command can execute, all failed commands are irrelevant
-			if (a.Stage != b.Stage)
-			{
-				if (a.Stage == CommandStage.CanExecute)
-				{
-					return 1;
-				}
-				else if (b.Stage == CommandStage.CanExecute)
-				{
-					return -1;
-				}
-			}
-
-			static double GetModifier(CommandStage stage)
-			{
-				return stage switch
-				{
-					CommandStage.BadContext => 0,
-					CommandStage.BadArgCount => 0.1,
-					CommandStage.FailedPrecondition => 0.4,
-					CommandStage.FailedTypeReader => 0.5,
-					CommandStage.FailedParameterPrecondition => 0.6,
-					CommandStage.CanExecute => 1,
-					_ => throw new ArgumentOutOfRangeException(nameof(stage)),
-				};
-			}
-
-			var modifierA = GetModifier(a.Stage);
-			var modifierB = GetModifier(b.Stage);
-
-			var scoreA = modifierA * (a.Score + a.Priority);
-			var scoreB = modifierB * (b.Score + b.Priority);
-			return scoreA.CompareTo(scoreB);
 		}
 
 		public static CommandScore FromCanExecute(
@@ -199,49 +147,5 @@ namespace YACCS.Commands
 			const CommandStage STAGE = CommandStage.BadArgCount;
 			return new(command, null, context, result, STAGE, score, null);
 		}
-
-		public static bool operator !=(CommandScore? a, CommandScore? b)
-			=> !(a == b);
-
-		public static bool operator <(CommandScore? a, CommandScore? b)
-			=> CompareTo(a, b) < 0;
-
-		public static bool operator <=(CommandScore? a, CommandScore? b)
-			=> !(a > b);
-
-		public static bool operator ==(CommandScore? a, CommandScore? b)
-			=> CompareTo(a, b) == 0;
-
-		public static bool operator >(CommandScore? a, CommandScore? b)
-			=> CompareTo(a, b) > 0;
-
-		public static bool operator >=(CommandScore? a, CommandScore? b)
-			=> !(a < b);
-
-		/// <inheritdoc />
-		public int CompareTo(object obj)
-		{
-			if (obj is null)
-			{
-				return 1;
-			}
-			if (obj is CommandScore other)
-			{
-				return CompareTo(other);
-			}
-			throw new ArgumentException($"Not a {nameof(CommandScore)}.", nameof(obj));
-		}
-
-		/// <inheritdoc />
-		public int CompareTo(CommandScore other)
-			=> CompareTo(this, other);
-
-		/// <inheritdoc />
-		public override bool Equals(object obj)
-			=> obj is CommandScore other && CompareTo(other) == 0;
-
-		/// <inheritdoc />
-		public override int GetHashCode()
-			=> HashCode.Combine(Stage, InnerResult.IsSuccess, Priority, Score);
 	}
 }

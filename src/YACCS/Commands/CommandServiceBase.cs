@@ -1,5 +1,4 @@
-﻿
-using MorseCode.ITask;
+﻿using MorseCode.ITask;
 
 using YACCS.Commands.Models;
 using YACCS.Parsing;
@@ -118,7 +117,7 @@ namespace YACCS.Commands
 					{
 						return CommandScore.MultiMatch;
 					}
-					best = GetBest(best, score);
+					best = GetBest(score, best);
 				}
 			}
 
@@ -358,10 +357,47 @@ namespace YACCS.Commands
 		/// <summary>
 		/// Gets the highest rated command score.
 		/// </summary>
-		/// <param name="a">The first command score.</param>
-		/// <param name="b">The second command score.</param>
+		/// <param name="new">The newly created command score.</param>
+		/// <param name="best">The current best command score.</param>
 		/// <returns>The highest rated command score.</returns>
-		protected virtual CommandScore? GetBest(CommandScore? a, CommandScore? b)
-			=> a > b ? a : b;
+		protected virtual CommandScore GetBest(CommandScore @new, CommandScore? best)
+		{
+			if (best is null)
+			{
+				return @new;
+			}
+
+			// If a CanExecute but b cannot, a > b and vice versa
+			// The instant a single command can execute, all failed commands are irrelevant
+			if (@new.Stage != best.Stage)
+			{
+				if (@new.Stage == CommandStage.CanExecute)
+				{
+					return @new;
+				}
+				else if (best.Stage == CommandStage.CanExecute)
+				{
+					return best;
+				}
+			}
+
+			static double GetModifier(CommandStage stage)
+			{
+				return stage switch
+				{
+					CommandStage.BadContext => 0,
+					CommandStage.BadArgCount => 0.1,
+					CommandStage.FailedPrecondition => 0.4,
+					CommandStage.FailedTypeReader => 0.5,
+					CommandStage.FailedParameterPrecondition => 0.6,
+					CommandStage.CanExecute => 1,
+					_ => throw new ArgumentOutOfRangeException(nameof(stage)),
+				};
+			}
+
+			var scoreNew = GetModifier(@new.Stage) * (@new.Score + @new.Priority);
+			var scoreOld = GetModifier(best.Stage) * (best.Score + best.Priority);
+			return scoreNew > scoreOld ? @new : best;
+		}
 	}
 }
