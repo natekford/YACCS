@@ -1,5 +1,4 @@
-﻿
-using YACCS.Commands;
+﻿using YACCS.Commands;
 using YACCS.Commands.Models;
 using YACCS.Preconditions;
 using YACCS.Results;
@@ -36,7 +35,7 @@ namespace YACCS.NamedArguments
 			{
 				if (!TryGetProperty(value, property, out var propertyValue))
 				{
-					return new StructuredArgMissingValueResult(property);
+					return new NamedArgMissingValueResult(property);
 				}
 
 				var result = await meta.Command.CanExecuteAsync(parameter, context, propertyValue).ConfigureAwait(false);

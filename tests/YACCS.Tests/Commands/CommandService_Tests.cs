@@ -237,7 +237,7 @@ namespace YACCS.Tests.Commands
 
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 			Assert.AreEqual(CommandStage.FailedTypeReader, result.Stage);
-			Assert.AreEqual(1, result.Score);
+			Assert.AreEqual(1, result.Index);
 
 			Assert.IsTrue(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
 			Assert.IsFalse(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
@@ -256,7 +256,7 @@ namespace YACCS.Tests.Commands
 
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 			Assert.AreEqual(CommandStage.FailedParameterPrecondition, result.Stage);
-			Assert.AreEqual(1, result.Score);
+			Assert.AreEqual(1, result.Index);
 
 			Assert.IsTrue(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
 			Assert.IsFalse(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
@@ -275,7 +275,7 @@ namespace YACCS.Tests.Commands
 
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 			Assert.AreEqual(CommandStage.FailedPrecondition, result.Stage);
-			Assert.AreEqual(0, result.Score);
+			Assert.AreEqual(0, result.Index);
 
 			Assert.IsFalse(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
 			Assert.IsFalse(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
@@ -294,7 +294,7 @@ namespace YACCS.Tests.Commands
 
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 			Assert.AreEqual(CommandStage.FailedTypeReader, result.Stage);
-			Assert.AreEqual(0, result.Score);
+			Assert.AreEqual(0, result.Index);
 
 			Assert.IsTrue(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
 			Assert.IsFalse(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);
@@ -359,7 +359,7 @@ namespace YACCS.Tests.Commands
 
 			Assert.IsTrue(result.InnerResult.IsSuccess);
 			Assert.AreEqual(CommandStage.CanExecute, result.Stage);
-			Assert.AreEqual(1, result.Score);
+			Assert.AreEqual(1, result.Index);
 
 			Assert.IsTrue(command.GetAttributes<WasIReachedPrecondition>().Single().IWasReached);
 			Assert.IsTrue(parameter.GetAttributes<WasIReachedParameterPrecondition>().Single().IWasReached);

@@ -36,6 +36,7 @@ namespace YACCS.Examples
 		public Task SendMessageAsync(string message)
 		{
 			_Console.WriteLine(message);
+			_Console.WriteLine();
 			return Task.CompletedTask;
 		}
 	}

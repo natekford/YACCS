@@ -1,5 +1,6 @@
 ﻿using MorseCode.ITask;
 
+using YACCS.Commands.CommandScores;
 using YACCS.Commands.Models;
 using YACCS.Parsing;
 using YACCS.Results;
@@ -75,7 +76,7 @@ namespace YACCS.Commands
 				{
 					_ = Task.Run(async () =>
 					{
-						var e = await this.ExecuteAsync(context, best.Command, best.Args).ConfigureAwait(false);
+						var e = await this.ExecuteAsync(best.Context, best.Command, best.Args).ConfigureAwait(false);
 						await CommandExecutedAsync(e).ConfigureAwait(false);
 						await CommandFinishedAsync(e).ConfigureAwait(false);
 					});
@@ -129,7 +130,7 @@ namespace YACCS.Commands
 		/// <see cref="ProcessAllPreconditionsAsync(IContext, IImmutableCommand, ReadOnlyMemory{string}, int)"/>.
 		/// </summary>
 		/// <inheritdoc cref="ProcessAllPreconditionsAsync(IContext, IImmutableCommand, ReadOnlyMemory{string}, int)"/>
-		protected internal ValueTask<CommandScore> GetCommandScoreAsync(
+		protected internal virtual ValueTask<CommandScore> GetCommandScoreAsync(
 			IContext context,
 			IImmutableCommand command,
 			ReadOnlyMemory<string> input,
@@ -138,15 +139,15 @@ namespace YACCS.Commands
 			// Trivial cases, invalid context or arg length
 			if (!command.IsValidContext(context.GetType()))
 			{
-				return new(CommandScore.FromInvalidContext(command, context, startIndex));
+				return new(context.InvalidContext(command, startIndex));
 			}
 			else if (input.Length - startIndex < command.MinLength)
 			{
-				return new(CommandScore.FromNotEnoughArgs(command, context, startIndex));
+				return new(context.NotEnoughArgs(command, startIndex));
 			}
 			else if (input.Length - startIndex > command.MaxLength)
 			{
-				return new(CommandScore.FromTooManyArgs(command, context, startIndex));
+				return new(context.TooManyArgs(command, startIndex));
 			}
 			return ProcessAllPreconditionsAsync(context, command, input, startIndex);
 		}
@@ -161,7 +162,7 @@ namespace YACCS.Commands
 		/// <param name="input">The input being parsed.</param>
 		/// <param name="startIndex">The index to start at for <paramref name="input"/>.</param>
 		/// <returns>A command score indicating success or failure.</returns>
-		protected internal async ValueTask<CommandScore> ProcessAllPreconditionsAsync(
+		protected internal virtual async ValueTask<CommandScore> ProcessAllPreconditionsAsync(
 			IContext context,
 			IImmutableCommand command,
 			ReadOnlyMemory<string> input,
@@ -171,7 +172,7 @@ namespace YACCS.Commands
 			var pResult = await command.CanExecuteAsync(context).ConfigureAwait(false);
 			if (!pResult.IsSuccess)
 			{
-				return CommandScore.FromFailedPrecondition(command, context, pResult, startIndex);
+				return context.FailedPrecondition(command, startIndex, pResult);
 			}
 
 			var args = new object?[command.Parameters.Count];
@@ -192,41 +193,37 @@ namespace YACCS.Commands
 					).ConfigureAwait(false);
 					if (!trResult.InnerResult.IsSuccess)
 					{
-						return CommandScore.FromFailedTypeReader(command, parameter, context, trResult.InnerResult, currentIndex);
+						return context.FailedTypeReader(command, currentIndex, trResult.InnerResult, parameter);
 					}
 
 					value = trResult.Value;
 
-					// Length not null, we can just add it
-					if (parameter.Length is not null)
+					if (parameter.Length.HasValue)
 					{
 						currentIndex += parameter.Length.Value;
 					}
-					// Last parameter, indicate we're absolutely done via int.MaxValue
-					else if (i == command.Parameters.Count - 1)
+					// In case of overflow, set value to something reasonable
+					if (!parameter.Length.HasValue || currentIndex < 0)
 					{
-						currentIndex = int.MaxValue;
+						currentIndex = input.Length;
 					}
-					// Middle parameter, just go onto next parameter without moving the index
-					// This won't really ever happen in most well designed commands, but with
-					// delegate commands this is the only way to get context passed to it
 				}
 				// We don't have any more args to parse.
 				// If the parameter isn't optional it's a failure
 				else if (!parameter.HasDefaultValue)
 				{
-					return CommandScore.FromFailedOptionalArgs(command, parameter, context, currentIndex);
+					return context.MissingParameterValue(command, currentIndex, parameter);
 				}
 
 				var ppResult = await command.CanExecuteAsync(parameter, context, value).ConfigureAwait(false);
 				if (!ppResult.IsSuccess)
 				{
-					return CommandScore.FromFailedParameterPrecondition(command, parameter, context, ppResult, currentIndex);
+					return context.FailedParameterPrecondition(command, currentIndex, ppResult, parameter);
 				}
 
 				args[i] = value;
 			}
-			return CommandScore.FromCanExecute(command, context, args, startIndex + 1);
+			return context.CanExecute(command, currentIndex, args);
 		}
 
 		/// <summary>
@@ -237,7 +234,7 @@ namespace YACCS.Commands
 		/// <param name="input">The input being parsed.</param>
 		/// <param name="startIndex">The index to start at for <paramref name="input"/>.</param>
 		/// <returns>A result indicating success or failure.</returns>
-		protected internal ITask<ITypeReaderResult> ProcessTypeReadersAsync(
+		protected internal virtual ITask<ITypeReaderResult> ProcessTypeReadersAsync(
 			IContext context,
 			IImmutableParameter parameter,
 			ReadOnlyMemory<string> input,
@@ -389,14 +386,14 @@ namespace YACCS.Commands
 					CommandStage.BadArgCount => 0.1,
 					CommandStage.FailedPrecondition => 0.4,
 					CommandStage.FailedTypeReader => 0.5,
-					CommandStage.FailedParameterPrecondition => 0.6,
+					CommandStage.FailedParameterPrecondition => 0.75,
 					CommandStage.CanExecute => 1,
 					_ => throw new ArgumentOutOfRangeException(nameof(stage)),
 				};
 			}
 
-			var scoreNew = GetModifier(@new.Stage) * (@new.Score + @new.Priority);
-			var scoreOld = GetModifier(best.Stage) * (best.Score + best.Priority);
+			var scoreNew = GetModifier(@new.Stage) * (@new.Index + @new.Command?.Priority);
+			var scoreOld = GetModifier(best.Stage) * (best.Index + best.Command?.Priority);
 			return scoreNew > scoreOld ? @new : best;
 		}
 	}

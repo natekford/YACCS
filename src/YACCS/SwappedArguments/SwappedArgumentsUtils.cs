@@ -1,5 +1,4 @@
-﻿
-using YACCS.Commands.Linq;
+﻿using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 
 namespace YACCS.SwappedArguments
@@ -54,7 +53,7 @@ namespace YACCS.SwappedArguments
 		{
 			foreach (var swapper in Swapper.CreateSwappers(indices))
 			{
-				yield return new(command, swapper, priorityDifference);
+				yield return new(command, priorityDifference * swapper.Swaps.Length, swapper);
 			}
 		}
 	}

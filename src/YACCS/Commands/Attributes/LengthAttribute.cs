@@ -1,5 +1,4 @@
-﻿
-using YACCS.Help;
+﻿using YACCS.Help;
 using YACCS.Help.Attributes;
 using YACCS.Localization;
 
@@ -22,9 +21,8 @@ namespace YACCS.Commands.Attributes
 		}
 
 		/// <inheritdoc cref="LengthAttribute(int?)"/>
-		public LengthAttribute(int length)
+		public LengthAttribute(int length) : this((int?)length)
 		{
-			Length = length;
 		}
 
 		/// <summary>
@@ -36,6 +34,10 @@ namespace YACCS.Commands.Attributes
 		/// </param>
 		public LengthAttribute(int? length)
 		{
+			if (length < 0)
+			{
+				throw new ArgumentOutOfRangeException(nameof(length));
+			}
 			Length = length;
 		}
 

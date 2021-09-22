@@ -1,5 +1,4 @@
-﻿
-using YACCS.Commands.Models;
+﻿using YACCS.Commands.Models;
 
 namespace YACCS.NamedArguments
 {
@@ -8,8 +7,9 @@ namespace YACCS.NamedArguments
 	/// </summary>
 	public sealed class NamedArgumentsCommand : NamedArgumentsCommand<Dictionary<string, object?>>
 	{
-		/// <inheritdoc cref="GeneratedCommand(IImmutableCommand)"/>
-		public NamedArgumentsCommand(IImmutableCommand source) : base(source)
+		/// <inheritdoc cref="GeneratedCommand(IImmutableCommand, int)"/>
+		public NamedArgumentsCommand(IImmutableCommand source, int priorityDifference)
+			: base(source, priorityDifference)
 		{
 		}
 	}

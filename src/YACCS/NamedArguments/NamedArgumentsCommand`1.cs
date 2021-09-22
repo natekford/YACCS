@@ -23,8 +23,9 @@ namespace YACCS.NamedArguments
 		/// <summary>
 		/// Creates a new <see cref="NamedArgumentsCommand{T}"/>.
 		/// </summary>
-		/// <inheritdoc cref="GeneratedCommand(IImmutableCommand)"/>
-		public NamedArgumentsCommand(IImmutableCommand source) : base(source)
+		/// <inheritdoc cref="GeneratedCommand(IImmutableCommand, int)"/>
+		public NamedArgumentsCommand(IImmutableCommand source, int priorityDifference)
+			: base(source, priorityDifference)
 		{
 			var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(1);
 			try

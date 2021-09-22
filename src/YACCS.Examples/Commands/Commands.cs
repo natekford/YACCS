@@ -15,6 +15,7 @@ namespace YACCS.Examples.Commands
 		[Command(nameof(Delay))]
 		public async Task<string> Delay()
 		{
+			Console.ReleaseIOLock();
 			await Task.Delay(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
 			return "I delayed for 10 seconds.";
 		}
@@ -69,6 +70,7 @@ namespace YACCS.Examples.Commands
 		[Command(nameof(Sleep))]
 		public string Sleep()
 		{
+			Console.ReleaseIOLock();
 			Thread.Sleep(TimeSpan.FromSeconds(10));
 			return "I slept for 10 seconds.";
 		}

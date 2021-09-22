@@ -23,21 +23,12 @@ namespace YACCS.Tests.NamedArguments
 		{
 			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
-			var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-			commandService.CommandExecuted += (e) =>
-			{
-				tcs.SetResult();
-				return Task.CompletedTask;
-			};
-
 			var input = nameof(CommandsGroup.Test2) +
 				$" {CommandsGroup.I}: {INT}" +
 				$" {CommandsGroup.S}: {STRING}" +
 				$" {CommandsGroup.D}: {DOUBLE}";
-			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
-			Assert.IsTrue(result.InnerResult.IsSuccess);
+			await ExecuteSuccessfulCommandAsync(commandService, context, input).ConfigureAwait(false);
 
-			await tcs.Task.ConfigureAwait(false);
 			Assert.AreEqual(INT, setMe.IntValue);
 			Assert.AreEqual(DOUBLE, setMe.DoubleValue);
 			Assert.AreEqual(STRING, setMe.StringValue);
@@ -53,6 +44,7 @@ namespace YACCS.Tests.NamedArguments
 				$" {CommandsGroup.S}: {STRING}" +
 				$" {CommandsGroup.D}: {DOUBLE}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.InnerResult, typeof(InvalidParameterResult));
 		}
@@ -67,8 +59,59 @@ namespace YACCS.Tests.NamedArguments
 				$" {CommandsGroup.S}: {STRING}" +
 				$" {CommandsGroup.D}: {DOUBLE}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.InnerResult, typeof(ParseFailedResult));
+		}
+
+		[TestMethod]
+		public async Task InvokingCommandNormally_Test()
+		{
+			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
+
+			var input = $"{nameof(CommandsGroup.Test)} {DOUBLE} {INT} {STRING}";
+			await ExecuteSuccessfulCommandAsync(commandService, context, input).ConfigureAwait(false);
+
+			Assert.AreEqual(INT, setMe.IntValue);
+			Assert.AreEqual(DOUBLE, setMe.DoubleValue);
+			Assert.AreEqual(STRING, setMe.StringValue);
+		}
+
+		[TestMethod]
+		public async Task InvokingCommandNormallyMissingArg_Test()
+		{
+			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
+
+			var input = $"{nameof(CommandsGroup.Test)} {DOUBLE}";
+			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.IsInstanceOfType(result.InnerResult, typeof(NotEnoughArgsResult));
+		}
+
+		[TestMethod]
+		public async Task InvokingCommandNormallyMissingOptionalArg_Test()
+		{
+			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
+
+			var input = $"{nameof(CommandsGroup.Test)} {DOUBLE} {INT}";
+			await ExecuteSuccessfulCommandAsync(commandService, context, input).ConfigureAwait(false);
+
+			Assert.AreEqual(INT, setMe.IntValue);
+			Assert.AreEqual(DOUBLE, setMe.DoubleValue);
+			Assert.AreEqual(CommandsGroup.S_DEFAULT, setMe.StringValue);
+		}
+
+		[TestMethod]
+		public async Task InvokingCommandNormallyTooManyArgs_Test()
+		{
+			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
+
+			var input = $"{nameof(CommandsGroup.Test)} {DOUBLE} {INT} {STRING} a b c d";
+			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.IsInstanceOfType(result.InnerResult, typeof(TooManyArgsResult));
 		}
 
 		[TestMethod]
@@ -82,6 +125,7 @@ namespace YACCS.Tests.NamedArguments
 				$" {FAKE_NAME}: {STRING}" +
 				$" {CommandsGroup.D}: {DOUBLE}";
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+
 			Assert.IsFalse(result.InnerResult.IsSuccess);
 			Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgNonExistentResult));
 			Assert.AreEqual(FAKE_NAME, ((NamedArgNonExistentResult)result.InnerResult).Name);
@@ -92,24 +136,27 @@ namespace YACCS.Tests.NamedArguments
 		{
 			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
-			var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-			commandService.CommandExecuted += (e) =>
-			{
-				tcs.SetResult();
-				return Task.CompletedTask;
-			};
-
 			var input = nameof(CommandsGroup.Test) +
 				$" {CommandsGroup.I}: {INT}" +
 				$" {CommandsGroup.S}: {STRING}" +
 				$" {CommandsGroup.D}: {DOUBLE}";
-			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
-			Assert.IsTrue(result.InnerResult.IsSuccess);
+			await ExecuteSuccessfulCommandAsync(commandService, context, input).ConfigureAwait(false);
 
-			await tcs.Task.ConfigureAwait(false);
 			Assert.AreEqual(INT, setMe.IntValue);
 			Assert.AreEqual(DOUBLE, setMe.DoubleValue);
 			Assert.AreEqual(STRING, setMe.StringValue);
+		}
+
+		[TestMethod]
+		public async Task ParameterMissingAll_Test()
+		{
+			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
+
+			const string INPUT = nameof(CommandsGroup.Test3);
+			var result = await commandService.ExecuteAsync(context, INPUT).ConfigureAwait(false);
+
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgMissingValueResult));
 		}
 
 		[TestMethod]
@@ -117,38 +164,31 @@ namespace YACCS.Tests.NamedArguments
 		{
 			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
-			var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-			commandService.CommandExecuted += (e) =>
-			{
-				tcs.SetResult();
-				return Task.CompletedTask;
-			};
+			var input = nameof(CommandsGroup.Test) +
+				$" {CommandsGroup.I}: {INT}" +
+				$" {CommandsGroup.S}: {STRING}";
+			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+
+			Assert.IsFalse(result.InnerResult.IsSuccess);
+			Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgMissingValueResult));
+		}
+
+		[TestMethod]
+		public async Task ParameterMissingOptionalArg_Test()
+		{
+			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
 			var input = nameof(CommandsGroup.Test) +
 				$" {CommandsGroup.I}: {INT}" +
 				$" {CommandsGroup.D}: {DOUBLE}";
-			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
-			Assert.IsTrue(result.InnerResult.IsSuccess);
-
-			await tcs.Task.ConfigureAwait(false);
+			await ExecuteSuccessfulCommandAsync(commandService, context, input).ConfigureAwait(false);
 
 			Assert.AreEqual(INT, setMe.IntValue);
 			Assert.AreEqual(DOUBLE, setMe.DoubleValue);
 			Assert.AreEqual(CommandsGroup.S_DEFAULT, setMe.StringValue);
 		}
 
-		[TestMethod]
-		public async Task ParameterWithoutDefaultValue_Test()
-		{
-			var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
-
-			const string INPUT = nameof(CommandsGroup.Test3);
-			var result = await commandService.ExecuteAsync(context, INPUT).ConfigureAwait(false);
-			Assert.IsFalse(result.InnerResult.IsSuccess);
-			Assert.IsInstanceOfType(result.InnerResult, typeof(StructuredArgMissingValueResult));
-		}
-
-		private async ValueTask<(CommandService, SetMe, FakeContext)> CreateAsync()
+		private static async ValueTask<(CommandService, SetMe, FakeContext)> CreateAsync()
 		{
 			var setMe = new SetMe();
 			var context = new FakeContext()
@@ -163,16 +203,21 @@ namespace YACCS.Tests.NamedArguments
 			return (commandService, setMe, context);
 		}
 
-		[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
-		private class AddNonsenseAttribute : Attribute, IParameterModifierAttribute
+		private static async Task ExecuteSuccessfulCommandAsync(
+			CommandService commandService,
+			IContext context,
+			string input)
 		{
-			public void ModifyParameter(IParameter parameter)
+			var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+			commandService.CommandExecuted += (e) =>
 			{
-				for (var i = 0; i < 10; ++i)
-				{
-					parameter.Attributes.Add("test");
-				}
-			}
+				tcs.SetResult();
+				return Task.CompletedTask;
+			};
+
+			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+			Assert.IsTrue(result.InnerResult.IsSuccess);
+			await tcs.Task.ConfigureAwait(false);
 		}
 
 		private class CommandsGroup : CommandGroup<IContext>
@@ -189,7 +234,6 @@ namespace YACCS.Tests.NamedArguments
 			[GenerateNamedArguments]
 			public async Task<IResult> Test(
 				[Name(D)]
-				[AddNonsense]
 				double d,
 				[Name(I)]
 				int i,
@@ -214,7 +258,7 @@ namespace YACCS.Tests.NamedArguments
 			}
 
 			[Command(nameof(Test3))]
-			[GenerateNamedArguments]
+			[GenerateNamedArguments(PriorityDifference = 0)]
 			public void Test3([Name(D)] double d)
 				=> SetMe.DoubleValue = d;
 		}

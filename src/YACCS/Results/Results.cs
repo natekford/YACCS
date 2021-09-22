@@ -232,12 +232,12 @@ namespace YACCS.Results
 		}
 	}
 
-	public class StructuredArgMissingValueResult : LocalizedResult, IFormattable
+	public class NamedArgMissingValueResult : LocalizedResult, IFormattable
 	{
 		public string Name { get; }
 		public override string Response => ToString(null, null);
 
-		public StructuredArgMissingValueResult(string name) : base(false, Keys.StructuredArgMissingValueResult)
+		public NamedArgMissingValueResult(string name) : base(false, Keys.NamedArgMissingValueResult)
 		{
 			Name = name;
 		}

@@ -11,6 +11,8 @@ namespace YACCS.Commands.Models
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	public abstract class GeneratedCommand : IImmutableCommand
 	{
+		private readonly int _PriorityDifference;
+
 		/// <inheritdoc />
 		public IImmutableCommand Source { get; }
 		/// <inheritdoc />
@@ -35,16 +37,18 @@ namespace YACCS.Commands.Models
 		/// <inheritdoc />
 		public virtual string PrimaryId => Source.PrimaryId;
 		/// <inheritdoc />
-		public virtual int Priority => Source.Priority;
+		public virtual int Priority => Source.Priority - _PriorityDifference;
 		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 		/// <summary>
 		/// Creates a new <see cref="GeneratedCommand"/>.
 		/// </summary>
 		/// <param name="source">The source of this generated command.</param>
-		protected GeneratedCommand(IImmutableCommand source)
+		/// <param name="priorityDifference">The amount to lower the priority by.</param>
+		protected GeneratedCommand(IImmutableCommand source, int priorityDifference)
 		{
 			Source = source;
+			_PriorityDifference = priorityDifference;
 		}
 
 		/// <inheritdoc />

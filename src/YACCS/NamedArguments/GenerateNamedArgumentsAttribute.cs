@@ -1,5 +1,4 @@
-﻿
-using YACCS.Commands.Attributes;
+﻿using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.TypeReaders;
@@ -10,17 +9,22 @@ namespace YACCS.NamedArguments
 	/// Specifies how to generate commands/type readers and modify parameters for
 	/// named arguments.
 	/// </summary>
-	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = false)]
+	[AttributeUsage(AttributeUtils.COMMANDS | AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = false)]
 	public sealed class GenerateNamedArgumentsAttribute : Attribute,
 		ICommandGeneratorAttribute,
 		IParameterModifierAttribute,
 		ITypeReaderGeneratorAttribute
 	{
+		/// <summary>
+		/// The amount to lower priority for creating a <see cref="NamedArgumentsCommand"/>.
+		/// </summary>
+		public int PriorityDifference { get; set; } = 1;
+
 		/// <inheritdoc />
 		public ValueTask<IEnumerable<IImmutableCommand>> GenerateCommandsAsync(
 			IServiceProvider services,
 			IImmutableCommand source)
-			=> new(new[] { new NamedArgumentsCommand(source) });
+			=> new(new[] { new NamedArgumentsCommand(source, PriorityDifference) });
 
 		/// <inheritdoc />
 		public ITypeReader GenerateTypeReader(Type type)
