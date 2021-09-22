@@ -39,7 +39,7 @@ namespace YACCS.Commands.Building
 			// Catch any exceptions and throw a more informative one
 			var message = $"Failed setting the service '{member.Member}' for " +
 				$"'{member.Member.ReflectedType.FullName}'.";
-			return body.AddThrow((Exception e) => new ArgumentException(message, member.Member.Name, e));
+			return body.CatchAndRethrow((Exception e) => new ArgumentException(message, member.Member.Name, e));
 		}
 	}
 }

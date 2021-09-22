@@ -1,6 +1,6 @@
 ﻿using YACCS.Commands.Models;
 
-namespace YACCS.Commands.Attributes
+namespace YACCS.Commands.Building
 {
 	/// <summary>
 	/// An attribute to modify <see cref="IParameter"/> during creation.

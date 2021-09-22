@@ -5,7 +5,7 @@ namespace YACCS
 {
 	internal static class ExpressionUtils
 	{
-		internal static TryExpression AddThrow<T>(
+		internal static TryExpression CatchAndRethrow<T>(
 			this Expression body,
 			Expression<Action<T>> createException)
 			where T : Exception

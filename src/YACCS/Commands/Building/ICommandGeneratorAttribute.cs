@@ -1,7 +1,6 @@
-﻿
-using YACCS.Commands.Models;
+﻿using YACCS.Commands.Models;
 
-namespace YACCS.Commands.Attributes
+namespace YACCS.Commands.Building
 {
 	/// <summary>
 	/// Defines a method for generating commands.
