@@ -1,6 +1,4 @@
-﻿
-using YACCS.Commands.Models;
-using YACCS.Results;
+﻿using YACCS.Commands.Models;
 using YACCS.Trie;
 
 namespace YACCS.Commands
@@ -20,8 +18,6 @@ namespace YACCS.Commands
 		/// </summary>
 		/// <param name="context">The context attempting to execute a command.</param>
 		/// <param name="input">The input to parse a command and arguments from.</param>
-		/// <returns>A failure result or <see cref="SuccessResult.Instance"/>.</returns>
-		/// <inheritdoc cref="IExecuteResult" path="/remarks"/>
-		ValueTask<IExecuteResult> ExecuteAsync(IContext context, ReadOnlySpan<char> input);
+		Task ExecuteAsync(IContext context, ReadOnlySpan<char> input);
 	}
 }

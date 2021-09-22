@@ -2,6 +2,7 @@
 
 using System.Threading.Channels;
 
+using YACCS.Commands;
 using YACCS.Results;
 
 namespace YACCS.Examples

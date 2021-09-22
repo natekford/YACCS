@@ -53,7 +53,9 @@ namespace YACCS.Commands
 			Commands = new CommandTrie(readers, config.Separator, config.CommandNameComparer);
 		}
 
-		/// <inheritdoc />
+		/// <inheritdoc cref="ICommandService.ExecuteAsync(IContext, ReadOnlySpan{char})" />
+		/// <returns>A failure result or <see cref="SuccessResult.Instance"/>.</returns>
+		/// <inheritdoc cref="IExecuteResult" path="/remarks"/>
 		public virtual ValueTask<IExecuteResult> ExecuteAsync(
 			IContext context,
 			ReadOnlySpan<char> input)
@@ -84,6 +86,9 @@ namespace YACCS.Commands
 				return best;
 			}
 		}
+
+		Task ICommandService.ExecuteAsync(IContext context, ReadOnlySpan<char> input)
+			=> ExecuteAsync(context, input).AsTask();
 
 		/// <summary>
 		/// Steps through <see cref="Commands"/> and parses each command at every edge it
