@@ -177,6 +177,29 @@ namespace YACCS.Results
 			=> string.Format(formatProvider, base.Response, Name);
 	}
 
+	public class NamedArgInvalidDictionaryResult : LocalizedResult
+	{
+		public static NamedArgInvalidDictionaryResult Instance { get; } = new();
+
+		public NamedArgInvalidDictionaryResult() : base(false, Keys.NamedArgInvalidDictionaryResult)
+		{
+		}
+	}
+
+	public class NamedArgMissingValueResult : LocalizedResult, IFormattable
+	{
+		public string Name { get; }
+		public override string Response => ToString(null, null);
+
+		public NamedArgMissingValueResult(string name) : base(false, Keys.NamedArgMissingValueResult)
+		{
+			Name = name;
+		}
+
+		public string ToString(string? ignored, IFormatProvider? formatProvider)
+			=> string.Format(formatProvider, base.Response, Name);
+	}
+
 	public class NamedArgNonExistentResult : LocalizedResult, IFormattable
 	{
 		public string Name { get; }
@@ -230,20 +253,6 @@ namespace YACCS.Results
 		public QuoteMismatchResult() : base(false, Keys.QuoteMismatchResult)
 		{
 		}
-	}
-
-	public class NamedArgMissingValueResult : LocalizedResult, IFormattable
-	{
-		public string Name { get; }
-		public override string Response => ToString(null, null);
-
-		public NamedArgMissingValueResult(string name) : base(false, Keys.NamedArgMissingValueResult)
-		{
-			Name = name;
-		}
-
-		public string ToString(string? ignored, IFormatProvider? formatProvider)
-			=> string.Format(formatProvider, base.Response, Name);
 	}
 
 	public class SuccessResult : Result

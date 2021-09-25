@@ -47,15 +47,9 @@ namespace YACCS.NamedArguments
 		/// <inheritdoc />
 		public override ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
 		{
-			T dict;
-			try
+			if (args.Length != 1 || args[0] is not T dict)
 			{
-				dict = (T)args.Single()!;
-			}
-			catch (Exception e)
-			{
-				throw new ArgumentException($"Expected one {typeof(T)} and no " +
-					$"other arguments for '{Source.Paths?.FirstOrDefault()}'.", e);
+				return new(NamedArgInvalidDictionaryResult.Instance);
 			}
 
 			var values = new object?[Source.Parameters.Count];

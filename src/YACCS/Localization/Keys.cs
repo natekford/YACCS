@@ -97,6 +97,8 @@ namespace YACCS.Localization
 			= new(nameof(NamedArgBadCountResult), "There is not an even number of arguments supplied.");
 		public static NeedsLocalization NamedArgDuplicateResult { get; }
 			= new(nameof(NamedArgDuplicateResult), "Duplicate value for named argument {0}.");
+		public static NeedsLocalization NamedArgInvalidDictionaryResult { get; }
+			= new(nameof(NamedArgInvalidDictionaryResult), "Invalid dictionary supplied.");
 		public static NeedsLocalization NamedArgNonExistentResult { get; }
 			= new(nameof(NamedArgNonExistentResult), "Nonexistent named argument {0}.");
 		public static NeedsLocalization NotEnoughArgsResult { get; }
