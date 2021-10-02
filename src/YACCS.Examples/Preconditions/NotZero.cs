@@ -29,6 +29,6 @@ namespace YACCS.Examples.Preconditions
 			=> new(GetErrorMessage());
 
 		private string GetErrorMessage()
-			=> Localize.This("NotZero", FallbackErrorMessage);
+			=> Localize.This(nameof(NotZero), FallbackErrorMessage);
 	}
 }
