@@ -16,6 +16,13 @@ namespace YACCS.Examples.Commands
 		public string AWeekendDay()
 			=> DateTime.Now.DayOfWeek.ToString();
 
+		[Command(nameof(AWeekendDayAndAnEvenMinute))]
+		[RequiresDay(DayOfWeek.Saturday, Groups = new[] { "Day" }, Op = BoolOp.Or)]
+		[RequiresDay(DayOfWeek.Sunday, Groups = new[] { "Day" }, Op = BoolOp.Or)]
+		[RequiresMinuteDivisibleBy(2)]
+		public string AWeekendDayAndAnEvenMinute()
+			=> DateTime.Now.ToString("G");
+
 		[Command(nameof(BothWeekendDays))]
 		[RequiresDay(DayOfWeek.Saturday)]
 		[RequiresDay(DayOfWeek.Sunday)]
