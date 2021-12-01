@@ -203,12 +203,13 @@ namespace YACCS.Commands
 
 					value = trResult.Value;
 
-					if (parameter.Length.HasValue)
+					var indexDelta = trResult.SuccessfullyParsedCount ?? parameter.Length;
+					if (indexDelta.HasValue)
 					{
-						currentIndex += parameter.Length.Value;
+						currentIndex += indexDelta.Value;
 					}
 					// In case of overflow, set value to something reasonable
-					if (!parameter.Length.HasValue || currentIndex < 0)
+					if (!indexDelta.HasValue || currentIndex < 0)
 					{
 						currentIndex = input.Length;
 					}

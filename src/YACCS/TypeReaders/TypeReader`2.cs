@@ -1,5 +1,4 @@
-﻿
-using MorseCode.ITask;
+﻿using MorseCode.ITask;
 
 using YACCS.Commands;
 using YACCS.Results;
@@ -34,21 +33,13 @@ namespace YACCS.TypeReaders
 			ReadOnlyMemory<string> input)
 			=> PrivateReadAsync(context, input);
 
-		/// <summary>
-		/// Creates a failure result with <paramref name="result"/>.
-		/// </summary>
-		/// <param name="result">The result to wrap.</param>
-		/// <returns>A failure result.</returns>
+		/// <inheritdoc cref="TypeReaderResult{T}.FromError(IResult)"/>
 		protected static ITypeReaderResult<TValue> Error(IResult result)
 			=> TypeReaderResult<TValue>.FromError(result);
 
-		/// <summary>
-		/// Creates a success result with <paramref name="value"/>.
-		/// </summary>
-		/// <param name="value">The value which was parsed.</param>
-		/// <returns>A success result.</returns>
-		protected static ITypeReaderResult<TValue> Success(TValue value)
-			=> TypeReaderResult<TValue>.FromSuccess(value);
+		/// <inheritdoc cref="TypeReaderResult{T}.FromSuccess(T, int?)"/>
+		protected static ITypeReaderResult<TValue> Success(TValue value, int? successfullyParsedCount = null)
+			=> TypeReaderResult<TValue>.FromSuccess(value, successfullyParsedCount);
 
 		private ITask<ITypeReaderResult<TValue>> PrivateReadAsync(
 			IContext context,
