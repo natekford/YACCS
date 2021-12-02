@@ -1,8 +1,8 @@
-using System.Runtime.CompilerServices;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using MorseCode.ITask;
+
+using System.Runtime.CompilerServices;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
@@ -104,7 +104,7 @@ namespace YACCS.Tests.Commands.Models
 		[TestMethod]
 		public void OverriddenTypeReader_Test()
 		{
-			static void Delegate([OverrideTypeReader(typeof(FakeTypeReader))] string value)
+			static void Delegate([FakeTypeReader] string value)
 			{
 			}
 
@@ -119,7 +119,7 @@ namespace YACCS.Tests.Commands.Models
 		[TestMethod]
 		public void OverriddenTypeReaderInvalidType_Test()
 		{
-			static void Delegate([OverrideTypeReader(typeof(FakeTypeReader))] int value)
+			static void Delegate([FakeTypeReader] int value)
 			{
 			}
 
@@ -173,9 +173,13 @@ namespace YACCS.Tests.Commands.Models
 				=> Task.CompletedTask;
 		}
 
-		private class FakeTypeReader : TypeReader<IContext, string>
+		private class FakeTypeReader :
+			TypeReader<IContext, string>,
+			IOverrideTypeReaderAttribute
 		{
 			public const string VALUE = "joe";
+
+			ITypeReader IOverrideTypeReaderAttribute.Reader => this;
 
 			public override ITask<ITypeReaderResult<string>> ReadAsync(
 				IContext context,

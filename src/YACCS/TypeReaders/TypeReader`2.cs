@@ -10,7 +10,7 @@ namespace YACCS.TypeReaders
 	/// </summary>
 	/// <typeparam name="TContext"></typeparam>
 	/// <typeparam name="TValue"></typeparam>
-	public abstract class TypeReader<TContext, TValue> : ITypeReader<TContext, TValue>
+	public abstract class TypeReader<TContext, TValue> : Attribute, ITypeReader<TContext, TValue>
 		where TContext : IContext
 	{
 		/// <inheritdoc />

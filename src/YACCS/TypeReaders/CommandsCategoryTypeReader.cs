@@ -1,5 +1,4 @@
-﻿
-using MorseCode.ITask;
+﻿using MorseCode.ITask;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
@@ -12,8 +11,12 @@ namespace YACCS.TypeReaders
 	/// Parses commands which have all the supplied categories.
 	/// </summary>
 	/// <remarks>Order is NOT guaranteed</remarks>
-	public class CommandsCategoryTypeReader : TypeReader<IContext, IReadOnlyCollection<IImmutableCommand>>
+	public class CommandsCategoryTypeReader :
+		TypeReader<IContext, IReadOnlyCollection<IImmutableCommand>>,
+		IOverrideTypeReaderAttribute
 	{
+		ITypeReader IOverrideTypeReaderAttribute.Reader => this;
+
 		/// <inheritdoc />
 		public override ITask<ITypeReaderResult<IReadOnlyCollection<IImmutableCommand>>> ReadAsync(
 			IContext context,

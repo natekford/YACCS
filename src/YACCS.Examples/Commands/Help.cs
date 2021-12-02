@@ -25,7 +25,7 @@ namespace YACCS.Examples.Commands
 
 		[Command(nameof(Category))]
 		public Task<IResult> Category(
-			[OverrideTypeReader(typeof(CommandsCategoryTypeReader))]
+			[CommandsCategoryTypeReader]
 			[Remainder]
 			IReadOnlyCollection<IImmutableCommand> commands)
 			=> HelpCommand(commands);
@@ -36,7 +36,7 @@ namespace YACCS.Examples.Commands
 
 		[Command]
 		public async Task<IResult> HelpCommand(
-			[OverrideTypeReader(typeof(CommandsNameTypeReader))]
+			[CommandsNameTypeReader]
 			[Remainder]
 			IReadOnlyCollection<IImmutableCommand> commands)
 		{
