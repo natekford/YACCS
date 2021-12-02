@@ -9,7 +9,7 @@ using YACCS.Results;
 namespace YACCS.Examples.Preconditions
 {
 	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = true, Inherited = true)]
-	public class RequiresMinuteDivisibleBy : PreconditionAttribute, IRuntimeFormattableAttribute
+	public class RequiresMinuteDivisibleBy : Precondition<IContext>, IRuntimeFormattableAttribute
 	{
 		public int Divisor { get; }
 		public virtual string FallbackErrorMessage { get; set; } = "Current minute must be divisible by {0}.";

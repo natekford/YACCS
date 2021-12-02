@@ -1,5 +1,4 @@
-﻿
-using YACCS.Commands;
+﻿using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 using YACCS.Results;
@@ -50,7 +49,7 @@ namespace YACCS.Preconditions
 		ValueTask<IResult> IPrecondition.CheckAsync(
 			IImmutableCommand command,
 			IContext context)
-			=> CheckAsync(command, context);
+			=> CheckAsyncInternal(command, context);
 
 		/// <summary>
 		/// Invokes <see cref="AfterExecutionAsync(IImmutableCommand, TContext, Exception?)"/>
@@ -90,7 +89,7 @@ namespace YACCS.Preconditions
 		/// after handling type checking.
 		/// </summary>
 		/// <inheritdoc cref="CheckAsync(IImmutableCommand, TContext)"/>
-		protected virtual ValueTask<IResult> CheckAsync(
+		protected virtual ValueTask<IResult> CheckAsyncInternal(
 			IImmutableCommand command,
 			IContext context)
 		{

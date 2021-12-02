@@ -9,7 +9,7 @@ using YACCS.Results;
 namespace YACCS.Examples.Preconditions
 {
 	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = true, Inherited = true)]
-	public class RequiresDay : PreconditionAttribute, IRuntimeFormattableAttribute
+	public class RequiresDay : Precondition<IContext>, IRuntimeFormattableAttribute
 	{
 		public DayOfWeek Day { get; }
 		public virtual string FallbackErrorMessage { get; set; } = "Must be {0}.";
