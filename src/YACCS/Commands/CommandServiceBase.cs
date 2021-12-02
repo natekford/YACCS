@@ -203,11 +203,21 @@ namespace YACCS.Commands
 
 					value = trResult.Value;
 
-					var indexDelta = trResult.SuccessfullyParsedCount ?? parameter.Length;
+					var spCount = trResult.SuccessfullyParsedCount;
+					var pLength = parameter.Length;
+					var indexDelta = spCount ?? pLength;
+					// Use the minimum value of successfully parsed count and parameter length
+					// to prevent results with some nonsensically large parsed count from
+					// advancing to an index past where their input stopped
 					if (indexDelta.HasValue)
 					{
+						if (spCount.HasValue && pLength.HasValue)
+						{
+							indexDelta = Math.Min(indexDelta.Value, pLength.Value);
+						}
 						currentIndex += indexDelta.Value;
 					}
+
 					// In case of overflow, set value to something reasonable
 					if (!indexDelta.HasValue || currentIndex < 0)
 					{
