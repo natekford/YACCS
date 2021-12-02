@@ -20,7 +20,7 @@ namespace YACCS.Examples.Commands
 		[InjectService]
 		public IHelpFormatter HelpFormatter { get; set; } = null!;
 
-		[Disabled]
+		[Disabled<IContext>]
 		public override string Abstract() => "21";
 
 		[Command(nameof(Category))]

@@ -275,9 +275,9 @@ namespace YACCS.Tests.NamedArguments
 			public string S { get; set; } = "";
 		}
 
-		private class NotNegative : ParameterPreconditionAttribute
+		private class NotNegative : ParameterPrecondition<IContext, int>
 		{
-			public ValueTask<IResult> CheckAsync(
+			public override ValueTask<IResult> CheckAsync(
 				CommandMeta meta,
 				IContext context,
 				int value)
@@ -288,12 +288,6 @@ namespace YACCS.Tests.NamedArguments
 				}
 				return new(InvalidParameterResult.Instance);
 			}
-
-			public override ValueTask<IResult> CheckAsync(
-				CommandMeta meta,
-				IContext context,
-				object? value)
-				=> this.CheckAsync<IContext, int>(meta, context, value, CheckAsync);
 		}
 
 		private class SetMe

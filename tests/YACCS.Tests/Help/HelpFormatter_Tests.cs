@@ -45,7 +45,7 @@ Parameters:{TRAILING}
 
 	Preconditions:{TRAILING}
 		{BoolOp.And}
-		{LessThanOrEqualTo100Attribute.SUMMARY}
+		{LessThanOrEqualTo100.SUMMARY}
 
 ";
 			var length = Math.Max(expected.Length, output.Length);
@@ -149,17 +149,21 @@ Parameters:{TRAILING}
 		}
 
 		[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
-		private class CooldownAttribute : PreconditionAttribute, IRuntimeFormattableAttribute
+		private class CooldownAttribute : Precondition<FakeContext>, IRuntimeFormattableAttribute
 		{
 			public const string OUTPUT = "ur on cooldown buddy";
 
-			public override async ValueTask<IResult> CheckAsync(IImmutableCommand command, IContext context)
+			public override async ValueTask<IResult> CheckAsync(
+				IImmutableCommand command,
+				FakeContext context)
 			{
 				await Task.Delay(250).ConfigureAwait(false);
 				return new FailureResult(OUTPUT);
 			}
 
-			public async ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
+			public async ValueTask<string> FormatAsync(
+				IContext context,
+				IFormatProvider? formatProvider = null)
 			{
 				await Task.Delay(250).ConfigureAwait(false);
 				return OUTPUT;
@@ -200,11 +204,11 @@ Parameters:{TRAILING}
 
 		[AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
 		[Summary(SUMMARY)]
-		private class LessThanOrEqualTo100Attribute : ParameterPreconditionAttribute
+		private class LessThanOrEqualTo100 : ParameterPrecondition<IContext, int>
 		{
 			public const string SUMMARY = "The passed in value is less than or equal to 100.";
 
-			public ValueTask<IResult> CheckAsync(
+			public override ValueTask<IResult> CheckAsync(
 				CommandMeta meta,
 				IContext context,
 				int value)
@@ -215,12 +219,6 @@ Parameters:{TRAILING}
 				}
 				return new(SuccessResult.Instance);
 			}
-
-			public override ValueTask<IResult> CheckAsync(
-				CommandMeta meta,
-				IContext context,
-				object? value)
-				=> this.CheckAsync<IContext, int>(meta, context, value, CheckAsync);
 		}
 	}
 }
