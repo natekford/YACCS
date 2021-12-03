@@ -1,7 +1,6 @@
-﻿namespace YACCS.Examples
+﻿namespace YACCS.Examples;
+
+public interface IMessagable
 {
-	public interface IMessagable
-	{
-		Task SendMessageAsync(string message);
-	}
+	Task SendMessageAsync(string message);
 }

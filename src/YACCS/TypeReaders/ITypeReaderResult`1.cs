@@ -1,9 +1,8 @@
-﻿namespace YACCS.TypeReaders
+﻿namespace YACCS.TypeReaders;
+
+/// <inheritdoc />
+public interface ITypeReaderResult<out T> : ITypeReaderResult
 {
-	/// <inheritdoc />
-	public interface ITypeReaderResult<out T> : ITypeReaderResult
-	{
-		/// <inheritdoc cref="ITypeReaderResult.Value" />
-		new T? Value { get; }
-	}
+	/// <inheritdoc cref="ITypeReaderResult.Value" />
+	new T? Value { get; }
 }

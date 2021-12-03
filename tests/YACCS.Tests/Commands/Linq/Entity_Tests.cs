@@ -7,90 +7,89 @@ using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Results;
 
-namespace YACCS.Tests.Commands.Linq
+namespace YACCS.Tests.Commands.Linq;
+
+[TestClass]
+public class Entity_Tests
 {
-	[TestClass]
-	public class Entity_Tests
+	[TestMethod]
+	public async Task ById_Test()
 	{
-		[TestMethod]
-		public async Task ById_Test()
-		{
-			var commands = await CreateCommandsAsync().ConfigureAwait(false);
+		var commands = await CreateCommandsAsync().ConfigureAwait(false);
 
-			var result = commands.ById(Querying_TestsGroup._CommandTwoId).ToArray();
-			Assert.AreEqual(1, result.Length);
+		var result = commands.ById(Querying_TestsGroup._CommandTwoId).ToArray();
+		Assert.AreEqual(1, result.Length);
+	}
+
+	private async ValueTask<List<IImmutableCommand>> CreateCommandsAsync()
+	{
+		var wasIReached = new WasIReached();
+		var services = new ServiceCollection()
+			.AddSingleton(wasIReached)
+			.BuildServiceProvider();
+
+		var commands = new List<IImmutableCommand>();
+		await foreach (var (_, command) in typeof(Querying_TestsGroup).GetAllCommandsAsync(services))
+		{
+			commands.Add(command);
 		}
 
-		private async ValueTask<List<IImmutableCommand>> CreateCommandsAsync()
+		Assert.AreEqual(4, commands.Count);
+		Assert.IsTrue(wasIReached.WasReached);
+		return commands;
+	}
+
+	[Command(_1, _2, _3)]
+	private sealed class Querying_TestsGroup : CommandGroup<IContext>
+	{
+		public const string _1 = "one";
+		public const string _2 = "two";
+		public const string _3 = "three";
+		public const string _4 = "four";
+		public const string _5 = "five";
+		public const string _6 = "six";
+		public const string _7 = "seven";
+		public const string _8 = "eight";
+		public const string _9 = "nine";
+		public const string _CommandOneId = "id_1";
+		public const string _CommandTwoId = "id_2";
+		public const string _PositionId = "position_id";
+
+		[Command(_4, _5, _6)]
+		public sealed class Help : CommandGroup<IContext>
 		{
-			var wasIReached = new WasIReached();
-			var services = new ServiceCollection()
-				.AddSingleton(wasIReached)
-				.BuildServiceProvider();
+			[Command]
+			public IResult CommandFour(IReadOnlyList<string> list)
+				=> SuccessResult.Instance;
 
-			var commands = new List<IImmutableCommand>();
-			await foreach (var (_, command) in typeof(Querying_TestsGroup).GetAllCommandsAsync(services))
+			[Command(_7, _8, _9)]
+			[Id(_CommandOneId)]
+			public IResult CommandOne()
+				=> SuccessResult.Instance;
+
+			[Command]
+			public IResult CommandThree([Id(_PositionId)] int position, string arg)
+				=> SuccessResult.Instance;
+
+			[Command]
+			[Id(_CommandTwoId)]
+			public IResult CommandTwo(string arg)
+				=> SuccessResult.Instance;
+
+			public override Task ModifyCommandsAsync(IServiceProvider services, List<ReflectionCommand> commands)
 			{
-				commands.Add(command);
-			}
+				var parameters = commands.SelectMany(x => x.Parameters);
+				var position = parameters.ById(_PositionId).Single().AsType<int>();
+				Assert.IsNotNull(position);
 
-			Assert.AreEqual(4, commands.Count);
-			Assert.IsTrue(wasIReached.WasReached);
-			return commands;
-		}
-
-		[Command(_1, _2, _3)]
-		private sealed class Querying_TestsGroup : CommandGroup<IContext>
-		{
-			public const string _1 = "one";
-			public const string _2 = "two";
-			public const string _3 = "three";
-			public const string _4 = "four";
-			public const string _5 = "five";
-			public const string _6 = "six";
-			public const string _7 = "seven";
-			public const string _8 = "eight";
-			public const string _9 = "nine";
-			public const string _CommandOneId = "id_1";
-			public const string _CommandTwoId = "id_2";
-			public const string _PositionId = "position_id";
-
-			[Command(_4, _5, _6)]
-			public sealed class Help : CommandGroup<IContext>
-			{
-				[Command]
-				public IResult CommandFour(IReadOnlyList<string> list)
-					=> SuccessResult.Instance;
-
-				[Command(_7, _8, _9)]
-				[Id(_CommandOneId)]
-				public IResult CommandOne()
-					=> SuccessResult.Instance;
-
-				[Command]
-				public IResult CommandThree([Id(_PositionId)] int position, string arg)
-					=> SuccessResult.Instance;
-
-				[Command]
-				[Id(_CommandTwoId)]
-				public IResult CommandTwo(string arg)
-					=> SuccessResult.Instance;
-
-				public override Task ModifyCommandsAsync(IServiceProvider services, List<ReflectionCommand> commands)
-				{
-					var parameters = commands.SelectMany(x => x.Parameters);
-					var position = parameters.ById(_PositionId).Single().AsType<int>();
-					Assert.IsNotNull(position);
-
-					services.GetRequiredService<WasIReached>().WasReached = true;
-					return base.ModifyCommandsAsync(services, commands);
-				}
+				services.GetRequiredService<WasIReached>().WasReached = true;
+				return base.ModifyCommandsAsync(services, commands);
 			}
 		}
+	}
 
-		private sealed class WasIReached
-		{
-			public bool WasReached { get; set; }
-		}
+	private sealed class WasIReached
+	{
+		public bool WasReached { get; set; }
 	}
 }

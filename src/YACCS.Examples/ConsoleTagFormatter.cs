@@ -1,27 +1,26 @@
 ﻿
 using YACCS.Help;
 
-namespace YACCS.Examples
+namespace YACCS.Examples;
+
+public sealed class ConsoleTagFormatter : TagFormatter
 {
-	public sealed class ConsoleTagFormatter : TagFormatter
+	private readonly IReadOnlyDictionary<Type, string> _Names;
+
+	public ConsoleTagFormatter(IReadOnlyDictionary<Type, string> names)
 	{
-		private readonly IReadOnlyDictionary<Type, string> _Names;
+		_Names = names;
+	}
 
-		public ConsoleTagFormatter(IReadOnlyDictionary<Type, string> names)
+	public override string Format(
+		string? format,
+		object? arg,
+		IFormatProvider formatProvider)
+	{
+		if (arg is Type type)
 		{
-			_Names = names;
+			arg = _Names[type];
 		}
-
-		public override string Format(
-			string? format,
-			object? arg,
-			IFormatProvider formatProvider)
-		{
-			if (arg is Type type)
-			{
-				arg = _Names[type];
-			}
-			return base.Format(format, arg, formatProvider);
-		}
+		return base.Format(format, arg, formatProvider);
 	}
 }

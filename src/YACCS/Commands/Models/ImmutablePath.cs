@@ -4,61 +4,60 @@ using System.Diagnostics;
 
 using YACCS.Localization;
 
-namespace YACCS.Commands.Models
+namespace YACCS.Commands.Models;
+
+/// <summary>
+/// An immutable list of strings which supports localization
+/// through <see cref="Localize.This(string, string?)"/>.
+/// </summary>
+[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
+public sealed class ImmutablePath : IReadOnlyList<string>
 {
+	private readonly ImmutableArray<string> _Keys;
+	/// <inheritdoc />
+	public int Count => _Keys.Length;
+	private string DebuggerDisplay => $"Name = {ToString()}, Count = {_Keys.Length}";
+
+	/// <inheritdoc />
+	public string this[int index] => Localize.This(_Keys[index]);
+
 	/// <summary>
-	/// An immutable list of strings which supports localization
-	/// through <see cref="Localize.This(string, string?)"/>.
+	/// Creates a new <see cref="ImmutablePath"/>.
 	/// </summary>
-	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-	public sealed class ImmutablePath : IReadOnlyList<string>
+	/// <param name="keys">The values to use as parts of the name.</param>
+	public ImmutablePath(IEnumerable<string> keys)
 	{
-		private readonly ImmutableArray<string> _Keys;
-		/// <inheritdoc />
-		public int Count => _Keys.Length;
-		private string DebuggerDisplay => $"Name = {ToString()}, Count = {_Keys.Length}";
-
-		/// <inheritdoc />
-		public string this[int index] => Localize.This(_Keys[index]);
-
-		/// <summary>
-		/// Creates a new <see cref="ImmutablePath"/>.
-		/// </summary>
-		/// <param name="keys">The values to use as parts of the name.</param>
-		public ImmutablePath(IEnumerable<string> keys)
+		if (keys is ImmutablePath name)
 		{
-			if (keys is ImmutablePath name)
-			{
-				_Keys = name._Keys;
-			}
-			else
-			{
-				_Keys = keys.ToImmutableArray();
-			}
+			_Keys = name._Keys;
 		}
-
-		/// <summary>
-		/// Creates a new <see cref="ImmutablePath"/>.
-		/// </summary>
-		/// <param name="keys">The values to use as parts of the name.</param>
-		/// <returns>An immutable path.</returns>
-		public static ImmutablePath New(params string[] keys)
-			=> new(keys);
-
-		/// <inheritdoc />
-		public IEnumerator<string> GetEnumerator()
+		else
 		{
-			foreach (var key in _Keys)
-			{
-				yield return Localize.This(key);
-			}
+			_Keys = keys.ToImmutableArray();
 		}
-
-		/// <inheritdoc />
-		public override string ToString()
-			=> string.Join(CommandServiceUtils.SPACE, this);
-
-		IEnumerator IEnumerable.GetEnumerator()
-			=> GetEnumerator();
 	}
+
+	/// <summary>
+	/// Creates a new <see cref="ImmutablePath"/>.
+	/// </summary>
+	/// <param name="keys">The values to use as parts of the name.</param>
+	/// <returns>An immutable path.</returns>
+	public static ImmutablePath New(params string[] keys)
+		=> new(keys);
+
+	/// <inheritdoc />
+	public IEnumerator<string> GetEnumerator()
+	{
+		foreach (var key in _Keys)
+		{
+			yield return Localize.This(key);
+		}
+	}
+
+	/// <inheritdoc />
+	public override string ToString()
+		=> string.Join(CommandServiceUtils.SPACE, this);
+
+	IEnumerator IEnumerable.GetEnumerator()
+		=> GetEnumerator();
 }

@@ -29,3 +29,5 @@ dotnet_diagnostic.CA1816.severity = none
 
 # CS8032: An instance of analyzer System.Text.Json.SourceGeneration.JsonSourceGenerator cannot be created from C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\6.0.0-rc.1.21451.13\analyzers\dotnet\cs\System.Text.Json.SourceGeneration.dll : Could not load file or assembly 'Microsoft.CodeAnalysis, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35' or one of its dependencies. The system cannot find the file specified..
 dotnet_diagnostic.CS8032.severity = none
+
+csharp_style_namespace_declarations=file_scoped:suggestion

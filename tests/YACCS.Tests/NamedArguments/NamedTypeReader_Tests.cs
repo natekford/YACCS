@@ -5,22 +5,22 @@ using YACCS.Results;
 using YACCS.Tests.TypeReaders;
 using YACCS.TypeReaders;
 
-namespace YACCS.Tests.NamedArguments
-{
-	[TestClass]
-	public class NamedTypeReader_Tests : TypeReader_Tests<NamedTypeReader_Tests.NamedClass>
-	{
-		private const int NUM = 1;
-		private const string STR = "joe";
-		public override Type ExpectedInvalidResultType => typeof(NamedArgBadCountResult);
-		public override ITypeReader<NamedClass> Reader { get; }
-			= new NamedArgumentsTypeReader<NamedClass>();
+namespace YACCS.Tests.NamedArguments;
 
-		[TestMethod]
-		public async Task DuplicateKey_Test()
+[TestClass]
+public class NamedTypeReader_Tests : TypeReader_Tests<NamedTypeReader_Tests.NamedClass>
+{
+	private const int NUM = 1;
+	private const string STR = "joe";
+	public override Type ExpectedInvalidResultType => typeof(NamedArgBadCountResult);
+	public override ITypeReader<NamedClass> Reader { get; }
+		= new NamedArgumentsTypeReader<NamedClass>();
+
+	[TestMethod]
+	public async Task DuplicateKey_Test()
+	{
+		await AssertFailureAsync<NamedArgDuplicateResult>(new[]
 		{
-			await AssertFailureAsync<NamedArgDuplicateResult>(new[]
-			{
 				nameof(NamedClass.Number),
 				NUM.ToString(),
 				nameof(NamedClass.String),
@@ -28,13 +28,13 @@ namespace YACCS.Tests.NamedArguments
 				nameof(NamedClass.String),
 				STR
 			}).ConfigureAwait(false);
-		}
+	}
 
-		[TestMethod]
-		public async Task InvalidKey_Test()
+	[TestMethod]
+	public async Task InvalidKey_Test()
+	{
+		await AssertFailureAsync<NamedArgNonExistentResult>(new[]
 		{
-			await AssertFailureAsync<NamedArgNonExistentResult>(new[]
-			{
 				nameof(NamedClass.Number),
 				NUM.ToString(),
 				nameof(NamedClass.String),
@@ -42,13 +42,13 @@ namespace YACCS.Tests.NamedArguments
 				"test",
 				STR
 			}).ConfigureAwait(false);
-		}
+	}
 
-		[TestMethod]
-		public async Task Success_Test()
+	[TestMethod]
+	public async Task Success_Test()
+	{
+		var value = await AssertSuccessAsync(new[]
 		{
-			var value = await AssertSuccessAsync(new[]
-			{
 				nameof(NamedClass.Number),
 				NUM.ToString(),
 				nameof(NamedClass.String),
@@ -56,16 +56,15 @@ namespace YACCS.Tests.NamedArguments
 				nameof(NamedClass.FieldString),
 				STR
 			}).ConfigureAwait(false);
-			Assert.AreEqual(NUM, value.Number);
-			Assert.AreEqual(STR, value.String);
-			Assert.AreEqual(STR, value.FieldString);
-		}
+		Assert.AreEqual(NUM, value.Number);
+		Assert.AreEqual(STR, value.String);
+		Assert.AreEqual(STR, value.FieldString);
+	}
 
-		public class NamedClass
-		{
-			public string FieldString = "";
-			public int Number { get; set; }
-			public string String { get; set; } = "";
-		}
+	public class NamedClass
+	{
+		public string FieldString = "";
+		public int Number { get; set; }
+		public string String { get; set; } = "";
 	}
 }

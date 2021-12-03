@@ -1,20 +1,19 @@
-﻿namespace YACCS
+﻿namespace YACCS;
+
+/// <summary>
+/// An empty <see cref="IServiceProvider"/>.
+/// </summary>
+public sealed class EmptyServiceProvider : IServiceProvider
 {
 	/// <summary>
-	/// An empty <see cref="IServiceProvider"/>.
+	/// A singletone instance of <see cref="EmptyServiceProvider"/>.
 	/// </summary>
-	public sealed class EmptyServiceProvider : IServiceProvider
+	public static EmptyServiceProvider Instance { get; } = new();
+
+	private EmptyServiceProvider()
 	{
-		/// <summary>
-		/// A singletone instance of <see cref="EmptyServiceProvider"/>.
-		/// </summary>
-		public static EmptyServiceProvider Instance { get; } = new();
-
-		private EmptyServiceProvider()
-		{
-		}
-
-		/// <inheritdoc />
-		public object? GetService(Type serviceType) => null;
 	}
+
+	/// <inheritdoc />
+	public object? GetService(Type serviceType) => null;
 }

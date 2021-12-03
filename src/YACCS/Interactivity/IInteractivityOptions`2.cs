@@ -1,20 +1,19 @@
 ﻿
 using YACCS.Commands;
 
-namespace YACCS.Interactivity
+namespace YACCS.Interactivity;
+
+/// <summary>
+/// Interactivity options which support validating input.
+/// </summary>
+/// <typeparam name="TContext"></typeparam>
+/// <typeparam name="TInput"></typeparam>
+public interface IInteractivityOptions<in TContext, in TInput>
+	: IInteractivityOptions
+	where TContext : IContext
 {
 	/// <summary>
-	/// Interactivity options which support validating input.
+	/// Criteria for determining if an input source is valid.
 	/// </summary>
-	/// <typeparam name="TContext"></typeparam>
-	/// <typeparam name="TInput"></typeparam>
-	public interface IInteractivityOptions<in TContext, in TInput>
-		: IInteractivityOptions
-		where TContext : IContext
-	{
-		/// <summary>
-		/// Criteria for determining if an input source is valid.
-		/// </summary>
-		IEnumerable<ICriterion<TContext, TInput>> Criteria { get; }
-	}
+	IEnumerable<ICriterion<TContext, TInput>> Criteria { get; }
 }

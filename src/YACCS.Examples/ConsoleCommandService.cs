@@ -9,77 +9,76 @@ using YACCS.Parsing;
 using YACCS.Trie;
 using YACCS.TypeReaders;
 
-namespace YACCS.Examples
+namespace YACCS.Examples;
+
+public sealed class ConsoleCommandService : CommandServiceBase
 {
-	public sealed class ConsoleCommandService : CommandServiceBase
+	private readonly IEnumerable<Assembly> _CommandAssemblies;
+	private readonly Localized<CommandTrie> _Commands;
+	private readonly ConsoleHandler _Console;
+	private readonly Localized<Lazy<Task>> _Initialize;
+	private readonly IServiceProvider _Services;
+
+	public override ITrie<string, IImmutableCommand> Commands
+		=> _Commands.GetCurrent();
+
+	public ConsoleCommandService(
+		IServiceProvider services,
+		ICommandServiceConfig config,
+		IArgumentHandler handler,
+		IReadOnlyDictionary<Type, ITypeReader> readers,
+		ConsoleHandler console,
+		IEnumerable<Assembly> commandAssemblies)
+		: base(config, handler, readers)
 	{
-		private readonly IEnumerable<Assembly> _CommandAssemblies;
-		private readonly Localized<CommandTrie> _Commands;
-		private readonly ConsoleHandler _Console;
-		private readonly Localized<Lazy<Task>> _Initialize;
-		private readonly IServiceProvider _Services;
+		_CommandAssemblies = commandAssemblies;
+		_Console = console;
+		_Services = services;
+		_Initialize = new(_ => new(() => PrivateInitialize()));
+		_Commands = new(_ => new CommandTrie(Readers, Config.Separator, Config.CommandNameComparer));
+	}
 
-		public override ITrie<string, IImmutableCommand> Commands
-			=> _Commands.GetCurrent();
+	public Task InitializeAsync()
+		=> _Initialize.GetCurrent().Value;
 
-		public ConsoleCommandService(
-			IServiceProvider services,
-			ICommandServiceConfig config,
-			IArgumentHandler handler,
-			IReadOnlyDictionary<Type, ITypeReader> readers,
-			ConsoleHandler console,
-			IEnumerable<Assembly> commandAssemblies)
-			: base(config, handler, readers)
+	protected override Task CommandExecutedAsync(CommandExecutedEventArgs e)
+	{
+		_Console.WriteResult(e.Result);
+		var exceptions = string.Join(Environment.NewLine, e.GetAllExceptions());
+		if (!string.IsNullOrWhiteSpace(exceptions))
 		{
-			_CommandAssemblies = commandAssemblies;
-			_Console = console;
-			_Services = services;
-			_Initialize = new(_ => new(() => PrivateInitialize()));
-			_Commands = new(_ => new CommandTrie(Readers, Config.Separator, Config.CommandNameComparer));
+			_Console.WriteLine(exceptions, ConsoleColor.Red);
 		}
+		return Task.CompletedTask;
+	}
 
-		public Task InitializeAsync()
-			=> _Initialize.GetCurrent().Value;
+	private async Task AddDelegateCommandsAsync()
+	{
+		// Example delegate command registration
+		static int Add(int a, int b)
+			=> a + b;
 
-		protected override Task CommandExecutedAsync(CommandExecutedEventArgs e)
+		var @delegate = (Func<int, int, int>)Add;
+		var paths = new[] { ImmutablePath.New(nameof(Add)) };
+		var add = new DelegateCommand(@delegate, paths);
+		await foreach (var command in add.ToMultipleImmutableAsync(_Services))
 		{
-			_Console.WriteResult(e.Result);
-			var exceptions = string.Join(Environment.NewLine, e.GetAllExceptions());
-			if (!string.IsNullOrWhiteSpace(exceptions))
-			{
-				_Console.WriteLine(exceptions, ConsoleColor.Red);
-			}
-			return Task.CompletedTask;
+			Commands.Add(command);
 		}
+	}
 
-		private async Task AddDelegateCommandsAsync()
+	private async Task PrivateInitialize()
+	{
+		foreach (var assembly in _CommandAssemblies)
 		{
-			// Example delegate command registration
-			static int Add(int a, int b)
-				=> a + b;
-
-			var @delegate = (Func<int, int, int>)Add;
-			var paths = new[] { ImmutablePath.New(nameof(Add)) };
-			var add = new DelegateCommand(@delegate, paths);
-			await foreach (var command in add.ToMultipleImmutableAsync(_Services))
+			// I don't use the returned type for anything, but if you want to load/unload
+			// "modules" that's why the defining type is returned along with the command
+			await foreach (var (_, command) in assembly.GetAllCommandsAsync(_Services))
 			{
 				Commands.Add(command);
 			}
 		}
-
-		private async Task PrivateInitialize()
-		{
-			foreach (var assembly in _CommandAssemblies)
-			{
-				// I don't use the returned type for anything, but if you want to load/unload
-				// "modules" that's why the defining type is returned along with the command
-				await foreach (var (_, command) in assembly.GetAllCommandsAsync(_Services))
-				{
-					Commands.Add(command);
-				}
-			}
-			await AddDelegateCommandsAsync().ConfigureAwait(false);
-			Debug.WriteLine($"Registered {Commands.Count} commands for '{CultureInfo.CurrentUICulture}'.");
-		}
+		await AddDelegateCommandsAsync().ConfigureAwait(false);
+		Debug.WriteLine($"Registered {Commands.Count} commands for '{CultureInfo.CurrentUICulture}'.");
 	}
 }

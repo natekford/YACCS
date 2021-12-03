@@ -5,3 +5,5 @@ dotnet_diagnostic.RCS1021.severity = none
 
 # RCS1047: Non-asynchronous method name should not end with 'Async'.
 dotnet_diagnostic.RCS1047.severity = none
+
+csharp_style_namespace_declarations=file_scoped:suggestion

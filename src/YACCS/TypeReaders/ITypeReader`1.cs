@@ -3,14 +3,13 @@ using MorseCode.ITask;
 
 using YACCS.Commands;
 
-namespace YACCS.TypeReaders
+namespace YACCS.TypeReaders;
+
+/// <inheritdoc />
+public interface ITypeReader<out TValue> : ITypeReader
 {
-	/// <inheritdoc />
-	public interface ITypeReader<out TValue> : ITypeReader
-	{
-		/// <inheritdoc cref="ITypeReader.ReadAsync(IContext, ReadOnlyMemory{string})" />
-		new ITask<ITypeReaderResult<TValue>> ReadAsync(
-			IContext context,
-			ReadOnlyMemory<string> input);
-	}
+	/// <inheritdoc cref="ITypeReader.ReadAsync(IContext, ReadOnlyMemory{string})" />
+	new ITask<ITypeReaderResult<TValue>> ReadAsync(
+		IContext context,
+		ReadOnlyMemory<string> input);
 }

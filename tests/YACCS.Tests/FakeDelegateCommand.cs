@@ -1,10 +1,9 @@
 ﻿using YACCS.Commands.Models;
 
-namespace YACCS.Tests
+namespace YACCS.Tests;
+
+public static class FakeDelegateCommand
 {
-	public static class FakeDelegateCommand
-	{
-		public static DelegateCommand New(Type? contextType = null)
-			=> new((Action)(static () => { }), Array.Empty<ImmutablePath>(), contextType);
-	}
+	public static DelegateCommand New(Type? contextType = null)
+		=> new(static () => { }, Array.Empty<ImmutablePath>(), contextType);
 }

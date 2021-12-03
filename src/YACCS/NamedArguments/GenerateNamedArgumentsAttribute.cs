@@ -4,43 +4,42 @@ using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.TypeReaders;
 
-namespace YACCS.NamedArguments
+namespace YACCS.NamedArguments;
+
+/// <summary>
+/// Specifies how to generate commands/type readers and modify parameters for
+/// named arguments.
+/// </summary>
+[AttributeUsage(AttributeUtils.COMMANDS | AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = false)]
+public sealed class GenerateNamedArgumentsAttribute : Attribute,
+	ICommandGeneratorAttribute,
+	IParameterModifierAttribute,
+	ITypeReaderGeneratorAttribute
 {
 	/// <summary>
-	/// Specifies how to generate commands/type readers and modify parameters for
-	/// named arguments.
+	/// The amount to lower priority for creating a <see cref="NamedArgumentsCommand"/>.
 	/// </summary>
-	[AttributeUsage(AttributeUtils.COMMANDS | AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = false)]
-	public sealed class GenerateNamedArgumentsAttribute : Attribute,
-		ICommandGeneratorAttribute,
-		IParameterModifierAttribute,
-		ITypeReaderGeneratorAttribute
+	public int PriorityDifference { get; set; } = 1;
+
+	/// <inheritdoc />
+	public ValueTask<IEnumerable<IImmutableCommand>> GenerateCommandsAsync(
+		IServiceProvider services,
+		IImmutableCommand source)
+		=> new(new[] { new NamedArgumentsCommand(source, PriorityDifference) });
+
+	/// <inheritdoc />
+	public ITypeReader GenerateTypeReader(Type type)
 	{
-		/// <summary>
-		/// The amount to lower priority for creating a <see cref="NamedArgumentsCommand"/>.
-		/// </summary>
-		public int PriorityDifference { get; set; } = 1;
+		var readerType = typeof(NamedArgumentsTypeReader<>).MakeGenericType(type);
+		return readerType.CreateInstance<ITypeReader>();
+	}
 
-		/// <inheritdoc />
-		public ValueTask<IEnumerable<IImmutableCommand>> GenerateCommandsAsync(
-			IServiceProvider services,
-			IImmutableCommand source)
-			=> new(new[] { new NamedArgumentsCommand(source, PriorityDifference) });
-
-		/// <inheritdoc />
-		public ITypeReader GenerateTypeReader(Type type)
-		{
-			var readerType = typeof(NamedArgumentsTypeReader<>).MakeGenericType(type);
-			return readerType.CreateInstance<ITypeReader>();
-		}
-
-		/// <inheritdoc />
-		public void ModifyParameter(IParameter parameter)
-		{
-			var pType = parameter.ParameterType;
-			var ppType = typeof(NamedArgumentsParameterPrecondition<>).MakeGenericType(pType);
-			parameter.Attributes.Add(Activator.CreateInstance(ppType));
-			parameter.MarkAsRemainder();
-		}
+	/// <inheritdoc />
+	public void ModifyParameter(IParameter parameter)
+	{
+		var pType = parameter.ParameterType;
+		var ppType = typeof(NamedArgumentsParameterPrecondition<>).MakeGenericType(pType);
+		parameter.Attributes.Add(Activator.CreateInstance(ppType));
+		parameter.MarkAsRemainder();
 	}
 }

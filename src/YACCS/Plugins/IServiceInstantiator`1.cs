@@ -1,9 +1,8 @@
-﻿namespace YACCS.CommandAssemblies
+﻿namespace YACCS.CommandAssemblies;
+
+/// <inheritdoc />
+public interface IServiceInstantiator<T> : IServiceInstantiator
 {
-	/// <inheritdoc />
-	public interface IServiceInstantiator<T> : IServiceInstantiator
-	{
-		/// <inheritdoc cref="IServiceInstantiator.AddServicesAsync(object)"/>
-		Task AddServicesAsync(T services);
-	}
+	/// <inheritdoc cref="IServiceInstantiator.AddServicesAsync(object)"/>
+	Task AddServicesAsync(T services);
 }

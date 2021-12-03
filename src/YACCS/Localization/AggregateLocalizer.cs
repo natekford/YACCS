@@ -1,66 +1,65 @@
 ﻿using System.Globalization;
 
-namespace YACCS.Localization
+namespace YACCS.Localization;
+
+/// <summary>
+/// Combines multiple <see cref="ILocalizer"/> into one.
+/// </summary>
+public class AggregateLocalizer : ILocalizer
 {
+	private readonly List<ILocalizer> _NestedLocalizers = new();
+
 	/// <summary>
-	/// Combines multiple <see cref="ILocalizer"/> into one.
+	/// Whether or not there are any localizers inside this one.
 	/// </summary>
-	public class AggregateLocalizer : ILocalizer
+	public bool IsEmpty => _NestedLocalizers.Count == 0;
+
+	/// <summary>
+	/// Fires when a key isn't found in any of the localizers.
+	/// </summary>
+	public event Action<string, CultureInfo>? KeyNotFound;
+
+	/// <summary>
+	/// Adds <paramref name="localizer"/> to the end of the list.
+	/// </summary>
+	/// <param name="localizer">The localizer to add.</param>
+	public void Append(ILocalizer localizer)
 	{
-		private readonly List<ILocalizer> _NestedLocalizers = new();
-
-		/// <summary>
-		/// Whether or not there are any localizers inside this one.
-		/// </summary>
-		public bool IsEmpty => _NestedLocalizers.Count == 0;
-
-		/// <summary>
-		/// Fires when a key isn't found in any of the localizers.
-		/// </summary>
-		public event Action<string, CultureInfo>? KeyNotFound;
-
-		/// <summary>
-		/// Adds <paramref name="localizer"/> to the end of the list.
-		/// </summary>
-		/// <param name="localizer">The localizer to add.</param>
-		public void Append(ILocalizer localizer)
+		lock (_NestedLocalizers)
 		{
-			lock (_NestedLocalizers)
-			{
-				_NestedLocalizers.Add(localizer);
-			}
+			_NestedLocalizers.Add(localizer);
 		}
+	}
 
-		/// <inheritdoc />
-		public string? Get(string key, CultureInfo? culture = null)
+	/// <inheritdoc />
+	public string? Get(string key, CultureInfo? culture = null)
+	{
+		culture ??= CultureInfo.CurrentUICulture;
+
+		lock (_NestedLocalizers)
 		{
-			culture ??= CultureInfo.CurrentUICulture;
-
-			lock (_NestedLocalizers)
+			foreach (var localizer in _NestedLocalizers)
 			{
-				foreach (var localizer in _NestedLocalizers)
+				if (localizer.Get(key, culture) is string s)
 				{
-					if (localizer.Get(key, culture) is string s)
-					{
-						return s;
-					}
+					return s;
 				}
 			}
-
-			KeyNotFound?.Invoke(key, culture);
-			return null;
 		}
 
-		/// <summary>
-		/// Adds <paramref name="localizer"/> to the beginning of the list.
-		/// </summary>
-		/// <param name="localizer">The localizer to add.</param>
-		public void Prepend(ILocalizer localizer)
+		KeyNotFound?.Invoke(key, culture);
+		return null;
+	}
+
+	/// <summary>
+	/// Adds <paramref name="localizer"/> to the beginning of the list.
+	/// </summary>
+	/// <param name="localizer">The localizer to add.</param>
+	public void Prepend(ILocalizer localizer)
+	{
+		lock (_NestedLocalizers)
 		{
-			lock (_NestedLocalizers)
-			{
-				_NestedLocalizers.Insert(0, localizer);
-			}
+			_NestedLocalizers.Insert(0, localizer);
 		}
 	}
 }

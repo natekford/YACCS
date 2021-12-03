@@ -1,40 +1,39 @@
-﻿namespace YACCS.TypeReaders
+﻿namespace YACCS.TypeReaders;
+
+/// <summary>
+/// Parses a <see cref="Uri"/>.
+/// </summary>
+public class UriTypeReader : TryParseTypeReader<Uri>
 {
 	/// <summary>
-	/// Parses a <see cref="Uri"/>.
+	/// Creates a new <see cref="UriTypeReader"/>.
 	/// </summary>
-	public class UriTypeReader : TryParseTypeReader<Uri>
+	public UriTypeReader() : base(TryParse)
 	{
-		/// <summary>
-		/// Creates a new <see cref="UriTypeReader"/>.
-		/// </summary>
-		public UriTypeReader() : base(TryParse)
+	}
+
+	private static bool TryParse(string s, out Uri result)
+	{
+		if (string.IsNullOrWhiteSpace(s))
 		{
+			result = null!;
+			return false;
 		}
 
-		private static bool TryParse(string s, out Uri result)
+		try
 		{
-			if (string.IsNullOrWhiteSpace(s))
+			if (s.StartsWith('<') && s.EndsWith('>'))
 			{
-				result = null!;
-				return false;
+				s = s[1..^1];
 			}
 
-			try
-			{
-				if (s.StartsWith('<') && s.EndsWith('>'))
-				{
-					s = s[1..^1];
-				}
-
-				result = new(s);
-				return true;
-			}
-			catch
-			{
-				result = null!;
-				return false;
-			}
+			result = new(s);
+			return true;
+		}
+		catch
+		{
+			result = null!;
+			return false;
 		}
 	}
 }

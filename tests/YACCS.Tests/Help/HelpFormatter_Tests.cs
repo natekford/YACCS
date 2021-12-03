@@ -11,21 +11,21 @@ using YACCS.Help.Attributes;
 using YACCS.Preconditions;
 using YACCS.Results;
 
-namespace YACCS.Tests.Help
+namespace YACCS.Tests.Help;
+
+[TestClass]
+public class HelpFormatter_Tests
 {
-	[TestClass]
-	public class HelpFormatter_Tests
+	[TestMethod]
+	public async Task Format_Test()
 	{
-		[TestMethod]
-		public async Task Format_Test()
-		{
-			var (commandService, formatter, context) = await CreateAsync().ConfigureAwait(false);
+		var (commandService, formatter, context) = await CreateAsync().ConfigureAwait(false);
 
-			var command = commandService.Commands.ById(CommandGroup.ID).Single();
-			var output = await formatter.FormatAsync(context, command).ConfigureAwait(false);
-			const char TRAILING = ' ';
+		var command = commandService.Commands.ById(CommandGroup.ID).Single();
+		var output = await formatter.FormatAsync(context, command).ConfigureAwait(false);
+		const char TRAILING = ' ';
 
-			var expected =
+		var expected =
 @$"Names: {nameof(CommandGroup.Throws)}
 Summary: {CommandGroup.COMMAND_SUMMARY}
 
@@ -48,177 +48,176 @@ Parameters:{TRAILING}
 		{LessThanOrEqualTo100.SUMMARY}
 
 ";
-			var length = Math.Max(expected.Length, output.Length);
-			var sb = new StringBuilder(length);
-			for (var i = 0; i < length; ++i)
-			{
-				Assert.IsTrue(expected.Length > i, "Expected is shorter.");
-				Assert.IsTrue(output.Length > i, "Output is shorter.");
-				Assert.AreEqual(expected[i], output[i], $"Different characters at index {i}. Value at that point:\n{sb}");
-				sb.Append(expected[i]);
-			}
-		}
-
-		[TestMethod]
-		public void FormatterFormattable_Test()
+		var length = Math.Max(expected.Length, output.Length);
+		var sb = new StringBuilder(length);
+		for (var i = 0; i < length; ++i)
 		{
-			var formatter = new TagFormatter();
-			var formattable = new FormattableJoe();
-			_ = formatter.Format("header", formattable, formatter);
-			_ = formatter.Format("key", formattable, formatter);
-			_ = formatter.Format("value", formattable, formatter);
-			Assert.IsFalse(formattable.HasBeenFormatted);
-			_ = formatter.Format("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", formattable, formatter);
-			Assert.IsTrue(formattable.HasBeenFormatted);
+			Assert.IsTrue(expected.Length > i, "Expected is shorter.");
+			Assert.IsTrue(output.Length > i, "Output is shorter.");
+			Assert.AreEqual(expected[i], output[i], $"Different characters at index {i}. Value at that point:\n{sb}");
+			sb.Append(expected[i]);
 		}
+	}
 
-		[TestMethod]
-		public void FormatterNoFormatOrFormattable_Test()
-			=> Assert.AreEqual("joe", Format<TagFormatter>($"{"joe":idklol}"));
+	[TestMethod]
+	public void FormatterFormattable_Test()
+	{
+		var formatter = new TagFormatter();
+		var formattable = new FormattableJoe();
+		_ = formatter.Format("header", formattable, formatter);
+		_ = formatter.Format("key", formattable, formatter);
+		_ = formatter.Format("value", formattable, formatter);
+		Assert.IsFalse(formattable.HasBeenFormatted);
+		_ = formatter.Format("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", formattable, formatter);
+		Assert.IsTrue(formattable.HasBeenFormatted);
+	}
 
-		[TestMethod]
-		public void FormatterNull_Test()
-			=> Assert.AreEqual(string.Empty, Format<TagFormatter>($"{null}"));
+	[TestMethod]
+	public void FormatterNoFormatOrFormattable_Test()
+		=> Assert.AreEqual("joe", Format<TagFormatter>($"{"joe":idklol}"));
 
-		[TestMethod]
-		public void MarkdownTagFormatterHeader_Test()
-			=> Assert.AreEqual("**joe**:", Format<MarkdownTagFormatter>($"{"joe":header}"));
+	[TestMethod]
+	public void FormatterNull_Test()
+		=> Assert.AreEqual(string.Empty, Format<TagFormatter>($"{null}"));
 
-		[TestMethod]
-		public void MarkdownTagFormatterKey_Test()
-			=> Assert.AreEqual("**joe** =", Format<MarkdownTagFormatter>($"{"joe":key}"));
+	[TestMethod]
+	public void MarkdownTagFormatterHeader_Test()
+		=> Assert.AreEqual("**joe**:", Format<MarkdownTagFormatter>($"{"joe":header}"));
 
-		[TestMethod]
-		public void MarkdownTagFormatterValue_Test()
-			=> Assert.AreEqual("`joe`", Format<MarkdownTagFormatter>($"{"joe":value}"));
+	[TestMethod]
+	public void MarkdownTagFormatterKey_Test()
+		=> Assert.AreEqual("**joe** =", Format<MarkdownTagFormatter>($"{"joe":key}"));
 
-		[TestMethod]
-		public void TagFormatterHeader_Test()
-			=> Assert.AreEqual("joe:", Format<TagFormatter>($"{"joe":header}"));
+	[TestMethod]
+	public void MarkdownTagFormatterValue_Test()
+		=> Assert.AreEqual("`joe`", Format<MarkdownTagFormatter>($"{"joe":value}"));
 
-		[TestMethod]
-		public void TagFormatterKey_Test()
-			=> Assert.AreEqual("joe =", Format<TagFormatter>($"{"joe":key}"));
+	[TestMethod]
+	public void TagFormatterHeader_Test()
+		=> Assert.AreEqual("joe:", Format<TagFormatter>($"{"joe":header}"));
 
-		[TestMethod]
-		public void TagFormatterValue_Test()
-			=> Assert.AreEqual("joe", Format<TagFormatter>($"{"joe":value}"));
+	[TestMethod]
+	public void TagFormatterKey_Test()
+		=> Assert.AreEqual("joe =", Format<TagFormatter>($"{"joe":key}"));
 
-		private static async ValueTask<(CommandService, HelpFormatter, FakeContext)> CreateAsync()
-		{
-			var context = new FakeContext();
-			var formatter = new HelpFormatter(new TypeNameRegistry(), new TagFormatter());
-			var commandService = context.Get<CommandService>();
-			var commands = typeof(CommandGroup).GetDirectCommandsAsync(context.Services);
-			await commandService.AddRangeAsync(commands).ConfigureAwait(false);
-			return (commandService, formatter, context);
-		}
+	[TestMethod]
+	public void TagFormatterValue_Test()
+		=> Assert.AreEqual("joe", Format<TagFormatter>($"{"joe":value}"));
 
-		private static string Format<T>(FormattableString formattable)
-			where T : TagFormatter, new()
-		{
-			var formatter = new T();
-			return formattable.ToString(formatter);
-		}
+	private static async ValueTask<(CommandService, HelpFormatter, FakeContext)> CreateAsync()
+	{
+		var context = new FakeContext();
+		var formatter = new HelpFormatter(new TypeNameRegistry(), new TagFormatter());
+		var commandService = context.Get<CommandService>();
+		var commands = typeof(CommandGroup).GetDirectCommandsAsync(context.Services);
+		await commandService.AddRangeAsync(commands).ConfigureAwait(false);
+		return (commandService, formatter, context);
+	}
 
-		private class CommandGroup : CommandGroup<IContext>
-		{
-			public const string COMMAND_SUMMARY = "Throws an exception if the passed in value is greater than 100.";
-			public const bool ENABLED_BY_DEFAULT = true;
-			public const string ID = "command_id";
-			public const string PARAMETER_SUMMARY = "The value to use.";
-			public const int PRIORITY = 2;
-			public const bool TOGGLEABLE = false;
+	private static string Format<T>(FormattableString formattable)
+		where T : TagFormatter, new()
+	{
+		var formatter = new T();
+		return formattable.ToString(formatter);
+	}
 
-			[Command(nameof(Throws))]
-			[EnabledByDefault(ENABLED_BY_DEFAULT, Toggleable = TOGGLEABLE)]
-			[Summary(COMMAND_SUMMARY)]
-			[Id(ID)]
-			[YACCS.Commands.Attributes.Priority(PRIORITY)]
-			[Cooldown]
-			public void Throws(
-				[LessThanOrEqualTo100]
+	private class CommandGroup : CommandGroup<IContext>
+	{
+		public const string COMMAND_SUMMARY = "Throws an exception if the passed in value is greater than 100.";
+		public const bool ENABLED_BY_DEFAULT = true;
+		public const string ID = "command_id";
+		public const string PARAMETER_SUMMARY = "The value to use.";
+		public const int PRIORITY = 2;
+		public const bool TOGGLEABLE = false;
+
+		[Command(nameof(Throws))]
+		[EnabledByDefault(ENABLED_BY_DEFAULT, Toggleable = TOGGLEABLE)]
+		[Summary(COMMAND_SUMMARY)]
+		[Id(ID)]
+		[YACCS.Commands.Attributes.Priority(PRIORITY)]
+		[Cooldown]
+		public void Throws(
+			[LessThanOrEqualTo100]
 				[Summary(PARAMETER_SUMMARY)]
 				int value)
+		{
+			if (value > 100)
 			{
-				if (value > 100)
-				{
-					throw new InvalidOperationException();
-				}
+				throw new InvalidOperationException();
 			}
 		}
+	}
 
-		[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
-		private class CooldownAttribute : Precondition<FakeContext>, IRuntimeFormattableAttribute
+	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
+	private class CooldownAttribute : Precondition<FakeContext>, IRuntimeFormattableAttribute
+	{
+		public const string OUTPUT = "ur on cooldown buddy";
+
+		public override async ValueTask<IResult> CheckAsync(
+			IImmutableCommand command,
+			FakeContext context)
 		{
-			public const string OUTPUT = "ur on cooldown buddy";
-
-			public override async ValueTask<IResult> CheckAsync(
-				IImmutableCommand command,
-				FakeContext context)
-			{
-				await Task.Delay(250).ConfigureAwait(false);
-				return new FailureResult(OUTPUT);
-			}
-
-			public async ValueTask<string> FormatAsync(
-				IContext context,
-				IFormatProvider? formatProvider = null)
-			{
-				await Task.Delay(250).ConfigureAwait(false);
-				return OUTPUT;
-			}
+			await Task.Delay(250).ConfigureAwait(false);
+			return new FailureResult(OUTPUT);
 		}
 
-		[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
-		private class EnabledByDefaultAttribute : Attribute, IRuntimeFormattableAttribute
+		public async ValueTask<string> FormatAsync(
+			IContext context,
+			IFormatProvider? formatProvider = null)
 		{
-			public const string ENABLED_BY_DEFAULT = "Enabled by default";
-			public const string TOGGLEABLE = "Toggleable";
+			await Task.Delay(250).ConfigureAwait(false);
+			return OUTPUT;
+		}
+	}
 
-			public bool EnabledByDefault { get; }
-			public bool Toggleable { get; set; }
+	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
+	private class EnabledByDefaultAttribute : Attribute, IRuntimeFormattableAttribute
+	{
+		public const string ENABLED_BY_DEFAULT = "Enabled by default";
+		public const string TOGGLEABLE = "Toggleable";
 
-			public EnabledByDefaultAttribute(bool enabledByDefault)
-			{
-				EnabledByDefault = enabledByDefault;
-			}
+		public bool EnabledByDefault { get; }
+		public bool Toggleable { get; set; }
 
-			public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
-			{
-				FormattableString @string = $"{ENABLED_BY_DEFAULT:key} {EnabledByDefault:value}{Environment.NewLine}{TOGGLEABLE:key} {Toggleable:value}";
-				return new(@string.ToString(formatProvider));
-			}
+		public EnabledByDefaultAttribute(bool enabledByDefault)
+		{
+			EnabledByDefault = enabledByDefault;
 		}
 
-		private class FormattableJoe : IFormattable
+		public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
 		{
-			public bool HasBeenFormatted { get; private set; }
-
-			public string ToString(string? format, IFormatProvider? formatProvider)
-			{
-				HasBeenFormatted = true;
-				return "joe";
-			}
+			FormattableString @string = $"{ENABLED_BY_DEFAULT:key} {EnabledByDefault:value}{Environment.NewLine}{TOGGLEABLE:key} {Toggleable:value}";
+			return new(@string.ToString(formatProvider));
 		}
+	}
 
-		[AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
-		[Summary(SUMMARY)]
-		private class LessThanOrEqualTo100 : ParameterPrecondition<IContext, int>
+	private class FormattableJoe : IFormattable
+	{
+		public bool HasBeenFormatted { get; private set; }
+
+		public string ToString(string? format, IFormatProvider? formatProvider)
 		{
-			public const string SUMMARY = "The passed in value is less than or equal to 100.";
+			HasBeenFormatted = true;
+			return "joe";
+		}
+	}
 
-			public override ValueTask<IResult> CheckAsync(
-				CommandMeta meta,
-				IContext context,
-				int value)
+	[AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
+	[Summary(SUMMARY)]
+	private class LessThanOrEqualTo100 : ParameterPrecondition<IContext, int>
+	{
+		public const string SUMMARY = "The passed in value is less than or equal to 100.";
+
+		public override ValueTask<IResult> CheckAsync(
+			CommandMeta meta,
+			IContext context,
+			int value)
+		{
+			if (value > 100)
 			{
-				if (value > 100)
-				{
-					return new(InvalidParameterResult.Instance);
-				}
-				return new(SuccessResult.Instance);
+				return new(InvalidParameterResult.Instance);
 			}
+			return new(SuccessResult.Instance);
 		}
 	}
 }

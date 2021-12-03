@@ -2,47 +2,46 @@
 
 using YACCS.Commands.Attributes;
 
-namespace YACCS.Commands.Building
+namespace YACCS.Commands.Building;
+
+/// <summary>
+/// Specifies what types a context must implement.
+/// </summary>
+[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = true, Inherited = true)]
+public sealed class ContextMustImplementAttribute : Attribute, IContextConstraint
 {
 	/// <summary>
-	/// Specifies what types a context must implement.
+	/// The types the context must implement.
 	/// </summary>
-	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = true, Inherited = true)]
-	public sealed class ContextMustImplementAttribute : Attribute, IContextConstraint
+	public IReadOnlyList<Type> Types { get; }
+
+	/// <inheritdoc cref="ContextMustImplementAttribute(IReadOnlyList{Type})"/>
+	public ContextMustImplementAttribute(params Type[] types)
+		: this(types.ToImmutableArray())
 	{
-		/// <summary>
-		/// The types the context must implement.
-		/// </summary>
-		public IReadOnlyList<Type> Types { get; }
+	}
 
-		/// <inheritdoc cref="ContextMustImplementAttribute(IReadOnlyList{Type})"/>
-		public ContextMustImplementAttribute(params Type[] types)
-			: this(types.ToImmutableArray())
-		{
-		}
+	/// <summary>
+	/// Creates a new <see cref="ContextMustImplementAttribute"/>.
+	/// </summary>
+	/// <param name="types">
+	/// <inheritdoc cref="Types" path="/summary"/>
+	/// </param>
+	public ContextMustImplementAttribute(IReadOnlyList<Type> types)
+	{
+		Types = types;
+	}
 
-		/// <summary>
-		/// Creates a new <see cref="ContextMustImplementAttribute"/>.
-		/// </summary>
-		/// <param name="types">
-		/// <inheritdoc cref="Types" path="/summary"/>
-		/// </param>
-		public ContextMustImplementAttribute(IReadOnlyList<Type> types)
+	/// <inheritdoc />
+	public bool DoesTypeSatisfy(Type context)
+	{
+		foreach (var constraint in Types)
 		{
-			Types = types;
-		}
-
-		/// <inheritdoc />
-		public bool DoesTypeSatisfy(Type context)
-		{
-			foreach (var constraint in Types)
+			if (!constraint.IsAssignableFrom(context))
 			{
-				if (!constraint.IsAssignableFrom(context))
-				{
-					return false;
-				}
+				return false;
 			}
-			return true;
 		}
+		return true;
 	}
 }

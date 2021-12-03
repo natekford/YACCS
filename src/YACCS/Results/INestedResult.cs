@@ -1,13 +1,12 @@
-﻿namespace YACCS.Results
+﻿namespace YACCS.Results;
+
+/// <summary>
+/// Defines an inner result so pattern matching can work.
+/// </summary>
+public interface INestedResult
 {
 	/// <summary>
-	/// Defines an inner result so pattern matching can work.
+	/// The actual result.
 	/// </summary>
-	public interface INestedResult
-	{
-		/// <summary>
-		/// The actual result.
-		/// </summary>
-		IResult InnerResult { get; }
-	}
+	IResult InnerResult { get; }
 }
