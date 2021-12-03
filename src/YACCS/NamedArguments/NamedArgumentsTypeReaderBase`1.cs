@@ -1,5 +1,4 @@
-﻿
-using MorseCode.ITask;
+﻿using MorseCode.ITask;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;

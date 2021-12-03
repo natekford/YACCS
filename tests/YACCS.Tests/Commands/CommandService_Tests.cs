@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using MorseCode.ITask;
+
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
@@ -371,8 +371,7 @@ public class CommandService_GetBestMatchAsync_Tests
 		{
 		}
 
-		var @delegate = (Action<int>)Delegate;
-		var commandBuilder = new DelegateCommand(@delegate, Array.Empty<ImmutablePath>(), typeof(FakeContext))
+		var commandBuilder = new DelegateCommand(Delegate, Array.Empty<ImmutablePath>(), typeof(FakeContext))
 			.AsContext<FakeContext>()
 			.AddPrecondition(new FakePrecondition(success))
 			.AddPrecondition(new WasIReachedPrecondition());
@@ -441,8 +440,7 @@ public class CommandService_ParameterPreconditions_Tests
 		{
 		}
 
-		var @delegate = (Action<int>)Delegate;
-		var commandBuilder = new DelegateCommand(@delegate, Array.Empty<ImmutablePath>());
+		var commandBuilder = new DelegateCommand(Delegate, Array.Empty<ImmutablePath>());
 		commandBuilder.Parameters[0]
 			.AsType<int>()
 			.AddParameterPrecondition(new FakeParameterPreconditionAttribute(disallowedValue))

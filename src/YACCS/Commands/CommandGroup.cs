@@ -9,8 +9,7 @@ using YACCS.Results;
 namespace YACCS.Commands;
 
 /// <inheritdoc cref="ICommandGroup{TContext}" />
-public abstract class CommandGroup<TContext>
-	: ICommandGroup<TContext>, IOnCommandBuilding
+public abstract class CommandGroup<TContext> : ICommandGroup<TContext>, IOnCommandBuilding
 	where TContext : IContext
 {
 	/// <summary>

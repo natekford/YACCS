@@ -1,5 +1,4 @@
-﻿
-using YACCS.Commands;
+﻿using YACCS.Commands;
 using YACCS.TypeReaders;
 
 namespace YACCS.Interactivity.Input;

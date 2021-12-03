@@ -1,8 +1,8 @@
-﻿using System.Reflection;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using MorseCode.ITask;
+
+using System.Reflection;
 
 using YACCS.Commands;
 using YACCS.Commands.Linq;

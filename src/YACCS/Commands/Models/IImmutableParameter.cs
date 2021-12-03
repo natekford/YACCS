@@ -1,5 +1,4 @@
-﻿
-using YACCS.Commands.Attributes;
+﻿using YACCS.Commands.Attributes;
 using YACCS.Preconditions;
 using YACCS.TypeReaders;
 

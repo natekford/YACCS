@@ -1,8 +1,8 @@
-﻿using System.Collections.Immutable;
+﻿using MorseCode.ITask;
+
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-
-using MorseCode.ITask;
 
 using YACCS.Commands.Models;
 
@@ -16,21 +16,21 @@ public static class TypeReaderUtils
 	// Don't deal with the non generic versions b/c how would we parse 'object'?
 	// HashSet<T> and its generic interfaces
 	private static ImmutableHashSet<Type> HashSetTypes { get; } = new HashSet<Type>
-		{
-			typeof(HashSet<>),
-			typeof(ISet<>),
-		}.ToImmutableHashSet();
+	{
+		typeof(HashSet<>),
+		typeof(ISet<>),
+	}.ToImmutableHashSet();
 
 	// List<T> and its generic interfaces
 	private static ImmutableHashSet<Type> ListTypes { get; } = new HashSet<Type>
-		{
-			typeof(List<>),
-			typeof(IList<>),
-			typeof(ICollection<>),
-			typeof(IEnumerable<>),
-			typeof(IReadOnlyList<>),
-			typeof(IReadOnlyCollection<>),
-		}.ToImmutableHashSet();
+	{
+		typeof(List<>),
+		typeof(IList<>),
+		typeof(ICollection<>),
+		typeof(IEnumerable<>),
+		typeof(IReadOnlyList<>),
+		typeof(IReadOnlyCollection<>),
+	}.ToImmutableHashSet();
 
 	/// <summary>
 	/// Converts <paramref name="result"/> to <see cref="ITask{TResult}"/>.

@@ -1,6 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Diagnostics.CodeAnalysis;
 
 using YACCS.Preconditions;
 using YACCS.Results;
@@ -75,17 +75,17 @@ public class ParameterPrecondition_Tests
 	}
 
 	[TestMethod]
-	public async Task SingleValueSuccess_Test()
-	{
-		var result = await _Precondition.CheckAsync(default, new FakeContext(), 1).ConfigureAwait(false);
-		Assert.IsTrue(result.IsSuccess);
-	}
-
-	[TestMethod]
 	public async Task SingleValueGenericValueSuccess_Test()
 	{
 		var precondition = (IParameterPrecondition<int?>)_Precondition;
 		var result = await precondition.CheckAsync(default, new FakeContext(), 1).ConfigureAwait(false);
+		Assert.IsTrue(result.IsSuccess);
+	}
+
+	[TestMethod]
+	public async Task SingleValueSuccess_Test()
+	{
+		var result = await _Precondition.CheckAsync(default, new FakeContext(), 1).ConfigureAwait(false);
 		Assert.IsTrue(result.IsSuccess);
 	}
 

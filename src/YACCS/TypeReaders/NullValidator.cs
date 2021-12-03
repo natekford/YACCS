@@ -54,12 +54,12 @@ public class NullValidator : INullValidator
 	protected static ISet<string> CreateSet()
 	{
 		return new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-			{
-				Keys.Nil,
-				Keys.Nothing,
-				Keys.Null,
-				Keys.NullPtr,
-				Keys.Void,
-			};
+		{
+			Keys.Nil,
+			Keys.Nothing,
+			Keys.Null,
+			Keys.NullPtr,
+			Keys.Void,
+		};
 	}
 }

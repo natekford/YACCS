@@ -1,6 +1,6 @@
-﻿using System.Reflection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
-using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 using YACCS.Commands;
 using YACCS.Examples.Interactivity;

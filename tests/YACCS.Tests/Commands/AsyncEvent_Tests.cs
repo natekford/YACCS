@@ -1,6 +1,6 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.ComponentModel;
 
 namespace YACCS.Tests.Commands;
 

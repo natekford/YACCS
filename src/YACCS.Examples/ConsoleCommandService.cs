@@ -58,9 +58,8 @@ public sealed class ConsoleCommandService : CommandServiceBase
 		static int Add(int a, int b)
 			=> a + b;
 
-		var @delegate = (Func<int, int, int>)Add;
 		var paths = new[] { ImmutablePath.New(nameof(Add)) };
-		var add = new DelegateCommand(@delegate, paths);
+		var add = new DelegateCommand(Add, paths);
 		await foreach (var command in add.ToMultipleImmutableAsync(_Services))
 		{
 			Commands.Add(command);

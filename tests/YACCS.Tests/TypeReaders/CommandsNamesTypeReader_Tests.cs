@@ -8,8 +8,8 @@ using YACCS.TypeReaders;
 namespace YACCS.Tests.TypeReaders;
 
 [TestClass]
-public class CommandsNamesTypeReader_Tests
-	: TypeReader_Tests<IReadOnlyCollection<IImmutableCommand>>
+public class CommandsNamesTypeReader_Tests :
+	TypeReader_Tests<IReadOnlyCollection<IImmutableCommand>>
 {
 	public override ITypeReader<IReadOnlyCollection<IImmutableCommand>> Reader { get; }
 		= new CommandsNameTypeReader();

@@ -177,8 +177,7 @@ public class CommandTrie_Tests
 		Assert.AreEqual(1, _Trie.Root["b"].GetAllDistinctItems().Count);
 		Assert.IsTrue(_Trie.Contains(c3));
 
-		var @delegate = (Action<string>)(x => { });
-		var c4 = new DelegateCommand(@delegate, new[] { new[] { "a" } })
+		var c4 = new DelegateCommand((string x) => { }, new[] { new[] { "a" } })
 			.AddAttribute(new IdAttribute(DUPE_ID))
 			.ToImmutable();
 		_Trie.Add(c4);
@@ -255,8 +254,7 @@ public class CommandTrie_Tests
 		{
 		}
 
-		var @delegate = (Action<string>)Delegate;
-		var command = new DelegateCommand(@delegate, new[] { new[] { "joe" } }, typeof(FakeContext));
+		var command = new DelegateCommand(Delegate, new[] { new[] { "joe" } }, typeof(FakeContext));
 		command.Parameters[0].TypeReader = new TestTypeReader(typeof(OtherContext));
 		Assert.ThrowsException<ArgumentException>(() =>
 		{

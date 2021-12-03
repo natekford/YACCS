@@ -1,6 +1,6 @@
-﻿using System.Text;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Text;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;

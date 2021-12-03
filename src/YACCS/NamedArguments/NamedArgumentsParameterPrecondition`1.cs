@@ -8,8 +8,8 @@ namespace YACCS.NamedArguments;
 /// Validates every property for the instance of <typeparamref name="T"/> passed in.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed class NamedArgumentsParameterPrecondition<T>
-	: NamedArgumentsParameterPreconditionBase<T>
+public sealed class NamedArgumentsParameterPrecondition<T> :
+	NamedArgumentsParameterPreconditionBase<T>
 {
 	private static readonly object NotFound = new();
 	private readonly Func<T, string, object> _Getter;
@@ -57,12 +57,12 @@ public sealed class NamedArgumentsParameterPrecondition<T>
 		var returnLabel = Expression.Label(typeof(object));
 		var getters = typeof(T).SelectWritableMembers(instance, access =>
 		{
-				// If Name == memberInfo.Name
-				var memberName = Expression.Constant(access.Member.Name);
+			// If Name == memberInfo.Name
+			var memberName = Expression.Constant(access.Member.Name);
 			var isMember = Expression.Equal(memberName, name);
 
-				// Then get member and return
-				var cast = Expression.Convert(access, typeof(object));
+			// Then get member and return
+			var cast = Expression.Convert(access, typeof(object));
 			var @return = Expression.Return(returnLabel, cast);
 
 			return Expression.IfThen(isMember, @return);

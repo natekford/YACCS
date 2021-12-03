@@ -1,13 +1,11 @@
-﻿
-using YACCS.Commands;
+﻿using YACCS.Commands;
 using YACCS.Preconditions;
 using YACCS.TypeReaders;
 
 namespace YACCS.Interactivity.Input;
 
 /// <inheritdoc cref="IInputOptions{TContext, TInput, TValue}"/>
-public class InputOptions<TContext, TInput, TValue>
-	: IInputOptions<TContext, TInput, TValue>
+public class InputOptions<TContext, TInput, TValue> : IInputOptions<TContext, TInput, TValue>
 	where TContext : IContext
 {
 	/// <inheritdoc />

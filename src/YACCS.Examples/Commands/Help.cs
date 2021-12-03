@@ -26,8 +26,8 @@ public class Help : ConsoleCommands
 	[Command(nameof(Category))]
 	public Task<IResult> Category(
 		[CommandsCategoryTypeReader]
-			[Remainder]
-			IReadOnlyCollection<IImmutableCommand> commands)
+		[Remainder]
+		IReadOnlyCollection<IImmutableCommand> commands)
 		=> HelpCommand(commands);
 
 	[Command]
@@ -37,8 +37,8 @@ public class Help : ConsoleCommands
 	[Command]
 	public async Task<IResult> HelpCommand(
 		[CommandsNameTypeReader]
-			[Remainder]
-			IReadOnlyCollection<IImmutableCommand> commands)
+		[Remainder]
+		IReadOnlyCollection<IImmutableCommand> commands)
 	{
 		var executableCommands = new List<IImmutableCommand>(commands.Count);
 		foreach (var c in commands.Where(x => !x.IsHidden && x.Source is null))

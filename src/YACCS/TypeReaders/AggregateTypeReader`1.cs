@@ -1,6 +1,6 @@
-﻿using System.Collections.Immutable;
+﻿using MorseCode.ITask;
 
-using MorseCode.ITask;
+using System.Collections.Immutable;
 
 using YACCS.Commands;
 using YACCS.Results;

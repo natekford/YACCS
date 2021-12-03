@@ -1,6 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using MorseCode.ITask;
 
-using MorseCode.ITask;
+using System.Diagnostics.CodeAnalysis;
 
 using YACCS.Commands;
 using YACCS.Parsing;

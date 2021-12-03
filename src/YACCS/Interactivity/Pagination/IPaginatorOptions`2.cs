@@ -1,5 +1,4 @@
-﻿
-using YACCS.Commands;
+﻿using YACCS.Commands;
 
 namespace YACCS.Interactivity.Pagination;
 
@@ -8,8 +7,8 @@ namespace YACCS.Interactivity.Pagination;
 /// </summary>
 /// <typeparam name="TContext"></typeparam>
 /// <typeparam name="TInput"></typeparam>
-public interface IPaginatorOptions<in TContext, in TInput>
-	: IInteractivityOptions<TContext, TInput>
+public interface IPaginatorOptions<in TContext, in TInput> :
+	IInteractivityOptions<TContext, TInput>
 	where TContext : IContext
 {
 	/// <summary>

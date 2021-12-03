@@ -1,5 +1,4 @@
-﻿
-using YACCS.Commands.Attributes;
+﻿using YACCS.Commands.Attributes;
 using YACCS.Help.Attributes;
 
 namespace YACCS.Help.Models;

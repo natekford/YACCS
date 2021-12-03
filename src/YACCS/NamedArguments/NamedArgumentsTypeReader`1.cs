@@ -59,12 +59,12 @@ public sealed class NamedArgumentsTypeReader<T> : NamedArgumentsTypeReaderBase<T
 		var returnLabel = Expression.Label();
 		var setters = typeof(T).SelectWritableMembers(instance, access =>
 		{
-				// If Name == memberInfo.Name
-				var memberName = Expression.Constant(access.Member.Name);
+			// If Name == memberInfo.Name
+			var memberName = Expression.Constant(access.Member.Name);
 			var isMember = Expression.Equal(memberName, name);
 
-				// Then set member and return
-				var valueCast = Expression.Convert(value, access.Type);
+			// Then set member and return
+			var valueCast = Expression.Convert(value, access.Type);
 			var assign = Expression.Assign(access, valueCast);
 			var @return = Expression.Return(returnLabel);
 			var body = Expression.Block(assign, @return);

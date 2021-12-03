@@ -8,8 +8,8 @@ namespace YACCS.Preconditions.InUse;
 /// The base class for an in use parameter precondition attribute.
 /// </summary>
 [AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
-public abstract class InUseParameterPrecondition<TContext, TValue>
-	: ParameterPrecondition<TContext, TValue>
+public abstract class InUseParameterPrecondition<TContext, TValue> :
+	ParameterPrecondition<TContext, TValue>
 	where TContext : IContext
 {
 	/// <summary>

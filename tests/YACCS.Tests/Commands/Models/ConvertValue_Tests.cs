@@ -12,13 +12,16 @@ public class ConvertValue_Tests
 	public async Task Result_Test()
 	{
 		var value = 0;
-		var @delegate = (Func<IResult>)(() => { ++value; return new ValueResult(value); });
-		var command = new DelegateCommand(@delegate, Array.Empty<ImmutablePath>()).ToImmutable();
+		var command = new DelegateCommand(() =>
+		{
+			++value;
+			return new ValueResult(value);
+		}, Array.Empty<ImmutablePath>()).ToImmutable();
 		var results = new[]
 		{
-				await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
-				await command.ExecuteAsync(null!, Array.Empty<object>()).ConfigureAwait(false),
-			};
+			await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
+			await command.ExecuteAsync(null!, Array.Empty<object>()).ConfigureAwait(false),
+		};
 
 		Assert.AreEqual(2, value);
 		for (var i = 0; i < results.Length; ++i)
@@ -35,13 +38,16 @@ public class ConvertValue_Tests
 	public async Task Task_Test()
 	{
 		var value = 0;
-		var @delegate = (Func<Task>)(() => { ++value; return Task.CompletedTask; });
-		var command = new DelegateCommand(@delegate, Array.Empty<ImmutablePath>()).ToImmutable();
+		var command = new DelegateCommand(() =>
+		{
+			++value;
+			return Task.CompletedTask;
+		}, Array.Empty<ImmutablePath>()).ToImmutable();
 		var results = new[]
 		{
-				await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
-				await command.ExecuteAsync(null!, Array.Empty<object>()).ConfigureAwait(false),
-			};
+			await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
+			await command.ExecuteAsync(null!, Array.Empty<object>()).ConfigureAwait(false),
+		};
 
 		Assert.AreEqual(2, value);
 		foreach (var result in results)
@@ -55,13 +61,16 @@ public class ConvertValue_Tests
 	public async Task TaskWithValue_Test()
 	{
 		var value = 0;
-		var @delegate = (Func<Task<int>>)(() => { ++value; return Task.FromResult(value); });
-		var command = new DelegateCommand(@delegate, Array.Empty<ImmutablePath>()).ToImmutable();
+		var command = new DelegateCommand(() =>
+		{
+			++value;
+			return Task.FromResult(value);
+		}, Array.Empty<ImmutablePath>()).ToImmutable();
 		var results = new[]
 		{
-				await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
-				await command.ExecuteAsync(null!, Array.Empty<object>()).ConfigureAwait(false),
-			};
+			await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
+			await command.ExecuteAsync(null!, Array.Empty<object>()).ConfigureAwait(false),
+		};
 
 		Assert.AreEqual(2, value);
 		for (var i = 0; i < results.Length; ++i)
@@ -78,13 +87,17 @@ public class ConvertValue_Tests
 	public async Task Void_Test()
 	{
 		var value = 0;
-		void @delegate() => ++value;
-		var command = new DelegateCommand((Action)@delegate, Array.Empty<ImmutablePath>()).ToImmutable();
+		var command = new DelegateCommand(() =>
+		{
+			++value;
+			// This can't be () => ++value otherwise it returns the value instead of
+			// being a void delegate
+		}, Array.Empty<ImmutablePath>()).ToImmutable();
 		var results = new[]
 		{
-				await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
-				await command.ExecuteAsync(null!, Array.Empty<object>()).ConfigureAwait(false),
-			};
+			await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
+			await command.ExecuteAsync(null!, Array.Empty<object>()).ConfigureAwait(false),
+		};
 
 		Assert.AreEqual(2, value);
 		foreach (var result in results)

@@ -22,6 +22,8 @@ public class UriTypeReader : TryParseTypeReader<Uri>
 
 		try
 		{
+			// This is specifically for Discord/maybe markdown in general
+			// Maybe remove?
 			if (s.StartsWith('<') && s.EndsWith('>'))
 			{
 				s = s[1..^1];

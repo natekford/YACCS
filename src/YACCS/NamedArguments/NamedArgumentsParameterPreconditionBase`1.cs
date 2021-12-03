@@ -9,8 +9,8 @@ namespace YACCS.NamedArguments;
 /// The base class for a named arguments parameter precondition.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class NamedArgumentsParameterPreconditionBase<T>
-	: ParameterPrecondition<IContext, T>
+public abstract class NamedArgumentsParameterPreconditionBase<T> :
+	ParameterPrecondition<IContext, T>
 {
 	/// <summary>
 	/// The parameters this precondition expects.

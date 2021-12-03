@@ -18,13 +18,13 @@ public sealed class ConsoleInteractivityManager
 		// Run in the background, treat this like an event
 		_ = Task.Run(async () =>
 		{
-				// Only keep the loop going when not canceled
-				while (!source.IsCancellationRequested)
+			// Only keep the loop going when not canceled
+			while (!source.IsCancellationRequested)
 			{
 				var input = await _Console.ReadLineAsync(source.Token).ConfigureAwait(false);
-					// Even though we have the loop condition already checking this,
-					// check it again so we don't invoke the delegate after timeout/cancel
-					if (source.IsCancellationRequested)
+				// Even though we have the loop condition already checking this,
+				// check it again so we don't invoke the delegate after timeout/cancel
+				if (source.IsCancellationRequested)
 				{
 					return;
 				}
@@ -39,8 +39,8 @@ public sealed class ConsoleInteractivityManager
 					return;
 				}
 
-					// Since it's not InteractionEnded, we can print it out safely
-					_Console.WriteResult(result);
+				// Since it's not InteractionEnded, we can print it out safely
+				_Console.WriteResult(result);
 			}
 		}, source.Token);
 

@@ -1,7 +1,7 @@
-﻿using System.Collections.Immutable;
-
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using System.Collections.Immutable;
 
 using YACCS.TypeReaders;
 

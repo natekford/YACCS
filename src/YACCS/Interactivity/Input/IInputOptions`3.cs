@@ -1,5 +1,4 @@
-﻿
-using YACCS.Commands;
+﻿using YACCS.Commands;
 using YACCS.Preconditions;
 using YACCS.TypeReaders;
 
@@ -11,8 +10,8 @@ namespace YACCS.Interactivity.Input;
 /// <typeparam name="TContext"></typeparam>
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TValue"></typeparam>
-public interface IInputOptions<in TContext, in TInput, TValue>
-	: IInteractivityOptions<TContext, TInput>
+public interface IInputOptions<in TContext, in TInput, TValue> :
+	IInteractivityOptions<TContext, TInput>
 	where TContext : IContext
 {
 	/// <summary>

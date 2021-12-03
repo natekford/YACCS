@@ -1,5 +1,4 @@
-﻿
-using YACCS.Help;
+﻿using YACCS.Help;
 using YACCS.Help.Attributes;
 using YACCS.Localization;
 

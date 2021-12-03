@@ -12,8 +12,8 @@ namespace YACCS.Preconditions;
 /// <typeparam name="TContext"></typeparam>
 /// <typeparam name="TValue"></typeparam>
 [AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
-public abstract class ParameterPrecondition<TContext, TValue>
-	: GroupablePrecondition, IParameterPrecondition<TContext, TValue>
+public abstract class ParameterPrecondition<TContext, TValue> :
+	GroupablePrecondition, IParameterPrecondition<TContext, TValue>
 	where TContext : IContext
 {
 	/// <inheritdoc />
@@ -55,7 +55,7 @@ public abstract class ParameterPrecondition<TContext, TValue>
 		// If the value passed in is null, let CheckAsync deal with it
 		if (value is null)
 		{
-			return CheckAsync(meta, tContext, default(TValue)!);
+			return CheckAsync(meta, tContext, default!);
 		}
 		// Not sure if this is the best way of dealing with IEnumerables
 		//

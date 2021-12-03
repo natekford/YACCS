@@ -14,11 +14,11 @@ public abstract class Trie<TKey, TValue> : ITrie<TKey, TValue>
 	private readonly Node _Root;
 
 	/// <inheritdoc />
+	public int Count => _Items.Count;
+	/// <inheritdoc />
 	public bool IsReadOnly => false;
 	/// <inheritdoc />
 	public INode<TKey, TValue> Root => _Root;
-	/// <inheritdoc />
-	public int Count => _Items.Count;
 	private string DebuggerDisplay => $"Count = {Count}";
 
 	/// <summary>

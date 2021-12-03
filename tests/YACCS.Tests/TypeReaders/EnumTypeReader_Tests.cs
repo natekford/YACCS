@@ -1,6 +1,6 @@
-﻿using System.Reflection;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Reflection;
 
 using YACCS.TypeReaders;
 

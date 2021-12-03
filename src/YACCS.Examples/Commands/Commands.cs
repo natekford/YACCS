@@ -25,10 +25,10 @@ public class Commands : ConsoleCommands
 	[GenerateNamedArguments]
 	public int Divide(
 		[Summary("The number being divided.")]
-			int numerator,
+		int numerator,
 		[Summary("The number to divide by.")]
-			[NotZero]
-			int divisor)
+		[NotZero]
+		int divisor)
 		=> numerator / divisor;
 
 	[Command(nameof(Echo), "E")]
@@ -83,7 +83,7 @@ public class Commands : ConsoleCommands
 	[Summary("Prints out the current time in UTC, optionally converted to a specified timezone.")]
 	public string Time(
 		[Summary("The timezone to convert to, no input means UTC.")]
-			TimeZoneInfo? timeZone = null)
+		TimeZoneInfo? timeZone = null)
 	{
 		var time = DateTime.UtcNow;
 		if (timeZone is not null)

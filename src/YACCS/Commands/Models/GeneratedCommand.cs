@@ -14,10 +14,7 @@ public abstract class GeneratedCommand : IImmutableCommand
 	private readonly int _PriorityDifference;
 
 	/// <inheritdoc />
-	public IImmutableCommand Source { get; }
-	/// <inheritdoc />
 	public virtual IReadOnlyList<object> Attributes => Source.Attributes;
-	IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 	/// <inheritdoc />
 	public virtual Type ContextType => Source.ContextType;
 	/// <inheritdoc />
@@ -28,16 +25,19 @@ public abstract class GeneratedCommand : IImmutableCommand
 	public virtual int MinLength => Source.MinLength;
 	/// <inheritdoc />
 	public virtual IReadOnlyList<IImmutableParameter> Parameters => Source.Parameters;
-	IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
 	/// <inheritdoc />
 	public virtual IReadOnlyList<IReadOnlyList<string>> Paths => Source.Paths;
-	IEnumerable<IReadOnlyList<string>> IQueryableCommand.Paths => Paths;
 	/// <inheritdoc />
 	public virtual IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions => Source.Preconditions;
 	/// <inheritdoc />
 	public virtual string PrimaryId => Source.PrimaryId;
 	/// <inheritdoc />
 	public virtual int Priority => Source.Priority - _PriorityDifference;
+	/// <inheritdoc />
+	public IImmutableCommand Source { get; }
+	IEnumerable<object> IQueryableEntity.Attributes => Attributes;
+	IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
+	IEnumerable<IReadOnlyList<string>> IQueryableCommand.Paths => Paths;
 	private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 	/// <summary>

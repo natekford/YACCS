@@ -13,8 +13,8 @@ namespace YACCS.Interactivity.Input;
 /// </summary>
 /// <typeparam name="TContext"></typeparam>
 /// <typeparam name="TInput"></typeparam>
-public abstract class Input<TContext, TInput>
-	: Interactivity<TContext, TInput>, IInput<TContext, TInput>
+public abstract class Input<TContext, TInput> :
+	Interactivity<TContext, TInput>, IInput<TContext, TInput>
 	where TContext : IContext
 {
 	/// <summary>

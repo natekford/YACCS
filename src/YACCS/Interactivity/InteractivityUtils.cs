@@ -1,5 +1,4 @@
-﻿
-using YACCS.Commands;
+﻿using YACCS.Commands;
 using YACCS.Interactivity.Input;
 using YACCS.Interactivity.Pagination;
 using YACCS.Preconditions;

@@ -10,8 +10,8 @@ namespace YACCS.Preconditions;
 /// </summary>
 /// <typeparam name="TContext"></typeparam>
 [AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
-public abstract class Precondition<TContext>
-	: GroupablePrecondition, IPrecondition<TContext>
+public abstract class Precondition<TContext> :
+	GroupablePrecondition, IPrecondition<TContext>
 	where TContext : IContext
 {
 	private static Task InvalidContext { get; }

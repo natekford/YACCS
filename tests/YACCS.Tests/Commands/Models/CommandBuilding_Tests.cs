@@ -16,6 +16,8 @@ namespace YACCS.Tests.Commands.Models;
 [TestClass]
 public class CommandBuilding_Tests
 {
+	private static string[][] Paths { get; } = new[] { new[] { "Joe" } };
+
 	[TestMethod]
 	public async Task CommandBuildingThrowWhenGenericTypeDefinitions_Test()
 	{
@@ -49,16 +51,14 @@ public class CommandBuilding_Tests
 	[TestMethod]
 	public async Task CommandDelegateBuilding_Test()
 	{
-		var @delegate = (Func<IContext, bool>)((IContext arg) => true);
-		var paths = new[] { new[] { "Joe" } };
-		var command = new DelegateCommand(@delegate, paths);
-		var immutable = command.ToImmutable();
-		Assert.AreEqual(paths.Length, command.Paths.Count);
-		Assert.AreEqual(paths[0], command.Paths[0]);
+		var command = new DelegateCommand((IContext arg) => true, Paths);
+		Assert.AreEqual(Paths.Length, command.Paths.Count);
+		Assert.AreEqual(Paths[0], command.Paths[0]);
 		Assert.AreEqual(1, command.Parameters.Count);
 		Assert.AreEqual(1, command.Attributes.Count);
 		Assert.IsInstanceOfType(command.Attributes[0], typeof(Delegate));
 
+		var immutable = command.ToImmutable();
 		var args = new object[] { new FakeContext() };
 		var result = await immutable.ExecuteAsync(null!, args).ConfigureAwait(false);
 		Assert.IsTrue(result.IsSuccess);
@@ -108,10 +108,7 @@ public class CommandBuilding_Tests
 		{
 		}
 
-		var @delegate = (Action<string>)Delegate;
-		var paths = new[] { new[] { "Joe" } };
-		var command = new DelegateCommand(@delegate, paths);
-		var immutable = command.ToImmutable();
+		var immutable = new DelegateCommand(Delegate, Paths).ToImmutable();
 		Assert.AreEqual(1, immutable.Parameters.Count);
 		Assert.IsInstanceOfType(immutable.Parameters[0].TypeReader, typeof(FakeTypeReader));
 	}
@@ -123,31 +120,26 @@ public class CommandBuilding_Tests
 		{
 		}
 
-		var @delegate = (Action<int>)Delegate;
-		var paths = new[] { new[] { "Joe" } };
-		var command = new DelegateCommand(@delegate, paths);
 		Assert.ThrowsException<ArgumentException>(() =>
 		{
-			_ = command.ToImmutable();
+			_ = new DelegateCommand(Delegate, Paths).ToImmutable();
 		});
 	}
 
 	[TestMethod]
 	public async Task StaticCommandDelegateBuilding_Test()
 	{
-		static bool Method(IContext arg) => true;
+		static bool Delegate(IContext arg) => true;
 
-		var @delegate = (Func<IContext, bool>)Method;
-		var paths = new[] { new[] { "Joe" } };
-		var command = new DelegateCommand(@delegate, paths);
-		var immutable = command.ToImmutable();
-		Assert.AreEqual(paths.Length, command.Paths.Count);
-		Assert.AreEqual(paths[0], command.Paths[0]);
+		var command = new DelegateCommand(Delegate, Paths);
+		Assert.AreEqual(Paths.Length, command.Paths.Count);
+		Assert.AreEqual(Paths[0], command.Paths[0]);
 		Assert.AreEqual(1, command.Parameters.Count);
 		Assert.AreEqual(2, command.Attributes.Count);
 		Assert.IsInstanceOfType(command.Attributes[0], typeof(CompilerGeneratedAttribute));
 		Assert.IsInstanceOfType(command.Attributes[1], typeof(Delegate));
 
+		var immutable = command.ToImmutable();
 		var args = new object[] { new FakeContext() };
 		var result = await immutable.ExecuteAsync(null!, args).ConfigureAwait(false);
 		Assert.IsTrue(result.IsSuccess);

@@ -1,5 +1,4 @@
-﻿
-using YACCS.Commands;
+﻿using YACCS.Commands;
 
 namespace YACCS.Interactivity;
 
@@ -8,8 +7,7 @@ namespace YACCS.Interactivity;
 /// </summary>
 /// <typeparam name="TContext"></typeparam>
 /// <typeparam name="TInput"></typeparam>
-public interface IInteractivityOptions<in TContext, in TInput>
-	: IInteractivityOptions
+public interface IInteractivityOptions<in TContext, in TInput> : IInteractivityOptions
 	where TContext : IContext
 {
 	/// <summary>

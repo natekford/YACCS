@@ -1,5 +1,4 @@
-﻿
-using YACCS.Commands;
+﻿using YACCS.Commands;
 using YACCS.Results;
 
 namespace YACCS.Interactivity.Pagination;
@@ -9,8 +8,8 @@ namespace YACCS.Interactivity.Pagination;
 /// </summary>
 /// <typeparam name="TContext"></typeparam>
 /// <typeparam name="TInput"></typeparam>
-public abstract class Paginator<TContext, TInput>
-	: Interactivity<TContext, TInput>, IPaginator<TContext, TInput>
+public abstract class Paginator<TContext, TInput> :
+	Interactivity<TContext, TInput>, IPaginator<TContext, TInput>
 	where TContext : IContext
 {
 	/// <inheritdoc />
@@ -38,15 +37,15 @@ public abstract class Paginator<TContext, TInput>
 			var converted = await ConvertAsync(input).ConfigureAwait(false);
 			if (!converted.HasValue)
 			{
-					// Converted value is null, indicating we should stop
-					// Easiest way to do that is to just set the dummy event trigger
-					eventTrigger.SetResult(null);
+				// Converted value is null, indicating we should stop
+				// Easiest way to do that is to just set the dummy event trigger
+				eventTrigger.SetResult(null);
 				return InteractionEndedResult.Instance;
 			}
 
 			page = GetNewPage(page, options.MaxPage, converted.Value);
-				// Display the new page
-				await options.DisplayCallback.Invoke(page).ConfigureAwait(false);
+			// Display the new page
+			await options.DisplayCallback.Invoke(page).ConfigureAwait(false);
 			return SuccessResult.Instance;
 		}).ConfigureAwait(false);
 

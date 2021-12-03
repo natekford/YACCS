@@ -14,29 +14,29 @@ public class TypeNameRegistry : TypeRegistry<string>
 	/// The localized instance backing <see cref="Items"/>.
 	/// </summary>
 	protected Localized<IDictionary<Type, string>> Localized = new(_ =>
-	{
-		return new Dictionary<Type, string>()
-		{
-			[typeof(string)] = Localization.Keys.StringType,
-			[typeof(Uri)] = Localization.Keys.UriType,
-			[typeof(char)] = Localization.Keys.CharType,
-			[typeof(bool)] = Localization.Keys.BoolType,
-			[typeof(sbyte)] = Localization.Keys.SByteType,
-			[typeof(byte)] = Localization.Keys.ByteType,
-			[typeof(short)] = Localization.Keys.ShortType,
-			[typeof(ushort)] = Localization.Keys.UShortType,
-			[typeof(int)] = Localization.Keys.IntType,
-			[typeof(uint)] = Localization.Keys.UIntType,
-			[typeof(long)] = Localization.Keys.LongType,
-			[typeof(ulong)] = Localization.Keys.ULongType,
-			[typeof(float)] = Localization.Keys.FloatType,
-			[typeof(double)] = Localization.Keys.DoubleType,
-			[typeof(decimal)] = Localization.Keys.DecimalType,
-			[typeof(DateTime)] = Localization.Keys.DateTimeType,
-			[typeof(DateTimeOffset)] = Localization.Keys.DateTimeType,
-			[typeof(TimeSpan)] = Localization.Keys.TimeSpanType,
-		};
-	});
+	  {
+		  return new Dictionary<Type, string>()
+		  {
+			  [typeof(string)] = Localization.Keys.StringType,
+			  [typeof(Uri)] = Localization.Keys.UriType,
+			  [typeof(char)] = Localization.Keys.CharType,
+			  [typeof(bool)] = Localization.Keys.BoolType,
+			  [typeof(sbyte)] = Localization.Keys.SByteType,
+			  [typeof(byte)] = Localization.Keys.ByteType,
+			  [typeof(short)] = Localization.Keys.ShortType,
+			  [typeof(ushort)] = Localization.Keys.UShortType,
+			  [typeof(int)] = Localization.Keys.IntType,
+			  [typeof(uint)] = Localization.Keys.UIntType,
+			  [typeof(long)] = Localization.Keys.LongType,
+			  [typeof(ulong)] = Localization.Keys.ULongType,
+			  [typeof(float)] = Localization.Keys.FloatType,
+			  [typeof(double)] = Localization.Keys.DoubleType,
+			  [typeof(decimal)] = Localization.Keys.DecimalType,
+			  [typeof(DateTime)] = Localization.Keys.DateTimeType,
+			  [typeof(DateTimeOffset)] = Localization.Keys.DateTimeType,
+			  [typeof(TimeSpan)] = Localization.Keys.TimeSpanType,
+		  };
+	  });
 
 	/// <inheritdoc />
 	protected override IDictionary<Type, string> Items => Localized.GetCurrent();
