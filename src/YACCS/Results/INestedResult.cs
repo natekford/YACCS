@@ -6,7 +6,7 @@
 public interface INestedResult
 {
 	/// <summary>
-	/// The actual result.
+	/// The result this is wrapping.
 	/// </summary>
 	IResult InnerResult { get; }
 }

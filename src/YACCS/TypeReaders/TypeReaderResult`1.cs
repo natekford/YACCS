@@ -20,7 +20,22 @@ public sealed class TypeReaderResult<T> : ITypeReaderResult<T>
 		? $"Value = {Value}"
 		: InnerResult.FormatForDebuggerDisplay();
 
-	private TypeReaderResult(IResult result, T? value, int? successfullyParsedCount)
+	/// <summary>
+	/// Creates a new <see cref="TypeReaderResult{T}"/>.
+	/// </summary>
+	/// <param name="result">
+	/// <inheritdoc cref="InnerResult" path="/summary"/>
+	/// </param>
+	/// <param name="value">
+	/// <inheritdoc cref="Value" path="/summary"/>
+	/// </param>
+	/// <param name="successfullyParsedCount">
+	/// <inheritdoc cref="SuccessfullyParsedCount" path="/summary"/>
+	/// </param>
+	private TypeReaderResult(
+		IResult result,
+		T? value,
+		int? successfullyParsedCount)
 	{
 		InnerResult = result;
 		Value = value;
@@ -30,19 +45,18 @@ public sealed class TypeReaderResult<T> : ITypeReaderResult<T>
 	/// <summary>
 	/// Creates a new <see cref="TypeReaderResult{T}"/> indicating failure.
 	/// </summary>
-	/// <param name="result">The result to create a result for.</param>
 	/// <returns>A type reader result indicating failure.</returns>
+	/// <inheritdoc cref="TypeReaderResult{T}(IResult, T, int?)"/>
 	public static TypeReaderResult<T> FromError(IResult result)
 		=> new(result, default!, null);
 
 	/// <summary>
 	/// Creates a new <see cref="TypeReaderResult{T}"/> indicating success.
 	/// </summary>
-	/// <param name="value">The value to create a result for.</param>
-	/// <param name="successfullyParsedCount">
-	/// The amount of strings which were successfully parsed.
-	/// </param>
 	/// <returns>A type reader result indicating success.</returns>
-	public static TypeReaderResult<T> FromSuccess(T value, int? successfullyParsedCount = null)
+	/// <inheritdoc cref="TypeReaderResult{T}(IResult, T, int?)"/>
+	public static TypeReaderResult<T> FromSuccess(
+		T value,
+		int? successfullyParsedCount = null)
 		=> new(SuccessResult.Instance, value, successfullyParsedCount);
 }
