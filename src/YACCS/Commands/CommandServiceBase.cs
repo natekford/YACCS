@@ -180,7 +180,7 @@ public abstract class CommandServiceBase : ICommandService
 			return context.FailedPrecondition(command, startIndex, pResult);
 		}
 
-		var args = new object?[command.Parameters.Count];
+		var args = default(object?[]);
 		var currentIndex = startIndex;
 		for (var i = 0; i < command.Parameters.Count; ++i)
 		{
@@ -237,9 +237,10 @@ public abstract class CommandServiceBase : ICommandService
 				return context.FailedParameterPrecondition(command, currentIndex, ppResult, parameter);
 			}
 
+			args ??= new object?[command.Parameters.Count];
 			args[i] = value;
 		}
-		return context.CanExecute(command, currentIndex, args);
+		return context.CanExecute(command, currentIndex, args ?? Array.Empty<object?>());
 	}
 
 	/// <summary>
