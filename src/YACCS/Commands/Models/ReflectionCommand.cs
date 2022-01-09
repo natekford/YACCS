@@ -137,7 +137,7 @@ public sealed class ReflectionCommand : Command
 		private static readonly ConcurrentDictionary<Type, Func<IContext, ICommandGroup>> _ConstructorCache = new();
 
 		private readonly Func<IContext, ICommandGroup> _Constructor;
-		private readonly Func<ICommandGroup, object?[], object> _Execute;
+		private readonly Func<ICommandGroup, IReadOnlyList<object?>, object> _Execute;
 		private readonly Type _GroupType;
 		private readonly MethodInfo _Method;
 
@@ -151,7 +151,9 @@ public sealed class ReflectionCommand : Command
 			_Execute = ReflectionUtils.CreateDelegate(Execute, "execute");
 		}
 
-		public override async ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
+		public override async ValueTask<IResult> ExecuteAsync(
+			IContext context,
+			IReadOnlyList<object?> args)
 		{
 			// Don't catch exceptions in here, it's easier for the command handler to
 			// catch them itself + this makes testing easier
@@ -225,9 +227,9 @@ public sealed class ReflectionCommand : Command
 			});
 		}
 
-		private Func<ICommandGroup, object?[], object> Execute()
+		private Func<ICommandGroup, IReadOnlyList<object?>, object> Execute()
 		{
-			return ExpressionUtils.GetInvokeFromObjectArray<Func<ICommandGroup, object?[], object>>(
+			return ExpressionUtils.InvokeFromList<Func<ICommandGroup, IReadOnlyList<object?>, object>>(
 				Expression.Parameter(typeof(ICommandGroup), "Group"),
 				_Method
 			);

@@ -45,9 +45,11 @@ public class NamedArgumentsCommand<T> : GeneratedCommand
 	}
 
 	/// <inheritdoc />
-	public override ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
+	public override ValueTask<IResult> ExecuteAsync(
+		IContext context,
+		IReadOnlyList<object?> args)
 	{
-		if (args.Length != 1 || args[0] is not T dict)
+		if (args.Count != 1 || args[0] is not T dict)
 		{
 			return new(NamedArgInvalidDictionaryResult.Instance);
 		}

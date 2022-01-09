@@ -52,7 +52,9 @@ public abstract class GeneratedCommand : IImmutableCommand
 	}
 
 	/// <inheritdoc />
-	public abstract ValueTask<IResult> ExecuteAsync(IContext context, object?[] args);
+	public abstract ValueTask<IResult> ExecuteAsync(
+		IContext context,
+		IReadOnlyList<object?> args);
 
 	/// <inheritdoc />
 	public virtual bool IsValidContext(Type type)

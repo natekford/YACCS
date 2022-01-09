@@ -19,28 +19,31 @@ internal static class ExpressionUtils
 		return Expression.TryCatch(body, @catch);
 	}
 
-	internal static T GetInvokeFromObjectArray<T>(
+	internal static T InvokeFromList<T>(
 		Expression? instance,
 		MethodInfo method)
 	{
 		/*
-		 *	(object?[] Args) =>
+		 *	(IReadOnlyList<object?> Args) =>
 		 *	{
 		 *		return ((DelegateType)Delegate).Invoke((ParamType)Args[0], (ParamType)Args[1], ...);
 		 *	}
 		 *
 		 * OR
 		 *
-		 *	(ICommandGroup Group, object?[] Args) =>
+		 *	(ICommandGroup Group, IReadOnlyList<object?> Args) =>
 		 *	{
 		 *		return ((DeclaringType)Group).Method((ParamType)Args[0], (ParamType)Args[1], ...);
 		 *	}
 		 */
 
-		var args = Expression.Parameter(typeof(object?[]), "Args");
+		var args = Expression.Parameter(typeof(IReadOnlyList<object?>), "Args");
+		var indexer = args.Type
+			.GetProperties()
+			.Single(x => x.GetIndexParameters().Length == 1);
 		var argsCast = method.GetParameters().Select((x, i) =>
 		{
-			var access = Expression.ArrayAccess(args, Expression.Constant(i));
+			var access = Expression.MakeIndex(args, indexer, new[] { Expression.Constant(i) });
 			return Expression.Convert(access, x.ParameterType);
 		});
 
@@ -51,7 +54,7 @@ internal static class ExpressionUtils
 
 		Expression body = Expression.Call(instanceCast, method, argsCast);
 
-		// With a return type of void to keep the Func<object?[], object> declaration
+		// With a return type of void to keep the Func<IReadOnlyList<object?>, object> declaration
 		// we just need to return a null value at the end
 		if (method.ReturnType == typeof(void))
 		{

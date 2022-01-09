@@ -62,7 +62,7 @@ public sealed class DelegateCommand : Command
 	private sealed class ImmutableDelegateCommand : ImmutableCommand
 	{
 		private readonly Delegate _Delegate;
-		private readonly Func<object?[], object> _Execute;
+		private readonly Func<IReadOnlyList<object?>, object> _Execute;
 
 		public ImmutableDelegateCommand(DelegateCommand mutable)
 			: base(mutable, mutable.Delegate.Method.ReturnType)
@@ -71,12 +71,14 @@ public sealed class DelegateCommand : Command
 			_Execute = ReflectionUtils.CreateDelegate(Execute, "execute");
 		}
 
-		public override ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
+		public override ValueTask<IResult> ExecuteAsync(
+			IContext context,
+			IReadOnlyList<object?> args)
 			=> ConvertValueAsync(_Execute.Invoke(args));
 
-		private Func<object?[], object> Execute()
+		private Func<IReadOnlyList<object?>, object> Execute()
 		{
-			return ExpressionUtils.GetInvokeFromObjectArray<Func<object?[], object>>(
+			return ExpressionUtils.InvokeFromList<Func<IReadOnlyList<object?>, object>>(
 				_Delegate.Target is null ? null : Expression.Constant(_Delegate.Target),
 				_Delegate.Method
 			);

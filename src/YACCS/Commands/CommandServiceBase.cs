@@ -304,7 +304,7 @@ public abstract class CommandServiceBase : ICommandService
 	protected virtual async ValueTask<CommandExecutedEventArgs> ExecuteAsync(
 		IContext context,
 		IImmutableCommand command,
-		object?[] args)
+		IReadOnlyList<object?> args)
 	{
 		var beforeExceptions = default(List<Exception>?);
 		var afterExceptions = default(List<Exception>?);

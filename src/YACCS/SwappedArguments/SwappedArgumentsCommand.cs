@@ -39,7 +39,9 @@ public class SwappedArgumentsCommand : GeneratedCommand
 	}
 
 	/// <inheritdoc />
-	public override ValueTask<IResult> ExecuteAsync(IContext context, object?[] args)
+	public override ValueTask<IResult> ExecuteAsync(
+		IContext context,
+		IReadOnlyList<object?> args)
 	{
 		var copy = args.ToArray();
 		_Swapper.SwapBack(copy);

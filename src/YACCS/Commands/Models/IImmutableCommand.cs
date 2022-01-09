@@ -40,5 +40,5 @@ public interface IImmutableCommand : IImmutableEntityBase, IQueryableCommand
 	/// </param>
 	/// <param name="args">The arguments for this command.</param>
 	/// <returns></returns>
-	ValueTask<IResult> ExecuteAsync(IContext context, object?[] args);
+	ValueTask<IResult> ExecuteAsync(IContext context, IReadOnlyList<object?> args);
 }

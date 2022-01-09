@@ -205,7 +205,9 @@ public abstract class Command : EntityBase, ICommand
 		}
 
 		/// <inheritdoc />
-		public abstract ValueTask<IResult> ExecuteAsync(IContext context, object?[] args);
+		public abstract ValueTask<IResult> ExecuteAsync(
+			IContext context,
+			IReadOnlyList<object?> args);
 
 		/// <inheritdoc />
 		public virtual bool IsValidContext(Type type)
