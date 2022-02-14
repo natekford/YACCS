@@ -21,11 +21,11 @@ public static class PluginUtils
 	/// <param name="assemblies">The assemblies to look through.</param>
 	/// <param name="services">The services to use for dependency injection.</param>
 	/// <returns>A dictionary of cultures and reflected commands.</returns>
-	public static async Task<ConcurrentDictionary<CultureInfo, List<ReflectedCommand>>> GetCommandsInSupportedCultures(
+	public static async Task<Dictionary<CultureInfo, List<ReflectedCommand>>> GetCommandsInSupportedCultures(
 		this IEnumerable<Assembly> assemblies,
 		IServiceProvider services)
 	{
-		var dict = new ConcurrentDictionary<CultureInfo, List<ReflectedCommand>>();
+		var dict = new Dictionary<CultureInfo, List<ReflectedCommand>>();
 		var originalCulture = CultureInfo.CurrentUICulture;
 		foreach (var assembly in assemblies)
 		{
@@ -43,7 +43,11 @@ public static class PluginUtils
 
 				await foreach (var command in assembly.GetAllCommandsAsync(services))
 				{
-					dict.GetOrAdd(culture, _ => new()).Add(command);
+					if (!dict.TryGetValue(culture, out var list))
+					{
+						dict.Add(culture, list = new());
+					}
+					list.Add(command);
 				}
 			}
 		}
