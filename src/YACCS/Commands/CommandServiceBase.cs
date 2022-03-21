@@ -279,13 +279,13 @@ public abstract class CommandServiceBase : ICommandService
 	/// <returns></returns>
 	protected virtual Task CommandFinishedAsync(CommandExecutedEventArgs e)
 	{
-		if (e.Context is IDisposable disposable)
-		{
-			disposable.Dispose();
-		}
 		if (e.Context is IAsyncDisposable asyncDisposable)
 		{
 			return asyncDisposable.DisposeAsync().AsTask();
+		}
+		else if (e.Context is IDisposable disposable)
+		{
+			disposable.Dispose();
 		}
 		return Task.CompletedTask;
 	}
