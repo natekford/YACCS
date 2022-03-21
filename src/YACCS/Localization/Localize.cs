@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace YACCS.Localization;
+﻿namespace YACCS.Localization;
 
 /// <summary>
 /// Utilities for localization.

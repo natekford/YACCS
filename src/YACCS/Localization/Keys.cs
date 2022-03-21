@@ -89,9 +89,9 @@ public static class Keys
 	public static NeedsLocalization MustBeLessThan { get; }
 		= Create("Must be less than or equal to {0}.");
 	public static NeedsLocalization MustBeLocked { get; }
-		= Create("Unable to find an existing {0} matching the supplied value.");
+		= Create("Unable to find an existing {0} using the supplied value.");
 	public static NeedsLocalization MustBeUnlocked { get; }
-		= Create("There is already an existing {0} matching the supplied value.");
+		= Create("There is already an existing {0} using the supplied value.");
 	public static NeedsLocalization InvalidContextResult { get; }
 		= Create("Invalid context type.");
 	public static NeedsLocalization InvalidParameterResult { get; }

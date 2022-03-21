@@ -1,323 +1,73 @@
-﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+﻿namespace YACCS.Results;
 
-using MorseCode.ITask;
-
-using YACCS.Localization;
-using YACCS.TypeReaders;
-
-namespace YACCS.Results;
-
-public static class CachedResults<T>
-{
-	public static CachedTypeReaderResult Canceled { get; }
-		= new(Results.Canceled.Instance);
-	public static CachedTypeReaderResult DefaultSuccess { get; }
-		= new(default(T)!);
-	public static CachedTypeReaderResult InvalidContext { get; }
-		= new(Results.InvalidContext.Instance);
-	public static CachedTypeReaderResult NamedArgBadCount { get; }
-		= new(Results.NamedArgBadCount.Instance);
-	public static CachedTypeReaderResult ParseFailed { get; }
-		= new(new ParseFailed(typeof(T)));
-	public static CachedTypeReaderResult TimedOut { get; }
-		= new(Results.TimedOut.Instance);
-
-	public class CachedTypeReaderResult
-	{
-		public ITypeReaderResult<T> Result { get; }
-		public ITask<ITypeReaderResult<T>> Task { get; }
-
-		public CachedTypeReaderResult(IResult result)
-		{
-			Result = TypeReaderResult<T>.FromError(result);
-			Task = Result.AsITask();
-		}
-
-		public CachedTypeReaderResult(T value)
-		{
-			Result = TypeReaderResult<T>.FromSuccess(value);
-			Task = Result.AsITask();
-		}
-	}
-}
-
-public class Canceled : LocalizedResult
-{
-	public static Canceled Instance { get; } = new();
-
-	public Canceled() : base(false, Keys.CanceledResult)
-	{
-	}
-}
-
-public class CommandNotFound : LocalizedResult
-{
-	public static CommandNotFound Instance { get; } = new();
-
-	public CommandNotFound() : base(false, Keys.CommandNotFoundResult)
-	{
-	}
-}
-
-public class ExceptionAfterCommand : LocalizedResult
-{
-	public static ExceptionAfterCommand Instance { get; } = new();
-
-	public ExceptionAfterCommand() : base(false, Keys.ExceptionAfterCommandResult)
-	{
-	}
-}
-
-public class ExceptionDuringCommand : LocalizedResult
-{
-	public static ExceptionDuringCommand Instance { get; } = new();
-
-	public ExceptionDuringCommand() : base(false, Keys.ExceptionDuringCommandResult)
-	{
-	}
-}
-
+/// <summary>
+/// A non-specific result indicating failure.
+/// </summary>
 public class Failure : Result
 {
+	/// <summary>
+	/// A singleton instance with no message.
+	/// </summary>
 	public static Failure Instance { get; } = new();
 
+	/// <inheritdoc cref="Failure(string)"/>
 	public Failure() : this(string.Empty)
 	{
 	}
 
+	/// <summary>
+	/// Creates a new <see cref="Failure"/>.
+	/// </summary>
+	/// <param name="message">
+	/// <inheritdoc cref="Result.Response" path="/summary"/>
+	/// </param>
 	public Failure(string message) : base(false, message)
 	{
 	}
 }
 
-public class InteractionEnded : LocalizedResult
-{
-	public static InteractionEnded Instance { get; } = new();
-
-	public InteractionEnded() : base(false, Keys.InteractionEndedResult)
-	{
-	}
-}
-
-public class MustBeGreaterThan : LocalizedResult, IFormattable
-{
-	public override string Response => ToString(null, null);
-	public int Min { get; }
-
-	public MustBeGreaterThan(int min) : base(false, Keys.MustBeGreaterThan)
-	{
-		Min = min;
-	}
-
-	public string ToString(string? ignored, IFormatProvider? formatProvider)
-		=> string.Format(formatProvider, base.Response, Min);
-}
-
-public class MustBeLessThan : LocalizedResult, IFormattable
-{
-	public override string Response => ToString(null, null);
-	public int Max { get; }
-
-	public MustBeLessThan(int max) : base(false, Keys.MustBeLessThan)
-	{
-		Max = max;
-	}
-
-	public string ToString(string? ignored, IFormatProvider? formatProvider)
-		=> string.Format(formatProvider, base.Response, Max);
-}
-
-public class MustBeLocked : LocalizedResult, IFormattable
-{
-	public override string Response => ToString(null, null);
-	public Type Type { get; }
-
-	public MustBeLocked(Type type) : base(false, Keys.MustBeLocked)
-	{
-		Type = type;
-	}
-
-	public string ToString(string? ignored, IFormatProvider? formatProvider)
-		=> string.Format(formatProvider, base.Response, Type);
-}
-
-public class MustBeUnlocked : LocalizedResult, IFormattable
-{
-	public override string Response => ToString(null, null);
-	public Type Type { get; }
-
-	public MustBeUnlocked(Type type) : base(false, Keys.MustBeUnlocked)
-	{
-		Type = type;
-	}
-
-	public string ToString(string? ignored, IFormatProvider? formatProvider)
-		=> string.Format(formatProvider, base.Response, Type);
-}
-
-public class InvalidContext : LocalizedResult
-{
-	public static InvalidContext Instance { get; } = new();
-
-	public InvalidContext() : base(false, Keys.InvalidContextResult)
-	{
-	}
-}
-
-public class InvalidParameter : LocalizedResult
-{
-	public static InvalidParameter Instance { get; } = new();
-
-	public InvalidParameter() : base(false, Keys.InvalidParameterResult)
-	{
-	}
-}
-
-public class MultiMatchHandlingError : LocalizedResult
-{
-	public static MultiMatchHandlingError Instance { get; } = new();
-
-	public MultiMatchHandlingError() : base(false, Keys.MultiMatchHandlingErrorResult)
-	{
-	}
-}
-
-public class NamedArgBadCount : LocalizedResult
-{
-	public static NamedArgBadCount Instance { get; } = new();
-
-	public NamedArgBadCount() : base(false, Keys.NamedArgBadCountResult)
-	{
-	}
-}
-
-public class NamedArgDuplicate : LocalizedResult, IFormattable
-{
-	public string Name { get; }
-	public override string Response => ToString(null, null);
-
-	public NamedArgDuplicate(string name) : base(false, Keys.NamedArgDuplicateResult)
-	{
-		Name = name;
-	}
-
-	public string ToString(string? ignored, IFormatProvider? formatProvider)
-		=> string.Format(formatProvider, base.Response, Name);
-}
-
-public class NamedArgInvalidDictionary : LocalizedResult
-{
-	public static NamedArgInvalidDictionary Instance { get; } = new();
-
-	public NamedArgInvalidDictionary() : base(false, Keys.NamedArgInvalidDictionaryResult)
-	{
-	}
-}
-
-public class NamedArgMissingValue : LocalizedResult, IFormattable
-{
-	public string Name { get; }
-	public override string Response => ToString(null, null);
-
-	public NamedArgMissingValue(string name) : base(false, Keys.NamedArgMissingValueResult)
-	{
-		Name = name;
-	}
-
-	public string ToString(string? ignored, IFormatProvider? formatProvider)
-		=> string.Format(formatProvider, base.Response, Name);
-}
-
-public class NamedArgNonExistent : LocalizedResult, IFormattable
-{
-	public string Name { get; }
-	public override string Response => ToString(null, null);
-
-	public NamedArgNonExistent(string name) : base(false, Keys.NamedArgNonExistentResult)
-	{
-		Name = name;
-	}
-
-	public string ToString(string? ignored, IFormatProvider? formatProvider)
-		=> string.Format(formatProvider, base.Response, Name);
-}
-
-public class NotEnoughArgs : LocalizedResult
-{
-	public static NotEnoughArgs Instance { get; } = new();
-
-	public NotEnoughArgs() : base(false, Keys.NotEnoughArgsResult)
-	{
-	}
-}
-
-public class NullParameter : LocalizedResult
-{
-	public static NullParameter Instance { get; } = new();
-
-	public NullParameter() : base(false, Keys.NullParameterResult)
-	{
-	}
-}
-
-public class ParseFailed : LocalizedResult, IFormattable
-{
-	public override string Response => ToString(null, null);
-	public Type Type { get; }
-
-	public ParseFailed(Type type) : base(false, Keys.ParseFailedResult)
-	{
-		Type = type;
-	}
-
-	public string ToString(string? ignored, IFormatProvider? formatProvider)
-		=> string.Format(formatProvider, base.Response, Type);
-}
-
-public class QuoteMismatch : LocalizedResult
-{
-	public static QuoteMismatch Instance { get; } = new();
-
-	public QuoteMismatch() : base(false, Keys.QuoteMismatchResult)
-	{
-	}
-}
-
+/// <summary>
+/// A non-specific result indicating success.
+/// </summary>
 public class Success : Result
 {
+	/// <summary>
+	/// A singleton instance with no message.
+	/// </summary>
 	public static Success Instance { get; } = new();
 
+	/// <inheritdoc cref="Success(string)"/>
 	public Success() : this(string.Empty)
 	{
 	}
 
+	/// <summary>
+	/// Creates a new <see cref="Success"/>.
+	/// </summary>
+	/// <param name="message">
+	/// <inheritdoc cref="Result.Response" path="/summary"/>
+	/// </param>
 	public Success(string message) : base(true, message)
 	{
 	}
 }
 
-public class TimedOut : LocalizedResult
-{
-	public static TimedOut Instance { get; } = new();
-
-	public TimedOut() : base(false, Keys.TimedOutResult)
-	{
-	}
-}
-
-public class TooManyArgs : LocalizedResult
-{
-	public static TooManyArgs Instance { get; } = new();
-
-	public TooManyArgs() : base(false, Keys.TooManyArgsResult)
-	{
-	}
-}
-
+/// <summary>
+/// Boxes a value so it can be returned as a result.
+/// </summary>
 public class ValueResult : Result
 {
+	/// <summary>
+	/// The value of this result.
+	/// </summary>
 	public object? Value { get; }
 
+	/// <summary>
+	/// Creates a new <see cref="ValueResult"/>.
+	/// </summary>
+	/// <param name="value">
+	/// <inheritdoc cref="Value" path="/summary"/>
+	/// </param>
 	public ValueResult(object? value) : base(true, value?.ToString() ?? string.Empty)
 	{
 		Value = value;

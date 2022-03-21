@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace YACCS.Localization;
+﻿namespace YACCS.Localization;
 
 /// <summary>
 /// Localizes a string or displays a fallback.

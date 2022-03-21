@@ -15,17 +15,17 @@ public abstract class Locked<TContext, TValue> : ParameterPrecondition<TContext,
 	/// <summary>
 	/// The item status to match.
 	/// </summary>
-	protected Item Status { get; set; }
+	protected Item RequiredStatus { get; set; }
 
 	/// <summary>
 	/// Creates a new <see cref="Locked{TContext, TValue}"/>.
 	/// </summary>
 	/// <param name="status">
-	/// <inheritdoc cref="Status" path="/summary"/>
+	/// <inheritdoc cref="RequiredStatus" path="/summary"/>
 	/// </param>
 	protected Locked(Item status)
 	{
-		Status = status;
+		RequiredStatus = status;
 	}
 
 	/// <inheritdoc />
@@ -35,11 +35,11 @@ public abstract class Locked<TContext, TValue> : ParameterPrecondition<TContext,
 		TValue? value)
 	{
 		var locked = await IsLockedAsync(meta, context, value).ConfigureAwait(false);
-		if (locked && Status == Item.Unlocked)
+		if (locked && RequiredStatus == Item.Unlocked)
 		{
 			return new MustBeUnlocked(typeof(TValue));
 		}
-		else if (!locked && Status == Item.Locked)
+		else if (!locked && RequiredStatus == Item.Locked)
 		{
 			return new MustBeLocked(typeof(TValue));
 		}
