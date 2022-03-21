@@ -186,11 +186,11 @@ public class CommandBuilding_Tests
 
 		[Command(nameof(InheritanceAllowed), AllowInheritance = true)]
 		[Id(INHERITANCE_ALLOWED)]
-		public IResult InheritanceAllowed() => SuccessResult.Instance;
+		public IResult InheritanceAllowed() => Success.Instance;
 
 		[Command(nameof(InheritanceDisallowed), AllowInheritance = false)]
 		[Id(INHERITANCE_DISALLOWED)]
-		public IResult InheritanceDisallowed() => SuccessResult.Instance;
+		public IResult InheritanceDisallowed() => Success.Instance;
 	}
 
 	private class GroupChild : GroupBase

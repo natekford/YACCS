@@ -2,14 +2,14 @@
 using YACCS.Commands.Attributes;
 using YACCS.Results;
 
-namespace YACCS.Preconditions.InUse;
+namespace YACCS.Preconditions.Locked;
 
 /// <summary>
-/// The base class for an in use parameter precondition attribute.
+/// The base class for a parameter precondition that makes sure the supplied parameter
+/// is not currently in use.
 /// </summary>
 [AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
-public abstract class InUseParameterPrecondition<TContext, TValue> :
-	ParameterPrecondition<TContext, TValue>
+public abstract class Locked<TContext, TValue> : ParameterPrecondition<TContext, TValue>
 	where TContext : IContext
 {
 	/// <summary>
@@ -18,12 +18,12 @@ public abstract class InUseParameterPrecondition<TContext, TValue> :
 	protected Item Status { get; set; }
 
 	/// <summary>
-	/// Creates a new <see cref="InUseParameterPrecondition{TContext, TValue}"/>.
+	/// Creates a new <see cref="Locked{TContext, TValue}"/>.
 	/// </summary>
 	/// <param name="status">
 	/// <inheritdoc cref="Status" path="/summary"/>
 	/// </param>
-	protected InUseParameterPrecondition(Item status)
+	protected Locked(Item status)
 	{
 		Status = status;
 	}
@@ -34,16 +34,16 @@ public abstract class InUseParameterPrecondition<TContext, TValue> :
 		TContext context,
 		TValue? value)
 	{
-		var exists = await IsInUseAsync(meta, context, value).ConfigureAwait(false);
-		if (exists && Status == Item.MustNotBeInUse)
+		var locked = await IsLockedAsync(meta, context, value).ConfigureAwait(false);
+		if (locked && Status == Item.Unlocked)
 		{
-			return new InUseMustNotBeInUse(typeof(TValue));
+			return new MustBeUnlocked(typeof(TValue));
 		}
-		else if (!exists && Status == Item.MustBeInUser)
+		else if (!locked && Status == Item.Locked)
 		{
-			return new InUseMustBeInUse(typeof(TValue));
+			return new MustBeLocked(typeof(TValue));
 		}
-		return SuccessResult.Instance;
+		return Success.Instance;
 	}
 
 	/// <summary>
@@ -51,7 +51,7 @@ public abstract class InUseParameterPrecondition<TContext, TValue> :
 	/// </summary>
 	/// <returns>A bool indicating if the searched for item is in use.</returns>
 	/// <inheritdoc cref="CheckAsync(CommandMeta, TContext, TValue?)"/>
-	protected abstract ValueTask<bool> IsInUseAsync(
+	protected abstract ValueTask<bool> IsLockedAsync(
 		CommandMeta meta,
 		IContext context,
 		object? value);

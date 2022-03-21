@@ -17,7 +17,7 @@ public class HelpParameter : HelpItem<IImmutableParameter>, IHelpParameter
 	/// <inheritdoc />
 	public IHelpItem<Type> ParameterType { get; }
 	/// <inheritdoc />
-	public IReadOnlyDictionary<string, ILookup<BoolOp, IHelpItem<IParameterPrecondition>>> Preconditions { get; }
+	public IReadOnlyDictionary<string, ILookup<Op, IHelpItem<IParameterPrecondition>>> Preconditions { get; }
 	/// <inheritdoc />
 	public IHelpItem<ITypeReader>? TypeReader { get; }
 	private string DebuggerDisplay => Item.FormatForDebuggerDisplay();

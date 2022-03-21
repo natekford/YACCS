@@ -65,7 +65,7 @@ public class Commands : ConsoleCommands
 
 	[Command(nameof(Result))]
 	public IResult Result()
-		=> new SuccessResult("This command gives a success result for no reason.");
+		=> new Success("This command gives a success result for no reason.");
 
 	[Command(nameof(Sleep))]
 	public string Sleep()

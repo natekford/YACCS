@@ -12,14 +12,14 @@ public class NamedTypeReader_Tests : TypeReader_Tests<NamedTypeReader_Tests.Name
 {
 	private const int NUM = 1;
 	private const string STR = "joe";
-	public override Type ExpectedInvalidResultType => typeof(NamedArgBadCountResult);
+	public override Type ExpectedInvalidResultType => typeof(NamedArgBadCount);
 	public override ITypeReader<NamedClass> Reader { get; }
 		= new NamedArgumentsTypeReader<NamedClass>();
 
 	[TestMethod]
 	public async Task DuplicateKey_Test()
 	{
-		await AssertFailureAsync<NamedArgDuplicateResult>(new[]
+		await AssertFailureAsync<NamedArgDuplicate>(new[]
 		{
 				nameof(NamedClass.Number),
 				NUM.ToString(),
@@ -33,7 +33,7 @@ public class NamedTypeReader_Tests : TypeReader_Tests<NamedTypeReader_Tests.Name
 	[TestMethod]
 	public async Task InvalidKey_Test()
 	{
-		await AssertFailureAsync<NamedArgNonExistentResult>(new[]
+		await AssertFailureAsync<NamedArgNonExistent>(new[]
 		{
 				nameof(NamedClass.Number),
 				NUM.ToString(),

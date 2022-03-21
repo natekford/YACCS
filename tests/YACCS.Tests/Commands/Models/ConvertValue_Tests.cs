@@ -53,7 +53,7 @@ public class ConvertValue_Tests
 		foreach (var result in results)
 		{
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsInstanceOfType(result, typeof(SuccessResult));
+			Assert.IsInstanceOfType(result, typeof(Success));
 		}
 	}
 
@@ -103,7 +103,7 @@ public class ConvertValue_Tests
 		foreach (var result in results)
 		{
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsInstanceOfType(result, typeof(SuccessResult));
+			Assert.IsInstanceOfType(result, typeof(Success));
 		}
 	}
 }

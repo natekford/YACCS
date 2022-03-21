@@ -12,5 +12,5 @@ public interface IGroupablePrecondition
 	/// <summary>
 	/// The boolean operator to use for this precondition.
 	/// </summary>
-	BoolOp Op { get; }
+	Op Op { get; }
 }

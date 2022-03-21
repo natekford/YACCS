@@ -34,7 +34,7 @@ public class CommandService_ExecuteAsync_Tests
 		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
 		var result = await commandService.ExecuteAsync(context, "").ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(CommandNotFoundResult));
+		Assert.IsInstanceOfType(result.InnerResult, typeof(CommandNotFound));
 	}
 
 	[TestMethod]
@@ -105,7 +105,7 @@ public class CommandService_ExecuteAsync_Tests
 
 		var asyncResult = await tcs.Task.ConfigureAwait(false);
 		Assert.IsTrue(asyncResult.Result.IsSuccess);
-		Assert.IsInstanceOfType(asyncResult.Result, typeof(SuccessResult));
+		Assert.IsInstanceOfType(asyncResult.Result, typeof(Success));
 		Assert.IsNull(asyncResult.DuringException);
 		Assert.IsNull(asyncResult.BeforeExceptions);
 		Assert.AreEqual(1, asyncResult.AfterExceptions!.Count);
@@ -129,7 +129,7 @@ public class CommandService_ExecuteAsync_Tests
 
 		var asyncResult = await tcs.Task.ConfigureAwait(false);
 		Assert.IsTrue(asyncResult.Result.IsSuccess);
-		Assert.IsInstanceOfType(asyncResult.Result, typeof(SuccessResult));
+		Assert.IsInstanceOfType(asyncResult.Result, typeof(Success));
 		Assert.IsNull(asyncResult.DuringException);
 		Assert.IsNull(asyncResult.AfterExceptions);
 		Assert.AreEqual(1, asyncResult.BeforeExceptions!.Count);
@@ -153,7 +153,7 @@ public class CommandService_ExecuteAsync_Tests
 
 		var asyncResult = await tcs.Task.ConfigureAwait(false);
 		Assert.IsFalse(asyncResult.Result.IsSuccess);
-		Assert.IsInstanceOfType(asyncResult.Result, typeof(ExceptionDuringCommandResult));
+		Assert.IsInstanceOfType(asyncResult.Result, typeof(ExceptionDuringCommand));
 		Assert.IsInstanceOfType(asyncResult.DuringException, typeof(InvalidOperationException));
 		Assert.IsNull(asyncResult.BeforeExceptions);
 		Assert.IsNull(asyncResult.AfterExceptions);
@@ -167,7 +167,7 @@ public class CommandService_ExecuteAsync_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(MultiMatchHandlingErrorResult));
+		Assert.IsInstanceOfType(result.InnerResult, typeof(MultiMatchHandlingError));
 	}
 
 	[TestMethod]
@@ -176,7 +176,7 @@ public class CommandService_ExecuteAsync_Tests
 		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
 		var result = await commandService.ExecuteAsync(context, "asdf").ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(CommandNotFoundResult));
+		Assert.IsInstanceOfType(result.InnerResult, typeof(CommandNotFound));
 	}
 
 	[TestMethod]
@@ -185,7 +185,7 @@ public class CommandService_ExecuteAsync_Tests
 		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
 		var result = await commandService.ExecuteAsync(context, "\"an end quote is missing").ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(QuoteMismatchResult));
+		Assert.IsInstanceOfType(result.InnerResult, typeof(QuoteMismatch));
 	}
 
 	private static async ValueTask<(CommandService, FakeContext)> CreateAsync()
@@ -329,7 +329,7 @@ public class CommandService_GetBestMatchAsync_Tests
 			).ConfigureAwait(false);
 			Assert.IsFalse(score.InnerResult.IsSuccess);
 			Assert.AreEqual(CommandStage.BadArgCount, score.Stage);
-			Assert.IsInstanceOfType(score.InnerResult, typeof(NotEnoughArgsResult));
+			Assert.IsInstanceOfType(score.InnerResult, typeof(NotEnoughArgs));
 		}
 
 		// Too many
@@ -342,7 +342,7 @@ public class CommandService_GetBestMatchAsync_Tests
 			).ConfigureAwait(false);
 			Assert.IsFalse(score.InnerResult.IsSuccess);
 			Assert.AreEqual(CommandStage.BadArgCount, score.Stage);
-			Assert.IsInstanceOfType(score.InnerResult, typeof(TooManyArgsResult));
+			Assert.IsInstanceOfType(score.InnerResult, typeof(TooManyArgs));
 		}
 	}
 
@@ -462,16 +462,16 @@ public class CommandService_Preconditions_Tests
 			.AsContext<IContext>()
 			.AddPrecondition(new FakePrecondition(true)
 			{
-				Op = BoolOp.And,
+				Op = Op.And,
 			})
 			.AddPrecondition(new FakePrecondition(false)
 			{
-				Op = BoolOp.And,
+				Op = Op.And,
 			})
 			.AddPrecondition(new WasIReachedPrecondition())
 			.AddPrecondition(new FakePrecondition(true)
 			{
-				Op = BoolOp.Or,
+				Op = Op.Or,
 			})
 			.ToImmutable();
 		var result = await command.CanExecuteAsync(new FakeContext()).ConfigureAwait(false);
@@ -486,7 +486,7 @@ public class CommandService_Preconditions_Tests
 			.AsContext<IContext>()
 			.AddPrecondition(new FakePrecondition(true)
 			{
-				Op = BoolOp.Or,
+				Op = Op.Or,
 			})
 			.AddPrecondition(new WasIReachedPrecondition())
 			.ToImmutable();
@@ -700,7 +700,7 @@ public class CommandsGroup : CommandGroup<FakeContext>
 	public async Task<IResult> Delay()
 	{
 		await Task.Delay(DELAY).ConfigureAwait(false);
-		return new FailureResult(_DelayedMessage);
+		return new Failure(_DelayedMessage);
 	}
 
 	[Command(_Disabled)]
@@ -752,7 +752,7 @@ public class CommandsGroup : CommandGroup<FakeContext>
 public class DisabledPrecondition : Precondition<FakeContext>
 {
 	public const string _Message = "lol disabled";
-	private static readonly IResult _Failure = new FailureResult(_Message);
+	private static readonly IResult _Failure = new Failure(_Message);
 
 	public override ValueTask<IResult> CheckAsync(
 		IImmutableCommand command,
@@ -773,7 +773,7 @@ public class FakeParameterPreconditionAttribute : ParameterPrecondition<FakeCont
 		CommandMeta meta,
 		FakeContext context,
 		[MaybeNull] int value)
-		=> new(value == DisallowedValue ? new FailureResult("lol") : SuccessResult.Instance);
+		=> new(value == DisallowedValue ? new Failure("lol") : Success.Instance);
 }
 
 public class FakePrecondition : Precondition<FakeContext>
@@ -788,7 +788,7 @@ public class FakePrecondition : Precondition<FakeContext>
 	public override ValueTask<IResult> CheckAsync(
 		IImmutableCommand command,
 		FakeContext context)
-		=> new(_Success ? SuccessResult.Instance : FailureResult.Instance);
+		=> new(_Success ? Success.Instance : Failure.Instance);
 }
 
 public class FakePreconditionWhichThrowsAfter : Precondition<FakeContext>
@@ -802,7 +802,7 @@ public class FakePreconditionWhichThrowsAfter : Precondition<FakeContext>
 	public override ValueTask<IResult> CheckAsync(
 		IImmutableCommand command,
 		FakeContext context)
-		=> new(SuccessResult.Instance);
+		=> new(Success.Instance);
 }
 
 public class FakePreconditionWhichThrowsBefore : Precondition<FakeContext>
@@ -815,7 +815,7 @@ public class FakePreconditionWhichThrowsBefore : Precondition<FakeContext>
 	public override ValueTask<IResult> CheckAsync(
 		IImmutableCommand command,
 		FakeContext context)
-		=> new(SuccessResult.Instance);
+		=> new(Success.Instance);
 }
 
 public class WasIReachedParameterPreconditionAttribute : ParameterPrecondition<FakeContext, int>
@@ -828,7 +828,7 @@ public class WasIReachedParameterPreconditionAttribute : ParameterPrecondition<F
 		[MaybeNull] int value)
 	{
 		IWasReached = true;
-		return new(SuccessResult.Instance);
+		return new(Success.Instance);
 	}
 }
 
@@ -841,6 +841,6 @@ public class WasIReachedPrecondition : Precondition<FakeContext>
 		FakeContext context)
 	{
 		IWasReached = true;
-		return new(SuccessResult.Instance);
+		return new(Success.Instance);
 	}
 }

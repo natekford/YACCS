@@ -16,7 +16,7 @@ public class HelpCommand : HelpItem<IImmutableCommand>, IHelpCommand
 	/// <inheritdoc />
 	public IReadOnlyList<IHelpParameter> Parameters { get; }
 	/// <inheritdoc />
-	public IReadOnlyDictionary<string, ILookup<BoolOp, IHelpItem<IPrecondition>>> Preconditions { get; }
+	public IReadOnlyDictionary<string, ILookup<Op, IHelpItem<IPrecondition>>> Preconditions { get; }
 	private string DebuggerDisplay => Item.FormatForDebuggerDisplay();
 
 	/// <summary>

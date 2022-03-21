@@ -20,7 +20,7 @@ public interface IHelpParameter : IHelpItem<IImmutableParameter>
 	/// <summary>
 	/// The precondition groups of this parameter.
 	/// </summary>
-	IReadOnlyDictionary<string, ILookup<BoolOp, IHelpItem<IParameterPrecondition>>> Preconditions { get; }
+	IReadOnlyDictionary<string, ILookup<Op, IHelpItem<IParameterPrecondition>>> Preconditions { get; }
 	/// <summary>
 	/// The specified type reader of this parameter.
 	/// </summary>

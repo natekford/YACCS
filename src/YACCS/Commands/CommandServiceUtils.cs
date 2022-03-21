@@ -132,7 +132,7 @@ public static class CommandServiceUtils
 	{
 		if (preconditions.Count == 0)
 		{
-			return new(SuccessResult.Instance);
+			return new(Success.Instance);
 		}
 
 		static async ValueTask<IResult> PrivateProcessAsync(
@@ -145,25 +145,25 @@ public static class CommandServiceUtils
 			// Each group must succeed for a command to be valid
 			foreach (var group in preconditions)
 			{
-				IResult groupResult = SuccessResult.Instance;
+				IResult groupResult = Success.Instance;
 				foreach (var precondition in group.Value)
 				{
 					// An AND has already failed, no need to check other ANDs
-					if (precondition.Op == BoolOp.And && !groupResult.IsSuccess)
+					if (precondition.Op == Op.And && !groupResult.IsSuccess)
 					{
 						continue;
 					}
 
 					var result = await converter(precondition, state).ConfigureAwait(false);
 					// OR: Any success = instant success, go to next group
-					if (precondition.Op == BoolOp.Or && result.IsSuccess)
+					if (precondition.Op == Op.Or && result.IsSuccess)
 					{
 						// Do NOT return directly from here, each group must succeed
-						groupResult = SuccessResult.Instance;
+						groupResult = Success.Instance;
 						break;
 					}
 					// AND: Any failure = skip other ANDs, only check further ORs
-					else if (precondition.Op == BoolOp.And && !result.IsSuccess)
+					else if (precondition.Op == Op.And && !result.IsSuccess)
 					{
 						groupResult = result;
 					}
@@ -174,7 +174,7 @@ public static class CommandServiceUtils
 					return groupResult;
 				}
 			}
-			return SuccessResult.Instance;
+			return Success.Instance;
 		}
 
 		return PrivateProcessAsync(preconditions, converter, state);

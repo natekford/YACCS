@@ -36,7 +36,7 @@ Id = {CommandGroup.ID}
 Priority = {CommandGroup.PRIORITY}
 
 Preconditions:{TRAILING}
-	{BoolOp.And}
+	{Op.And}
 	{CooldownAttribute.OUTPUT}
 
 Parameters:{TRAILING}
@@ -44,7 +44,7 @@ Parameters:{TRAILING}
 	Summary: {CommandGroup.PARAMETER_SUMMARY}
 
 	Preconditions:{TRAILING}
-		{BoolOp.And}
+		{Op.And}
 		{LessThanOrEqualTo100.SUMMARY}
 
 ";
@@ -158,7 +158,7 @@ Parameters:{TRAILING}
 			FakeContext context)
 		{
 			await Task.Delay(250).ConfigureAwait(false);
-			return new FailureResult(OUTPUT);
+			return new Failure(OUTPUT);
 		}
 
 		public async ValueTask<string> FormatAsync(
@@ -215,9 +215,9 @@ Parameters:{TRAILING}
 		{
 			if (value > 100)
 			{
-				return new(InvalidParameterResult.Instance);
+				return new(InvalidParameter.Instance);
 			}
-			return new(SuccessResult.Instance);
+			return new(Success.Instance);
 		}
 	}
 }

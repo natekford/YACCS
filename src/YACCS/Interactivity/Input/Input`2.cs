@@ -81,7 +81,7 @@ public abstract class Input<TContext, TInput> :
 			}
 
 			eventTrigger.SetResult(trResult.Value!);
-			return SuccessResult.Instance;
+			return Success.Instance;
 		});
 	}
 

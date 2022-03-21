@@ -70,13 +70,13 @@ public abstract class NamedArgumentsTypeReaderBase<T> : TypeReader<IContext, T>
 			var name = input.Span[i].TrimStart(_TrimStart).TrimEnd(_TrimEnd);
 			if (!Parameters.TryGetValue(name, out var parameter))
 			{
-				return new(new DictResult(Error(new NamedArgNonExistentResult(name)), dict));
+				return new(new DictResult(Error(new NamedArgNonExistent(name)), dict));
 			}
 
 			var property = parameter.ParameterName;
 			if (dict.ContainsKey(property))
 			{
-				return new(new DictResult(Error(new NamedArgDuplicateResult(name)), dict));
+				return new(new DictResult(Error(new NamedArgDuplicate(name)), dict));
 			}
 			dict.Add(property, input.Span[i + 1]);
 		}

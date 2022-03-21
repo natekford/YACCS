@@ -3,7 +3,7 @@
 /// <summary>
 /// The operator to use for a <see cref="IGroupablePrecondition"/>.
 /// </summary>
-public enum BoolOp
+public enum Op
 {
 	/// <summary>
 	/// ALL preconditions with this operator must succeed for the command to be valid.

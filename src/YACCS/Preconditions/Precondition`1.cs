@@ -15,7 +15,7 @@ public abstract class Precondition<TContext> :
 	where TContext : IContext
 {
 	private static Task InvalidContext { get; }
-		= Task.FromResult(InvalidContextResult.Instance);
+		= Task.FromResult(Results.InvalidContext.Instance);
 
 	/// <inheritdoc />
 	public virtual Task AfterExecutionAsync(
@@ -95,7 +95,7 @@ public abstract class Precondition<TContext> :
 	{
 		if (context is not TContext tContext)
 		{
-			return new(InvalidContextResult.Instance);
+			return new(Results.InvalidContext.Instance);
 		}
 		return CheckAsync(command, tContext);
 	}

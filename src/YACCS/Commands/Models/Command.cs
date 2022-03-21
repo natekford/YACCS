@@ -223,7 +223,7 @@ public abstract class Command : EntityBase, ICommand
 		/// <summary>
 		/// Converts an <see cref="object"/> into an <see cref="IResult"/>.
 		/// <br/>
-		/// If the method we're wrapping is void, it returns a <see cref="SuccessResult"/>.
+		/// If the method we're wrapping is void, it returns a <see cref="Success"/>.
 		/// <br/>
 		/// If <paramref name="value"/> is an <see cref="IResult"/>, it returns <paramref name="value"/> directly.
 		/// <br/>
@@ -238,7 +238,7 @@ public abstract class Command : EntityBase, ICommand
 			// Void method. No value to return, we're done
 			if (ReturnType == typeof(void))
 			{
-				return new(SuccessResult.Instance);
+				return new(Success.Instance);
 			}
 
 			// We're given a result, we can just return that
@@ -270,7 +270,7 @@ public abstract class Command : EntityBase, ICommand
 			// Not generic? No value to return, we're done
 			if (!ReturnType.IsGenericType)
 			{
-				return SuccessResult.Instance;
+				return Success.Instance;
 			}
 
 			// It has a value? Ok, let's get it

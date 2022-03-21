@@ -1,4 +1,4 @@
-﻿namespace YACCS.Preconditions.InUse;
+﻿namespace YACCS.Preconditions.Locked;
 
 /// <summary>
 /// Whether or not an item has to be in use.
@@ -8,9 +8,9 @@ public enum Item
 	/// <summary>
 	/// The item being searched for must not be in use.
 	/// </summary>
-	MustNotBeInUse = 0,
+	Unlocked = 0,
 	/// <summary>
 	/// The item being searched for must be in use.
 	/// </summary>
-	MustBeInUser = 1,
+	Locked = 1,
 }

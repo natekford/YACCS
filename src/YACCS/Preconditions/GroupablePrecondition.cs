@@ -9,6 +9,6 @@ public abstract class GroupablePrecondition : Attribute, IGroupablePrecondition
 	/// <inheritdoc />
 	public virtual string[] Groups { get; set; } = Array.Empty<string>();
 	/// <inheritdoc />
-	public virtual BoolOp Op { get; set; } = BoolOp.And;
+	public virtual Op Op { get; set; } = Op.And;
 	IReadOnlyList<string> IGroupablePrecondition.Groups => Groups;
 }

@@ -54,7 +54,7 @@ public abstract class CommandServiceBase : ICommandService
 	}
 
 	/// <inheritdoc cref="ICommandService.ExecuteAsync(IContext, ReadOnlySpan{char})" />
-	/// <returns>A failure result or <see cref="SuccessResult.Instance"/>.</returns>
+	/// <returns>A failure result or <see cref="Success.Instance"/>.</returns>
 	/// <inheritdoc cref="IExecuteResult" path="/remarks"/>
 	public virtual ValueTask<IExecuteResult> ExecuteAsync(
 		IContext context,
@@ -335,7 +335,7 @@ public abstract class CommandServiceBase : ICommandService
 		}
 		catch (Exception ex)
 		{
-			result = ExceptionDuringCommandResult.Instance;
+			result = ExceptionDuringCommand.Instance;
 			duringException = ex;
 		}
 

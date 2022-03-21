@@ -8,7 +8,7 @@ namespace YACCS.Tests.TypeReaders;
 [TestClass]
 public class ContextTypeReader_Tests : TypeReader_Tests<OtherContext>
 {
-	public override Type ExpectedInvalidResultType => typeof(InvalidContextResult);
+	public override Type ExpectedInvalidResultType => typeof(InvalidContext);
 	public override ITypeReader<OtherContext> Reader { get; }
 		= new ContextTypeReader<OtherContext>();
 

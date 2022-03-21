@@ -210,7 +210,7 @@ public class HelpFormatter : IHelpFormatter
 		/// <param name="preconditions">The preconditions to format and append.</param>
 		/// <returns></returns>
 		public virtual async Task AppendPreconditionsAsync<T>(
-			IReadOnlyDictionary<string, ILookup<BoolOp, IHelpItem<T>>> preconditions)
+			IReadOnlyDictionary<string, ILookup<Op, IHelpItem<T>>> preconditions)
 			where T : notnull
 		{
 			if (preconditions.Count == 0)

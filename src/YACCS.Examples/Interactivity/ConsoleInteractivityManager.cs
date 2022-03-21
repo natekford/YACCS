@@ -34,7 +34,7 @@ public sealed class ConsoleInteractivityManager
 				}
 
 				var result = await onInput.Invoke(input).ConfigureAwait(false);
-				if (result is InteractionEndedResult)
+				if (result is InteractionEnded)
 				{
 					return;
 				}

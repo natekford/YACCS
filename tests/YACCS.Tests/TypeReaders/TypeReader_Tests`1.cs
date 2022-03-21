@@ -9,7 +9,7 @@ namespace YACCS.Tests.TypeReaders;
 public abstract class TypeReader_Tests<T>
 {
 	public virtual IContext Context { get; } = new FakeContext();
-	public virtual Type ExpectedInvalidResultType { get; } = typeof(ParseFailedResult);
+	public virtual Type ExpectedInvalidResultType { get; } = typeof(ParseFailed);
 	public virtual string Invalid { get; } = "asdf";
 	public abstract ITypeReader<T> Reader { get; }
 

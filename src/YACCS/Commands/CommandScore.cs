@@ -15,17 +15,17 @@ namespace YACCS.Commands
 		/// Indicates that no suitable command was found.
 		/// </summary>
 		public static CommandScore CommandNotFound { get; }
-			= new(null!, null, 0, 0, CommandNotFoundResult.Instance);
+			= new(null!, null, 0, 0, Results.CommandNotFound.Instance);
 		/// <summary>
 		/// Indicates that there are too many suitable commands.
 		/// </summary>
 		public static CommandScore MultiMatch { get; }
-			= new(null!, null, 0, 0, MultiMatchHandlingErrorResult.Instance);
+			= new(null!, null, 0, 0, MultiMatchHandlingError.Instance);
 		/// <summary>
 		/// Indicates that there is an error parsing quotes.
 		/// </summary>
 		public static CommandScore QuoteMismatch { get; }
-			= new(null!, null, 0, 0, QuoteMismatchResult.Instance);
+			= new(null!, null, 0, 0, Results.QuoteMismatch.Instance);
 
 		/// <summary>
 		/// The arguments for the command.
@@ -115,7 +115,7 @@ namespace YACCS.Commands.CommandScores
 			int index,
 			IReadOnlyList<object?>? args)
 		{
-			var result = SuccessResult.Instance;
+			var result = Success.Instance;
 			const CommandStage STAGE = CommandStage.CanExecute;
 			// Subtract start index from int.MaxValue because the more args the less
 			// command name parts used, so the less specific the command is
@@ -182,7 +182,7 @@ namespace YACCS.Commands.CommandScores
 			IImmutableCommand command,
 			int index)
 		{
-			var result = InvalidContextResult.Instance;
+			var result = Results.InvalidContext.Instance;
 			const CommandStage STAGE = CommandStage.BadContext;
 			return new(context, command, STAGE, index, result);
 		}
@@ -198,7 +198,7 @@ namespace YACCS.Commands.CommandScores
 			int index,
 			IImmutableParameter parameter)
 		{
-			var result = NotEnoughArgsResult.Instance;
+			var result = Results.NotEnoughArgs.Instance;
 			const CommandStage STAGE = CommandStage.FailedTypeReader;
 			return new(context, command, STAGE, index, result, parameter: parameter);
 		}
@@ -213,7 +213,7 @@ namespace YACCS.Commands.CommandScores
 			IImmutableCommand command,
 			int index)
 		{
-			var result = NotEnoughArgsResult.Instance;
+			var result = Results.NotEnoughArgs.Instance;
 			const CommandStage STAGE = CommandStage.BadArgCount;
 			return new(context, command, STAGE, index, result);
 		}
@@ -228,7 +228,7 @@ namespace YACCS.Commands.CommandScores
 			IImmutableCommand command,
 			int index)
 		{
-			var result = TooManyArgsResult.Instance;
+			var result = Results.TooManyArgs.Instance;
 			const CommandStage STAGE = CommandStage.BadArgCount;
 			return new(context, command, STAGE, index, result);
 		}

@@ -19,5 +19,5 @@ public interface IHelpCommand : IHelpItem<IImmutableCommand>
 	/// <summary>
 	/// The precondition groups of this command.
 	/// </summary>
-	IReadOnlyDictionary<string, ILookup<BoolOp, IHelpItem<IPrecondition>>> Preconditions { get; }
+	IReadOnlyDictionary<string, ILookup<Op, IHelpItem<IPrecondition>>> Preconditions { get; }
 }

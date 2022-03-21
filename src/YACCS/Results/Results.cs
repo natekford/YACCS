@@ -10,17 +10,17 @@ namespace YACCS.Results;
 public static class CachedResults<T>
 {
 	public static CachedTypeReaderResult Canceled { get; }
-		= new(CanceledResult.Instance);
+		= new(Results.Canceled.Instance);
 	public static CachedTypeReaderResult DefaultSuccess { get; }
 		= new(default(T)!);
 	public static CachedTypeReaderResult InvalidContext { get; }
-		= new(InvalidContextResult.Instance);
+		= new(Results.InvalidContext.Instance);
 	public static CachedTypeReaderResult NamedArgBadCount { get; }
-		= new(NamedArgBadCountResult.Instance);
+		= new(Results.NamedArgBadCount.Instance);
 	public static CachedTypeReaderResult ParseFailed { get; }
-		= new(new ParseFailedResult(typeof(T)));
+		= new(new ParseFailed(typeof(T)));
 	public static CachedTypeReaderResult TimedOut { get; }
-		= new(TimedOutResult.Instance);
+		= new(Results.TimedOut.Instance);
 
 	public class CachedTypeReaderResult
 	{
@@ -41,70 +41,70 @@ public static class CachedResults<T>
 	}
 }
 
-public class CanceledResult : LocalizedResult
+public class Canceled : LocalizedResult
 {
-	public static CanceledResult Instance { get; } = new();
+	public static Canceled Instance { get; } = new();
 
-	public CanceledResult() : base(false, Keys.CanceledResult)
+	public Canceled() : base(false, Keys.CanceledResult)
 	{
 	}
 }
 
-public class CommandNotFoundResult : LocalizedResult
+public class CommandNotFound : LocalizedResult
 {
-	public static CommandNotFoundResult Instance { get; } = new();
+	public static CommandNotFound Instance { get; } = new();
 
-	public CommandNotFoundResult() : base(false, Keys.CommandNotFoundResult)
+	public CommandNotFound() : base(false, Keys.CommandNotFoundResult)
 	{
 	}
 }
 
-public class ExceptionAfterCommandResult : LocalizedResult
+public class ExceptionAfterCommand : LocalizedResult
 {
-	public static ExceptionAfterCommandResult Instance { get; } = new();
+	public static ExceptionAfterCommand Instance { get; } = new();
 
-	public ExceptionAfterCommandResult() : base(false, Keys.ExceptionAfterCommandResult)
+	public ExceptionAfterCommand() : base(false, Keys.ExceptionAfterCommandResult)
 	{
 	}
 }
 
-public class ExceptionDuringCommandResult : LocalizedResult
+public class ExceptionDuringCommand : LocalizedResult
 {
-	public static ExceptionDuringCommandResult Instance { get; } = new();
+	public static ExceptionDuringCommand Instance { get; } = new();
 
-	public ExceptionDuringCommandResult() : base(false, Keys.ExceptionDuringCommandResult)
+	public ExceptionDuringCommand() : base(false, Keys.ExceptionDuringCommandResult)
 	{
 	}
 }
 
-public class FailureResult : Result
+public class Failure : Result
 {
-	public static FailureResult Instance { get; } = new();
+	public static Failure Instance { get; } = new();
 
-	public FailureResult() : this(string.Empty)
+	public Failure() : this(string.Empty)
 	{
 	}
 
-	public FailureResult(string message) : base(false, message)
+	public Failure(string message) : base(false, message)
 	{
 	}
 }
 
-public class InteractionEndedResult : LocalizedResult
+public class InteractionEnded : LocalizedResult
 {
-	public static InteractionEndedResult Instance { get; } = new();
+	public static InteractionEnded Instance { get; } = new();
 
-	public InteractionEndedResult() : base(false, Keys.InteractionEndedResult)
+	public InteractionEnded() : base(false, Keys.InteractionEndedResult)
 	{
 	}
 }
 
-public class InUseMustBeInUse : LocalizedResult, IFormattable
+public class MustBeLocked : LocalizedResult, IFormattable
 {
 	public override string Response => ToString(null, null);
 	public Type Type { get; }
 
-	public InUseMustBeInUse(Type type) : base(false, Keys.InUseMustBeInUse)
+	public MustBeLocked(Type type) : base(false, Keys.MustBeLocked)
 	{
 		Type = type;
 	}
@@ -113,12 +113,12 @@ public class InUseMustBeInUse : LocalizedResult, IFormattable
 		=> string.Format(formatProvider, base.Response, Type);
 }
 
-public class InUseMustNotBeInUse : LocalizedResult, IFormattable
+public class MustBeUnlocked : LocalizedResult, IFormattable
 {
 	public override string Response => ToString(null, null);
 	public Type Type { get; }
 
-	public InUseMustNotBeInUse(Type type) : base(false, Keys.InUseMustNotBeInUse)
+	public MustBeUnlocked(Type type) : base(false, Keys.MustBeUnlocked)
 	{
 		Type = type;
 	}
@@ -127,48 +127,48 @@ public class InUseMustNotBeInUse : LocalizedResult, IFormattable
 		=> string.Format(formatProvider, base.Response, Type);
 }
 
-public class InvalidContextResult : LocalizedResult
+public class InvalidContext : LocalizedResult
 {
-	public static InvalidContextResult Instance { get; } = new();
+	public static InvalidContext Instance { get; } = new();
 
-	public InvalidContextResult() : base(false, Keys.InvalidContextResult)
+	public InvalidContext() : base(false, Keys.InvalidContextResult)
 	{
 	}
 }
 
-public class InvalidParameterResult : LocalizedResult
+public class InvalidParameter : LocalizedResult
 {
-	public static InvalidParameterResult Instance { get; } = new();
+	public static InvalidParameter Instance { get; } = new();
 
-	public InvalidParameterResult() : base(false, Keys.InvalidParameterResult)
+	public InvalidParameter() : base(false, Keys.InvalidParameterResult)
 	{
 	}
 }
 
-public class MultiMatchHandlingErrorResult : LocalizedResult
+public class MultiMatchHandlingError : LocalizedResult
 {
-	public static MultiMatchHandlingErrorResult Instance { get; } = new();
+	public static MultiMatchHandlingError Instance { get; } = new();
 
-	public MultiMatchHandlingErrorResult() : base(false, Keys.MultiMatchHandlingErrorResult)
+	public MultiMatchHandlingError() : base(false, Keys.MultiMatchHandlingErrorResult)
 	{
 	}
 }
 
-public class NamedArgBadCountResult : LocalizedResult
+public class NamedArgBadCount : LocalizedResult
 {
-	public static NamedArgBadCountResult Instance { get; } = new();
+	public static NamedArgBadCount Instance { get; } = new();
 
-	public NamedArgBadCountResult() : base(false, Keys.NamedArgBadCountResult)
+	public NamedArgBadCount() : base(false, Keys.NamedArgBadCountResult)
 	{
 	}
 }
 
-public class NamedArgDuplicateResult : LocalizedResult, IFormattable
+public class NamedArgDuplicate : LocalizedResult, IFormattable
 {
 	public string Name { get; }
 	public override string Response => ToString(null, null);
 
-	public NamedArgDuplicateResult(string name) : base(false, Keys.NamedArgDuplicateResult)
+	public NamedArgDuplicate(string name) : base(false, Keys.NamedArgDuplicateResult)
 	{
 		Name = name;
 	}
@@ -177,21 +177,21 @@ public class NamedArgDuplicateResult : LocalizedResult, IFormattable
 		=> string.Format(formatProvider, base.Response, Name);
 }
 
-public class NamedArgInvalidDictionaryResult : LocalizedResult
+public class NamedArgInvalidDictionary : LocalizedResult
 {
-	public static NamedArgInvalidDictionaryResult Instance { get; } = new();
+	public static NamedArgInvalidDictionary Instance { get; } = new();
 
-	public NamedArgInvalidDictionaryResult() : base(false, Keys.NamedArgInvalidDictionaryResult)
+	public NamedArgInvalidDictionary() : base(false, Keys.NamedArgInvalidDictionaryResult)
 	{
 	}
 }
 
-public class NamedArgMissingValueResult : LocalizedResult, IFormattable
+public class NamedArgMissingValue : LocalizedResult, IFormattable
 {
 	public string Name { get; }
 	public override string Response => ToString(null, null);
 
-	public NamedArgMissingValueResult(string name) : base(false, Keys.NamedArgMissingValueResult)
+	public NamedArgMissingValue(string name) : base(false, Keys.NamedArgMissingValueResult)
 	{
 		Name = name;
 	}
@@ -200,12 +200,12 @@ public class NamedArgMissingValueResult : LocalizedResult, IFormattable
 		=> string.Format(formatProvider, base.Response, Name);
 }
 
-public class NamedArgNonExistentResult : LocalizedResult, IFormattable
+public class NamedArgNonExistent : LocalizedResult, IFormattable
 {
 	public string Name { get; }
 	public override string Response => ToString(null, null);
 
-	public NamedArgNonExistentResult(string name) : base(false, Keys.NamedArgNonExistentResult)
+	public NamedArgNonExistent(string name) : base(false, Keys.NamedArgNonExistentResult)
 	{
 		Name = name;
 	}
@@ -214,30 +214,30 @@ public class NamedArgNonExistentResult : LocalizedResult, IFormattable
 		=> string.Format(formatProvider, base.Response, Name);
 }
 
-public class NotEnoughArgsResult : LocalizedResult
+public class NotEnoughArgs : LocalizedResult
 {
-	public static NotEnoughArgsResult Instance { get; } = new();
+	public static NotEnoughArgs Instance { get; } = new();
 
-	public NotEnoughArgsResult() : base(false, Keys.NotEnoughArgsResult)
+	public NotEnoughArgs() : base(false, Keys.NotEnoughArgsResult)
 	{
 	}
 }
 
-public class NullParameterResult : LocalizedResult
+public class NullParameter : LocalizedResult
 {
-	public static NullParameterResult Instance { get; } = new();
+	public static NullParameter Instance { get; } = new();
 
-	public NullParameterResult() : base(false, Keys.NullParameterResult)
+	public NullParameter() : base(false, Keys.NullParameterResult)
 	{
 	}
 }
 
-public class ParseFailedResult : LocalizedResult, IFormattable
+public class ParseFailed : LocalizedResult, IFormattable
 {
 	public override string Response => ToString(null, null);
 	public Type Type { get; }
 
-	public ParseFailedResult(Type type) : base(false, Keys.ParseFailedResult)
+	public ParseFailed(Type type) : base(false, Keys.ParseFailedResult)
 	{
 		Type = type;
 	}
@@ -246,42 +246,42 @@ public class ParseFailedResult : LocalizedResult, IFormattable
 		=> string.Format(formatProvider, base.Response, Type);
 }
 
-public class QuoteMismatchResult : LocalizedResult
+public class QuoteMismatch : LocalizedResult
 {
-	public static QuoteMismatchResult Instance { get; } = new();
+	public static QuoteMismatch Instance { get; } = new();
 
-	public QuoteMismatchResult() : base(false, Keys.QuoteMismatchResult)
+	public QuoteMismatch() : base(false, Keys.QuoteMismatchResult)
 	{
 	}
 }
 
-public class SuccessResult : Result
+public class Success : Result
 {
-	public static SuccessResult Instance { get; } = new();
+	public static Success Instance { get; } = new();
 
-	public SuccessResult() : this(string.Empty)
+	public Success() : this(string.Empty)
 	{
 	}
 
-	public SuccessResult(string message) : base(true, message)
-	{
-	}
-}
-
-public class TimedOutResult : LocalizedResult
-{
-	public static TimedOutResult Instance { get; } = new();
-
-	public TimedOutResult() : base(false, Keys.TimedOutResult)
+	public Success(string message) : base(true, message)
 	{
 	}
 }
 
-public class TooManyArgsResult : LocalizedResult
+public class TimedOut : LocalizedResult
 {
-	public static TooManyArgsResult Instance { get; } = new();
+	public static TimedOut Instance { get; } = new();
 
-	public TooManyArgsResult() : base(false, Keys.TooManyArgsResult)
+	public TimedOut() : base(false, Keys.TimedOutResult)
+	{
+	}
+}
+
+public class TooManyArgs : LocalizedResult
+{
+	public static TooManyArgs Instance { get; } = new();
+
+	public TooManyArgs() : base(false, Keys.TooManyArgsResult)
 	{
 	}
 }

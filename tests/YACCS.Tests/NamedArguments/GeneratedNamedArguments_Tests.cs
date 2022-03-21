@@ -46,7 +46,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(InvalidParameterResult));
+		Assert.IsInstanceOfType(result.InnerResult, typeof(InvalidParameter));
 	}
 
 	[TestMethod]
@@ -61,7 +61,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(ParseFailedResult));
+		Assert.IsInstanceOfType(result.InnerResult, typeof(ParseFailed));
 	}
 
 	[TestMethod]
@@ -86,7 +86,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(NotEnoughArgsResult));
+		Assert.IsInstanceOfType(result.InnerResult, typeof(NotEnoughArgs));
 	}
 
 	[TestMethod]
@@ -111,7 +111,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(TooManyArgsResult));
+		Assert.IsInstanceOfType(result.InnerResult, typeof(TooManyArgs));
 	}
 
 	[TestMethod]
@@ -127,8 +127,8 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgNonExistentResult));
-		Assert.AreEqual(FAKE_NAME, ((NamedArgNonExistentResult)result.InnerResult).Name);
+		Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgNonExistent));
+		Assert.AreEqual(FAKE_NAME, ((NamedArgNonExistent)result.InnerResult).Name);
 	}
 
 	[TestMethod]
@@ -156,7 +156,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, INPUT).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgMissingValueResult));
+		Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgMissingValue));
 	}
 
 	[TestMethod]
@@ -170,7 +170,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgMissingValueResult));
+		Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgMissingValue));
 	}
 
 	[TestMethod]
@@ -246,7 +246,7 @@ public class GeneratedNamedArguments_Tests
 			SetMe.IntValue = i;
 			SetMe.StringValue = s;
 
-			return SuccessResult.Instance;
+			return Success.Instance;
 		}
 
 		[Command(nameof(Test2))]
@@ -284,9 +284,9 @@ public class GeneratedNamedArguments_Tests
 		{
 			if (value > -1)
 			{
-				return new(SuccessResult.Instance);
+				return new(Success.Instance);
 			}
-			return new(InvalidParameterResult.Instance);
+			return new(InvalidParameter.Instance);
 		}
 	}
 

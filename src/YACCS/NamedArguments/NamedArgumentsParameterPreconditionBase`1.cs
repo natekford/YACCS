@@ -28,14 +28,14 @@ public abstract class NamedArgumentsParameterPreconditionBase<T> :
 	{
 		if (value is null)
 		{
-			return NullParameterResult.Instance;
+			return NullParameter.Instance;
 		}
 
 		foreach (var (property, parameter) in Parameters)
 		{
 			if (!TryGetProperty(value, property, out var propertyValue))
 			{
-				return new NamedArgMissingValueResult(property);
+				return new NamedArgMissingValue(property);
 			}
 
 			var result = await meta.Command.CanExecuteAsync(parameter, context, propertyValue).ConfigureAwait(false);
@@ -44,7 +44,7 @@ public abstract class NamedArgumentsParameterPreconditionBase<T> :
 				return result;
 			}
 		}
-		return SuccessResult.Instance;
+		return Success.Instance;
 	}
 
 	/// <summary>

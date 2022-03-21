@@ -46,7 +46,7 @@ public abstract class ParameterPrecondition<TContext, TValue> :
 	{
 		if (context is not TContext tContext)
 		{
-			return new(InvalidContextResult.Instance);
+			return new(InvalidContext.Instance);
 		}
 		if (value is TValue tValue)
 		{
@@ -74,7 +74,7 @@ public abstract class ParameterPrecondition<TContext, TValue> :
 		{
 			return CheckUntypedEnumerableAsync(meta, tContext, tUntypedValues);
 		}
-		return new(InvalidParameterResult.Instance);
+		return new(InvalidParameter.Instance);
 	}
 
 	private async ValueTask<IResult> CheckTypedEnumerableAsync(
@@ -90,7 +90,7 @@ public abstract class ParameterPrecondition<TContext, TValue> :
 				return result;
 			}
 		}
-		return SuccessResult.Instance;
+		return Success.Instance;
 	}
 
 	private async ValueTask<IResult> CheckUntypedEnumerableAsync(
@@ -103,7 +103,7 @@ public abstract class ParameterPrecondition<TContext, TValue> :
 			var tValue = value is TValue temp ? temp : default;
 			if (value is not null && tValue is null)
 			{
-				return InvalidParameterResult.Instance;
+				return InvalidParameter.Instance;
 			}
 
 			var result = await CheckAsync(meta, context, tValue!).ConfigureAwait(false);
@@ -112,6 +112,6 @@ public abstract class ParameterPrecondition<TContext, TValue> :
 				return result;
 			}
 		}
-		return SuccessResult.Instance;
+		return Success.Instance;
 	}
 }

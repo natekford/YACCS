@@ -84,9 +84,9 @@ public static class Keys
 		= Create("An exception occurred while a command was executing.");
 	public static NeedsLocalization InteractionEndedResult { get; }
 		= Create("Interaction ended.");
-	public static NeedsLocalization InUseMustBeInUse { get; }
+	public static NeedsLocalization MustBeLocked { get; }
 		= Create("Unable to find an existing {0} matching the supplied value.");
-	public static NeedsLocalization InUseMustNotBeInUse { get; }
+	public static NeedsLocalization MustBeUnlocked { get; }
 		= Create("There is already an existing {0} matching the supplied value.");
 	public static NeedsLocalization InvalidContextResult { get; }
 		= Create("Invalid context type.");

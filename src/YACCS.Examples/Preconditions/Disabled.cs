@@ -5,10 +5,10 @@ using YACCS.Results;
 
 namespace YACCS.Examples.Preconditions;
 
-public class DisabledAttribute : Precondition<IContext>
+public class Disabled : Precondition<IContext>
 {
 	public override ValueTask<IResult> CheckAsync(
 		IImmutableCommand command,
 		IContext context)
-		=> new(new FailureResult("Command is disabled."));
+		=> new(new Failure("Command is disabled."));
 }

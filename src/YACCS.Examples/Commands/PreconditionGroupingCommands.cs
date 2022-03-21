@@ -11,14 +11,14 @@ public class PreconditionGroupingCommands : ConsoleCommands
 		=> "Words.";
 
 	[Command(nameof(AWeekendDay))]
-	[RequiresDay(DayOfWeek.Saturday, Op = BoolOp.Or)]
-	[RequiresDay(DayOfWeek.Sunday, Op = BoolOp.Or)]
+	[RequiresDay(DayOfWeek.Saturday, Op = Op.Or)]
+	[RequiresDay(DayOfWeek.Sunday, Op = Op.Or)]
 	public string AWeekendDay()
 		=> DateTime.Now.DayOfWeek.ToString();
 
 	[Command(nameof(AWeekendDayAndAnEvenMinute))]
-	[RequiresDay(DayOfWeek.Saturday, Groups = new[] { "Day" }, Op = BoolOp.Or)]
-	[RequiresDay(DayOfWeek.Sunday, Groups = new[] { "Day" }, Op = BoolOp.Or)]
+	[RequiresDay(DayOfWeek.Saturday, Groups = new[] { "Day" }, Op = Op.Or)]
+	[RequiresDay(DayOfWeek.Sunday, Groups = new[] { "Day" }, Op = Op.Or)]
 	[RequiresMinuteDivisibleBy(2)]
 	public string AWeekendDayAndAnEvenMinute()
 		=> DateTime.Now.ToString("G");

@@ -17,7 +17,7 @@ public class ParameterPrecondition_Tests
 	{
 		var result = await _Precondition.CheckAsync(default, new OtherContext(), 1).ConfigureAwait(false);
 		Assert.IsFalse(result.IsSuccess);
-		Assert.IsInstanceOfType(result, typeof(InvalidContextResult));
+		Assert.IsInstanceOfType(result, typeof(InvalidContext));
 	}
 
 	[TestMethod]
@@ -25,7 +25,7 @@ public class ParameterPrecondition_Tests
 	{
 		var result = await _Precondition.CheckAsync(default, new FakeContext(), new object()).ConfigureAwait(false);
 		Assert.IsFalse(result.IsSuccess);
-		Assert.IsInstanceOfType(result, typeof(InvalidParameterResult));
+		Assert.IsInstanceOfType(result, typeof(InvalidParameter));
 	}
 
 	[TestMethod]
@@ -98,13 +98,13 @@ public class ParameterPrecondition_Tests
 		{
 			if (value is null)
 			{
-				return new(SuccessResult.Instance);
+				return new(Success.Instance);
 			}
 			if (value > -1)
 			{
-				return new(SuccessResult.Instance);
+				return new(Success.Instance);
 			}
-			return new(new FailureResult("joe"));
+			return new(new Failure("joe"));
 		}
 	}
 }

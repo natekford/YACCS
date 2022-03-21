@@ -51,7 +51,7 @@ public class NamedArgumentsCommand<T> : GeneratedCommand
 	{
 		if (args.Count != 1 || args[0] is not T dict)
 		{
-			return new(NamedArgInvalidDictionaryResult.Instance);
+			return new(NamedArgInvalidDictionary.Instance);
 		}
 
 		var values = new object?[Source.Parameters.Count];

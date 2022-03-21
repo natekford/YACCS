@@ -85,6 +85,6 @@ public class Help : ConsoleCommands
 		var text = await HelpFormatter.FormatAsync(Context, command).ConfigureAwait(false);
 		Console.WriteLine(text);
 		Console.WriteLine(_Separator);
-		return SuccessResult.Instance;
+		return Success.Instance;
 	}
 }
