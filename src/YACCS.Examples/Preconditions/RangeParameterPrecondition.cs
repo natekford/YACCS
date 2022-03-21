@@ -16,9 +16,9 @@ public class RangeParameterPrecondition : ParameterPrecondition<IContext, int>
 	public RangeParameterPrecondition(int min, int max)
 	{
 		_Max = max;
-		_TooHigh = new Failure($"Must be less than or equal to {_Max}.");
+		_TooHigh = new MustBeLessThan(_Max);
 		_Min = min;
-		_TooLow = new Failure($"Must be greater than or equal to {_Min}.");
+		_TooLow = new MustBeGreaterThan(_Min);
 	}
 
 	public override ValueTask<IResult> CheckAsync(

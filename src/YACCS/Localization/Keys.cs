@@ -84,6 +84,10 @@ public static class Keys
 		= Create("An exception occurred while a command was executing.");
 	public static NeedsLocalization InteractionEndedResult { get; }
 		= Create("Interaction ended.");
+	public static NeedsLocalization MustBeGreaterThan { get; }
+		= Create("Must be greater than or equal to {0}.");
+	public static NeedsLocalization MustBeLessThan { get; }
+		= Create("Must be less than or equal to {0}.");
 	public static NeedsLocalization MustBeLocked { get; }
 		= Create("Unable to find an existing {0} matching the supplied value.");
 	public static NeedsLocalization MustBeUnlocked { get; }

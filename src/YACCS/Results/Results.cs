@@ -99,6 +99,34 @@ public class InteractionEnded : LocalizedResult
 	}
 }
 
+public class MustBeGreaterThan : LocalizedResult, IFormattable
+{
+	public override string Response => ToString(null, null);
+	public int Min { get; }
+
+	public MustBeGreaterThan(int min) : base(false, Keys.MustBeGreaterThan)
+	{
+		Min = min;
+	}
+
+	public string ToString(string? ignored, IFormatProvider? formatProvider)
+		=> string.Format(formatProvider, base.Response, Min);
+}
+
+public class MustBeLessThan : LocalizedResult, IFormattable
+{
+	public override string Response => ToString(null, null);
+	public int Max { get; }
+
+	public MustBeLessThan(int max) : base(false, Keys.MustBeLessThan)
+	{
+		Max = max;
+	}
+
+	public string ToString(string? ignored, IFormatProvider? formatProvider)
+		=> string.Format(formatProvider, base.Response, Max);
+}
+
 public class MustBeLocked : LocalizedResult, IFormattable
 {
 	public override string Response => ToString(null, null);
