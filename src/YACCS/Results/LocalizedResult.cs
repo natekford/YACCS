@@ -18,7 +18,8 @@ public abstract class LocalizedResult : Result
 	/// Creates a new <see cref="LocalizedResult"/>.
 	/// </summary>
 	/// <inheritdoc cref="Result(bool, string)"/>
-	protected LocalizedResult(bool isSuccess, NeedsLocalization response) : base(isSuccess, response)
+	protected LocalizedResult(bool isSuccess, NeedsLocalization response)
+		: base(isSuccess, "")
 	{
 		UnlocalizedResponse = response;
 	}

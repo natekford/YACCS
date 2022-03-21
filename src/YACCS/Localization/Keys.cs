@@ -2,6 +2,7 @@
 
 using System.Collections.Immutable;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace YACCS.Localization;
 
@@ -14,113 +15,118 @@ public static class Keys
 		.ToImmutableArray();
 
 	#region Words
-	public static NeedsLocalization And { get; } = new(nameof(And));
-	public static NeedsLocalization Attributes { get; } = new(nameof(Attributes));
-	public static NeedsLocalization Id { get; } = new(nameof(Id));
-	public static NeedsLocalization Length { get; } = new(nameof(Length));
-	public static NeedsLocalization Names { get; } = new(nameof(Names));
-	public static NeedsLocalization Or { get; } = new(nameof(Or));
-	public static NeedsLocalization Parameters { get; } = new(nameof(Parameters));
-	public static NeedsLocalization Preconditions { get; } = new(nameof(Preconditions));
-	public static NeedsLocalization Priority { get; } = new(nameof(Priority));
-	public static NeedsLocalization Remainder { get; } = new(nameof(Remainder));
-	public static NeedsLocalization Summary { get; } = new(nameof(Summary));
+	public static NeedsLocalization And { get; } = Create();
+	public static NeedsLocalization Attributes { get; } = Create();
+	public static NeedsLocalization Id { get; } = Create();
+	public static NeedsLocalization Length { get; } = Create();
+	public static NeedsLocalization Names { get; } = Create();
+	public static NeedsLocalization Or { get; } = Create();
+	public static NeedsLocalization Parameters { get; } = Create();
+	public static NeedsLocalization Preconditions { get; } = Create();
+	public static NeedsLocalization Priority { get; } = Create();
+	public static NeedsLocalization Remainder { get; } = Create();
+	public static NeedsLocalization Summary { get; } = Create();
 	#endregion Words
 
 	#region Nulls
-	public static NeedsLocalization Nil { get; } = new(nameof(Nil));
-	public static NeedsLocalization Nothing { get; } = new(nameof(Nothing));
-	public static NeedsLocalization Null { get; } = new(nameof(Null));
-	public static NeedsLocalization NullPtr { get; } = new(nameof(NullPtr));
-	public static NeedsLocalization Void { get; } = new(nameof(Void));
+	public static NeedsLocalization Nil { get; } = Create();
+	public static NeedsLocalization Nothing { get; } = Create();
+	public static NeedsLocalization Null { get; } = Create();
+	public static NeedsLocalization NullPtr { get; } = Create();
+	public static NeedsLocalization Void { get; } = Create();
 	#endregion Nulls
 
 	#region Types
 	public static NeedsLocalization BoolType { get; }
-		= new(nameof(BoolType), "true or false");
+		= Create("true or false");
 	public static NeedsLocalization ByteType { get; }
-		= new(nameof(ByteType), $"integer ({byte.MinValue} to {byte.MaxValue})");
+		= Create($"integer ({byte.MinValue} to {byte.MaxValue})");
 	public static NeedsLocalization CharType { get; }
-		= new(nameof(CharType), "char");
+		= Create("char");
 	public static NeedsLocalization DateTimeType { get; }
-		= new(nameof(DateTimeType), "date");
+		= Create("date");
 	public static NeedsLocalization DecimalType { get; }
-		= new(nameof(DecimalType), $"number ({decimal.MinValue} to {decimal.MaxValue})");
+		= Create($"number ({decimal.MinValue} to {decimal.MaxValue})");
 	public static NeedsLocalization DoubleType { get; }
-		= new(nameof(DoubleType), $"number ({double.MinValue} to {double.MaxValue})");
+		= Create($"number ({double.MinValue} to {double.MaxValue})");
 	public static NeedsLocalization FloatType { get; }
-		= new(nameof(FloatType), $"number ({float.MinValue} to {float.MaxValue})");
+		= Create($"number ({float.MinValue} to {float.MaxValue})");
 	public static NeedsLocalization IntType { get; }
-		= new(nameof(IntType), $"integer ({int.MinValue} to {int.MaxValue})");
+		= Create($"integer ({int.MinValue} to {int.MaxValue})");
 	public static NeedsLocalization LongType { get; }
-		= new(nameof(LongType), $"integer ({long.MinValue} to {long.MaxValue})");
+		= Create($"integer ({long.MinValue} to {long.MaxValue})");
 	public static NeedsLocalization SByteType { get; }
-		= new(nameof(SByteType), $"integer ({sbyte.MinValue} to {sbyte.MaxValue})");
+		= Create($"integer ({sbyte.MinValue} to {sbyte.MaxValue})");
 	public static NeedsLocalization ShortType { get; }
-		= new(nameof(ShortType), $"integer ({short.MinValue} to {short.MaxValue})");
+		= Create($"integer ({short.MinValue} to {short.MaxValue})");
 	public static NeedsLocalization StringType { get; }
-		= new(nameof(StringType), "text");
+		= Create("text");
 	public static NeedsLocalization TimeSpanType { get; }
-		= new(nameof(TimeSpanType), "time");
+		= Create("time");
 	public static NeedsLocalization UIntType { get; }
-		= new(nameof(UIntType), $"integer ({uint.MinValue} to {uint.MaxValue})");
+		= Create($"integer ({uint.MinValue} to {uint.MaxValue})");
 	public static NeedsLocalization ULongType { get; }
-		= new(nameof(ULongType), $"integer ({ulong.MinValue} to {ulong.MaxValue})");
+		= Create($"integer ({ulong.MinValue} to {ulong.MaxValue})");
 	public static NeedsLocalization UriType { get; }
-		= new(nameof(UriType), "url");
+		= Create("url");
 	public static NeedsLocalization UShortType { get; }
-		= new(nameof(UShortType), $"integer ({ushort.MinValue} to {ushort.MaxValue})");
+		= Create($"integer ({ushort.MinValue} to {ushort.MaxValue})");
 	#endregion Types
 
 	#region Results
 	public static NeedsLocalization CanceledResult { get; }
-		= new(nameof(CanceledResult), "An operation was canceled.");
+		= Create("An operation was canceled.");
 	public static NeedsLocalization CommandNotFoundResult { get; }
-		= new(nameof(CommandNotFoundResult), "Unable to find a matching command.");
+		= Create("Unable to find a matching command.");
 	public static NeedsLocalization ExceptionAfterCommandResult { get; }
-		= new(nameof(ExceptionAfterCommandResult), "An exception occurred after a command was executed.");
+		= Create("An exception occurred after a command was executed.");
 	public static NeedsLocalization ExceptionDuringCommandResult { get; }
-		= new(nameof(ExceptionDuringCommandResult), "An exception occurred while a command was executing.");
+		= Create("An exception occurred while a command was executing.");
 	public static NeedsLocalization InteractionEndedResult { get; }
-		= new(nameof(InteractionEndedResult), "Interaction ended.");
+		= Create("Interaction ended.");
 	public static NeedsLocalization InUseMustBeInUse { get; }
-		= new(nameof(InUseMustBeInUse), "Unable to find an existing {0} matching the supplied value.");
+		= Create("Unable to find an existing {0} matching the supplied value.");
 	public static NeedsLocalization InUseMustNotBeInUse { get; }
-		= new(nameof(InUseMustNotBeInUse), "There is already an existing {0} matching the supplied value.");
+		= Create("There is already an existing {0} matching the supplied value.");
 	public static NeedsLocalization InvalidContextResult { get; }
-		= new(nameof(InvalidContextResult), "Invalid context type.");
+		= Create("Invalid context type.");
 	public static NeedsLocalization InvalidParameterResult { get; }
-		= new(nameof(InvalidParameterResult), "Invalid parameter type.");
+		= Create("Invalid parameter type.");
 	public static NeedsLocalization MultiMatchHandlingErrorResult { get; }
-		= new(nameof(MultiMatchHandlingErrorResult), "Multiple commands match.");
+		= Create("Multiple commands match.");
 	public static NeedsLocalization NamedArgBadCountResult { get; }
-		= new(nameof(NamedArgBadCountResult), "There is not an even number of arguments supplied.");
+		= Create("There is not an even number of arguments supplied.");
 	public static NeedsLocalization NamedArgDuplicateResult { get; }
-		= new(nameof(NamedArgDuplicateResult), "Duplicate value for named argument {0}.");
+		= Create("Duplicate value for named argument {0}.");
 	public static NeedsLocalization NamedArgInvalidDictionaryResult { get; }
-		= new(nameof(NamedArgInvalidDictionaryResult), "Invalid dictionary supplied.");
+		= Create("Invalid dictionary supplied.");
 	public static NeedsLocalization NamedArgNonExistentResult { get; }
-		= new(nameof(NamedArgNonExistentResult), "Nonexistent named argument {0}.");
+		= Create("Nonexistent named argument {0}.");
 	public static NeedsLocalization NotEnoughArgsResult { get; }
-		= new(nameof(NotEnoughArgsResult), "Not enough arguments provided.");
+		= Create("Not enough arguments provided.");
 	public static NeedsLocalization NullParameterResult { get; }
-		= new(nameof(NullParameterResult), "Parameter is null.");
+		= Create("Parameter is null.");
 	public static NeedsLocalization ParseFailedResult { get; }
-		= new(nameof(ParseFailedResult), "Failed to parse {0}.");
+		= Create("Failed to parse {0}.");
 	public static NeedsLocalization QuoteMismatchResult { get; }
-		= new(nameof(QuoteMismatchResult), "There is a quote mismatch.");
+		= Create("There is a quote mismatch.");
 	public static NeedsLocalization NamedArgMissingValueResult { get; }
-		= new(nameof(NamedArgMissingValueResult), "Missing a value for argument {0}.");
+		= Create("Missing a value for argument {0}.");
 	public static NeedsLocalization TimedOutResult { get; }
-		= new(nameof(TimedOutResult), "An operation timed out.");
+		= Create("An operation timed out.");
 	public static NeedsLocalization TooManyArgsResult { get; }
-		= new(nameof(TooManyArgsResult), "Too many arguments provided.");
+		= Create("Too many arguments provided.");
 	#endregion Results
 
 	#region Formats
 	public static NeedsLocalization ListNameFormat { get; }
-		= new(nameof(ListNameFormat), "{0} list");
+		= Create("{0} list");
 	public static NeedsLocalization NullableNameFormat { get; }
-		= new(nameof(NullableNameFormat), "{0} or null");
+		= Create("{0} or null");
 	#endregion Formats
+
+	private static NeedsLocalization Create(
+		string? fallback = null,
+		[CallerMemberName] string key = "")
+		=> new(key, fallback);
 }

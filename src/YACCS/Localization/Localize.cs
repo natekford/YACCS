@@ -1,4 +1,6 @@
-﻿namespace YACCS.Localization;
+﻿using System.Globalization;
+
+namespace YACCS.Localization;
 
 /// <summary>
 /// Utilities for localization.
@@ -17,16 +19,17 @@ public static class Localize
 	/// <param name="key">The key to search for.</param>
 	/// <param name="fallback">The fallback value if the key is not found.</param>
 	/// <returns>A localized string, or the fallback, or the key.</returns>
-	public static string GetSafely(this ILocalizer? localizer, string key, string? fallback = null)
+	public static string GetSafely(
+		this ILocalizer? localizer,
+		string key,
+		string? fallback = null)
 		=> localizer?.Get(key) ?? fallback ?? key;
 
 	/// <summary>
 	/// Calls <see cref="GetSafely(ILocalizer?, string, string?)"/> with
 	/// <see cref="Instance"/>.
 	/// </summary>
-	/// <param name="key">The key to search for.</param>
-	/// <param name="fallback">The fallback value if the key is not found.</param>
-	/// <returns>A localized string, or the fallback, or the key.</returns>
+	/// <inheritdoc cref="GetSafely(ILocalizer?, string, string?)"/>
 	public static string This(string key, string? fallback = null)
 		=> Instance.GetSafely(key, fallback);
 }

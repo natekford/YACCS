@@ -12,8 +12,7 @@ public class NullValidator : INullValidator
 	/// <summary>
 	/// The localized default values of null.
 	/// </summary>
-	protected virtual Localized<ISet<string>> Localized { get; } = new(_ => CreateSet());
-
+	protected virtual Localized<ISet<string>> Localized { get; }
 	/// <summary>
 	/// The additional values which represent null.
 	/// </summary>
@@ -33,6 +32,17 @@ public class NullValidator : INullValidator
 	public NullValidator(IImmutableSet<string> values)
 	{
 		Values = values;
+		Localized = new(_ =>
+		{
+			return new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+			{
+				Keys.Nil.Localized,
+				Keys.Nothing.Localized,
+				Keys.Null.Localized,
+				Keys.NullPtr.Localized,
+				Keys.Void.Localized,
+			};
+		});
 	}
 
 	/// <inheritdoc />
@@ -45,21 +55,5 @@ public class NullValidator : INullValidator
 
 		var value = input.Span[0];
 		return value is null || Values.Contains(value) || Localized.GetCurrent().Contains(value);
-	}
-
-	/// <summary>
-	/// The default values which represent null.
-	/// </summary>
-	/// <returns>A set of strings representing null.</returns>
-	protected static ISet<string> CreateSet()
-	{
-		return new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-		{
-			Keys.Nil,
-			Keys.Nothing,
-			Keys.Null,
-			Keys.NullPtr,
-			Keys.Void,
-		};
 	}
 }

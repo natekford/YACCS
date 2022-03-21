@@ -1,9 +1,11 @@
-﻿namespace YACCS.Localization;
+﻿using System.Globalization;
+
+namespace YACCS.Localization;
 
 /// <summary>
 /// Localizes a string or displays a fallback.
 /// </summary>
-public sealed class NeedsLocalization
+public readonly struct NeedsLocalization
 {
 	/// <summary>
 	/// The value to use when <see cref="Key"/> is not registered
@@ -33,10 +35,6 @@ public sealed class NeedsLocalization
 		Key = key;
 		Fallback = fallback;
 	}
-
-	/// <inheritdoc cref="ToString" />
-	public static implicit operator string(NeedsLocalization localized)
-		=> localized.ToString();
 
 	/// <inheritdoc />
 	public override string ToString()

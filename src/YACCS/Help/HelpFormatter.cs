@@ -101,28 +101,23 @@ public class HelpFormatter : IHelpFormatter
 		/// <summary>
 		/// The header for the attributes section.
 		/// </summary>
-		protected virtual string HeaderAttributes
-			=> FormatProvider.Format(ToHeader(Keys.Attributes));
+		protected virtual string HeaderAttributes => ToHeader(Keys.Attributes);
 		/// <summary>
 		/// The header for the names section.
 		/// </summary>
-		protected virtual string HeaderNames
-			=> FormatProvider.Format(ToHeader(Keys.Names));
+		protected virtual string HeaderNames => ToHeader(Keys.Names);
 		/// <summary>
 		/// The header for the parameters section.
 		/// </summary>
-		protected virtual string HeaderParameters
-			=> FormatProvider.Format(ToHeader(Keys.Parameters));
+		protected virtual string HeaderParameters => ToHeader(Keys.Parameters);
 		/// <summary>
 		/// The header for the preconditions section.
 		/// </summary>
-		protected virtual string HeaderPreconditions
-			=> FormatProvider.Format(ToHeader(Keys.Preconditions));
+		protected virtual string HeaderPreconditions => ToHeader(Keys.Preconditions);
 		/// <summary>
 		/// The header for the summary section.
 		/// </summary>
-		protected virtual string HeaderSummary
-			=> FormatProvider.Format(ToHeader(Keys.Summary));
+		protected virtual string HeaderSummary => ToHeader(Keys.Summary);
 		/// <summary>
 		/// The string builder creating the text representing this help command.
 		/// </summary>
@@ -230,7 +225,7 @@ public class HelpFormatter : IHelpFormatter
 				var groupHeader = group;
 				if (!string.IsNullOrWhiteSpace(groupHeader))
 				{
-					groupHeader = FormatProvider.Format(ToHeader(groupHeader));
+					groupHeader = ToHeader(groupHeader);
 				}
 
 				foreach (var items in lookup)
@@ -354,7 +349,10 @@ public class HelpFormatter : IHelpFormatter
 			StringBuilder.AppendLine(value);
 		}
 
-		private static FormattableString ToHeader(string value)
-			=> $"{value:header} ";
+		private string ToHeader(string value)
+			=> FormatProvider.Format($"{value:header} ");
+
+		private string ToHeader(NeedsLocalization key)
+			=> ToHeader(key.Localized);
 	}
 }

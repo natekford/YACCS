@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Immutable;
+using System.Globalization;
 
 namespace YACCS.Localization;
 
@@ -7,12 +8,12 @@ namespace YACCS.Localization;
 /// </summary>
 public class AggregateLocalizer : ILocalizer
 {
-	private readonly List<ILocalizer> _NestedLocalizers = new();
+	private ImmutableArray<ILocalizer> _Localizers = ImmutableArray<ILocalizer>.Empty;
 
 	/// <summary>
 	/// Whether or not there are any localizers inside this one.
 	/// </summary>
-	public bool IsEmpty => _NestedLocalizers.Count == 0;
+	public bool IsEmpty => _Localizers.Length == 0;
 
 	/// <summary>
 	/// Fires when a key isn't found in any of the localizers.
@@ -25,10 +26,10 @@ public class AggregateLocalizer : ILocalizer
 	/// <param name="localizer">The localizer to add.</param>
 	public void Append(ILocalizer localizer)
 	{
-		lock (_NestedLocalizers)
+		ImmutableInterlocked.Update(ref _Localizers, static (array, arg) =>
 		{
-			_NestedLocalizers.Add(localizer);
-		}
+			return array.Add(arg);
+		}, localizer);
 	}
 
 	/// <inheritdoc />
@@ -36,14 +37,11 @@ public class AggregateLocalizer : ILocalizer
 	{
 		culture ??= CultureInfo.CurrentUICulture;
 
-		lock (_NestedLocalizers)
+		foreach (var localizer in _Localizers)
 		{
-			foreach (var localizer in _NestedLocalizers)
+			if (localizer.Get(key, culture) is string s)
 			{
-				if (localizer.Get(key, culture) is string s)
-				{
-					return s;
-				}
+				return s;
 			}
 		}
 
@@ -57,9 +55,9 @@ public class AggregateLocalizer : ILocalizer
 	/// <param name="localizer">The localizer to add.</param>
 	public void Prepend(ILocalizer localizer)
 	{
-		lock (_NestedLocalizers)
+		ImmutableInterlocked.Update(ref _Localizers, static (array, arg) =>
 		{
-			_NestedLocalizers.Insert(0, localizer);
-		}
+			return array.Insert(0, arg);
+		}, localizer);
 	}
 }
