@@ -27,7 +27,7 @@ public class DateTimeTypeReader<T> : TryParseTypeReader<T>
 	{
 		return (string input, out T result) =>
 		{
-			var provider = CultureInfo.InvariantCulture;
+			var provider = CultureInfo.CurrentCulture;
 			const DateTimeStyles STYLE = DateTimeStyles.None;
 			return @delegate(input, provider, STYLE, out result);
 		};

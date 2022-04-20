@@ -27,7 +27,7 @@ public class NumberTypeReader<T> : TryParseTypeReader<T>
 	{
 		return (string input, out T result) =>
 		{
-			var provider = CultureInfo.InvariantCulture;
+			var provider = CultureInfo.CurrentCulture;
 			const NumberStyles STYLE = NumberStyles.Number;
 			return @delegate(input, STYLE, provider, out result);
 		};

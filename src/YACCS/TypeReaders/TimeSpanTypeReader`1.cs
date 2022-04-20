@@ -26,7 +26,7 @@ public class TimeSpanTypeReader<T> : TryParseTypeReader<T>
 	{
 		return (string input, out T result) =>
 		{
-			var provider = CultureInfo.InvariantCulture;
+			var provider = CultureInfo.CurrentCulture;
 			return @delegate(input, provider, out result);
 		};
 	}
