@@ -67,11 +67,13 @@ public class Help : ConsoleCommands
 				Console.WriteLine($"\t{i + 1}. {executableCommands[i].Paths[0]}");
 			}
 
-			var options = Input.CreateOptions().With(preconditions: new[]
+			var result = await Input.InferGetAsync(Context, default(int), new()
 			{
-						new RangeParameterPrecondition(1, executableCommands.Count)
-				});
-			var result = await Input.GetAsync(Context, options).ConfigureAwait(false);
+				Preconditions = new[]
+				{
+					new RangeParameterPrecondition(1, executableCommands.Count)
+				}
+			}).ConfigureAwait(false);
 			if (!result.InnerResult.IsSuccess)
 			{
 				return result.InnerResult;

@@ -8,8 +8,7 @@ namespace YACCS.Interactivity.Pagination;
 /// <typeparam name="TContext"></typeparam>
 /// <typeparam name="TInput"></typeparam>
 public interface IPaginatorOptions<in TContext, in TInput> :
-	IInteractivityOptions<TContext, TInput>
-	where TContext : IContext
+	IInteractivityOptions<TContext, TInput> where TContext : IContext
 {
 	/// <summary>
 	/// The callback to invoke when a new page is navigated to.
@@ -18,7 +17,7 @@ public interface IPaginatorOptions<in TContext, in TInput> :
 	/// <summary>
 	/// The max page allowed.
 	/// </summary>
-	int MaxPage { get; }
+	int? MaxPage { get; }
 	/// <summary>
 	/// The starting page.
 	/// </summary>

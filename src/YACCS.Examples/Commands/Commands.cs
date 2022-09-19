@@ -50,17 +50,16 @@ public class Commands : ConsoleCommands
 	[Command(nameof(Pagination))]
 	public async Task Pagination()
 	{
-		var options = Paginator.CreateOptions().With(
-			maxPage: 100,
-			displayCallback: page =>
-			{
-				Console.WriteLine($"Page #{page}");
-				return Task.CompletedTask;
-			},
-			startingPage: 0,
-			timeout: TimeSpan.FromSeconds(30)
-		);
-		await Paginator.PaginateAsync(Context, options).ConfigureAwait(false);
+		await Paginator.InferPaginateAsync(Context, new(DisplayCallback: page =>
+		{
+			Console.WriteLine($"Page #{page}");
+			return Task.CompletedTask;
+		})
+		{
+			MaxPage = 100,
+			StartingPage = 0,
+			Timeout = TimeSpan.FromSeconds(30),
+		}).ConfigureAwait(false);
 	}
 
 	[Command(nameof(Result))]

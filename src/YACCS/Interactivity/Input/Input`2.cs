@@ -50,7 +50,7 @@ public abstract class Input<TContext, TInput> :
 		var eventTrigger = new TaskCompletionSource<TValue>(TaskCreationOptions.RunContinuationsAsynchronously);
 		return HandleInteractionAsync(context, options, eventTrigger, async input =>
 		{
-			foreach (var criterion in options.Criteria)
+			foreach (var criterion in options.Criteria.ThisOrEmpty())
 			{
 				var result = await criterion.JudgeAsync(context, input).ConfigureAwait(false);
 				if (!result.IsSuccess)
@@ -67,7 +67,7 @@ public abstract class Input<TContext, TInput> :
 			}
 
 			var meta = new CommandMeta(EmptyCommand, EmptyParameter<TValue>.Instance);
-			foreach (var precondition in options.Preconditions)
+			foreach (var precondition in options.Preconditions.ThisOrEmpty())
 			{
 				var result = await precondition.CheckAsync(
 					meta,

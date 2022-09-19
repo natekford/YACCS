@@ -25,7 +25,7 @@ public abstract class Paginator<TContext, TInput> :
 		var eventTrigger = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
 		var result = await HandleInteractionAsync(context, options, eventTrigger, async input =>
 		{
-			foreach (var criterion in options.Criteria)
+			foreach (var criterion in options.Criteria.ThisOrEmpty())
 			{
 				var result = await criterion.JudgeAsync(context, input).ConfigureAwait(false);
 				if (!result.IsSuccess)
@@ -80,8 +80,8 @@ public abstract class Paginator<TContext, TInput> :
 	/// <br/>
 	/// (current: 5, max: 7: diff: -6) => current = 6
 	/// </remarks>
-	protected virtual int GetNewPage(int current, int max, int diff)
-		=> Mod(current + diff, max);
+	protected virtual int GetNewPage(int current, int? max, int diff)
+		=> max is int m ? Mod(current + diff, m) : current + diff;
 
 	private static int Mod(int a, int b)
 		=> b == 0 ? 0 : (int)(a - (b * Math.Floor((double)a / b)));

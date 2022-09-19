@@ -11,13 +11,12 @@ namespace YACCS.Interactivity.Input;
 /// <typeparam name="TInput"></typeparam>
 /// <typeparam name="TValue"></typeparam>
 public interface IInputOptions<in TContext, in TInput, TValue> :
-	IInteractivityOptions<TContext, TInput>
-	where TContext : IContext
+	IInteractivityOptions<TContext, TInput> where TContext : IContext
 {
 	/// <summary>
 	/// Used for validating the parsed vaue.
 	/// </summary>
-	IEnumerable<IParameterPrecondition<TContext, TValue>> Preconditions { get; }
+	IEnumerable<IParameterPrecondition<TContext, TValue>>? Preconditions { get; }
 	/// <summary>
 	/// Used for parsing a value from the input.
 	/// </summary>

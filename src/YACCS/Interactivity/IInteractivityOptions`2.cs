@@ -13,5 +13,5 @@ public interface IInteractivityOptions<in TContext, in TInput> : IInteractivityO
 	/// <summary>
 	/// Criteria for determining if an input source is valid.
 	/// </summary>
-	IEnumerable<ICriterion<TContext, TInput>> Criteria { get; }
+	IEnumerable<ICriterion<TContext, TInput>>? Criteria { get; }
 }
