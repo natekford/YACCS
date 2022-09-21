@@ -15,7 +15,7 @@ public abstract class Paginator<TContext, TInput> :
 	/// <inheritdoc />
 	public virtual async Task<IResult> PaginateAsync(
 		TContext context,
-		IPaginatorOptions<TContext, TInput> options)
+		PaginatorOptions<TContext, TInput> options)
 	{
 		var page = options.StartingPage ?? 0;
 

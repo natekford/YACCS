@@ -16,5 +16,5 @@ public interface IPaginator<TContext, TInput> where TContext : IContext
 	/// <param name="context">The context which initialized pagination.</param>
 	/// <param name="options">The options to use while paginating.</param>
 	/// <returns>A result indicating success or failure.</returns>
-	Task<IResult> PaginateAsync(TContext context, IPaginatorOptions<TContext, TInput> options);
+	Task<IResult> PaginateAsync(TContext context, PaginatorOptions<TContext, TInput> options);
 }

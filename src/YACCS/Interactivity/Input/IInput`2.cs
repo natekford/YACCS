@@ -20,5 +20,5 @@ public interface IInput<TContext, TInput> where TContext : IContext
 	/// <returns>A result indicating success or failure.</returns>
 	Task<ITypeReaderResult<TValue>> GetAsync<TValue>(
 		TContext context,
-		IInputOptions<TContext, TInput, TValue> options);
+		InputOptions<TContext, TInput, TValue> options);
 }

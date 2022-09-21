@@ -20,8 +20,7 @@ public delegate Task<IResult> OnInput<TInput>(TInput input);
 public abstract class Interactivity<TContext, TInput> where TContext : IContext
 {
 	/// <summary>
-	/// The amount of time to wait when <see cref="IInteractivityOptions.Timeout"/>
-	/// is <see langword="null"/>.
+	/// The amount of time to wait when no timeout is supplied.
 	/// </summary>
 	protected virtual TimeSpan DefaultTimeout { get; } = TimeSpan.FromSeconds(5);
 
@@ -47,7 +46,7 @@ public abstract class Interactivity<TContext, TInput> where TContext : IContext
 	/// <returns>A result indicating success or failure.</returns>
 	protected virtual async Task<ITypeReaderResult<TValue>> HandleInteractionAsync<TValue>(
 		TContext context,
-		IInteractivityOptions<TContext, TInput> options,
+		InteractivityOptions<TContext, TInput> options,
 		TaskCompletionSource<TValue> eventTrigger,
 		OnInput<TInput> handler)
 	{

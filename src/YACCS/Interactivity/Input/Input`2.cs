@@ -45,7 +45,7 @@ public abstract class Input<TContext, TInput> :
 	/// <inheritdoc />
 	public virtual Task<ITypeReaderResult<TValue>> GetAsync<TValue>(
 		TContext context,
-		IInputOptions<TContext, TInput, TValue> options)
+		InputOptions<TContext, TInput, TValue> options)
 	{
 		var eventTrigger = new TaskCompletionSource<TValue>(TaskCreationOptions.RunContinuationsAsynchronously);
 		return HandleInteractionAsync(context, options, eventTrigger, async input =>

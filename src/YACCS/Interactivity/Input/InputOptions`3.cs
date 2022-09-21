@@ -4,11 +4,15 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Interactivity.Input;
 
-/// <inheritdoc cref="IInputOptions{TContext, TInput, TValue}"/>
+/// <summary>
+/// Interactivity options which support reading values from input.
+/// </summary>
+/// <typeparam name="TContext"></typeparam>
+/// <typeparam name="TInput"></typeparam>
+/// <typeparam name="TValue"></typeparam>
+/// <param name="Preconditions">Used for validating the parsed vaue.</param>
+/// <param name="TypeReader">Used for parsing a value from the input.</param>
 public record InputOptions<TContext, TInput, TValue>(
-	IEnumerable<ICriterion<TContext, TInput>>? Criteria = null,
 	IEnumerable<IParameterPrecondition<TContext, TValue>>? Preconditions = null,
-	TimeSpan? Timeout = null,
-	CancellationToken? Token = null,
 	ITypeReader<TValue>? TypeReader = null
-) : IInputOptions<TContext, TInput, TValue> where TContext : IContext;
+) : InteractivityOptions<TContext, TInput> where TContext : IContext;

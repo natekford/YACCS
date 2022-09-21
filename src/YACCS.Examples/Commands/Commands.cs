@@ -2,7 +2,6 @@
 using YACCS.Commands.Models;
 using YACCS.Examples.Preconditions;
 using YACCS.Help.Attributes;
-using YACCS.Interactivity;
 using YACCS.NamedArguments;
 using YACCS.Results;
 
@@ -50,11 +49,13 @@ public class Commands : ConsoleCommands
 	[Command(nameof(Pagination))]
 	public async Task Pagination()
 	{
-		await Paginator.InferPaginateAsync(Context, new(DisplayCallback: page =>
+		Task DisplayAsync(int page)
 		{
 			Console.WriteLine($"Page #{page}");
 			return Task.CompletedTask;
-		})
+		}
+
+		await Paginator.PaginateAsync(Context, new(DisplayCallback: DisplayAsync)
 		{
 			MaxPage = 100,
 			StartingPage = 0,
