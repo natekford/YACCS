@@ -2,6 +2,7 @@
 
 using MorseCode.ITask;
 
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 using YACCS.Commands;
@@ -63,7 +64,8 @@ public class TypeReaderRegistry_Tests
 	[TestMethod]
 	public async Task RegisterChildTypeReaderToParent_Test()
 	{
-		var reader = new TryParseTypeReader<Child>((string input, out Child output) =>
+		var reader = new TryParseTypeReader<Child>(
+			(string input, [MaybeNullWhen(false)] out Child output) =>
 		{
 			output = new Child();
 			return true;
@@ -90,7 +92,8 @@ public class TypeReaderRegistry_Tests
 	[TestMethod]
 	public void RegisterValueType_Test()
 	{
-		var reader = new TryParseTypeReader<FakeStruct>((string input, out FakeStruct output) =>
+		var reader = new TryParseTypeReader<FakeStruct>(
+			(string input, [MaybeNullWhen(false)] out FakeStruct output) =>
 		{
 			output = new FakeStruct();
 			return true;
@@ -141,7 +144,7 @@ public class TypeReaderRegistry_Tests
 			public ITypeReader GenerateTypeReader(Type type)
 			{
 				return new TryParseTypeReader<WillCreateAggregate>(
-					(string input, out WillCreateAggregate value) =>
+					(string input, [MaybeNullWhen(false)] out WillCreateAggregate value) =>
 				{
 					var result = double.TryParse(input, out var @double);
 					value = new WillCreateAggregate { DoubleValue = result ? @double : null };
@@ -156,7 +159,7 @@ public class TypeReaderRegistry_Tests
 			public ITypeReader GenerateTypeReader(Type type)
 			{
 				return new TryParseTypeReader<WillCreateAggregate>(
-					(string input, out WillCreateAggregate value) =>
+					(string input, [MaybeNullWhen(false)] out WillCreateAggregate value) =>
 				{
 					var result = int.TryParse(input, out var @int);
 					value = new WillCreateAggregate { IntValue = result ? @int : null };

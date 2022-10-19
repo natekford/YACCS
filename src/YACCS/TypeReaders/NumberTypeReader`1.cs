@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 namespace YACCS.TypeReaders;
 
@@ -25,7 +26,7 @@ public class NumberTypeReader<T> : TryParseTypeReader<T>
 
 	private static TryParseDelegate<T> Convert(NumberDelegate<T> @delegate)
 	{
-		return (string input, out T result) =>
+		return (string input, [MaybeNullWhen(false)] out T result) =>
 		{
 			var provider = CultureInfo.CurrentCulture;
 			const NumberStyles STYLE = NumberStyles.Number;
