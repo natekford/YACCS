@@ -6,7 +6,7 @@ using YACCS.Commands;
 
 namespace YACCS.Trie;
 
-/// <inheritdoc cref="IReadOnlyTrie{TKey, TValue}" />
+/// <inheritdoc cref="ITrie{TKey, TValue}" />
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 public abstract class Trie<TKey, TValue> : ITrie<TKey, TValue>
 {
@@ -82,9 +82,11 @@ public abstract class Trie<TKey, TValue> : ITrie<TKey, TValue>
 		foreach (var path in GetPaths(item))
 		{
 			var node = _Root;
-			foreach (var key in path)
+			foreach (var segment in path)
 			{
-				if (!node.TryGetEdge(key, out node))
+				// If a segment of the path cannot be found then this path is
+				// not in the trie
+				if (!node.TryGetEdge(segment, out node))
 				{
 					break;
 				}
@@ -137,10 +139,7 @@ public abstract class Trie<TKey, TValue> : ITrie<TKey, TValue>
 			}
 		}
 		public Node this[TKey key]
-		{
-			get => _Edges[key];
-			set => _Edges[key] = value;
-		}
+			=> _Edges[key];
 
 		INode<TKey, TValue> INode<TKey, TValue>.this[TKey key]
 			=> this[key];
@@ -162,10 +161,6 @@ public abstract class Trie<TKey, TValue> : ITrie<TKey, TValue>
 			_Edges.Clear();
 			_Items.Clear();
 		}
-
-		public bool Contains(TValue item)
-			// Only direct items since the node has already been found via name
-			=> _Items.Contains(item);
 
 		public IEnumerator<TValue> GetEnumerator()
 			=> _Items.GetEnumerator();

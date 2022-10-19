@@ -1,8 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using YACCS.Commands;
 using YACCS.Trie;
 
-namespace YACCS.Tests.Commands;
+namespace YACCS.Tests.Trie;
 
 [TestClass]
 public sealed class Trie_Tests
@@ -11,15 +12,47 @@ public sealed class Trie_Tests
 	private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(1);
 
 	[TestMethod]
+	public void CopyTo_Test()
+	{
+		var values = new HashSet<int>()
+		{
+			8, 1, 2, 4, 5, 3, 7, 6, 9, 0
+		};
+
+		var trie = new IntTrie();
+		foreach (var value in values)
+		{
+			trie.Add(value);
+		}
+		Assert.AreEqual(values.Count, trie.Count);
+
+		var output = new int[values.Count];
+		trie.CopyTo(output, 0);
+
+		Assert.IsTrue(values.SetEquals(output));
+	}
+
+	[TestMethod]
+	public void DuplicateIgnored_Test()
+	{
+		var trie = new IntTrie();
+		Assert.AreEqual(0, trie.Count);
+		trie.Add(1);
+		Assert.AreEqual(1, trie.Count);
+		trie.Add(1);
+		Assert.AreEqual(1, trie.Count);
+	}
+
+	[TestMethod]
 	public async Task Threading_Test()
 	{
 		await Threading_Test(new HashSet<int>()).ConfigureAwait(false);
-		await Threading_Test(new TestTrie()).ConfigureAwait(false);
+		await Threading_Test(new IntTrie()).ConfigureAwait(false);
 	}
 
 	private static async Task Threading_Test(ICollection<int> collection)
 	{
-		var wrapper = new Wrapper(collection);
+		var wrapper = new IntTrieWrapper(collection);
 		var tcs = new TaskCompletionSource();
 		var task = Task.Run(async () =>
 		{
@@ -61,9 +94,9 @@ public sealed class Trie_Tests
 		Assert.AreEqual(wrapper.ExpectedCount, collection.Count);
 	}
 
-	private sealed class TestTrie : Trie<int, int>
+	private sealed class IntTrie : Trie<int, int>
 	{
-		public TestTrie() : base(EqualityComparer<int>.Default)
+		public IntTrie() : base(EqualityComparer<int>.Default)
 		{
 		}
 
@@ -71,12 +104,12 @@ public sealed class Trie_Tests
 			=> new[] { new[] { item } };
 	}
 
-	private sealed class Wrapper
+	private sealed class IntTrieWrapper
 	{
 		private readonly ICollection<int> _Collection;
 		public int ExpectedCount { get; set; } = SIZE;
 
-		public Wrapper(ICollection<int> collection)
+		public IntTrieWrapper(ICollection<int> collection)
 		{
 			_Collection = collection;
 		}

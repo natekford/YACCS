@@ -2,6 +2,10 @@
 
 using MorseCode.ITask;
 
+using System.Collections;
+using System.Collections.Immutable;
+using System.Reflection;
+
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
@@ -289,6 +293,30 @@ public class CommandTrie_Tests
 		});
 	}
 
+	[TestMethod]
+	public void RemoveInvalidPath_Test()
+	{
+		var command = FakeDelegateCommand.New()
+			.AddPath(new[] { "a", "b" })
+			.ToImmutable();
+		_Trie.Add(command);
+
+		var extraPath = new ExtraPath(new[] { "a", "c" });
+		var newPaths = command.Paths.Append(extraPath).ToImmutableArray();
+
+		var pathField = command.GetType().BaseType!.GetField(
+			$"<{nameof(command.Paths)}>k__BackingField",
+			BindingFlags.Instance | BindingFlags.NonPublic
+		)!;
+		Assert.IsNotNull(pathField);
+		pathField.SetValue(command, newPaths);
+
+		Assert.AreEqual(0, extraPath.TimesEnumerated);
+		_Trie.Remove(command);
+
+		Assert.AreEqual(1, extraPath.TimesEnumerated);
+	}
+
 	private void AssertFindTest(
 		string[] path,
 		int? expectedCount,
@@ -307,7 +335,32 @@ public class CommandTrie_Tests
 		assert?.Invoke(found);
 	}
 
-	public sealed class TestTypeReader : ITypeReader
+	private sealed class ExtraPath : IReadOnlyList<string>
+	{
+		private readonly IReadOnlyList<string> _Value;
+
+		public int Count => _Value.Count;
+		public int TimesEnumerated { get; private set; }
+
+		public string this[int index]
+			=> _Value[index];
+
+		public ExtraPath(IReadOnlyList<string> value)
+		{
+			_Value = value;
+		}
+
+		public IEnumerator<string> GetEnumerator()
+		{
+			++TimesEnumerated;
+			return _Value.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+			=> GetEnumerator();
+	}
+
+	private sealed class TestTypeReader : ITypeReader
 	{
 		public Type ContextType { get; }
 		public Type OutputType => typeof(string);
