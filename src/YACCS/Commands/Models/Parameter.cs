@@ -155,49 +155,31 @@ public sealed class Parameter : EntityBase, IParameter
 			foreach (var attribute in mutable.Attributes)
 			{
 				attributes.Add(attribute);
-				switch (attribute)
+				// No if/else in case some madman decides to implement multiple
+				if (attribute is IParameterPrecondition precondition)
 				{
-					case IParameterPrecondition precondition:
-						if (precondition.Groups.Count == 0)
-						{
-							preconditions
-								.GetOrAdd(string.Empty, _ => new())
-								.Add(precondition);
-						}
-						else
-						{
-							foreach (var group in precondition.Groups)
-							{
-								preconditions
-									.GetOrAdd(group, _ => new())
-									.Add(precondition);
-							}
-						}
-						break;
-
-					case ILengthAttribute length:
-						Length = length.ThrowIfDuplicate(x => x.Length, ref l);
-						break;
-
-					case INameAttribute name:
-						ParameterName = name.ThrowIfDuplicate(x => x.Name, ref n);
-						break;
-
-					case IOverrideTypeReaderAttribute typeReader:
-						typeReader.Reader.ThrowIfInvalidTypeReader(ParameterType);
-						TypeReader = typeReader.ThrowIfDuplicate(x => x.Reader, ref t);
-						break;
-
-					case IIdAttribute id:
-						PrimaryId ??= id.Id;
-						break;
+					preconditions.AddPrecondition(precondition);
+				}
+				if (attribute is ILengthAttribute length)
+				{
+					Length = length.ThrowIfDuplicate(x => x.Length, ref l);
+				}
+				if (attribute is INameAttribute name)
+				{
+					ParameterName = name.ThrowIfDuplicate(x => x.Name, ref n);
+				}
+				if (attribute is IOverrideTypeReaderAttribute typeReader)
+				{
+					typeReader.Reader.ThrowIfInvalidTypeReader(ParameterType);
+					TypeReader = typeReader.ThrowIfDuplicate(x => x.Reader, ref t);
+				}
+				if (attribute is IIdAttribute id)
+				{
+					PrimaryId ??= id.Id;
 				}
 			}
 			Attributes = attributes.MoveToImmutable();
-			Preconditions = preconditions.ToImmutableDictionary(
-				x => x.Key,
-				x => (IReadOnlyList<IParameterPrecondition>)x.Value.ToImmutableArray()
-			);
+			Preconditions = preconditions.ToImmutablePreconditions();
 
 			TypeReader ??= mutable.TypeReader;
 			ParameterName ??= mutable.OriginalParameterName;

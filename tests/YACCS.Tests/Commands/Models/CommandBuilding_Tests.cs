@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using MorseCode.ITask;
 
+using System;
 using System.Runtime.CompilerServices;
 
 using YACCS.Commands;
@@ -102,6 +103,25 @@ public class CommandBuilding_Tests
 	}
 
 	[TestMethod]
+	public async Task HiddenAttribute_Test()
+	{
+		var commands = new List<IImmutableCommand>();
+		await foreach (var (_, command) in typeof(HiddenAttributeGroup).GetAllCommandsAsync(EmptyServiceProvider.Instance))
+		{
+			commands.Add(command);
+		}
+		Assert.AreEqual(2, commands.Count);
+
+		var hidden = commands.ById(HiddenAttributeGroup.HIDDEN).SingleOrDefault();
+		Assert.IsNotNull(hidden);
+		Assert.IsTrue(hidden.IsHidden);
+
+		var visible = commands.ById(HiddenAttributeGroup.VISIBLE).SingleOrDefault();
+		Assert.IsNotNull(visible);
+		Assert.IsFalse(visible.IsHidden);
+	}
+
+	[TestMethod]
 	public void OverriddenTypeReader_Test()
 	{
 		static void Delegate([FakeTypeReader] string value)
@@ -124,6 +144,47 @@ public class CommandBuilding_Tests
 		{
 			_ = new DelegateCommand(Delegate, Paths).ToImmutable();
 		});
+	}
+
+	[TestMethod]
+	public void RemainderAttributeInvalid_Test()
+	{
+		var commands = typeof(RemainderAttributeGroup).CreateMutableCommands();
+		Assert.AreEqual(3, commands.Count);
+
+		var invalid = commands.ById(RemainderAttributeGroup.INVALID_REMAINDER).SingleOrDefault();
+		Assert.IsNotNull(invalid);
+
+		Assert.ThrowsException<InvalidOperationException>(() =>
+		{
+			_ = invalid.ToImmutable();
+		});
+	}
+
+	[TestMethod]
+	public void RemainderAttributeParams_Test()
+	{
+		var commands = typeof(RemainderAttributeGroup).CreateMutableCommands();
+		Assert.AreEqual(3, commands.Count);
+
+		var @params = commands.ById(RemainderAttributeGroup.PARAMS).SingleOrDefault();
+		Assert.IsNotNull(@params);
+
+		var immutable = @params.ToImmutable();
+		Assert.AreEqual(int.MaxValue, immutable.MaxLength);
+	}
+
+	[TestMethod]
+	public void RemainderAttributeValid_Test()
+	{
+		var commands = typeof(RemainderAttributeGroup).CreateMutableCommands();
+		Assert.AreEqual(3, commands.Count);
+
+		var valid = commands.ById(RemainderAttributeGroup.VALID_REMAINDER).SingleOrDefault();
+		Assert.IsNotNull(valid);
+
+		var immutable = valid.ToImmutable();
+		Assert.AreEqual(int.MaxValue, immutable.MaxLength);
 	}
 
 	[TestMethod]
@@ -199,5 +260,39 @@ public class CommandBuilding_Tests
 
 	private class GroupGeneric<T> : GroupBase
 	{
+	}
+
+	private class HiddenAttributeGroup : CommandGroup<FakeContext>
+	{
+		public const string HIDDEN = "hidden";
+		public const string VISIBLE = "visible";
+
+		[Command(nameof(Hidden))]
+		[Id(HIDDEN)]
+		[Hidden]
+		public IResult Hidden() => Success.Instance;
+
+		[Command(nameof(Visible))]
+		[Id(VISIBLE)]
+		public IResult Visible() => Success.Instance;
+	}
+
+	private class RemainderAttributeGroup : CommandGroup<FakeContext>
+	{
+		public const string INVALID_REMAINDER = "invalid";
+		public const string PARAMS = "params";
+		public const string VALID_REMAINDER = "valid";
+
+		[Command(nameof(InvalidRemainder))]
+		[Id(INVALID_REMAINDER)]
+		public IResult InvalidRemainder([Remainder] string[] input, int a) => Success.Instance;
+
+		[Command(nameof(Params))]
+		[Id(PARAMS)]
+		public IResult Params(params string[] input) => Success.Instance;
+
+		[Command(nameof(ValidRemainder))]
+		[Id(VALID_REMAINDER)]
+		public IResult ValidRemainder([Remainder] string[] input) => Success.Instance;
 	}
 }

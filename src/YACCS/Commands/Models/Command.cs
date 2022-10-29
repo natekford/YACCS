@@ -162,44 +162,26 @@ public abstract class Command : EntityBase, ICommand
 			foreach (var attribute in mutable.Attributes)
 			{
 				attributes.Add(attribute);
-				switch (attribute)
+				// No if/else in case some madman decides to implement multiple
+				if (attribute is IPrecondition precondition)
 				{
-					case IPrecondition precondition:
-						if (precondition.Groups.Count == 0)
-						{
-							preconditions
-								.GetOrAdd(string.Empty, _ => new())
-								.Add(precondition);
-						}
-						else
-						{
-							foreach (var group in precondition.Groups)
-							{
-								preconditions
-									.GetOrAdd(group, _ => new())
-									.Add(precondition);
-							}
-						}
-						break;
-
-					case IPriorityAttribute priority:
-						Priority = priority.ThrowIfDuplicate(x => x.Priority, ref p);
-						break;
-
-					case IIdAttribute id:
-						PrimaryId ??= id.Id;
-						break;
-
-					case IHiddenAttribute:
-						IsHidden = true;
-						break;
+					preconditions.AddPrecondition(precondition);
+				}
+				if (attribute is IPriorityAttribute priority)
+				{
+					Priority = priority.ThrowIfDuplicate(x => x.Priority, ref p);
+				}
+				if (attribute is IIdAttribute id)
+				{
+					PrimaryId ??= id.Id;
+				}
+				if (attribute is IHiddenAttribute)
+				{
+					IsHidden = true;
 				}
 			}
 			Attributes = attributes.MoveToImmutable();
-			Preconditions = preconditions.ToImmutableDictionary(
-				x => x.Key,
-				x => (IReadOnlyList<IPrecondition>)x.Value.ToImmutableArray()
-			);
+			Preconditions = preconditions.ToImmutablePreconditions();
 
 			PrimaryId ??= Guid.NewGuid().ToString();
 		}

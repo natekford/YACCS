@@ -1,4 +1,9 @@
-﻿namespace YACCS.Commands.Attributes;
+﻿using System.Collections.Concurrent;
+using System.Collections.Immutable;
+
+using YACCS.Preconditions;
+
+namespace YACCS.Commands.Attributes;
 
 /// <summary>
 /// Utilities for attributes.
@@ -22,6 +27,17 @@ public static class AttributeUtils
 		| AttributeTargets.Property
 		| AttributeTargets.Field;
 
+	internal static void AddPrecondition<TPrecondition>(
+		this ConcurrentDictionary<string, List<TPrecondition>> dict,
+		TPrecondition precondition)
+		where TPrecondition : IGroupablePrecondition
+	{
+		foreach (var group in precondition.Groups.DefaultIfEmpty(string.Empty))
+		{
+			dict.GetOrAdd(group, _ => new()).Add(precondition);
+		}
+	}
+
 	internal static TValue ThrowIfDuplicate<TAttribute, TValue>(
 		this TAttribute attribute,
 		Func<TAttribute, TValue> converter,
@@ -35,5 +51,14 @@ public static class AttributeUtils
 
 		++count;
 		return converter.Invoke(attribute);
+	}
+
+	internal static ImmutableDictionary<string, IReadOnlyList<TPrecondition>> ToImmutablePreconditions<TPrecondition>(
+		this IDictionary<string, List<TPrecondition>> dict)
+	{
+		return dict.ToImmutableDictionary(
+			x => x.Key,
+			x => (IReadOnlyList<TPrecondition>)x.Value.ToImmutableArray()
+		);
 	}
 }
