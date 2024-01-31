@@ -50,7 +50,5 @@ public sealed class CommandGroup_Tests
 		Assert.AreSame(_Context, _Concrete.Context);
 	}
 
-	private sealed class TestGroup : CommandGroup<FakeContext>
-	{
-	}
+	private sealed class TestGroup : CommandGroup<FakeContext>;
 }

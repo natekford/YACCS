@@ -8,9 +8,7 @@ using YACCS.TypeReaders;
 namespace YACCS.Commands.Linq;
 
 /// <inheritdoc />
-public interface IParameter<in TValue> : IParameter
-{
-}
+public interface IParameter<in TValue> : IParameter;
 
 /// <summary>
 /// Static methods for querying and modifying <see cref="IParameter"/>.
@@ -192,41 +190,34 @@ public static class Parameters
 	}
 
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-	private sealed class Parameter<TValue> : IParameter<TValue>
+	private sealed class Parameter<TValue>(IParameter actual) : IParameter<TValue>
 	{
-		private readonly IParameter _Actual;
-
 		IList<object> IEntityBase.Attributes
 		{
-			get => _Actual.Attributes;
-			set => _Actual.Attributes = value;
+			get => actual.Attributes;
+			set => actual.Attributes = value;
 		}
-		IEnumerable<object> IQueryableEntity.Attributes => _Actual.Attributes;
+		IEnumerable<object> IQueryableEntity.Attributes => actual.Attributes;
 		object? IParameter.DefaultValue
 		{
-			get => _Actual.DefaultValue;
-			set => _Actual.DefaultValue = value;
+			get => actual.DefaultValue;
+			set => actual.DefaultValue = value;
 		}
 		bool IParameter.HasDefaultValue
 		{
-			get => _Actual.HasDefaultValue;
-			set => _Actual.HasDefaultValue = value;
+			get => actual.HasDefaultValue;
+			set => actual.HasDefaultValue = value;
 		}
-		string IQueryableParameter.OriginalParameterName => _Actual.OriginalParameterName;
-		Type IQueryableParameter.ParameterType => _Actual.ParameterType;
+		string IQueryableParameter.OriginalParameterName => actual.OriginalParameterName;
+		Type IQueryableParameter.ParameterType => actual.ParameterType;
 		ITypeReader? IParameter.TypeReader
 		{
-			get => _Actual.TypeReader;
-			set => _Actual.TypeReader = value;
+			get => actual.TypeReader;
+			set => actual.TypeReader = value;
 		}
 		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
-		public Parameter(IParameter actual)
-		{
-			_Actual = actual;
-		}
-
 		IImmutableParameter IParameter.ToImmutable()
-			=> _Actual.ToImmutable();
+			=> actual.ToImmutable();
 	}
 }

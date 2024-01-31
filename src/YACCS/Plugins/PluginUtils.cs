@@ -44,7 +44,7 @@ public static class PluginUtils
 				{
 					if (!dict.TryGetValue(culture, out var list))
 					{
-						dict.Add(culture, list = new());
+						dict.Add(culture, list = []);
 					}
 					list.Add(command);
 				}

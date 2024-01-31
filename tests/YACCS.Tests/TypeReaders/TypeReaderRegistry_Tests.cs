@@ -108,9 +108,7 @@ public class TypeReaderRegistry_Tests
 	public void TryGetEnumReader_Test()
 		=> Assert.IsNotNull(_Readers.GetTypeReader<BindingFlags>());
 
-	private struct FakeStruct
-	{
-	}
+	private struct FakeStruct;
 
 	private class BadStringReader : ITypeReader
 	{
@@ -123,13 +121,9 @@ public class TypeReaderRegistry_Tests
 			=> throw new NotImplementedException();
 	}
 
-	private class Child : Parent
-	{
-	}
+	private class Child : Parent;
 
-	private class Parent
-	{
-	}
+	private class Parent;
 
 	[IntReader]
 	[DoubleReader]

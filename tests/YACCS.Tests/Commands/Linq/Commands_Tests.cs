@@ -16,8 +16,8 @@ public class Commands_Tests
 	private const string DUPE_ID = "dupe_id";
 	private const string NORM_ID = "normal_id";
 	private const string PARENT_ID = "parent_id";
-	private readonly List<ICommand> _Commands = new()
-	{
+	private readonly List<ICommand> _Commands =
+	[
 		FakeDelegateCommand.New().AddAttribute(new IdAttribute(DUPE_ID)),
 		FakeDelegateCommand.New().AddAttribute(new IdAttribute(DUPE_ID)),
 		FakeDelegateCommand.New().AddAttribute(new IdAttribute(NORM_ID)),
@@ -35,7 +35,7 @@ public class Commands_Tests
 					new IdAttribute(CHILD_ID),
 				},
 		},
-	};
+	];
 
 	[TestMethod]
 	public void AddName_Test()

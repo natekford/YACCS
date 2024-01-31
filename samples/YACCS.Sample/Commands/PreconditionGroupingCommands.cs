@@ -17,8 +17,8 @@ public class PreconditionGroupingCommands : ConsoleCommands
 		=> DateTime.Now.DayOfWeek.ToString();
 
 	[Command(nameof(AWeekendDayAndAnEvenMinute))]
-	[RequiresDay(DayOfWeek.Saturday, Groups = new[] { "Day" }, Op = Op.Or)]
-	[RequiresDay(DayOfWeek.Sunday, Groups = new[] { "Day" }, Op = Op.Or)]
+	[RequiresDay(DayOfWeek.Saturday, Groups = ["Day"], Op = Op.Or)]
+	[RequiresDay(DayOfWeek.Sunday, Groups = ["Day"], Op = Op.Or)]
 	[RequiresMinuteDivisibleBy(2)]
 	public string AWeekendDayAndAnEvenMinute()
 		=> DateTime.Now.ToString("G");

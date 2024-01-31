@@ -7,6 +7,4 @@ namespace YACCS.Commands.Attributes;
 /// be shown in help commands.
 /// This does not prevent the <see cref="IImmutableCommand"/> from being executed.
 /// </summary>
-public interface IHiddenAttribute
-{
-}
+public interface IHiddenAttribute;

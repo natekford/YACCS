@@ -64,15 +64,12 @@ public class NamedArgumentsCommand<T> : GeneratedCommand
 		return Source.ExecuteAsync(context, values);
 	}
 
-	private sealed class GeneratedNamedArgumentsParameterPrecondition
+	private sealed class GeneratedNamedArgumentsParameterPrecondition(
+		IImmutableCommand command)
 		: NamedArgumentsParameterPreconditionBase<T>
 	{
 		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
-
-		public GeneratedNamedArgumentsParameterPrecondition(IImmutableCommand command)
-		{
-			Parameters = command.Parameters.ToParamDict(x => x.OriginalParameterName);
-		}
+			= command.Parameters.ToParamDict(x => x.OriginalParameterName);
 
 		protected override bool TryGetProperty(T instance, string property, out object? value)
 		{
@@ -92,14 +89,12 @@ public class NamedArgumentsCommand<T> : GeneratedCommand
 		}
 	}
 
-	private sealed class GeneratedNamedArgumentsTypeReader : NamedArgumentsTypeReaderBase<T>
+	private sealed class GeneratedNamedArgumentsTypeReader(
+		IImmutableCommand command)
+		: NamedArgumentsTypeReaderBase<T>
 	{
 		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
-
-		public GeneratedNamedArgumentsTypeReader(IImmutableCommand command)
-		{
-			Parameters = command.Parameters.ToParamDict(x => x.ParameterName);
-		}
+			= command.Parameters.ToParamDict(x => x.ParameterName);
 
 		protected override void SetProperty(T instance, string property, object? value)
 			=> instance[property] = value;

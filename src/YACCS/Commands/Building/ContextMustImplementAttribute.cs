@@ -7,29 +7,25 @@ namespace YACCS.Commands.Building;
 /// <summary>
 /// Specifies what types a context must implement.
 /// </summary>
+/// <remarks>
+/// Creates a new <see cref="ContextMustImplementAttribute"/>.
+/// </remarks>
+/// <param name="types">
+/// <inheritdoc cref="Types" path="/summary"/>
+/// </param>
 [AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = true, Inherited = true)]
-public sealed class ContextMustImplementAttribute : Attribute, IContextConstraint
+public sealed class ContextMustImplementAttribute(IReadOnlyList<Type> types)
+	: Attribute, IContextConstraint
 {
 	/// <summary>
 	/// The types the context must implement.
 	/// </summary>
-	public IReadOnlyList<Type> Types { get; }
+	public IReadOnlyList<Type> Types { get; } = types;
 
 	/// <inheritdoc cref="ContextMustImplementAttribute(IReadOnlyList{Type})"/>
 	public ContextMustImplementAttribute(params Type[] types)
 		: this(types.ToImmutableArray())
 	{
-	}
-
-	/// <summary>
-	/// Creates a new <see cref="ContextMustImplementAttribute"/>.
-	/// </summary>
-	/// <param name="types">
-	/// <inheritdoc cref="Types" path="/summary"/>
-	/// </param>
-	public ContextMustImplementAttribute(IReadOnlyList<Type> types)
-	{
-		Types = types;
 	}
 
 	/// <inheritdoc />

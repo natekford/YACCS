@@ -27,7 +27,7 @@ public abstract class Trie<TKey, TValue> : ITrie<TKey, TValue>
 	/// <param name="comparer">The comparer to use when comparing keys.</param>
 	protected Trie(IEqualityComparer<TKey> comparer)
 	{
-		_Items = new();
+		_Items = [];
 		_Root = new(default!, null, comparer);
 	}
 
@@ -111,13 +111,14 @@ public abstract class Trie<TKey, TValue> : ITrie<TKey, TValue>
 	protected abstract IEnumerable<IReadOnlyList<TKey>> GetPaths(TValue item);
 
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-	private class Node : INode<TKey, TValue>
+	private class Node(TKey key, Node? parent, IEqualityComparer<TKey> comparer)
+		: INode<TKey, TValue>
 	{
-		private readonly IEqualityComparer<TKey> _Comparer;
-		private readonly Dictionary<TKey, Node> _Edges;
-		private readonly HashSet<TValue> _Items;
-		private readonly TKey _Key;
-		private readonly Node? _Parent;
+		private readonly IEqualityComparer<TKey> _Comparer = comparer;
+		private readonly Dictionary<TKey, Node> _Edges = new(comparer);
+		private readonly HashSet<TValue> _Items = [];
+		private readonly TKey _Key = key;
+		private readonly Node? _Parent = parent;
 
 		public int Count => _Items.Count;
 		public IReadOnlyCollection<Node> Edges => _Edges.Values;
@@ -143,15 +144,6 @@ public abstract class Trie<TKey, TValue> : ITrie<TKey, TValue>
 
 		INode<TKey, TValue> INode<TKey, TValue>.this[TKey key]
 			=> this[key];
-
-		public Node(TKey key, Node? parent, IEqualityComparer<TKey> comparer)
-		{
-			_Comparer = comparer;
-			_Edges = new(comparer);
-			_Items = new();
-			_Key = key;
-			_Parent = parent;
-		}
 
 		public bool Add(TValue item)
 			=> _Items.Add(item);

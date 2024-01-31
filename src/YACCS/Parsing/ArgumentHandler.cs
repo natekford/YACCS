@@ -6,36 +6,33 @@ namespace YACCS.Parsing;
 /// <summary>
 /// Handles joining and splitting strings.
 /// </summary>
-public sealed class ArgumentHandler : IArgumentHandler
+/// <remarks>
+/// Creates a new <see cref="ArgumentHandler"/>.
+/// </remarks>
+/// <param name="separator">The character to treat as a space.</param>
+/// <param name="start">The characters to treat as the start of a quote.</param>
+/// <param name="end">The characters to treat as the end of a quote.</param>
+/// <remarks>
+/// To prevent needing to backtrack, <paramref name="start"/> and <paramref name="end"/>
+/// do not have to be the same type of quote to count as a single quote.
+/// <br/>
+/// <br/>
+/// Both "blah blah" and «blah blah" will produce the output 'blah blah'
+/// </remarks>
+public sealed class ArgumentHandler(
+	char separator,
+	IImmutableSet<char> start,
+	IImmutableSet<char> end)
+	: IArgumentHandler
 {
-	private readonly IImmutableSet<char> _End;
-	private readonly char _Separator;
-	private readonly IImmutableSet<char> _Start;
+	private readonly IImmutableSet<char> _End = end;
+	private readonly char _Separator = separator;
+	private readonly IImmutableSet<char> _Start = start;
 
 	/// <summary>
 	/// Whether or not quotes are allowed to be escaped.
 	/// </summary>
 	public bool AllowEscaping { get; set; } = true;
-
-	/// <summary>
-	/// Creates a new <see cref="ArgumentHandler"/>.
-	/// </summary>
-	/// <param name="separator">The character to treat as a space.</param>
-	/// <param name="start">The characters to treat as the start of a quote.</param>
-	/// <param name="end">The characters to treat as the end of a quote.</param>
-	/// <remarks>
-	/// To prevent needing to backtrack, <paramref name="start"/> and <paramref name="end"/>
-	/// do not have to be the same type of quote to count as a single quote.
-	/// <br/>
-	/// <br/>
-	/// Both "blah blah" and «blah blah" will produce the output 'blah blah'
-	/// </remarks>
-	public ArgumentHandler(char separator, IImmutableSet<char> start, IImmutableSet<char> end)
-	{
-		_Start = start;
-		_End = end;
-		_Separator = separator;
-	}
 
 	/// <inheritdoc />
 	public string Join(ReadOnlyMemory<string> args)
@@ -81,7 +78,7 @@ public sealed class ArgumentHandler : IArgumentHandler
 		var lastStart = 0;
 		for (var i = 0; i < input.Length; ++i)
 		{
-			var (prev, curr, next) = GetChars(input, i);
+			var (prev, curr, _) = GetChars(input, i);
 			if (ValidSplit(prev, curr))
 			{
 				Add(col, ref index, input[lastStart..i]);
@@ -145,7 +142,7 @@ public sealed class ArgumentHandler : IArgumentHandler
 	{
 		if (input.IsEmpty || input.IsWhiteSpace())
 		{
-			result = Array.Empty<string>();
+			result = [];
 			return true;
 		}
 
@@ -308,34 +305,21 @@ public sealed class ArgumentHandler : IArgumentHandler
 	private bool ValidStartQuote(char? prev, char curr)
 		=> ValidQuote(_Start, _End, prev, curr, prev, allowUnionQuotes: false);
 
-	private readonly struct QuoteInfo
+	private readonly struct QuoteInfo(
+		int currentDepth, int endCount, int maxDepth, int maxEnd, int maxStart,
+		int minEnd, int minStart, int size, int startCount)
 	{
 		public const int DEFAULT = -1;
 
-		public int CurrentDepth { get; }
-		public int EndCount { get; }
+		public int CurrentDepth { get; } = currentDepth;
+		public int EndCount { get; } = endCount;
 		public bool HasNoQuotes => MinStart == DEFAULT;
-		public int MaxDepth { get; }
-		public int MaxEnd { get; }
-		public int MaxStart { get; }
-		public int MinEnd { get; }
-		public int MinStart { get; }
-		public int Size { get; }
-		public int StartCount { get; }
-
-		public QuoteInfo(
-			int currentDepth, int endCount, int maxDepth, int maxEnd, int maxStart,
-			int minEnd, int minStart, int size, int startCount)
-		{
-			CurrentDepth = currentDepth;
-			EndCount = endCount;
-			MaxDepth = maxDepth;
-			MaxEnd = maxEnd;
-			MaxStart = maxStart;
-			MinEnd = minEnd;
-			MinStart = minStart;
-			Size = size;
-			StartCount = startCount;
-		}
+		public int MaxDepth { get; } = maxDepth;
+		public int MaxEnd { get; } = maxEnd;
+		public int MaxStart { get; } = maxStart;
+		public int MinEnd { get; } = minEnd;
+		public int MinStart { get; } = minStart;
+		public int Size { get; } = size;
+		public int StartCount { get; } = startCount;
 	}
 }

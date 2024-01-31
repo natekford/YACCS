@@ -240,7 +240,7 @@ public abstract class CommandServiceBase : ICommandService
 			args ??= new object?[command.Parameters.Count];
 			args[i] = value;
 		}
-		return context.CanExecute(command, currentIndex, args ?? Array.Empty<object?>());
+		return context.CanExecute(command, currentIndex, args ?? []);
 	}
 
 	/// <summary>
@@ -321,7 +321,7 @@ public abstract class CommandServiceBase : ICommandService
 				}
 				catch (Exception ex)
 				{
-					beforeExceptions ??= new();
+					beforeExceptions ??= [];
 					beforeExceptions.Add(ex);
 				}
 			}
@@ -352,7 +352,7 @@ public abstract class CommandServiceBase : ICommandService
 				}
 				catch (Exception ex)
 				{
-					afterExceptions ??= new();
+					afterExceptions ??= [];
 					afterExceptions.Add(ex);
 				}
 			}

@@ -11,18 +11,14 @@ namespace YACCS.TypeReaders;
 /// Parses a <typeparamref name="T"/> via the wrapped type readers.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed class AggregateTypeReader<T> : TypeReader<IContext, T>
+/// <remarks>
+/// Creates a new <see cref="AggregateTypeReader{T}"/>.
+/// </remarks>
+/// <param name="readers">The type readers to wrap over.</param>
+public sealed class AggregateTypeReader<T>(IEnumerable<ITypeReader> readers)
+	: TypeReader<IContext, T>
 {
-	private readonly ImmutableArray<ITypeReader<T>> _Readers;
-
-	/// <summary>
-	/// Creates a new <see cref="AggregateTypeReader{T}"/>.
-	/// </summary>
-	/// <param name="readers">The type readers to wrap over.</param>
-	public AggregateTypeReader(IEnumerable<ITypeReader> readers)
-	{
-		_Readers = readers.Cast<ITypeReader<T>>().ToImmutableArray();
-	}
+	private readonly ImmutableArray<ITypeReader<T>> _Readers = readers.Cast<ITypeReader<T>>().ToImmutableArray();
 
 	/// <inheritdoc />
 	public override async ITask<ITypeReaderResult<T>> ReadAsync(

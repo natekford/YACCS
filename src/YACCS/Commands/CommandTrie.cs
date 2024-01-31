@@ -7,29 +7,22 @@ namespace YACCS.Commands;
 /// <summary>
 /// A <see cref="Trie{TKey, TValue}"/> specifically for commands.
 /// </summary>
-public sealed class CommandTrie : Trie<string, IImmutableCommand>
+/// <remarks>
+/// Creates a new <see cref="CommandTrie"/>.
+/// </remarks>
+/// <param name="readers">
+/// The type readers to search through when determining if each parameter has a
+/// registered type reader.
+/// </param>
+/// <param name="separator">The character which cannot be directly in any path.</param>
+/// <param name="comparer">The comparer to use when comparing keys.</param>
+public sealed class CommandTrie(
+	IReadOnlyDictionary<Type, ITypeReader> readers,
+	char separator,
+	IEqualityComparer<string> comparer) : Trie<string, IImmutableCommand>(comparer)
 {
-	private readonly IReadOnlyDictionary<Type, ITypeReader> _Readers;
-	private readonly char _Separator;
-
-	/// <summary>
-	/// Creates a new <see cref="CommandTrie"/>.
-	/// </summary>
-	/// <param name="readers">
-	/// The type readers to search through when determining if each parameter has a
-	/// registered type reader.
-	/// </param>
-	/// <param name="separator">The character which cannot be directly in any path.</param>
-	/// <param name="comparer">The comparer to use when comparing keys.</param>
-	public CommandTrie(
-		IReadOnlyDictionary<Type, ITypeReader> readers,
-		char separator,
-		IEqualityComparer<string> comparer)
-		: base(comparer)
-	{
-		_Separator = separator;
-		_Readers = readers;
-	}
+	private readonly IReadOnlyDictionary<Type, ITypeReader> _Readers = readers;
+	private readonly char _Separator = separator;
 
 	/// <inheritdoc />
 	/// <exception cref="ArgumentException">

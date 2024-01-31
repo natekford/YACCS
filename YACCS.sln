@@ -1,15 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30503.244
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YACCS", "src\YACCS\YACCS.csproj", "{27A75592-09DD-49B6-BDD9-3FF895B578D0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YACCS.Tests", "tests\YACCS.Tests\YACCS.Tests.csproj", "{D86D69CA-9443-40A8-B5B4-443B14796864}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YACCS.Examples", "src\YACCS.Examples\YACCS.Examples.csproj", "{0FBDBBDD-4758-4124-A42B-CAA97ABF7E70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YACCS.Sample", "samples\YACCS.Sample\YACCS.Sample.csproj", "{0FBDBBDD-4758-4124-A42B-CAA97ABF7E70}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{10FCBB6D-D1B0-42FD-AF49-FF59687E09BD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{FF5EA4AE-42BD-46D8-A72A-C35417C5066C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D86D69CA-9443-40A8-B5B4-443B14796864} = {10FCBB6D-D1B0-42FD-AF49-FF59687E09BD}
+		{0FBDBBDD-4758-4124-A42B-CAA97ABF7E70} = {FF5EA4AE-42BD-46D8-A72A-C35417C5066C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {36DF2B61-7B58-40C6-AA2D-99DF4537B1EB}

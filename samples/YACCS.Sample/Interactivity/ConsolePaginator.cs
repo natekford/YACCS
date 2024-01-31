@@ -3,14 +3,10 @@ using YACCS.Interactivity.Pagination;
 
 namespace YACCS.Examples.Interactivity;
 
-public sealed class ConsolePaginator : Paginator<ConsoleContext, string>
+public sealed class ConsolePaginator(ConsoleInteractivityManager interactivity)
+	: Paginator<ConsoleContext, string>
 {
-	private readonly ConsoleInteractivityManager _Interactivity;
-
-	public ConsolePaginator(ConsoleInteractivityManager interactivity)
-	{
-		_Interactivity = interactivity;
-	}
+	private readonly ConsoleInteractivityManager _Interactivity = interactivity;
 
 	protected override Task<int?> ConvertAsync(string input)
 		=> Task.FromResult<int?>(int.TryParse(input, out var result) ? result : null);

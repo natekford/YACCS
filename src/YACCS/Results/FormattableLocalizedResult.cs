@@ -10,6 +10,10 @@ public abstract class FormattableLocalizedResult : LocalizedResult, IFormattable
 {
 	/// <inheritdoc />
 	public override string Response => ToString(null, null);
+	/// <summary>
+	/// The format to use for creating a response.
+	/// </summary>
+	protected virtual string Format => UnlocalizedResponse.Localized;
 
 	/// <summary>
 	/// Creates a new <see cref="FormattableLocalizedResult"/>.

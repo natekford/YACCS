@@ -6,9 +6,7 @@ using YACCS.Preconditions;
 namespace YACCS.Commands.Linq;
 
 /// <inheritdoc />
-public interface ICommand<in TContext> : ICommand where TContext : IContext
-{
-}
+public interface ICommand<in TContext> : ICommand where TContext : IContext;
 
 /// <summary>
 /// Static methods for querying and modifying <see cref="ICommand"/>.
@@ -114,40 +112,34 @@ public static class Commands
 	}
 
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-	private sealed class Command<TContext> : ICommand<TContext> where TContext : IContext
+	private sealed class Command<TContext>(ICommand actual)
+		: ICommand<TContext> where TContext : IContext
 	{
-		private readonly ICommand _Actual;
-
 		IList<object> IEntityBase.Attributes
 		{
-			get => _Actual.Attributes;
-			set => _Actual.Attributes = value;
+			get => actual.Attributes;
+			set => actual.Attributes = value;
 		}
-		IEnumerable<object> IQueryableEntity.Attributes => _Actual.Attributes;
-		Type IQueryableCommand.ContextType => _Actual.ContextType;
-		IReadOnlyList<IParameter> ICommand.Parameters => _Actual.Parameters;
-		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => _Actual.Parameters;
+		IEnumerable<object> IQueryableEntity.Attributes => actual.Attributes;
+		Type IQueryableCommand.ContextType => actual.ContextType;
+		IReadOnlyList<IParameter> ICommand.Parameters => actual.Parameters;
+		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => actual.Parameters;
 		IList<IReadOnlyList<string>> ICommand.Paths
 		{
-			get => _Actual.Paths;
-			set => _Actual.Paths = value;
+			get => actual.Paths;
+			set => actual.Paths = value;
 		}
-		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Paths => _Actual.Paths;
-		IImmutableCommand? IQueryableCommand.Source => _Actual.Source;
+		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Paths => actual.Paths;
+		IImmutableCommand? IQueryableCommand.Source => actual.Source;
 		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
-		public Command(ICommand actual)
-		{
-			_Actual = actual;
-		}
-
 		bool IQueryableCommand.IsValidContext(Type type)
-			=> _Actual.IsValidContext(type);
+			=> actual.IsValidContext(type);
 
 		IImmutableCommand ICommand.ToImmutable()
-			=> _Actual.ToImmutable();
+			=> actual.ToImmutable();
 
 		IAsyncEnumerable<IImmutableCommand> ICommand.ToMultipleImmutableAsync(IServiceProvider services)
-			=> _Actual.ToMultipleImmutableAsync(services);
+			=> actual.ToMultipleImmutableAsync(services);
 	}
 }

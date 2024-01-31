@@ -4,17 +4,12 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Examples.Interactivity;
 
-public sealed class ConsoleInput : Input<ConsoleContext, string>
+public sealed class ConsoleInput(
+	IReadOnlyDictionary<Type, ITypeReader> readers,
+	ConsoleInteractivityManager interactivity)
+	: Input<ConsoleContext, string>(readers)
 {
-	private readonly ConsoleInteractivityManager _Interactivity;
-
-	public ConsoleInput(
-		IReadOnlyDictionary<Type, ITypeReader> readers,
-		ConsoleInteractivityManager interactivity)
-		: base(readers)
-	{
-		_Interactivity = interactivity;
-	}
+	private readonly ConsoleInteractivityManager _Interactivity = interactivity;
 
 	protected override string GetInputString(string input)
 		=> input;

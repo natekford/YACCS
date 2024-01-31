@@ -7,6 +7,4 @@ namespace YACCS.SwappedArguments;
 /// <see cref="SwappedArgumentsUtils.GenerateSwappedArgumentsVersions(IImmutableCommand, int)"/>.
 /// </summary>
 [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = true)]
-public sealed class SwappableAttribute : Attribute
-{
-}
+public sealed class SwappableAttribute : Attribute;

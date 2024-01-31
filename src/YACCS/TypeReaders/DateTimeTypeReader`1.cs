@@ -14,16 +14,13 @@ public delegate bool DateTimeDelegate<T>(
 /// Parses a <typeparamref name="T"/> via <see cref="DateTimeDelegate{T}"/>.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class DateTimeTypeReader<T> : TryParseTypeReader<T>
+/// <remarks>
+/// Creates a new <see cref="DateTimeTypeReader{T}"/>.
+/// </remarks>
+/// <param name="delegate">The delegate to use when parsing.</param>
+public class DateTimeTypeReader<T>(DateTimeDelegate<T> @delegate)
+	: TryParseTypeReader<T>(Convert(@delegate))
 {
-	/// <summary>
-	/// Creates a new <see cref="DateTimeTypeReader{T}"/>.
-	/// </summary>
-	/// <param name="delegate">The delegate to use when parsing.</param>
-	public DateTimeTypeReader(DateTimeDelegate<T> @delegate) : base(Convert(@delegate))
-	{
-	}
-
 	private static TryParseDelegate<T> Convert(DateTimeDelegate<T> @delegate)
 	{
 		return (string input, [MaybeNullWhen(false)] out T result) =>

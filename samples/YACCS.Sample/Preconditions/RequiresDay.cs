@@ -9,15 +9,11 @@ using YACCS.Results;
 namespace YACCS.Examples.Preconditions;
 
 [AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = true, Inherited = true)]
-public class RequiresDay : Precondition<IContext>, IRuntimeFormattableAttribute
+public class RequiresDay(DayOfWeek day)
+	: Precondition<IContext>, IRuntimeFormattableAttribute
 {
-	public DayOfWeek Day { get; }
+	public DayOfWeek Day { get; } = day;
 	public virtual string FallbackErrorMessage { get; set; } = "Must be {0}.";
-
-	public RequiresDay(DayOfWeek day)
-	{
-		Day = day;
-	}
 
 	public override ValueTask<IResult> CheckAsync(IImmutableCommand command, IContext context)
 	{

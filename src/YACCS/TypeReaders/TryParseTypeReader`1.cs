@@ -26,18 +26,14 @@ public delegate bool TryParseDelegate<TValue>(
 /// Parses a <typeparamref name="TValue"/> via <see cref="TryParseDelegate{TValue}"/>.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
-public class TryParseTypeReader<TValue> : TypeReader<TValue>
+/// <remarks>
+/// Creates a new <see cref="TryParseTypeReader{TValue}"/>.
+/// </remarks>
+/// <param name="delegate">The delegate to use when parsing.</param>
+public class TryParseTypeReader<TValue>(TryParseDelegate<TValue> @delegate)
+	: TypeReader<TValue>
 {
-	private readonly TryParseDelegate<TValue> _Delegate;
-
-	/// <summary>
-	/// Creates a new <see cref="TryParseTypeReader{TValue}"/>.
-	/// </summary>
-	/// <param name="delegate">The delegate to use when parsing.</param>
-	public TryParseTypeReader(TryParseDelegate<TValue> @delegate)
-	{
-		_Delegate = @delegate;
-	}
+	private readonly TryParseDelegate<TValue> _Delegate = @delegate;
 
 	/// <inheritdoc />
 	public override ITask<ITypeReaderResult<TValue>> ReadAsync(

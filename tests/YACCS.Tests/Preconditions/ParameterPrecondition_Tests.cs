@@ -63,7 +63,7 @@ public class ParameterPrecondition_Tests
 	[TestMethod]
 	public async Task SingleNullValue_Test()
 	{
-		var result = await _Precondition.CheckAsync(default, new FakeContext(), null!).ConfigureAwait(false);
+		var result = await _Precondition.CheckAsync(default, new FakeContext(), null).ConfigureAwait(false);
 		Assert.IsTrue(result.IsSuccess);
 	}
 

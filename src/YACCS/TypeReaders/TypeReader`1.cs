@@ -7,6 +7,4 @@ namespace YACCS.TypeReaders;
 /// the passed in <see cref="IContext"/>. This does NOT mean that <see langword="null"/> is allowed.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
-public abstract class TypeReader<TValue> : TypeReader<IContext, TValue>
-{
-}
+public abstract class TypeReader<TValue> : TypeReader<IContext, TValue>;

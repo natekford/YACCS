@@ -205,17 +205,11 @@ public class CommandService_ExecuteAsync_Tests
 		return (commandService, context);
 	}
 
-	private sealed class DisposableContext : FakeContext, IDisposable
+	private sealed class DisposableContext(TaskCompletionSource tcs)
+		: FakeContext, IDisposable
 	{
-		private readonly TaskCompletionSource _Tcs;
-
-		public DisposableContext(TaskCompletionSource tcs)
-		{
-			_Tcs = tcs;
-		}
-
 		public void Dispose()
-			=> _Tcs.SetResult();
+			=> tcs.SetResult();
 	}
 }
 
@@ -760,14 +754,10 @@ public class DisabledPrecondition : Precondition<FakeContext>
 		=> new(_Failure);
 }
 
-public class FakeParameterPreconditionAttribute : ParameterPrecondition<FakeContext, int>
+public class FakeParameterPreconditionAttribute(int value)
+	: ParameterPrecondition<FakeContext, int>
 {
-	public int DisallowedValue { get; }
-
-	public FakeParameterPreconditionAttribute(int value)
-	{
-		DisallowedValue = value;
-	}
+	public int DisallowedValue { get; } = value;
 
 	public override ValueTask<IResult> CheckAsync(
 		CommandMeta meta,
@@ -776,19 +766,12 @@ public class FakeParameterPreconditionAttribute : ParameterPrecondition<FakeCont
 		=> new(value == DisallowedValue ? new Failure("lol") : Success.Instance);
 }
 
-public class FakePrecondition : Precondition<FakeContext>
+public class FakePrecondition(bool success) : Precondition<FakeContext>
 {
-	private readonly bool _Success;
-
-	public FakePrecondition(bool success)
-	{
-		_Success = success;
-	}
-
 	public override ValueTask<IResult> CheckAsync(
 		IImmutableCommand command,
 		FakeContext context)
-		=> new(_Success ? Success.Instance : Failure.Instance);
+		=> new(success ? Success.Instance : Failure.Instance);
 }
 
 public class FakePreconditionWhichThrowsAfter : Precondition<FakeContext>

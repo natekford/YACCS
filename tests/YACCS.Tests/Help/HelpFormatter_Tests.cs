@@ -171,18 +171,14 @@ Parameters:{TRAILING}
 	}
 
 	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
-	private class EnabledByDefaultAttribute : Attribute, IRuntimeFormattableAttribute
+	private class EnabledByDefaultAttribute(bool enabledByDefault)
+		: Attribute, IRuntimeFormattableAttribute
 	{
 		public const string ENABLED_BY_DEFAULT = "Enabled by default";
 		public const string TOGGLEABLE = "Toggleable";
 
-		public bool EnabledByDefault { get; }
+		public bool EnabledByDefault { get; } = enabledByDefault;
 		public bool Toggleable { get; set; }
-
-		public EnabledByDefaultAttribute(bool enabledByDefault)
-		{
-			EnabledByDefault = enabledByDefault;
-		}
 
 		public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
 		{

@@ -7,7 +7,7 @@ public class AsyncEvent<T> : IAsyncEvent<T> where T : HandledEventArgs
 {
 	private readonly Lazy<AsyncEvent<ExceptionEventArgs<T>>> _Exception
 		= new(static () => new());
-	private readonly List<Func<T, Task>> _Handlers = new();
+	private readonly List<Func<T, Task>> _Handlers = [];
 	private readonly object _Lock = new();
 
 	/// <inheritdoc />
@@ -32,7 +32,7 @@ public class AsyncEvent<T> : IAsyncEvent<T> where T : HandledEventArgs
 		Func<T, Task>[] handlers;
 		lock (_Lock)
 		{
-			handlers = _Handlers.ToArray();
+			handlers = [.. _Handlers];
 		}
 		if (handlers.Length == 0)
 		{
@@ -57,7 +57,7 @@ public class AsyncEvent<T> : IAsyncEvent<T> where T : HandledEventArgs
 			}
 			catch (Exception e)
 			{
-				exceptions ??= new();
+				exceptions ??= [];
 				exceptions.Add(e);
 			}
 		}

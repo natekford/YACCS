@@ -58,7 +58,7 @@ public static class AttributeUtils
 	{
 		return dict.ToImmutableDictionary(
 			x => x.Key,
-			x => (IReadOnlyList<TPrecondition>)x.Value.ToImmutableArray()
+			x => (IReadOnlyList<TPrecondition>)[.. x.Value]
 		);
 	}
 }

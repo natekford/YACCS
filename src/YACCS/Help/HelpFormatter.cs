@@ -13,34 +13,29 @@ namespace YACCS.Help;
 /// <summary>
 /// Formats a command to a string.
 /// </summary>
-public class HelpFormatter : IHelpFormatter
+/// <remarks>
+/// Creates an instance of <see cref="HelpFormatter"/>.
+/// </remarks>
+/// <param name="typeNames">
+/// <inheritdoc cref="TypeNames" path="/summary"/>
+/// </param>
+/// <param name="formatProvider">
+/// <inheritdoc cref="FormatProvider" path="/summary"/>
+/// </param>
+public class HelpFormatter(
+	IReadOnlyDictionary<Type, string> typeNames,
+	IFormatProvider? formatProvider = null)
+	: IHelpFormatter
 {
-	private readonly Dictionary<IImmutableCommand, HelpCommand> _Commands = new();
+	private readonly Dictionary<IImmutableCommand, HelpCommand> _Commands = [];
 	/// <summary>
 	/// The format provider to use when formatting strings.
 	/// </summary>
-	protected IFormatProvider? FormatProvider { get; }
+	protected IFormatProvider? FormatProvider { get; } = formatProvider;
 	/// <summary>
 	/// Type names to use for displaying types.
 	/// </summary>
-	protected IReadOnlyDictionary<Type, string> TypeNames { get; }
-
-	/// <summary>
-	/// Creates an instance of <see cref="HelpFormatter"/>.
-	/// </summary>
-	/// <param name="typeNames">
-	/// <inheritdoc cref="TypeNames" path="/summary"/>
-	/// </param>
-	/// <param name="formatProvider">
-	/// <inheritdoc cref="FormatProvider" path="/summary"/>
-	/// </param>
-	public HelpFormatter(
-		IReadOnlyDictionary<Type, string> typeNames,
-		IFormatProvider? formatProvider = null)
-	{
-		TypeNames = typeNames;
-		FormatProvider = formatProvider;
-	}
+	protected IReadOnlyDictionary<Type, string> TypeNames { get; } = typeNames;
 
 	/// <inheritdoc />
 	public async ValueTask<string> FormatAsync(IContext context, IImmutableCommand command)
@@ -86,18 +81,33 @@ public class HelpFormatter : IHelpFormatter
 	/// <summary>
 	/// Builds a string that represents a command.
 	/// </summary>
-	protected class HelpBuilder
+	/// <remarks>
+	/// Creates a new <see cref="HelpBuilder"/>.
+	/// </remarks>
+	/// <param name="context">
+	/// <inheritdoc cref="Context" path="/summary"/>
+	/// </param>
+	/// <param name="typeNames">
+	/// <inheritdoc cref="TypeNames" path="/summary"/>
+	/// </param>
+	/// <param name="formatProvider">
+	/// <inheritdoc cref="FormatProvider" path="/summary"/>
+	/// </param>
+	protected class HelpBuilder(
+		IContext context,
+		IReadOnlyDictionary<Type, string> typeNames,
+		IFormatProvider? formatProvider)
 	{
 		/// <summary>
 		/// The context invoking this help command.
 		/// </summary>
-		protected IContext Context { get; }
+		protected IContext Context { get; } = context;
 		/// <summary>
 		/// The current amount of tabs to append after each new line.
 		/// </summary>
 		protected int CurrentDepth { get; set; }
 		/// <inheritdoc cref="HelpFormatter.FormatProvider"/>
-		protected IFormatProvider? FormatProvider { get; }
+		protected IFormatProvider? FormatProvider { get; } = formatProvider;
 		/// <summary>
 		/// The header for the attributes section.
 		/// </summary>
@@ -121,33 +131,9 @@ public class HelpFormatter : IHelpFormatter
 		/// <summary>
 		/// The string builder creating the text representing this help command.
 		/// </summary>
-		protected StringBuilder StringBuilder { get; }
+		protected StringBuilder StringBuilder { get; } = new();
 		/// <inheritdoc cref="HelpFormatter.TypeNames"/>
-		protected IReadOnlyDictionary<Type, string> TypeNames { get; }
-
-		/// <summary>
-		/// Creates a new <see cref="HelpBuilder"/>.
-		/// </summary>
-		/// <param name="context">
-		/// <inheritdoc cref="Context" path="/summary"/>
-		/// </param>
-		/// <param name="typeNames">
-		/// <inheritdoc cref="TypeNames" path="/summary"/>
-		/// </param>
-		/// <param name="formatProvider">
-		/// <inheritdoc cref="FormatProvider" path="/summary"/>
-		/// </param>
-		public HelpBuilder(
-			IContext context,
-			IReadOnlyDictionary<Type, string> typeNames,
-			IFormatProvider? formatProvider)
-		{
-			Context = context;
-			TypeNames = typeNames;
-			FormatProvider = formatProvider;
-
-			StringBuilder = new();
-		}
+		protected IReadOnlyDictionary<Type, string> TypeNames { get; } = typeNames;
 
 		/// <summary>
 		/// Appends attributes from <paramref name="item"/> to this instance.

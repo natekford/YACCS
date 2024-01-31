@@ -24,7 +24,7 @@ public static class CommandServiceUtils
 	/// <summary>
 	/// A set containing only <see cref="QUOTE"/>.
 	/// </summary>
-	public static IImmutableSet<char> Quotes { get; } = new[] { QUOTE }.ToImmutableHashSet();
+	public static ImmutableHashSet<char> Quotes { get; } = [QUOTE];
 
 	/// <summary>
 	/// Checks that every precondition group <paramref name="command"/> has is valid with

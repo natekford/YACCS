@@ -5,22 +5,18 @@ using YACCS.Localization;
 namespace YACCS.Commands.Attributes;
 
 /// <inheritdoc cref="IPriorityAttribute"/>
+/// <summary>
+/// Creates a new <see cref="PriorityAttribute"/>.
+/// </summary>
+/// <param name="priority">
+/// <inheritdoc cref="Priority" path="/summary"/>
+/// </param>
 [AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
-public class PriorityAttribute : Attribute, IPriorityAttribute, IRuntimeFormattableAttribute
+public class PriorityAttribute(int priority)
+	: Attribute, IPriorityAttribute, IRuntimeFormattableAttribute
 {
 	/// <inheritdoc />
-	public int Priority { get; }
-
-	/// <summary>
-	/// Creates a new <see cref="PriorityAttribute"/>.
-	/// </summary>
-	/// <param name="priority">
-	/// <inheritdoc cref="Priority" path="/summary"/>
-	/// </param>
-	public PriorityAttribute(int priority)
-	{
-		Priority = priority;
-	}
+	public int Priority { get; } = priority;
 
 	/// <inheritdoc />
 	public virtual ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)

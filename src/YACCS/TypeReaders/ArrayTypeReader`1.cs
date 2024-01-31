@@ -24,6 +24,6 @@ public class ArrayTypeReader<T> : TypeReader<T[]>
 		{
 			return Error(result.InnerResult);
 		}
-		return Success(result.Value!.ToArray());
+		return Success([.. result.Value!]);
 	}
 }

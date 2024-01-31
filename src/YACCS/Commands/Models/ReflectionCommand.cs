@@ -206,17 +206,17 @@ public sealed class ReflectionCommand : Command
 
 				var setters = groupType.SelectWritableMembers(group, member =>
 				{
-					var injector = member.Member.GetCustomAttribute<InjectableAttribute>();
-					if (injector is null)
-					{
-						throw new InvalidOperationException("Unable to find a specified way " +
-							$"to set the public property '{member.Member}' for '{member.Member.ReflectedType}'.");
-					}
+					var injector = member.Member.GetCustomAttribute<InjectableAttribute>()
+						?? throw new InvalidOperationException(
+							"Unable to find a specified way to set " +
+							$"the public property '{member.Member}' for " +
+							$"'{member.Member.ReflectedType}'."
+						);
 					return injector.CreateInjection(context, member);
 				});
 				var body = Expression.Block(new[]
 				{
-						group
+					group
 				}, setters.Prepend(assignGroup).Append(group));
 
 				var lambda = Expression.Lambda<Func<IContext, ICommandGroup>>(

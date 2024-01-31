@@ -8,7 +8,7 @@ namespace YACCS.Localization;
 /// </summary>
 public class AggregateLocalizer : ILocalizer
 {
-	private ImmutableArray<ILocalizer> _Localizers = ImmutableArray<ILocalizer>.Empty;
+	private ImmutableArray<ILocalizer> _Localizers = [];
 
 	/// <summary>
 	/// Whether or not there are any localizers inside this one.

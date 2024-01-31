@@ -14,8 +14,8 @@ namespace YACCS.NamedArguments;
 public abstract class NamedArgumentsTypeReaderBase<T> : TypeReader<IContext, T>
 	where T : new()
 {
-	private static readonly char[] _TrimEnd = new[] { ':' };
-	private static readonly char[] _TrimStart = new[] { '/', '-' };
+	private static readonly char[] _TrimEnd = [':'];
+	private static readonly char[] _TrimStart = ['/', '-'];
 
 	/// <summary>
 	/// The parameters this type reader expects.
@@ -112,30 +112,26 @@ public abstract class NamedArgumentsTypeReaderBase<T> : TypeReader<IContext, T>
 	/// <summary>
 	/// Contains a result and a dictionary.
 	/// </summary>
-	protected readonly struct DictResult
+	/// <remarks>
+	/// Creates a new <see cref="DictResult"/>.
+	/// </remarks>
+	/// <param name="result">
+	/// <inheritdoc cref="Result" path="/summary"/>
+	/// </param>
+	/// <param name="dict">
+	/// <inheritdoc cref="Dictionary" path="/summary"/>
+	/// </param>
+	protected readonly struct DictResult(
+		ITypeReaderResult<T> result,
+		IReadOnlyDictionary<string, string> dict)
 	{
 		/// <summary>
 		/// The dictionary that was parsed.
 		/// </summary>
-		public IReadOnlyDictionary<string, string> Dictionary { get; }
+		public IReadOnlyDictionary<string, string> Dictionary { get; } = dict;
 		/// <summary>
 		/// The result of the parsing.
 		/// </summary>
-		public ITypeReaderResult<T> Result { get; }
-
-		/// <summary>
-		/// Creates a new <see cref="DictResult"/>.
-		/// </summary>
-		/// <param name="result">
-		/// <inheritdoc cref="Result" path="/summary"/>
-		/// </param>
-		/// <param name="dict">
-		/// <inheritdoc cref="Dictionary" path="/summary"/>
-		/// </param>
-		public DictResult(ITypeReaderResult<T> result, IReadOnlyDictionary<string, string> dict)
-		{
-			Result = result;
-			Dictionary = dict;
-		}
+		public ITypeReaderResult<T> Result { get; } = result;
 	}
 }

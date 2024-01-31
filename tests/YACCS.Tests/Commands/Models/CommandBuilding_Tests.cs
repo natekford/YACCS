@@ -17,7 +17,7 @@ namespace YACCS.Tests.Commands.Models;
 [TestClass]
 public class CommandBuilding_Tests
 {
-	private static string[][] Paths { get; } = new[] { new[] { "Joe" } };
+	private static string[][] Paths { get; } = [["Joe"]];
 
 	[TestMethod]
 	public async Task CommandBuildingThrowWhenGenericTypeDefinitions_Test()
@@ -211,10 +211,10 @@ public class CommandBuilding_Tests
 
 	private struct GroupStruct : ICommandGroup
 	{
-		public Task AfterExecutionAsync(IImmutableCommand command, IContext context, IResult result)
+		public readonly Task AfterExecutionAsync(IImmutableCommand command, IContext context, IResult result)
 			=> Task.CompletedTask;
 
-		public Task BeforeExecutionAsync(IImmutableCommand command, IContext context)
+		public readonly Task BeforeExecutionAsync(IImmutableCommand command, IContext context)
 			=> Task.CompletedTask;
 
 		[Command(nameof(Command))]
@@ -222,7 +222,7 @@ public class CommandBuilding_Tests
 		{
 		}
 
-		public Task OnCommandBuildingAsync(IServiceProvider services, IList<ICommand> commands)
+		public readonly Task OnCommandBuildingAsync(IServiceProvider services, IList<ICommand> commands)
 			=> Task.CompletedTask;
 	}
 
@@ -254,13 +254,9 @@ public class CommandBuilding_Tests
 		public IResult InheritanceDisallowed() => Success.Instance;
 	}
 
-	private class GroupChild : GroupBase
-	{
-	}
+	private class GroupChild : GroupBase;
 
-	private class GroupGeneric<T> : GroupBase
-	{
-	}
+	private class GroupGeneric<T> : GroupBase;
 
 	private class HiddenAttributeGroup : CommandGroup<FakeContext>
 	{

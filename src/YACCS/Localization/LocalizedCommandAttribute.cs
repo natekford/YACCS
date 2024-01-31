@@ -5,13 +5,20 @@ using YACCS.Commands.Attributes;
 namespace YACCS.Localization;
 
 /// <inheritdoc />
+/// <summary>
+/// Creates a new <see cref="LocalizedCommandAttribute"/>.
+/// </summary>
+/// <param name="keys">
+/// <inheritdoc cref="Keys" path="/summary"/>
+/// </param>
 [AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
-public class LocalizedCommandAttribute : CommandAttribute
+public class LocalizedCommandAttribute(IReadOnlyList<string> keys)
+	: CommandAttribute(keys)
 {
 	/// <summary>
 	/// The keys for localization.
 	/// </summary>
-	public IReadOnlyList<string> Keys { get; }
+	public IReadOnlyList<string> Keys { get; } = keys;
 	/// <inheritdoc />
 	public override IReadOnlyList<string> Names
 	{
@@ -34,17 +41,6 @@ public class LocalizedCommandAttribute : CommandAttribute
 	/// <inheritdoc cref="LocalizedCommandAttribute(IReadOnlyList{string})"/>
 	public LocalizedCommandAttribute(params string[] keys) : this(keys.ToImmutableArray())
 	{
-	}
-
-	/// <summary>
-	/// Creates a new <see cref="LocalizedCommandAttribute"/>.
-	/// </summary>
-	/// <param name="keys">
-	/// <inheritdoc cref="Keys" path="/summary"/>
-	/// </param>
-	public LocalizedCommandAttribute(IReadOnlyList<string> keys) : base(keys)
-	{
-		Keys = keys;
 	}
 
 	/// <inheritdoc cref="LocalizedCommandAttribute(IReadOnlyList{string})"/>

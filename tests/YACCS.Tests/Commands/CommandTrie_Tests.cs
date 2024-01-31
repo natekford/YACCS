@@ -194,7 +194,7 @@ public class CommandTrie_Tests
 	public void Find_Test()
 	{
 		var c1 = FakeDelegateCommand.New()
-			.AddPath(new[] { "1" })
+			.AddPath(["1"])
 			.ToImmutable();
 		_Trie.Add(c1);
 		var c2 = FakeDelegateCommand.New()
@@ -213,36 +213,36 @@ public class CommandTrie_Tests
 			.ToImmutable();
 		_Trie.Add(c4);
 
-		AssertFindTest(new[] { "" }, null);
-		AssertFindTest(new[] { "not", "a", "command" }, null);
-		AssertFindTest(new[] { "\"1" }, null);
-		AssertFindTest(new[] { "1" }, 1, x =>
+		AssertFindTest([""], null);
+		AssertFindTest(["not", "a", "command"], null);
+		AssertFindTest(["\"1"], null);
+		AssertFindTest(["1"], 1, x =>
 		{
 			Assert.IsTrue(x.Contains(c1));
 		});
-		AssertFindTest(new[] { "2" }, 1, x =>
+		AssertFindTest(["2"], 1, x =>
 		{
 			Assert.IsTrue(x.Contains(c2));
 		});
-		AssertFindTest(new[] { "3" }, 1, x =>
+		AssertFindTest(["3"], 1, x =>
 		{
 			Assert.IsTrue(x.Contains(c2));
 		});
-		AssertFindTest(new[] { "4" }, 2, x =>
+		AssertFindTest(["4"], 2, x =>
 		{
 			Assert.IsTrue(x.Contains(c3));
 			Assert.IsTrue(x.Contains(c4));
 		});
-		AssertFindTest(new[] { "4", "1" }, 2, x =>
+		AssertFindTest(["4", "1"], 2, x =>
 		{
 			Assert.IsTrue(x.Contains(c3));
 			Assert.IsTrue(x.Contains(c4));
 		});
-		AssertFindTest(new[] { "4", "2" }, 1, x =>
+		AssertFindTest(["4", "2"], 1, x =>
 		{
 			Assert.IsTrue(x.Contains(c3));
 		});
-		AssertFindTest(Array.Empty<string>(), 4, x =>
+		AssertFindTest([], 4, x =>
 		{
 			Assert.IsTrue(x.Contains(c1));
 			Assert.IsTrue(x.Contains(c2));
@@ -335,40 +335,29 @@ public class CommandTrie_Tests
 		assert?.Invoke(found);
 	}
 
-	private sealed class ExtraPath : IReadOnlyList<string>
+	private sealed class ExtraPath(IReadOnlyList<string> value)
+		: IReadOnlyList<string>
 	{
-		private readonly IReadOnlyList<string> _Value;
-
-		public int Count => _Value.Count;
+		public int Count => value.Count;
 		public int TimesEnumerated { get; private set; }
 
 		public string this[int index]
-			=> _Value[index];
-
-		public ExtraPath(IReadOnlyList<string> value)
-		{
-			_Value = value;
-		}
+			=> value[index];
 
 		public IEnumerator<string> GetEnumerator()
 		{
 			++TimesEnumerated;
-			return _Value.GetEnumerator();
+			return value.GetEnumerator();
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()
 			=> GetEnumerator();
 	}
 
-	private sealed class TestTypeReader : ITypeReader
+	private sealed class TestTypeReader(Type contextType) : ITypeReader
 	{
-		public Type ContextType { get; }
+		public Type ContextType { get; } = contextType;
 		public Type OutputType => typeof(string);
-
-		public TestTypeReader(Type contextType)
-		{
-			ContextType = contextType;
-		}
 
 		public ITask<ITypeReaderResult> ReadAsync(IContext context, ReadOnlyMemory<string> input)
 			=> throw new NotImplementedException();

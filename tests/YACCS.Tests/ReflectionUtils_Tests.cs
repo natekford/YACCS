@@ -76,9 +76,7 @@ public class ReflectionUtils_Tests
 		}.SetEquals(fields.Select(x => x.Name)));
 	}
 
-	private abstract class AbstractClass
-	{
-	}
+	private abstract class AbstractClass;
 
 	private class RealClass : AbstractClass
 	{

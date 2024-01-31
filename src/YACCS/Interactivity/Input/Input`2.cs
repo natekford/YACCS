@@ -95,7 +95,7 @@ public abstract class Input<TContext, TInput> :
 	/// <inheritdoc cref="IImmutableParameter"/>
 	protected sealed class EmptyParameter<T> : IImmutableParameter
 	{
-		private readonly object[] _Attributes = Array.Empty<object>();
+		private readonly object[] _Attributes = [];
 		private readonly string _Name = $"Input_{typeof(T).FullName}";
 
 		/// <summary>

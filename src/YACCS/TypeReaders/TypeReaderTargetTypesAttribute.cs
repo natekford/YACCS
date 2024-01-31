@@ -5,8 +5,14 @@ namespace YACCS.TypeReaders;
 /// <summary>
 /// Allows for specifying what types a type reader targets.
 /// </summary>
+/// <remarks>
+/// Creates a new <see cref="TypeReaderTargetTypesAttribute"/>.
+/// </remarks>
+/// <param name="types">
+/// <inheritdoc cref="TargetTypes" path="/summary"/>
+/// </param>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-public class TypeReaderTargetTypesAttribute : Attribute
+public class TypeReaderTargetTypesAttribute(params Type[] types) : Attribute
 {
 	/// <summary>
 	/// Whether or not to override any existing type readers.
@@ -15,16 +21,5 @@ public class TypeReaderTargetTypesAttribute : Attribute
 	/// <summary>
 	/// The types to target with this type reader.
 	/// </summary>
-	public IReadOnlyList<Type> TargetTypes { get; }
-
-	/// <summary>
-	/// Creates a new <see cref="TypeReaderTargetTypesAttribute"/>.
-	/// </summary>
-	/// <param name="types">
-	/// <inheritdoc cref="TargetTypes" path="/summary"/>
-	/// </param>
-	public TypeReaderTargetTypesAttribute(params Type[] types)
-	{
-		TargetTypes = types.ToImmutableArray();
-	}
+	public IReadOnlyList<Type> TargetTypes { get; } = types.ToImmutableArray();
 }

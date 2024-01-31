@@ -2,9 +2,7 @@
 
 namespace YACCS.Tests;
 
-public class FakeContext : FakeContextBase
-{
-}
+public class FakeContext : FakeContextBase;
 
 public abstract class FakeContextBase : IContext
 {
@@ -14,10 +12,6 @@ public abstract class FakeContextBase : IContext
 	public virtual DateTime Start { get; set; } = DateTime.UtcNow;
 }
 
-public class FakeContextChild : FakeContext
-{
-}
+public class FakeContextChild : FakeContext;
 
-public sealed class OtherContext : FakeContextBase
-{
-}
+public sealed class OtherContext : FakeContextBase;

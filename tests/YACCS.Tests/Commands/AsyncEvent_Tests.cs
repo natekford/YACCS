@@ -95,7 +95,5 @@ public class AsyncEvent_Tests
 		Assert.AreEqual(0, value);
 	}
 
-	private class FakeEventArgs : HandledEventArgs
-	{
-	}
+	private class FakeEventArgs : HandledEventArgs;
 }

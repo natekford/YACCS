@@ -174,31 +174,25 @@ public static class CommandCreationUtils
 	/// <summary>
 	/// Contains a newly created command and the <see cref="Type"/> which defined it.
 	/// </summary>
-	public readonly struct ReflectedCommand
+	/// <remarks>
+	/// Creates a new <see cref="ReflectedCommand"/>.
+	/// </remarks>
+	/// <param name="definingType">
+	/// <inheritdoc cref="DefiningType" path="/summary"/>
+	/// </param>
+	/// <param name="command">
+	/// <inheritdoc cref="Command" path="/summary"/>
+	/// </param>
+	public readonly struct ReflectedCommand(Type definingType, IImmutableCommand command)
 	{
 		/// <summary>
 		/// The newly created command.
 		/// </summary>
-		public IImmutableCommand Command { get; }
+		public IImmutableCommand Command { get; } = command;
 		/// <summary>
 		/// The <see cref="Type"/> that defined this command.
 		/// </summary>
-		public Type DefiningType { get; }
-
-		/// <summary>
-		/// Creates a new <see cref="ReflectedCommand"/>.
-		/// </summary>
-		/// <param name="definingType">
-		/// <inheritdoc cref="DefiningType" path="/summary"/>
-		/// </param>
-		/// <param name="command">
-		/// <inheritdoc cref="Command" path="/summary"/>
-		/// </param>
-		public ReflectedCommand(Type definingType, IImmutableCommand command)
-		{
-			Command = command;
-			DefiningType = definingType;
-		}
+		public Type DefiningType { get; } = definingType;
 
 		/// <summary>
 		/// Deconstructs this struct.

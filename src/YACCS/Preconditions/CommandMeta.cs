@@ -5,29 +5,25 @@ namespace YACCS.Preconditions;
 /// <summary>
 /// Contains a command and a parameter.
 /// </summary>
-public readonly struct CommandMeta
+/// <remarks>
+/// Creates a new <see cref="CommandMeta"/>.
+/// </remarks>
+/// <param name="command">
+/// <inheritdoc cref="Command" path="/summary"/>
+/// </param>
+/// <param name="parameter">
+/// <inheritdoc cref="Parameter" path="/summary"/>
+/// </param>
+public readonly struct CommandMeta(
+	IImmutableCommand command,
+	IImmutableParameter parameter)
 {
 	/// <summary>
 	/// The command being validated.
 	/// </summary>
-	public IImmutableCommand Command { get; }
+	public IImmutableCommand Command { get; } = command;
 	/// <summary>
 	/// The parameter being validated.
 	/// </summary>
-	public IImmutableParameter Parameter { get; }
-
-	/// <summary>
-	/// Creates a new <see cref="CommandMeta"/>.
-	/// </summary>
-	/// <param name="command">
-	/// <inheritdoc cref="Command" path="/summary"/>
-	/// </param>
-	/// <param name="parameter">
-	/// <inheritdoc cref="Parameter" path="/summary"/>
-	/// </param>
-	public CommandMeta(IImmutableCommand command, IImmutableParameter parameter)
-	{
-		Command = command;
-		Parameter = parameter;
-	}
+	public IImmutableParameter Parameter { get; } = parameter;
 }

@@ -18,10 +18,15 @@ public static class Localized
 /// Creates an instance of a specified value for each culture.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed class Localized<T> : IReadOnlyDictionary<CultureInfo, T>
+/// <remarks>
+/// Creates a new <see cref="Localized{T}"/>.
+/// </remarks>
+/// <param name="valueFactory"></param>
+public sealed class Localized<T>(Func<CultureInfo, T> valueFactory)
+	: IReadOnlyDictionary<CultureInfo, T>
 {
-	private readonly ConcurrentDictionary<CultureInfo, T> _Dict = new();
-	private readonly Func<CultureInfo, T> _ValueFactory;
+	private readonly ConcurrentDictionary<CultureInfo, T> _Dict = [];
+	private readonly Func<CultureInfo, T> _ValueFactory = valueFactory;
 
 	/// <inheritdoc />
 	public int Count => _Dict.Count;
@@ -33,15 +38,6 @@ public sealed class Localized<T> : IReadOnlyDictionary<CultureInfo, T>
 	/// <inheritdoc />
 	public T this[CultureInfo key]
 		=> _Dict.GetOrAdd(EnsureKey(key), _ValueFactory);
-
-	/// <summary>
-	/// Creates a new <see cref="Localized{T}"/>.
-	/// </summary>
-	/// <param name="valueFactory"></param>
-	public Localized(Func<CultureInfo, T> valueFactory)
-	{
-		_ValueFactory = valueFactory;
-	}
 
 	/// <inheritdoc />
 	public bool ContainsKey(CultureInfo? key)

@@ -33,7 +33,7 @@ public sealed class ImmutablePath : IReadOnlyList<string>
 		}
 		else
 		{
-			_Keys = keys.ToImmutableArray();
+			_Keys = [.. keys];
 		}
 	}
 

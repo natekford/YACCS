@@ -18,8 +18,8 @@ public class Parameters_Tests
 	private const string DUPE_ID = "dupe_id";
 	private const string NORM_ID = "normal_id";
 	private const string PARENT_ID = "parent_id";
-	private readonly List<IParameter> _Parameters = new()
-	{
+	private readonly List<IParameter> _Parameters =
+	[
 		new Parameter(typeof(Child), "", null)
 		{
 			Attributes = new List<object>
@@ -44,7 +44,7 @@ public class Parameters_Tests
 				},
 		},
 		new Parameter(typeof(int), "", null),
-	};
+	];
 
 	[TestMethod]
 	public void AddParameterPrecondition_Test()
@@ -149,13 +149,9 @@ public class Parameters_Tests
 		Assert.IsNull(parameter.TypeReader);
 	}
 
-	private class Base
-	{
-	}
+	private class Base;
 
-	private class Child : Base
-	{
-	}
+	private class Child : Base;
 
 	private sealed class NotNegative : ParameterPrecondition<FakeContext, int>
 	{

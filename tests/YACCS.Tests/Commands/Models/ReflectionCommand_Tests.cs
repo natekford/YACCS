@@ -81,24 +81,14 @@ public class ReflectionCommand_Tests
 		}
 	}
 
-	private class GroupMissingConstructor : GroupBase
+	private class GroupMissingConstructor(string value) : GroupBase
 	{
-		public string Value { get; }
-
-		public GroupMissingConstructor(string value)
-		{
-			Value = value;
-		}
+		public string Value { get; } = value;
 	}
 
 	private class GroupMissingInterface
 	{
-		public string Value { get; }
-
-		public GroupMissingInterface()
-		{
-			Value = "";
-		}
+		public string Value { get; } = "";
 
 		[Command("joeba")]
 		public IResult CommandAsync() => Success.Instance;

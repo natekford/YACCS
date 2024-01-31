@@ -104,19 +104,13 @@ public sealed class Trie_Tests
 			=> new[] { new[] { item } };
 	}
 
-	private sealed class IntTrieWrapper
+	private sealed class IntTrieWrapper(ICollection<int> collection)
 	{
-		private readonly ICollection<int> _Collection;
 		public int ExpectedCount { get; set; } = SIZE;
-
-		public IntTrieWrapper(ICollection<int> collection)
-		{
-			_Collection = collection;
-		}
 
 		public void Remove(int value)
 		{
-			Assert.IsTrue(_Collection.Remove(value));
+			Assert.IsTrue(collection.Remove(value));
 			--ExpectedCount;
 		}
 	}

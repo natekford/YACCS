@@ -2,14 +2,10 @@
 
 namespace YACCS.Examples;
 
-public sealed class ConsoleTagFormatter : TagFormatter
+public sealed class ConsoleTagFormatter(IReadOnlyDictionary<Type, string> names)
+	: TagFormatter
 {
-	private readonly IReadOnlyDictionary<Type, string> _Names;
-
-	public ConsoleTagFormatter(IReadOnlyDictionary<Type, string> names)
-	{
-		_Names = names;
-	}
+	private readonly IReadOnlyDictionary<Type, string> _Names = names;
 
 	public override string Format(
 		string? format,

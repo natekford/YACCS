@@ -12,7 +12,7 @@ public class CommandServiceConfig
 		= new CommandServiceConfig().ToImmutable();
 
 	/// <inheritdoc cref="ICommandServiceConfig.EndQuotes" />
-	public HashSet<char> EndQuotes { get; set; } = new() { CommandServiceUtils.QUOTE };
+	public HashSet<char> EndQuotes { get; set; } = [CommandServiceUtils.QUOTE];
 	/// <summary>
 	/// Whether or not commands are case sensitive.
 	/// </summary>
@@ -22,7 +22,7 @@ public class CommandServiceConfig
 	/// <inheritdoc cref="ICommandServiceConfig.Separator" />
 	public char Separator { get; set; } = CommandServiceUtils.SPACE;
 	/// <inheritdoc cref="ICommandServiceConfig.StartQuotes" />
-	public HashSet<char> StartQuotes { get; set; } = new() { CommandServiceUtils.QUOTE };
+	public HashSet<char> StartQuotes { get; set; } = [CommandServiceUtils.QUOTE];
 
 	/// <summary>
 	/// Creates a new immutable version of this config.

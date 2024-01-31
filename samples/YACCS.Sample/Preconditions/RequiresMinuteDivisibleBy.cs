@@ -9,15 +9,11 @@ using YACCS.Results;
 namespace YACCS.Examples.Preconditions;
 
 [AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = true, Inherited = true)]
-public class RequiresMinuteDivisibleBy : Precondition<IContext>, IRuntimeFormattableAttribute
+public class RequiresMinuteDivisibleBy(int divisor)
+	: Precondition<IContext>, IRuntimeFormattableAttribute
 {
-	public int Divisor { get; }
+	public int Divisor { get; } = divisor;
 	public virtual string FallbackErrorMessage { get; set; } = "Current minute must be divisible by {0}.";
-
-	public RequiresMinuteDivisibleBy(int divisor)
-	{
-		Divisor = divisor;
-	}
 
 	public override ValueTask<IResult> CheckAsync(IImmutableCommand command, IContext context)
 	{

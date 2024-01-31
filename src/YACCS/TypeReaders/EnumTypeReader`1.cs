@@ -11,18 +11,16 @@ public delegate bool EnumDelegate<TEnum>(
 /// Parses a <typeparamref name="TEnum"/> via <see cref="EnumDelegate{TEnum}"/>.
 /// </summary>
 /// <typeparam name="TEnum"></typeparam>
-public class EnumTypeReader<TEnum> : TryParseTypeReader<TEnum> where TEnum : struct, Enum
+/// <remarks>
+/// Creates a new <see cref="EnumTypeReader{T}"/>.
+/// </remarks>
+/// <param name="delegate">The delegate to use when parsing.</param>
+public class EnumTypeReader<TEnum>(EnumDelegate<TEnum> @delegate)
+	: TryParseTypeReader<TEnum>(Convert(@delegate))
+	where TEnum : struct, Enum
 {
 	/// <inheritdoc cref="EnumTypeReader{TEnum}(EnumDelegate{TEnum})"/>
 	public EnumTypeReader() : this(Enum.TryParse)
-	{
-	}
-
-	/// <summary>
-	/// Creates a new <see cref="EnumTypeReader{T}"/>.
-	/// </summary>
-	/// <param name="delegate">The delegate to use when parsing.</param>
-	public EnumTypeReader(EnumDelegate<TEnum> @delegate) : base(Convert(@delegate))
 	{
 	}
 

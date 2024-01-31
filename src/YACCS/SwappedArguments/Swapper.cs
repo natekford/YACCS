@@ -25,7 +25,7 @@ public sealed class Swapper
 	public Swapper(IEnumerable<int> indices)
 	{
 		var copy = indices.ToList();
-		Indices = copy.ToImmutableArray();
+		Indices = [.. copy];
 
 		var swaps = new List<(int, int)>();
 		for (var i = 0; i < copy.Count - 1; ++i)
@@ -45,7 +45,7 @@ public sealed class Swapper
 				Swap(copy, minIndex, i);
 			}
 		}
-		Swaps = swaps.ToImmutableArray();
+		Swaps = [.. swaps];
 	}
 
 	/// <summary>
@@ -129,9 +129,5 @@ public sealed class Swapper
 		=> Swap(source, indices.Left, indices.Right);
 
 	private static void Swap<T>(IList<T> source, int left, int right)
-	{
-		var temp = source[left];
-		source[left] = source[right];
-		source[right] = temp;
-	}
+		=> (source[right], source[left]) = (source[left], source[right]);
 }

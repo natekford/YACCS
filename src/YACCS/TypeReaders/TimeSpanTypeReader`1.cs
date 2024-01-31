@@ -13,16 +13,13 @@ public delegate bool TimeSpanDelegate<T>(
 /// Parses a <typeparamref name="T"/> via <see cref="TimeSpanDelegate{T}"/>.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class TimeSpanTypeReader<T> : TryParseTypeReader<T>
+/// <remarks>
+/// Creates a new <see cref="TimeSpanTypeReader{T}"/>.
+/// </remarks>
+/// <param name="delegate">The delegate to use when parsing.</param>
+public class TimeSpanTypeReader<T>(TimeSpanDelegate<T> @delegate)
+	: TryParseTypeReader<T>(Convert(@delegate))
 {
-	/// <summary>
-	/// Creates a new <see cref="TimeSpanTypeReader{T}"/>.
-	/// </summary>
-	/// <param name="delegate">The delegate to use when parsing.</param>
-	public TimeSpanTypeReader(TimeSpanDelegate<T> @delegate) : base(Convert(@delegate))
-	{
-	}
-
 	private static TryParseDelegate<T> Convert(TimeSpanDelegate<T> @delegate)
 	{
 		return (string input, [MaybeNullWhen(false)] out T result) =>

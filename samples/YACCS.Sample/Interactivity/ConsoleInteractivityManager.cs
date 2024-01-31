@@ -3,14 +3,9 @@ using YACCS.Results;
 
 namespace YACCS.Examples.Interactivity;
 
-public sealed class ConsoleInteractivityManager
+public sealed class ConsoleInteractivityManager(ConsoleHandler console)
 {
-	private readonly ConsoleHandler _Console;
-
-	public ConsoleInteractivityManager(ConsoleHandler console)
-	{
-		_Console = console;
-	}
+	private readonly ConsoleHandler _Console = console;
 
 	public Task<IAsyncDisposable> SubscribeAsync(OnInput<string> onInput)
 	{
@@ -48,18 +43,12 @@ public sealed class ConsoleInteractivityManager
 		return Task.FromResult<IAsyncDisposable>(subscription);
 	}
 
-	private sealed class ConsoleSubscription : IAsyncDisposable
+	private sealed class ConsoleSubscription(CancellationTokenSource source)
+		: IAsyncDisposable
 	{
-		private readonly CancellationTokenSource _Source;
-
-		public ConsoleSubscription(CancellationTokenSource source)
-		{
-			_Source = source;
-		}
-
 		public ValueTask DisposeAsync()
 		{
-			_Source.Cancel();
+			source.Cancel();
 			return new();
 		}
 	}
