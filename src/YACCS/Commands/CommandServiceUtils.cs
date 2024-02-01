@@ -145,34 +145,43 @@ public static class CommandServiceUtils
 			// Each group must succeed for a command to be valid
 			foreach (var group in preconditions)
 			{
-				IResult groupResult = Success.Instance;
+				var orResult = default(IResult?);
+				var andResult = default(IResult?);
 				foreach (var precondition in group.Value)
 				{
 					// An AND has already failed, no need to check other ANDs
-					if (precondition.Op == Op.And && !groupResult.IsSuccess)
+					if (precondition.Op == Op.And && andResult?.IsSuccess == false)
 					{
 						continue;
 					}
 
 					var result = await converter(precondition, state).ConfigureAwait(false);
 					// OR: Any success = instant success, go to next group
-					if (precondition.Op == Op.Or && result.IsSuccess)
+					if (precondition.Op == Op.Or)
 					{
+						orResult = result;
 						// Do NOT return directly from here, each group must succeed
-						groupResult = Success.Instance;
-						break;
+						if (result.IsSuccess)
+						{
+							break;
+						}
 					}
 					// AND: Any failure = skip other ANDs, only check further ORs
-					else if (precondition.Op == Op.And && !result.IsSuccess)
+					else if (precondition.Op == Op.And)
 					{
-						groupResult = result;
+						andResult = result;
 					}
 				}
-				// Any group failed, command is a failure
-				if (!groupResult.IsSuccess)
+
+				// Both result are null? Success because not failure
+				// Either result is success? Success because a result is success
+				if (orResult?.IsSuccess != false && andResult?.IsSuccess != false)
 				{
-					return groupResult;
+					continue;
 				}
+
+				// Group failed, command is a failure
+				return (orResult ?? andResult)!;
 			}
 			return Success.Instance;
 		}

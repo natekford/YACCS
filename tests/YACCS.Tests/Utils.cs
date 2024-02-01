@@ -33,11 +33,11 @@ public static class Utils
 
 		return new ServiceCollection()
 			.AddSingleton<IArgumentHandler>(handler)
-			.AddSingleton<ICommandServiceConfig>(config)
+			.AddSingleton(config)
 			.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>>(readers)
-			.AddSingleton<TypeReaderRegistry>(readers)
+			.AddSingleton(readers)
 			.AddSingleton<ICommandService>(commandService)
-			.AddSingleton<CommandService>(commandService);
+			.AddSingleton(commandService);
 	}
 
 	public static IServiceProvider CreateServices(ICommandServiceConfig? config = null)

@@ -18,7 +18,7 @@ public sealed class Program
 	private Program()
 	{
 		_Services = new ServiceCollection()
-			.AddSingleton<ICommandServiceConfig>(CommandServiceConfig.Instance)
+			.AddSingleton(CommandServiceConfig.Instance)
 			.AddSingleton<ILocalizer>(Localize.Instance)
 			.AddSingleton<ConsoleCommandService>()
 			.AddSingleton<ConsoleHandler>()

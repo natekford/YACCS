@@ -15,7 +15,7 @@ public class ParseArgs_Tests
 	//"K" "L M" N "H "A "B "C \"D E\"" F G"" I J" O "H "A "B "C \"D E\"" F G"" I J" P Q
 	private const string INPUT_3 = "\"K\" \"L M\" N \"" + INPUT_2 + "\" O \"" + INPUT_2 + "\" P Q";
 
-	private readonly IArgumentHandler _Handler = new ArgumentHandler(
+	private readonly ArgumentHandler _Handler = new(
 		CommandServiceConfig.Instance.Separator,
 		CommandServiceConfig.Instance.StartQuotes,
 		CommandServiceConfig.Instance.EndQuotes

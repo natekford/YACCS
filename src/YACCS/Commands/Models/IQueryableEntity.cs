@@ -7,7 +7,7 @@ public interface IQueryableEntity
 {
 	/// <summary>
 	/// Objects which contain information about this instance.
-	/// These are not all guaranteed to be <see cref="System.Attribute"/>.
+	/// These are not all guaranteed to be <see cref="Attribute"/>.
 	/// </summary>
 	IEnumerable<object> Attributes { get; }
 }
