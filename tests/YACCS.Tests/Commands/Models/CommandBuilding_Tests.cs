@@ -2,7 +2,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using MorseCode.ITask;
 
-using System;
 using System.Runtime.CompilerServices;
 
 using YACCS.Commands;
