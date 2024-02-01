@@ -6,9 +6,9 @@ Yet another custom command service inspired by [Discord.Net.Commands](https://gi
 
 ## Examples
 
-For an example of command definitions, see [here](https://github.com/advorange/YACCS/blob/master/src/YACCS.Examples/Commands/Commands.cs).
+For an example of command definitions, see [here](https://github.com/natekford/YACCS/blob/master/samples/YACCS.Sample/Commands/Commands.cs).
 
-For an example of commands instantiation and execution, see [here](https://github.com/advorange/YACCS/blob/master/src/YACCS.Examples/Program.cs).
+For an example of commands instantiation and execution, see [here](https://github.com/natekford/YACCS/blob/master/samples/YACCS.Sample/Program.cs).
 
 ## Compiling
 
