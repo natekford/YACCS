@@ -1,6 +1,6 @@
 ﻿using MorseCode.ITask;
 
-using System.Collections.Immutable;
+using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
@@ -15,14 +15,14 @@ public static class TypeReaderUtils
 {
 	// Don't deal with the non generic versions b/c how would we parse 'object'?
 	// HashSet<T> and its generic interfaces
-	private static ImmutableHashSet<Type> HashSetTypes { get; } = new HashSet<Type>
+	private static FrozenSet<Type> HashSetTypes { get; } = new HashSet<Type>
 	{
 		typeof(HashSet<>),
 		typeof(ISet<>),
-	}.ToImmutableHashSet();
+	}.ToFrozenSet();
 
 	// List<T> and its generic interfaces
-	private static ImmutableHashSet<Type> ListTypes { get; } = new HashSet<Type>
+	private static FrozenSet<Type> ListTypes { get; } = new HashSet<Type>
 	{
 		typeof(List<>),
 		typeof(IList<>),
@@ -30,7 +30,7 @@ public static class TypeReaderUtils
 		typeof(IEnumerable<>),
 		typeof(IReadOnlyList<>),
 		typeof(IReadOnlyCollection<>),
-	}.ToImmutableHashSet();
+	}.ToFrozenSet();
 
 	/// <summary>
 	/// Converts <paramref name="result"/> to <see cref="ITask{TResult}"/>.
@@ -240,7 +240,7 @@ public static class TypeReaderUtils
 
 	private static bool TryGetEnumerableType(
 		this Type type,
-		IImmutableSet<Type> defs,
+		ISet<Type> defs,
 		[NotNullWhen(true)] out Type? enumerableType)
 	{
 		if (type.IsGenericType && defs.Contains(type.GetGenericTypeDefinition()))

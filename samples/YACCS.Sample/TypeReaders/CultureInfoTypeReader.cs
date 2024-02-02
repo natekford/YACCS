@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Frozen;
 using System.Globalization;
 
 using YACCS.TypeReaders;
@@ -8,9 +8,9 @@ namespace YACCS.Examples.TypeReaders;
 [TypeReaderTargetTypes(typeof(CultureInfo))]
 public class CultureInfoTypeReader : TryParseTypeReader<CultureInfo>
 {
-	public static ImmutableDictionary<string, CultureInfo> Cultures { get; }
+	public static FrozenDictionary<string, CultureInfo> Cultures { get; }
 		= CultureInfo.GetCultures(CultureTypes.AllCultures)
-			.ToImmutableDictionary(x => x.Name);
+			.ToFrozenDictionary(x => x.Name);
 
 	public CultureInfoTypeReader() : base(Cultures.TryGetValue)
 	{

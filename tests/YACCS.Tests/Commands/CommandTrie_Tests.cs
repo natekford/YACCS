@@ -3,7 +3,6 @@
 using MorseCode.ITask;
 
 using System.Collections;
-using System.Collections.Immutable;
 using System.Reflection;
 
 using YACCS.Commands;
@@ -302,7 +301,7 @@ public class CommandTrie_Tests
 		_Trie.Add(command);
 
 		var extraPath = new ExtraPath(new[] { "a", "c" });
-		var newPaths = command.Paths.Append(extraPath).ToImmutableArray();
+		var newPaths = command.Paths.Append(extraPath).ToArray();
 
 		var pathField = command.GetType().BaseType!.GetField(
 			$"<{nameof(command.Paths)}>k__BackingField",

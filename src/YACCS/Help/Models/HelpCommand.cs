@@ -35,11 +35,6 @@ public class HelpCommand : HelpItem<IImmutableCommand>, IHelpCommand
 		}
 		Parameters = parameters.MoveToImmutable();
 
-		Preconditions = item.Preconditions.ToImmutableDictionary(
-			x => x.Key,
-			x => x.Value
-				.Select(x => (IHelpItem<IPrecondition>)new HelpItem<IPrecondition>(x))
-				.ToLookup(x => x.Item.Op)
-		);
+		Preconditions = item.Preconditions.ToImmutablePreconditions();
 	}
 }

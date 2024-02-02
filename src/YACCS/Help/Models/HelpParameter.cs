@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
@@ -32,11 +31,6 @@ public class HelpParameter : HelpItem<IImmutableParameter>, IHelpParameter
 		ParameterType = Create(item.ParameterType);
 		TypeReader = item.TypeReader is ITypeReader tr ? new HelpItem<ITypeReader>(tr) : null;
 
-		Preconditions = item.Preconditions.ToImmutableDictionary(
-			x => x.Key,
-			x => x.Value
-				.Select(x => (IHelpItem<IParameterPrecondition>)new HelpItem<IParameterPrecondition>(x))
-				.ToLookup(x => x.Item.Op)
-		);
+		Preconditions = item.Preconditions.ToImmutablePreconditions();
 	}
 }

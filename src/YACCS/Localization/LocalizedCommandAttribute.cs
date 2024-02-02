@@ -20,23 +20,12 @@ public class LocalizedCommandAttribute(IReadOnlyList<string> keys)
 	/// </summary>
 	public IReadOnlyList<string> Keys { get; } = keys;
 	/// <inheritdoc />
-	public override IReadOnlyList<string> Names
-	{
-		get
-		{
-			if (Localize.Instance.IsEmpty)
-			{
-				return base.Names;
-			}
-
-			var names = ImmutableArray.CreateBuilder<string>(Keys.Count);
-			for (var i = 0; i < names.Count; ++i)
-			{
-				names.Add(Localize.This(Keys[i]));
-			}
-			return names.MoveToImmutable();
-		}
-	}
+	public override IReadOnlyList<string> Names => Localized.GetCurrent();
+	/// <summary>
+	/// The localized names.
+	/// </summary>
+	protected virtual Localized<IReadOnlyList<string>> Localized { get; }
+		= new(_ => keys.Select(x => Localize.This(x)).ToImmutableArray());
 
 	/// <inheritdoc cref="LocalizedCommandAttribute(IReadOnlyList{string})"/>
 	public LocalizedCommandAttribute(params string[] keys) : this(keys.ToImmutableArray())

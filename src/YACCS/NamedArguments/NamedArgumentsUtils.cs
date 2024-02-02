@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Frozen;
 
 using YACCS.Commands.Models;
 
@@ -6,7 +6,7 @@ namespace YACCS.NamedArguments;
 
 internal static class NamedArgumentsUtils
 {
-	internal static ImmutableDictionary<string, IImmutableParameter> CreateParamDict(
+	internal static FrozenDictionary<string, IImmutableParameter> CreateParamDict(
 		this Type type,
 		Func<IImmutableParameter, string> keySelector)
 	{
@@ -18,8 +18,8 @@ internal static class NamedArgumentsUtils
 			.ToParamDict(keySelector);
 	}
 
-	internal static ImmutableDictionary<string, IImmutableParameter> ToParamDict(
+	internal static FrozenDictionary<string, IImmutableParameter> ToParamDict(
 		this IEnumerable<IImmutableParameter> parameters,
 		Func<IImmutableParameter, string> keySelector)
-		=> parameters.ToImmutableDictionary(keySelector, StringComparer.OrdinalIgnoreCase);
+		=> parameters.ToFrozenDictionary(keySelector, StringComparer.OrdinalIgnoreCase);
 }

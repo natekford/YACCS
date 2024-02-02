@@ -18,7 +18,8 @@ namespace YACCS.TypeReaders;
 public sealed class AggregateTypeReader<T>(IEnumerable<ITypeReader> readers)
 	: TypeReader<IContext, T>
 {
-	private readonly ImmutableArray<ITypeReader<T>> _Readers = readers.Cast<ITypeReader<T>>().ToImmutableArray();
+	private readonly ImmutableArray<ITypeReader<T>> _Readers
+		= readers.Cast<ITypeReader<T>>().ToImmutableArray();
 
 	/// <inheritdoc />
 	public override async ITask<ITypeReaderResult<T>> ReadAsync(

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using System.Collections.Immutable;
+using System.Collections.Frozen;
 
 using YACCS.Preconditions;
 
@@ -53,10 +53,10 @@ public static class AttributeUtils
 		return converter.Invoke(attribute);
 	}
 
-	internal static ImmutableDictionary<string, IReadOnlyList<TPrecondition>> ToImmutablePreconditions<TPrecondition>(
+	internal static FrozenDictionary<string, IReadOnlyList<TPrecondition>> ToImmutablePreconditions<TPrecondition>(
 		this IDictionary<string, List<TPrecondition>> dict)
 	{
-		return dict.ToImmutableDictionary(
+		return dict.ToFrozenDictionary(
 			x => x.Key,
 			x => (IReadOnlyList<TPrecondition>)[.. x.Value]
 		);
