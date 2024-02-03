@@ -6,30 +6,17 @@
 /// <remarks>
 /// Creates a new <see cref="TypeReaderInfo"/>.
 /// </remarks>
-/// <param name="targetTypes">
-/// <inheritdoc cref="TargetTypes" path="/summary"/>
+/// <param name="TargetTypes">
+/// The types the type reader will be added for.
 /// </param>
-/// <param name="overrideExistingTypeReaders">
-/// <inheritdoc cref="OverrideExistingTypeReaders" path="/summary"/>
+/// <param name="OverrideExistingTypeReaders">
+/// Whether or not the type reader should override already existing ones when added.
 /// </param>
-/// <param name="instance">
-/// <inheritdoc cref="Instance" path="/summary"/>
+/// <param name="Instance">
+/// The type reader.
 /// </param>
-public readonly struct TypeReaderInfo(
-	IReadOnlyList<Type> targetTypes,
-	bool overrideExistingTypeReaders,
-	ITypeReader instance)
-{
-	/// <summary>
-	/// The type reader.
-	/// </summary>
-	public ITypeReader Instance { get; } = instance;
-	/// <summary>
-	/// Whether or not the type reader should override already existing ones when added.
-	/// </summary>
-	public bool OverrideExistingTypeReaders { get; } = overrideExistingTypeReaders;
-	/// <summary>
-	/// The types the type reader will be added for.
-	/// </summary>
-	public IReadOnlyList<Type> TargetTypes { get; } = targetTypes;
-}
+public record TypeReaderInfo(
+	IReadOnlyList<Type> TargetTypes,
+	bool OverrideExistingTypeReaders,
+	ITypeReader Instance
+);

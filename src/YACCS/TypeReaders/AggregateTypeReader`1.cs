@@ -14,12 +14,12 @@ namespace YACCS.TypeReaders;
 /// <remarks>
 /// Creates a new <see cref="AggregateTypeReader{T}"/>.
 /// </remarks>
-/// <param name="readers">The type readers to wrap over.</param>
-public sealed class AggregateTypeReader<T>(IEnumerable<ITypeReader> readers)
+/// <param name="readers">The type readers to wrap.</param>
+public sealed class AggregateTypeReader<T>(IEnumerable<ITypeReader<T>> readers)
 	: TypeReader<T>
 {
 	private readonly ImmutableArray<ITypeReader<T>> _Readers
-		= readers.Cast<ITypeReader<T>>().ToImmutableArray();
+		= readers.ToImmutableArray();
 
 	/// <inheritdoc />
 	public override async ITask<ITypeReaderResult<T>> ReadAsync(

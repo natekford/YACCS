@@ -10,6 +10,11 @@ namespace YACCS.TypeReaders;
 /// </summary>
 public class TypeReaderRegistry : TypeRegistry<ITypeReader>
 {
+	private static readonly MethodInfo _CreateAggregateTypeReader =
+		typeof(TypeReaderRegistry)
+		.GetTypeInfo()
+		.DeclaredMethods
+		.Single(x => x.Name == nameof(CreateAggregateTypeReader));
 	private static readonly MethodInfo _RegisterStruct =
 		typeof(TypeReaderRegistry)
 		.GetTypeInfo()
@@ -97,7 +102,7 @@ public class TypeReaderRegistry : TypeRegistry<ITypeReader>
 	}
 
 	/// <inheritdoc />
-	public override bool TryGetValue(Type type, [NotNullWhen(true)] out ITypeReader reader)
+	public override bool TryGetValue(Type type, [NotNullWhen(true)] out ITypeReader? reader)
 	{
 		if (Items.TryGetValue(type, out reader))
 		{
@@ -153,7 +158,7 @@ public class TypeReaderRegistry : TypeRegistry<ITypeReader>
 	/// <param name="type">The type to create a type reader for.</param>
 	/// <param name="reader">The created type reader.</param>
 	/// <returns>A bool indicating success or failure.</returns>
-	protected virtual bool TryCreateReader(Type type, [NotNullWhen(true)] out ITypeReader reader)
+	protected virtual bool TryCreateReader(Type type, [NotNullWhen(true)] out ITypeReader? reader)
 	{
 		var customReaders = type
 			.GetCustomAttributes()
@@ -167,8 +172,8 @@ public class TypeReaderRegistry : TypeRegistry<ITypeReader>
 		}
 		else if (customReaders.Count > 1)
 		{
-			var aggregateReaderType = typeof(AggregateTypeReader<>).MakeGenericType(type);
-			reader = aggregateReaderType.CreateInstance<ITypeReader>(customReaders);
+			var factory = _CreateAggregateTypeReader.MakeGenericMethod(type);
+			reader = (ITypeReader)factory.Invoke(null, [customReaders]);
 			return true;
 		}
 
@@ -192,11 +197,15 @@ public class TypeReaderRegistry : TypeRegistry<ITypeReader>
 		}
 		else
 		{
-			reader = null!;
+			reader = null;
 			return false;
 		}
 
 		reader = readerType.CreateInstance<ITypeReader>();
 		return true;
 	}
+
+	private static AggregateTypeReader<T> CreateAggregateTypeReader<T>(
+		IEnumerable<ITypeReader> typeReaders)
+		=> new(typeReaders.Cast<ITypeReader<T>>());
 }
