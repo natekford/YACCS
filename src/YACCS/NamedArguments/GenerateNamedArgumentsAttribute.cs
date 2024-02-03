@@ -35,7 +35,7 @@ public sealed class GenerateNamedArgumentsAttribute : Attribute,
 	}
 
 	/// <inheritdoc />
-	public void ModifyParameter(IParameter parameter)
+	public void ModifyParameter(IMutableParameter parameter)
 	{
 		var pType = parameter.ParameterType;
 		var ppType = typeof(NamedArgumentsParameterPrecondition<>).MakeGenericType(pType);

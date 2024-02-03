@@ -8,7 +8,7 @@ namespace YACCS.Commands.Models;
 /// The base class for most command objects.
 /// </summary>
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-public abstract class EntityBase : IEntityBase
+public abstract class EntityBase : IMutableEntity
 {
 	/// <inheritdoc />
 	public IList<object> Attributes { get; set; }

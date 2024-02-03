@@ -7,7 +7,7 @@ namespace YACCS.Commands.Models;
 /// <summary>
 /// An immutable command.
 /// </summary>
-public interface IImmutableCommand : IImmutableEntityBase, IQueryableCommand
+public interface IImmutableCommand : IImmutableEntity, IQueryableCommand
 {
 	/// <summary>
 	/// Whether or not this command should show up for help commands.

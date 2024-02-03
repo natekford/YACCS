@@ -7,11 +7,11 @@ namespace YACCS.Commands.Models;
 /// <summary>
 /// An immutable parameter.
 /// </summary>
-public interface IImmutableParameter : IImmutableEntityBase, IQueryableParameter
+public interface IImmutableParameter : IImmutableEntity, IQueryableParameter
 {
-	/// <inheritdoc cref="IParameter.DefaultValue"/>
+	/// <inheritdoc cref="IMutableParameter.DefaultValue"/>
 	object? DefaultValue { get; }
-	/// <inheritdoc cref="IParameter.HasDefaultValue"/>
+	/// <inheritdoc cref="IMutableParameter.HasDefaultValue"/>
 	bool HasDefaultValue { get; }
 	/// <inheritdoc cref="ILengthAttribute.Length"/>
 	int? Length { get; }
@@ -23,6 +23,6 @@ public interface IImmutableParameter : IImmutableEntityBase, IQueryableParameter
 	/// The preconditions of this parameter grouped together.
 	/// </summary>
 	IReadOnlyDictionary<string, IReadOnlyList<IParameterPrecondition>> Preconditions { get; }
-	/// <inheritdoc cref="IParameter.TypeReader"/>
+	/// <inheritdoc cref="IMutableParameter.TypeReader"/>
 	ITypeReader? TypeReader { get; }
 }

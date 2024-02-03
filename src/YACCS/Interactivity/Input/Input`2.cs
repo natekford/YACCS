@@ -103,7 +103,7 @@ public abstract class Input<TContext, TInput> :
 		/// </summary>
 		public static EmptyParameter<T> Instance { get; } = new();
 
-		IReadOnlyList<object> IImmutableEntityBase.Attributes => _Attributes;
+		IReadOnlyList<object> IImmutableEntity.Attributes => _Attributes;
 		IEnumerable<object> IQueryableEntity.Attributes => _Attributes;
 		object? IImmutableParameter.DefaultValue => null;
 		bool IImmutableParameter.HasDefaultValue => false;
@@ -113,7 +113,7 @@ public abstract class Input<TContext, TInput> :
 		Type IQueryableParameter.ParameterType { get; } = typeof(T);
 		IReadOnlyDictionary<string, IReadOnlyList<IParameterPrecondition>> IImmutableParameter.Preconditions { get; }
 			= ImmutableDictionary.Create<string, IReadOnlyList<IParameterPrecondition>>();
-		string IImmutableEntityBase.PrimaryId { get; } = typeof(T).FullName;
+		string IImmutableEntity.PrimaryId { get; } = typeof(T).FullName;
 		ITypeReader? IImmutableParameter.TypeReader => null;
 	}
 }

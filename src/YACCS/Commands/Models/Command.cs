@@ -12,14 +12,14 @@ using YACCS.Results;
 
 namespace YACCS.Commands.Models;
 
-/// <inheritdoc cref="ICommand"/>
+/// <inheritdoc cref="IMutableCommand"/>
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-public abstract class Command : EntityBase, ICommand
+public abstract class Command : EntityBase, IMutableCommand
 {
 	/// <inheritdoc />
 	public Type ContextType { get; protected set; }
 	/// <inheritdoc />
-	public IReadOnlyList<IParameter> Parameters { get; protected set; }
+	public IReadOnlyList<IMutableParameter> Parameters { get; protected set; }
 	/// <inheritdoc />
 	public IList<IReadOnlyList<string>> Paths { get; set; }
 	/// <inheritdoc />
@@ -40,7 +40,7 @@ public abstract class Command : EntityBase, ICommand
 		Source = source;
 		ContextType = contextType;
 		Paths = new List<IReadOnlyList<string>>();
-		Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IParameter>();
+		Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IMutableParameter>();
 	}
 
 	/// <inheritdoc />

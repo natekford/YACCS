@@ -8,10 +8,10 @@ using YACCS.TypeReaders;
 namespace YACCS.Commands.Linq;
 
 /// <inheritdoc />
-public interface IParameter<in TValue> : IParameter;
+public interface IParameter<in TValue> : IMutableParameter;
 
 /// <summary>
-/// Static methods for querying and modifying <see cref="IParameter"/>.
+/// Static methods for querying and modifying <see cref="IMutableParameter"/>.
 /// </summary>
 public static class Parameters
 {
@@ -28,32 +28,32 @@ public static class Parameters
 		this TParameter parameter,
 		IParameterPrecondition<TContext, TValue> precondition)
 		where TContext : IContext
-		where TParameter : IParameter, IParameter<TValue>
+		where TParameter : IMutableParameter, IParameter<TValue>
 	{
 		parameter.Attributes.Add(precondition);
 		return parameter;
 	}
 
 	/// <summary>
-	/// Casts <paramref name="entity"/> to <see cref="IParameter"/>.
+	/// Casts <paramref name="entity"/> to <see cref="IMutableParameter"/>.
 	/// </summary>
 	/// <param name="entity">The entity to cast.</param>
-	/// <returns><paramref name="entity"/> cast to <see cref="IParameter"/>.</returns>
+	/// <returns><paramref name="entity"/> cast to <see cref="IMutableParameter"/>.</returns>
 	/// <exception cref="ArgumentNullException">
 	/// When <paramref name="entity"/> is <see langword="null"/>.
 	/// </exception>
 	/// <exception cref="ArgumentException">
-	/// When <paramref name="entity"/> does not implement <see cref="IParameter"/>.
+	/// When <paramref name="entity"/> does not implement <see cref="IMutableParameter"/>.
 	/// </exception>
-	public static IParameter AsParameter(this IQueryableEntity entity)
+	public static IMutableParameter AsParameter(this IQueryableEntity entity)
 	{
 		if (entity is null)
 		{
 			throw new ArgumentNullException(nameof(entity));
 		}
-		if (entity is not IParameter parameter)
+		if (entity is not IMutableParameter parameter)
 		{
-			throw new ArgumentException($"Not a {nameof(IParameter)}.", nameof(entity));
+			throw new ArgumentException($"Not a {nameof(IMutableParameter)}.", nameof(entity));
 		}
 		return parameter;
 	}
@@ -67,7 +67,7 @@ public static class Parameters
 	/// <exception cref="ArgumentException">
 	/// When <typeparamref name="TValue"/> is invalid for <paramref name="parameter"/>.
 	/// </exception>
-	public static IParameter<TValue> AsType<TValue>(this IParameter parameter)
+	public static IParameter<TValue> AsType<TValue>(this IMutableParameter parameter)
 	{
 		if (!parameter.IsValidParameter(typeof(TValue)))
 		{
@@ -94,7 +94,7 @@ public static class Parameters
 	/// <param name="parameters">The parameters to filter.</param>
 	/// <returns>An enumerable of paramters where <typeparamref name="TValue"/> is valid.</returns>
 	public static IEnumerable<IParameter<TValue>> GetParametersByType<TValue>(
-		this IEnumerable<IParameter> parameters)
+		this IEnumerable<IMutableParameter> parameters)
 	{
 		foreach (var parameter in parameters)
 		{
@@ -122,7 +122,7 @@ public static class Parameters
 	/// <param name="parameter">The parameter to modify.</param>
 	/// <returns><paramref name="parameter"/> after it has been modified.</returns>
 	public static TParameter MarkAsRemainder<TParameter>(this TParameter parameter)
-		where TParameter : IParameter
+		where TParameter : IMutableParameter
 	{
 		if (!parameter.GetAttributes<ILengthAttribute>().Any())
 		{
@@ -138,7 +138,7 @@ public static class Parameters
 	/// <param name="parameter">The parameter to modify.</param>
 	/// <returns><paramref name="parameter"/> after it has been modified.</returns>
 	public static TParameter RemoveDefaultValue<TParameter>(this TParameter parameter)
-		where TParameter : IParameter
+		where TParameter : IMutableParameter
 	{
 		parameter.HasDefaultValue = false;
 		return parameter;
@@ -151,7 +151,7 @@ public static class Parameters
 	/// <param name="parameter">The parameter to modify.</param>
 	/// <returns><paramref name="parameter"/> after it has been modified.</returns>
 	public static TParameter RemoveTypeReader<TParameter>(this TParameter parameter)
-		where TParameter : IParameter
+		where TParameter : IMutableParameter
 	{
 		parameter.TypeReader = null;
 		return parameter;
@@ -168,7 +168,7 @@ public static class Parameters
 	public static TParameter SetDefaultValue<TValue, TParameter>(
 		this TParameter parameter,
 		TValue value)
-		where TParameter : IParameter, IParameter<TValue>
+		where TParameter : IMutableParameter, IParameter<TValue>
 	{
 		parameter.DefaultValue = value;
 		return parameter;
@@ -185,41 +185,41 @@ public static class Parameters
 	public static TParameter SetTypeReader<TValue, TParameter>(
 		this TParameter parameter,
 		ITypeReader<TValue>? typeReader)
-		where TParameter : IParameter, IParameter<TValue>
+		where TParameter : IMutableParameter, IParameter<TValue>
 	{
 		parameter.TypeReader = typeReader;
 		return parameter;
 	}
 
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-	private sealed class Parameter<TValue>(IParameter actual) : IParameter<TValue>
+	private sealed class Parameter<TValue>(IMutableParameter actual) : IParameter<TValue>
 	{
-		IList<object> IEntityBase.Attributes
+		IList<object> IMutableEntity.Attributes
 		{
 			get => actual.Attributes;
 			set => actual.Attributes = value;
 		}
 		IEnumerable<object> IQueryableEntity.Attributes => actual.Attributes;
-		object? IParameter.DefaultValue
+		object? IMutableParameter.DefaultValue
 		{
 			get => actual.DefaultValue;
 			set => actual.DefaultValue = value;
 		}
-		bool IParameter.HasDefaultValue
+		bool IMutableParameter.HasDefaultValue
 		{
 			get => actual.HasDefaultValue;
 			set => actual.HasDefaultValue = value;
 		}
 		string IQueryableParameter.OriginalParameterName => actual.OriginalParameterName;
 		Type IQueryableParameter.ParameterType => actual.ParameterType;
-		ITypeReader? IParameter.TypeReader
+		ITypeReader? IMutableParameter.TypeReader
 		{
 			get => actual.TypeReader;
 			set => actual.TypeReader = value;
 		}
 		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
-		IImmutableParameter IParameter.ToImmutable()
+		IImmutableParameter IMutableParameter.ToImmutable()
 			=> actual.ToImmutable();
 	}
 }

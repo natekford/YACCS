@@ -11,9 +11,9 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Commands.Models;
 
-/// <inheritdoc cref="IParameter"/>
+/// <inheritdoc cref="IMutableParameter"/>
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-public sealed class Parameter : EntityBase, IParameter
+public sealed class Parameter : EntityBase, IMutableParameter
 {
 	private static readonly object NoDefaultValue = new();
 

@@ -154,7 +154,7 @@ public class CommandService_GetBestMatchAsync_Tests
 		Assert.IsTrue(parameter.GetAttributes<WasIReachedParameterPreconditionAttribute>().Single().IWasReached);
 	}
 
-	private static (CommandService, FakeContext, ICommand, IParameter) Create(bool success, int disallowedValue)
+	private static (CommandService, FakeContext, IMutableCommand, IMutableParameter) Create(bool success, int disallowedValue)
 	{
 		static void Delegate(int arg)
 		{

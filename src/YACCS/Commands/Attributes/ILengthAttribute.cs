@@ -8,7 +8,7 @@ namespace YACCS.Commands.Attributes;
 public interface ILengthAttribute
 {
 	/// <summary>
-	/// The expected amount of args when parsing this <see cref="IParameter"/>.
+	/// The expected amount of args when parsing this <see cref="IMutableParameter"/>.
 	/// A value of <see langword="null"/> means any amount of args is valid.
 	/// </summary>
 	int? Length { get; }

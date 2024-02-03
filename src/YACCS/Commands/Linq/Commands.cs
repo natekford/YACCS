@@ -6,10 +6,10 @@ using YACCS.Preconditions;
 namespace YACCS.Commands.Linq;
 
 /// <inheritdoc />
-public interface ICommand<in TContext> : ICommand where TContext : IContext;
+public interface ICommand<in TContext> : IMutableCommand where TContext : IContext;
 
 /// <summary>
-/// Static methods for querying and modifying <see cref="ICommand"/>.
+/// Static methods for querying and modifying <see cref="IMutableCommand"/>.
 /// </summary>
 public static class Commands
 {
@@ -23,7 +23,7 @@ public static class Commands
 	public static TCommand AddPath<TCommand>(
 		this TCommand command,
 		IReadOnlyList<string> path)
-		where TCommand : ICommand
+		where TCommand : IMutableCommand
 	{
 		command.Paths.Add(path);
 		return command;
@@ -41,32 +41,32 @@ public static class Commands
 		this TCommand command,
 		IPrecondition<TContext> precondition)
 		where TContext : IContext
-		where TCommand : ICommand, ICommand<TContext>
+		where TCommand : IMutableCommand, ICommand<TContext>
 	{
 		command.Attributes.Add(precondition);
 		return command;
 	}
 
 	/// <summary>
-	/// Casts <paramref name="entity"/> to <see cref="ICommand"/>.
+	/// Casts <paramref name="entity"/> to <see cref="IMutableCommand"/>.
 	/// </summary>
 	/// <param name="entity">The entity to cast.</param>
-	/// <returns><paramref name="entity"/> cast to <see cref="ICommand"/>.</returns>
+	/// <returns><paramref name="entity"/> cast to <see cref="IMutableCommand"/>.</returns>
 	/// <exception cref="ArgumentNullException">
 	/// When <paramref name="entity"/> is <see langword="null"/>.
 	/// </exception>
 	/// <exception cref="ArgumentException">
-	/// When <paramref name="entity"/> does not implement <see cref="ICommand"/>.
+	/// When <paramref name="entity"/> does not implement <see cref="IMutableCommand"/>.
 	/// </exception>
-	public static ICommand AsCommand(this IQueryableEntity entity)
+	public static IMutableCommand AsCommand(this IQueryableEntity entity)
 	{
 		if (entity is null)
 		{
 			throw new ArgumentNullException(nameof(entity));
 		}
-		if (entity is not ICommand command)
+		if (entity is not IMutableCommand command)
 		{
-			throw new ArgumentException($"Not a {nameof(ICommand)}.", nameof(entity));
+			throw new ArgumentException($"Not a {nameof(IMutableCommand)}.", nameof(entity));
 		}
 		return command;
 	}
@@ -80,7 +80,7 @@ public static class Commands
 	/// <exception cref="ArgumentException">
 	/// When <typeparamref name="TContext"/> is invalid for <paramref name="command"/>.
 	/// </exception>
-	public static ICommand<TContext> AsContext<TContext>(this ICommand command)
+	public static ICommand<TContext> AsContext<TContext>(this IMutableCommand command)
 		where TContext : IContext
 	{
 		if (!command.IsValidContext(typeof(TContext)))
@@ -99,7 +99,7 @@ public static class Commands
 	/// <param name="commands">The commands to filter.</param>
 	/// <returns>An enumerable of commands where <typeparamref name="TContext"/> is valid.</returns>
 	public static IEnumerable<ICommand<TContext>> GetCommandsByType<TContext>(
-		this IEnumerable<ICommand> commands)
+		this IEnumerable<IMutableCommand> commands)
 		where TContext : IContext
 	{
 		foreach (var command in commands)
@@ -112,19 +112,19 @@ public static class Commands
 	}
 
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-	private sealed class Command<TContext>(ICommand actual)
+	private sealed class Command<TContext>(IMutableCommand actual)
 		: ICommand<TContext> where TContext : IContext
 	{
-		IList<object> IEntityBase.Attributes
+		IList<object> IMutableEntity.Attributes
 		{
 			get => actual.Attributes;
 			set => actual.Attributes = value;
 		}
 		IEnumerable<object> IQueryableEntity.Attributes => actual.Attributes;
 		Type IQueryableCommand.ContextType => actual.ContextType;
-		IReadOnlyList<IParameter> ICommand.Parameters => actual.Parameters;
+		IReadOnlyList<IMutableParameter> IMutableCommand.Parameters => actual.Parameters;
 		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => actual.Parameters;
-		IList<IReadOnlyList<string>> ICommand.Paths
+		IList<IReadOnlyList<string>> IMutableCommand.Paths
 		{
 			get => actual.Paths;
 			set => actual.Paths = value;
@@ -136,10 +136,10 @@ public static class Commands
 		bool IQueryableCommand.IsValidContext(Type type)
 			=> actual.IsValidContext(type);
 
-		IImmutableCommand ICommand.ToImmutable()
+		IImmutableCommand IMutableCommand.ToImmutable()
 			=> actual.ToImmutable();
 
-		IAsyncEnumerable<IImmutableCommand> ICommand.ToMultipleImmutableAsync(IServiceProvider services)
+		IAsyncEnumerable<IImmutableCommand> IMutableCommand.ToMultipleImmutableAsync(IServiceProvider services)
 			=> actual.ToMultipleImmutableAsync(services);
 	}
 }

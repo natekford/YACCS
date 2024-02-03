@@ -221,7 +221,7 @@ public class CommandBuilding_Tests
 		{
 		}
 
-		public readonly Task OnCommandBuildingAsync(IServiceProvider services, IList<ICommand> commands)
+		public readonly Task OnCommandBuildingAsync(IServiceProvider services, IList<IMutableCommand> commands)
 			=> Task.CompletedTask;
 	}
 

@@ -3,10 +3,10 @@
 /// <summary>
 /// A mutable command.
 /// </summary>
-public interface ICommand : IEntityBase, IQueryableCommand
+public interface IMutableCommand : IMutableEntity, IQueryableCommand
 {
 	/// <inheritdoc cref="IQueryableCommand.Parameters"/>
-	new IReadOnlyList<IParameter> Parameters { get; }
+	new IReadOnlyList<IMutableParameter> Parameters { get; }
 	/// <inheritdoc cref="IQueryableCommand.Paths"/>
 	new IList<IReadOnlyList<string>> Paths { get; set; }
 

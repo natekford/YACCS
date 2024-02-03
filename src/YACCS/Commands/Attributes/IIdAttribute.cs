@@ -3,7 +3,7 @@
 namespace YACCS.Commands.Attributes;
 
 /// <summary>
-/// An attribute used for setting <see cref="IImmutableEntityBase.PrimaryId"/>.
+/// An attribute used for setting <see cref="IImmutableEntity.PrimaryId"/>.
 /// </summary>
 public interface IIdAttribute
 {

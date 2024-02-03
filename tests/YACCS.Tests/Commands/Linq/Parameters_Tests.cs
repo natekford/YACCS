@@ -18,7 +18,7 @@ public class Parameters_Tests
 	private const string DUPE_ID = "dupe_id";
 	private const string NORM_ID = "normal_id";
 	private const string PARENT_ID = "parent_id";
-	private readonly List<IParameter> _Parameters =
+	private readonly List<IMutableParameter> _Parameters =
 	[
 		new Parameter(typeof(Child), "", null)
 		{

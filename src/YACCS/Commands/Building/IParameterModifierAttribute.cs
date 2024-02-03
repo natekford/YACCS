@@ -3,7 +3,7 @@
 namespace YACCS.Commands.Building;
 
 /// <summary>
-/// An attribute to modify <see cref="IParameter"/> during creation.
+/// An attribute to modify <see cref="IMutableParameter"/> during creation.
 /// </summary>
 public interface IParameterModifierAttribute
 {
@@ -11,5 +11,5 @@ public interface IParameterModifierAttribute
 	/// Modifies the passed in parameter.
 	/// </summary>
 	/// <param name="parameter">The parameter to modify.</param>
-	void ModifyParameter(IParameter parameter);
+	void ModifyParameter(IMutableParameter parameter);
 }

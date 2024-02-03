@@ -4,7 +4,7 @@ using YACCS.Commands.Models;
 namespace YACCS.Commands.Linq;
 
 /// <summary>
-/// Static methods for querying and modifying <see cref="IEntityBase"/>.
+/// Static methods for querying and modifying <see cref="IMutableEntity"/>.
 /// </summary>
 public static class Entities
 {
@@ -16,7 +16,7 @@ public static class Entities
 	/// <param name="attribute">The attribute to add.</param>
 	/// <returns><paramref name="entity"/> after it has been modified.</returns>
 	public static TEntity AddAttribute<TEntity>(this TEntity entity, object attribute)
-		where TEntity : IEntityBase
+		where TEntity : IMutableEntity
 	{
 		entity.Attributes.Add(attribute);
 		return entity;

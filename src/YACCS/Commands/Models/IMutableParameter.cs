@@ -5,7 +5,7 @@ namespace YACCS.Commands.Models;
 /// <summary>
 /// A mutable parameter.
 /// </summary>
-public interface IParameter : IEntityBase, IQueryableParameter
+public interface IMutableParameter : IMutableEntity, IQueryableParameter
 {
 	/// <summary>
 	/// The default value of this parameter.

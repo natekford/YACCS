@@ -3,7 +3,7 @@
 /// <summary>
 /// The base interface for most immutable command objects.
 /// </summary>
-public interface IImmutableEntityBase : IQueryableEntity
+public interface IImmutableEntity : IQueryableEntity
 {
 	/// <inheritdoc cref="IQueryableEntity.Attributes" />
 	new IReadOnlyList<object> Attributes { get; }
