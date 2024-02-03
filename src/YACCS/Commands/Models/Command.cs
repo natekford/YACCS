@@ -7,6 +7,7 @@ using System.Reflection;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Building;
 using YACCS.Commands.Linq;
+using YACCS.Localization;
 using YACCS.Preconditions;
 using YACCS.Results;
 

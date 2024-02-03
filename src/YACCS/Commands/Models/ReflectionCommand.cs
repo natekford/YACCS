@@ -4,6 +4,7 @@ using System.Reflection;
 
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Building;
+using YACCS.Localization;
 using YACCS.Results;
 
 namespace YACCS.Commands.Models;
