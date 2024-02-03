@@ -10,14 +10,14 @@ internal static class HelpUtils
 	internal static string Format(this IFormatProvider? formatProvider, FormattableString @string)
 		=> formatProvider is null ? @string.ToString() : @string.ToString(formatProvider);
 
-	internal static FrozenDictionary<string, ILookup<Op, IHelpItem<T>>> ToImmutablePreconditions<T>(
+	internal static FrozenDictionary<string, ILookup<Op, HelpItem<T>>> ToImmutablePreconditions<T>(
 		this IReadOnlyDictionary<string, IReadOnlyList<T>> preconditions)
 		where T : IGroupablePrecondition
 	{
 		return preconditions.ToFrozenDictionary(
 			x => x.Key,
 			x => x.Value
-				.Select(x => (IHelpItem<T>)new HelpItem<T>(x))
+				.Select(x => new HelpItem<T>(x))
 				.ToLookup(x => x.Item.Op)
 		);
 	}

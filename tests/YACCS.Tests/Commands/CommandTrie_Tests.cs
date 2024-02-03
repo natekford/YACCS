@@ -20,8 +20,8 @@ public class CommandTrie_Tests
 	private const string DUPE_ID = "dupe_id";
 	private readonly CommandTrie _Trie = new(
 		new TypeReaderRegistry(),
-		CommandServiceConfig.Instance.Separator,
-		CommandServiceConfig.Instance.CommandNameComparer
+		CommandServiceConfig.Default.Separator,
+		CommandServiceConfig.Default.CommandNameComparer
 	);
 
 	[TestMethod]

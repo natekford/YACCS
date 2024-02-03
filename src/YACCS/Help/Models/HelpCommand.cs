@@ -7,16 +7,24 @@ using YACCS.Preconditions;
 
 namespace YACCS.Help.Models;
 
-/// <inheritdoc cref="IHelpCommand"/>
+/// <summary>
+/// Information to display about a command in a help command.
+/// </summary>
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-public class HelpCommand : HelpItem<IImmutableCommand>, IHelpCommand
+public class HelpCommand : HelpItem<IImmutableCommand>
 {
-	/// <inheritdoc />
-	public IHelpItem<Type> ContextType { get; }
-	/// <inheritdoc />
-	public IReadOnlyList<IHelpParameter> Parameters { get; }
-	/// <inheritdoc />
-	public IReadOnlyDictionary<string, ILookup<Op, IHelpItem<IPrecondition>>> Preconditions { get; }
+	/// <summary>
+	/// The context type of this command.
+	/// </summary>
+	public HelpItem<Type> ContextType { get; }
+	/// <summary>
+	/// The parameters of this command.
+	/// </summary>
+	public IReadOnlyList<HelpParameter> Parameters { get; }
+	/// <summary>
+	/// The precondition groups of this command.
+	/// </summary>
+	public IReadOnlyDictionary<string, ILookup<Op, HelpItem<IPrecondition>>> Preconditions { get; }
 	private string DebuggerDisplay => Item.FormatForDebuggerDisplay();
 
 	/// <summary>

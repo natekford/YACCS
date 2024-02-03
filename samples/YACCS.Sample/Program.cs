@@ -18,7 +18,7 @@ public sealed class Program
 	private Program()
 	{
 		_Services = new ServiceCollection()
-			.AddSingleton(CommandServiceConfig.Instance)
+			.AddSingleton(CommandServiceConfig.Default)
 			.AddSingleton<ILocalizer>(Localize.Instance)
 			.AddSingleton<ConsoleCommandService>()
 			.AddSingleton<ConsoleHandler>()
@@ -29,7 +29,7 @@ public sealed class Program
 			.AddSingleton<ICommandService>(x => x.GetRequiredService<ConsoleCommandService>())
 			.AddSingleton<IArgumentHandler>(x =>
 			{
-				var config = x.GetRequiredService<ICommandServiceConfig>();
+				var config = x.GetRequiredService<CommandServiceConfig>();
 				return new ArgumentHandler(
 					config.Separator,
 					config.StartQuotes,

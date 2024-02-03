@@ -20,9 +20,10 @@ public static class Utils
 		}
 	}
 
-	public static IServiceCollection CreateServiceCollection(ICommandServiceConfig? config = null)
+	public static IServiceCollection CreateServiceCollection(
+		CommandServiceConfig? config = null)
 	{
-		config ??= CommandServiceConfig.Instance;
+		config ??= CommandServiceConfig.Default;
 		var handler = new ArgumentHandler(
 			config.Separator,
 			config.StartQuotes,
@@ -40,7 +41,7 @@ public static class Utils
 			.AddSingleton(commandService);
 	}
 
-	public static IServiceProvider CreateServices(ICommandServiceConfig? config = null)
+	public static IServiceProvider CreateServices(CommandServiceConfig? config = null)
 		=> CreateServiceCollection(config).BuildServiceProvider();
 
 	public static T Get<T>(this IServiceProvider services) where T : notnull

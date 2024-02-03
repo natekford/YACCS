@@ -2,60 +2,30 @@
 
 namespace YACCS.Commands;
 
-/// <inheritdoc cref="ICommandServiceConfig" />
-public class CommandServiceConfig
+/// <summary>
+/// Configuration for <see cref="CommandService"/>.
+/// </summary>
+/// <param name="CommandNameComparer">How to compare paths for equality.</param>
+/// <param name="EndQuotes">Characters that can be used to end quotes.</param>
+/// <param name="MultiMatchHandling">How to handle when multiple matching commands are found.</param>
+/// <param name="Separator">Character that is used for separating arguments.</param>
+/// <param name="StartQuotes">Characters that can be used to start quotes.</param>
+public record CommandServiceConfig(
+	IEqualityComparer<string> CommandNameComparer,
+	ImmutableHashSet<char> EndQuotes,
+	MultiMatchHandling MultiMatchHandling,
+	char Separator,
+	ImmutableHashSet<char> StartQuotes
+)
 {
 	/// <summary>
-	/// A singleton instance of <see cref="ICommandServiceConfig"/>.
+	/// The default instance of <see cref="CommandServiceConfig"/>.
 	/// </summary>
-	public static ICommandServiceConfig Instance { get; }
-		= new CommandServiceConfig().ToImmutable();
-
-	/// <inheritdoc cref="ICommandServiceConfig.EndQuotes" />
-	public HashSet<char> EndQuotes { get; set; } = [CommandServiceUtils.QUOTE];
-	/// <summary>
-	/// Whether or not commands are case sensitive.
-	/// </summary>
-	public bool IsCaseSensitive { get; set; }
-	/// <inheritdoc cref="ICommandServiceConfig.MultiMatchHandling" />
-	public MultiMatchHandling MultiMatchHandling { get; set; } = MultiMatchHandling.Best;
-	/// <inheritdoc cref="ICommandServiceConfig.Separator" />
-	public char Separator { get; set; } = CommandServiceUtils.SPACE;
-	/// <inheritdoc cref="ICommandServiceConfig.StartQuotes" />
-	public HashSet<char> StartQuotes { get; set; } = [CommandServiceUtils.QUOTE];
-
-	/// <summary>
-	/// Creates a new immutable version of this config.
-	/// </summary>
-	/// <returns></returns>
-	public ICommandServiceConfig ToImmutable()
-		=> new ImmutableCommandServiceConfig(this);
-
-	private sealed class ImmutableCommandServiceConfig : ICommandServiceConfig
-	{
-		public IEqualityComparer<string> CommandNameComparer { get; }
-		public IImmutableSet<char> EndQuotes { get; }
-		public MultiMatchHandling MultiMatchHandling { get; }
-		public char Separator { get; }
-		public IImmutableSet<char> StartQuotes { get; }
-
-		public ImmutableCommandServiceConfig(CommandServiceConfig mutable)
-		{
-			CommandNameComparer = mutable.IsCaseSensitive
-				? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
-			EndQuotes = mutable.EndQuotes.ToImmutableHashSet();
-			MultiMatchHandling = mutable.MultiMatchHandling;
-			Separator = mutable.Separator;
-			StartQuotes = mutable.StartQuotes.ToImmutableHashSet();
-		}
-
-		public ImmutableCommandServiceConfig(ICommandServiceConfig other)
-		{
-			CommandNameComparer = other.CommandNameComparer;
-			EndQuotes = other.EndQuotes;
-			MultiMatchHandling = other.MultiMatchHandling;
-			Separator = other.Separator;
-			StartQuotes = other.StartQuotes;
-		}
-	}
+	public static CommandServiceConfig Default { get; } = new(
+		CommandNameComparer: StringComparer.OrdinalIgnoreCase,
+		EndQuotes: [CommandServiceUtils.QUOTE],
+		MultiMatchHandling: MultiMatchHandling.Best,
+		Separator: CommandServiceUtils.SPACE,
+		StartQuotes: [CommandServiceUtils.QUOTE]
+	);
 }

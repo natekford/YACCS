@@ -12,9 +12,8 @@ namespace YACCS.TypeReaders;
 /// Parses commands which start with the provided value.
 /// </summary>
 /// <remarks>Order is NOT guaranteed</remarks>
-public class CommandsNameTypeReader :
-	TypeReader<IContext, IReadOnlyCollection<IImmutableCommand>>,
-	IOverrideTypeReaderAttribute
+public class CommandsNameTypeReader
+	: TypeReader<IReadOnlyCollection<IImmutableCommand>>, IOverrideTypeReaderAttribute
 {
 	ITypeReader IOverrideTypeReaderAttribute.Reader => this;
 

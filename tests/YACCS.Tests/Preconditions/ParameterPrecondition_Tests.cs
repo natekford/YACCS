@@ -2,6 +2,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 
+using YACCS.Commands;
 using YACCS.Preconditions;
 using YACCS.Results;
 
@@ -77,7 +78,7 @@ public class ParameterPrecondition_Tests
 	[TestMethod]
 	public async Task SingleValueGenericValueSuccess_Test()
 	{
-		var precondition = (IParameterPrecondition<int?>)_Precondition;
+		var precondition = (IParameterPrecondition<FakeContext, int?>)_Precondition;
 		var result = await precondition.CheckAsync(default, new FakeContext(), 1).ConfigureAwait(false);
 		Assert.IsTrue(result.IsSuccess);
 	}

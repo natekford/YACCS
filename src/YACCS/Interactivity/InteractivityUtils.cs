@@ -10,18 +10,13 @@ namespace YACCS.Interactivity;
 public static class InteractivityUtils
 {
 	/// <summary>
-	/// Extension method for type inference.
-	/// <paramref name="exampleValueForTypeInference"/> is not used.
+	/// Extension method for type inference. <paramref name="_"/> is not used.
 	/// </summary>
 	/// <inheritdoc cref="IInput{TContext, TInput}.GetAsync{TValue}(TContext, InputOptions{TContext, TInput, TValue})"/>
-	public static Task<ITypeReaderResult<TValue>> InferGetAsync<TContext, TInput, TValue>(
+	public static Task<ITypeReaderResult<TValue>> GetAsync<TContext, TInput, TValue>(
 		this IInput<TContext, TInput> input,
 		TContext context,
-#pragma warning disable RCS1163 // Unused parameter.
-#pragma warning disable IDE0060 // Remove unused parameter
-		TValue? exampleValueForTypeInference,
-#pragma warning restore IDE0060 // Remove unused parameter
-#pragma warning restore RCS1163 // Unused parameter.
+		TValue? _,
 		InputOptions<TContext, TInput, TValue> options)
 		where TContext : IContext
 		=> input.GetAsync(context, options);

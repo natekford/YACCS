@@ -225,9 +225,7 @@ public class CommandBuilding_Tests
 			=> Task.CompletedTask;
 	}
 
-	private class FakeTypeReader :
-		TypeReader<IContext, string>,
-		IOverrideTypeReaderAttribute
+	private class FakeTypeReader : TypeReader<string>, IOverrideTypeReaderAttribute
 	{
 		public const string VALUE = "joe";
 

@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Concurrent;
+using System.Globalization;
 using System.Text;
 
 using YACCS.Commands;
@@ -27,7 +28,7 @@ public class HelpFormatter(
 	IFormatProvider? formatProvider = null)
 	: IHelpFormatter
 {
-	private readonly Dictionary<IImmutableCommand, HelpCommand> _Commands = [];
+	private readonly ConcurrentDictionary<IImmutableCommand, HelpCommand> _Commands = [];
 	/// <summary>
 	/// The format provider to use when formatting strings.
 	/// </summary>
@@ -45,7 +46,7 @@ public class HelpFormatter(
 
 		builder.AppendNames(help.Item.Paths);
 		builder.AppendSummary(help.Summary);
-		await builder.AppendAttributesAsync(help).ConfigureAwait(false);
+		await builder.AppendAttributesAsync(help.Attributes).ConfigureAwait(false);
 		await builder.AppendPreconditionsAsync(help.Preconditions).ConfigureAwait(false);
 		await builder.AppendParametersAsync(help.Parameters).ConfigureAwait(false);
 		return builder.ToString();
@@ -60,22 +61,18 @@ public class HelpFormatter(
 		=> new(context, TypeNames, FormatProvider);
 
 	/// <summary>
-	/// Creates a new <see cref="IHelpCommand"/>.
+	/// Creates a new <see cref="HelpCommand"/>.
 	/// </summary>
 	/// <param name="command">The command to create a help command for.</param>
 	/// <returns>A new help command.</returns>
-	protected virtual IHelpCommand GetHelpCommand(IImmutableCommand command)
+	protected virtual HelpCommand GetHelpCommand(IImmutableCommand command)
 	{
 		while (command.Source is not null)
 		{
 			command = command.Source;
 		}
 
-		if (!_Commands.TryGetValue(command, out var help))
-		{
-			_Commands.Add(command, help = new HelpCommand(command));
-		}
-		return help;
+		return _Commands.GetOrAdd(command, k => new(k));
 	}
 
 	/// <summary>
@@ -136,12 +133,12 @@ public class HelpFormatter(
 		protected IReadOnlyDictionary<Type, string> TypeNames { get; } = typeNames;
 
 		/// <summary>
-		/// Appends attributes from <paramref name="item"/> to this instance.
+		/// Appends attributes from <paramref name="attributes"/> to this instance.
 		/// </summary>
-		/// <param name="item">The item to append attributes for.</param>
+		/// <param name="attributes">The attributes to append.</param>
 		/// <returns></returns>
-		public virtual Task AppendAttributesAsync(IHelpItem<object> item)
-			=> AppendItemsAsync(HeaderAttributes, item.Attributes);
+		public virtual Task AppendAttributesAsync(IReadOnlyList<HelpItem<object>> attributes)
+			=> AppendItemsAsync(HeaderAttributes, attributes);
 
 		/// <summary>
 		/// Appends each name in <paramref name="paths"/> to this instance.
@@ -165,7 +162,7 @@ public class HelpFormatter(
 		/// </summary>
 		/// <param name="parameters">The parameters to format and append.</param>
 		/// <returns></returns>
-		public virtual async Task AppendParametersAsync(IReadOnlyList<IHelpParameter> parameters)
+		public virtual async Task AppendParametersAsync(IReadOnlyList<HelpParameter> parameters)
 		{
 			if (parameters.Count == 0)
 			{
@@ -183,7 +180,7 @@ public class HelpFormatter(
 				AppendLine(typeName);
 
 				AppendSummary(parameter.Summary);
-				await AppendAttributesAsync(parameter).ConfigureAwait(false);
+				await AppendAttributesAsync(parameter.Attributes).ConfigureAwait(false);
 				await AppendPreconditionsAsync(parameter.Preconditions).ConfigureAwait(false);
 			}
 			--CurrentDepth;
@@ -196,7 +193,7 @@ public class HelpFormatter(
 		/// <param name="preconditions">The preconditions to format and append.</param>
 		/// <returns></returns>
 		public virtual async Task AppendPreconditionsAsync<T>(
-			IReadOnlyDictionary<string, ILookup<Op, IHelpItem<T>>> preconditions)
+			IReadOnlyDictionary<string, ILookup<Op, HelpItem<T>>> preconditions)
 			where T : notnull
 		{
 			if (preconditions.Count == 0)
@@ -287,7 +284,7 @@ public class HelpFormatter(
 		/// </remarks>
 		protected virtual async Task AppendItemsAsync<T>(
 			string header,
-			IEnumerable<IHelpItem<T>> items)
+			IEnumerable<HelpItem<T>> items)
 			where T : notnull
 		{
 			var shouldAppendHeader = false;

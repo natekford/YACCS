@@ -18,14 +18,16 @@ public static class Parameters
 	/// <summary>
 	/// Adds a parameter precondition to <paramref name="parameter"/>.
 	/// </summary>
+	/// <typeparam name="TContext"></typeparam>
 	/// <typeparam name="TValue"></typeparam>
 	/// <typeparam name="TParameter"></typeparam>
 	/// <param name="parameter">The parameter to modify.</param>
 	/// <param name="precondition">The precondition to add.</param>
 	/// <returns><paramref name="parameter"/> after it has been modified.</returns>
-	public static TParameter AddParameterPrecondition<TValue, TParameter>(
+	public static TParameter AddParameterPrecondition<TContext, TValue, TParameter>(
 		this TParameter parameter,
-		IParameterPrecondition<TValue> precondition)
+		IParameterPrecondition<TContext, TValue> precondition)
+		where TContext : IContext
 		where TParameter : IParameter, IParameter<TValue>
 	{
 		parameter.Attributes.Add(precondition);

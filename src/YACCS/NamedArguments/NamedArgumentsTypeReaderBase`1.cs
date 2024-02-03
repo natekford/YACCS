@@ -11,7 +11,7 @@ namespace YACCS.NamedArguments;
 /// The base class for a named arguments type reader.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class NamedArgumentsTypeReaderBase<T> : TypeReader<IContext, T>
+public abstract class NamedArgumentsTypeReaderBase<T> : TypeReader<T>
 	where T : new()
 {
 	private static readonly char[] _TrimEnd = [':'];

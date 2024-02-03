@@ -2,6 +2,7 @@
 using System.Reflection;
 
 using YACCS.Commands;
+using YACCS.Plugins;
 
 using static YACCS.Commands.CommandCreationUtils;
 
@@ -56,16 +57,15 @@ public static class PluginUtils
 
 	/// <summary>
 	/// Gets all instantiators from attributes on an assembly that
-	/// implement <see cref="IServiceInstantiator{T}"/>.
+	/// implement <see cref="PluginAttribute{T}"/>.
 	/// </summary>
 	/// <typeparam name="T">The type of service collection that is being used.</typeparam>
 	/// <param name="assemblies">The assemblies to look through.</param>
 	/// <returns>A list of service instantiators.</returns>
-	public static List<IServiceInstantiator<T>> GetInstantiators<T>(
-		this IEnumerable<Assembly> assemblies)
+	public static List<PluginAttribute<T>> GetPlugins<T>(this IEnumerable<Assembly> assemblies)
 	{
 		return assemblies
-			.Select(x => x.CustomAttributes.OfType<IServiceInstantiator<T>>().SingleOrDefault())
+			.Select(x => x.CustomAttributes.OfType<PluginAttribute<T>>().SingleOrDefault())
 			.Where(x => x is not null)
 			.ToList();
 	}
@@ -82,21 +82,5 @@ public static class PluginUtils
 			.Select(x => Assembly.LoadFrom(x))
 			.Where(x => x.GetCustomAttribute<PluginAttribute>() is not null)
 			.ToDictionary(x => x.FullName, x => x);
-	}
-
-	/// <summary>
-	/// Throws an exception if there are no assemblies in <paramref name="assemblies"/>.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="assemblies">The dictionary of assemblies.</param>
-	/// <returns>The passed in value after it has been checked.</returns>
-	public static T ThrowIfEmpty<T>(this T assemblies)
-		where T : IDictionary<string, Assembly>
-	{
-		if (assemblies.Count == 0)
-		{
-			throw new DllNotFoundException("Unable to find any command assemblies.");
-		}
-		return assemblies;
 	}
 }

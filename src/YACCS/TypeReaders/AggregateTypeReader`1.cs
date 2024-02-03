@@ -16,7 +16,7 @@ namespace YACCS.TypeReaders;
 /// </remarks>
 /// <param name="readers">The type readers to wrap over.</param>
 public sealed class AggregateTypeReader<T>(IEnumerable<ITypeReader> readers)
-	: TypeReader<IContext, T>
+	: TypeReader<T>
 {
 	private readonly ImmutableArray<ITypeReader<T>> _Readers
 		= readers.Cast<ITypeReader<T>>().ToImmutableArray();

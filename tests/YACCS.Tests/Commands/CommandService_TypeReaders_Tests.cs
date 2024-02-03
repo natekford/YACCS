@@ -144,7 +144,7 @@ public class CommandService_TypeReaders_Tests
 		return commandService.ProcessTypeReadersAsync(context, parameter, input, startIndex);
 	}
 
-	private class CoolCharTypeReader : TypeReader<IContext, char>
+	private class CoolCharTypeReader : TypeReader<char>
 	{
 		public override ITask<ITypeReaderResult<char>> ReadAsync(
 			IContext context,

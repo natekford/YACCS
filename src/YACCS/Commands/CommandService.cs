@@ -20,7 +20,7 @@ namespace YACCS.Commands;
 /// <inheritdoc cref="CommandServiceBase.Readers" path="/summary"/>
 /// </param>
 public class CommandService(
-	ICommandServiceConfig config,
+	CommandServiceConfig config,
 	IArgumentHandler handler,
 	IReadOnlyDictionary<Type, ITypeReader> readers)
 	: CommandServiceBase(config, handler, readers)

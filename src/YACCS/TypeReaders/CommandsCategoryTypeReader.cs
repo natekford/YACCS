@@ -11,9 +11,8 @@ namespace YACCS.TypeReaders;
 /// Parses commands which have all the supplied categories.
 /// </summary>
 /// <remarks>Order is NOT guaranteed</remarks>
-public class CommandsCategoryTypeReader :
-	TypeReader<IContext, IReadOnlyCollection<IImmutableCommand>>,
-	IOverrideTypeReaderAttribute
+public class CommandsCategoryTypeReader
+	: TypeReader<IReadOnlyCollection<IImmutableCommand>>, IOverrideTypeReaderAttribute
 {
 	ITypeReader IOverrideTypeReaderAttribute.Reader => this;
 

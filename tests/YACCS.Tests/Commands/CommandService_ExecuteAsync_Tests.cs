@@ -184,10 +184,10 @@ public class CommandService_ExecuteAsync_Tests
 	{
 		var context = new FakeContext
 		{
-			Services = Utils.CreateServices(new CommandServiceConfig
+			Services = Utils.CreateServices(CommandServiceConfig.Default with
 			{
 				MultiMatchHandling = MultiMatchHandling.Error,
-			}.ToImmutable()),
+			}),
 		};
 
 		var commandService = context.Get<CommandService>();

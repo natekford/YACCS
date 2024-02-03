@@ -8,17 +8,28 @@ using YACCS.Help.Attributes;
 
 namespace YACCS.Help.Models;
 
-/// <inheritdoc cref="IHelpItem{T}"/>
+/// <summary>
+/// Information to display about an item in a help command.
+/// </summary>
+/// <typeparam name="T"></typeparam>
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-public class HelpItem<T> : IHelpItem<T> where T : notnull
+public class HelpItem<T> where T : notnull
 {
-	/// <inheritdoc />
-	public IReadOnlyList<IHelpItem<object>> Attributes { get; }
-	/// <inheritdoc />
+	/// <summary>
+	/// The attributes associated with this item.
+	/// </summary>
+	public IReadOnlyList<HelpItem<object>> Attributes { get; }
+	/// <summary>
+	/// The item to present information about.
+	/// </summary>
 	public T Item { get; }
-	/// <inheritdoc />
+	/// <summary>
+	/// The name of this item.
+	/// </summary>
 	public INameAttribute? Name { get; }
-	/// <inheritdoc />
+	/// <summary>
+	/// The summary of this item.
+	/// </summary>
 	public ISummaryAttribute? Summary { get; }
 	private string DebuggerDisplay => $"Type = {Item.GetType()}, Attribute Count = {Attributes.Count}";
 
@@ -44,7 +55,7 @@ public class HelpItem<T> : IHelpItem<T> where T : notnull
 	{
 		Item = item;
 
-		var items = new List<IHelpItem<object>>();
+		var items = new List<HelpItem<object>>();
 		int n = 0, s = 0;
 		foreach (var attribute in attributes)
 		{

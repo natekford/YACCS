@@ -67,7 +67,7 @@ public class Help : ConsoleCommands
 				Console.WriteLine($"\t{i + 1}. {executableCommands[i].Paths[0]}");
 			}
 
-			var result = await Input.InferGetAsync(Context, default(int), new()
+			var result = await Input.GetAsync(Context, default(int), new()
 			{
 				Preconditions = new[]
 				{

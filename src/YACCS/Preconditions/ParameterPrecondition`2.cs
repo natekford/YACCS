@@ -28,12 +28,6 @@ public abstract class ParameterPrecondition<TContext, TValue> :
 		object? value)
 		=> CheckAsync(meta, context, value);
 
-	ValueTask<IResult> IParameterPrecondition<TValue>.CheckAsync(
-		CommandMeta meta,
-		IContext context,
-		TValue? value)
-		=> CheckAsync(meta, context, value);
-
 	/// <summary>
 	/// Invokes <see cref="CheckAsync(CommandMeta, TContext, TValue?)"/> after handling
 	/// type checking.
@@ -106,7 +100,7 @@ public abstract class ParameterPrecondition<TContext, TValue> :
 				return InvalidParameter.Instance;
 			}
 
-			var result = await CheckAsync(meta, context, tValue!).ConfigureAwait(false);
+			var result = await CheckAsync(meta, context, tValue).ConfigureAwait(false);
 			if (!result.IsSuccess)
 			{
 				return result;

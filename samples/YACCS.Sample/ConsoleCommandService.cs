@@ -24,7 +24,7 @@ public sealed class ConsoleCommandService : CommandServiceBase
 
 	public ConsoleCommandService(
 		IServiceProvider services,
-		ICommandServiceConfig config,
+		CommandServiceConfig config,
 		IArgumentHandler handler,
 		IReadOnlyDictionary<Type, ITypeReader> readers,
 		ConsoleHandler console,

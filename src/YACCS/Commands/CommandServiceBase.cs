@@ -20,7 +20,7 @@ public abstract class CommandServiceBase : ICommandService
 	/// <summary>
 	/// The configuration to use.
 	/// </summary>
-	protected virtual ICommandServiceConfig Config { get; }
+	protected virtual CommandServiceConfig Config { get; }
 	/// <summary>
 	/// The argument handler to use for splitting input.
 	/// </summary>
@@ -43,7 +43,7 @@ public abstract class CommandServiceBase : ICommandService
 	/// <inheritdoc cref="Readers" path="/summary"/>
 	/// </param>
 	protected CommandServiceBase(
-		ICommandServiceConfig config,
+		CommandServiceConfig config,
 		IArgumentHandler handler,
 		IReadOnlyDictionary<Type, ITypeReader> readers)
 	{
