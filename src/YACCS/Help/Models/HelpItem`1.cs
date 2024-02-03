@@ -18,20 +18,21 @@ public class HelpItem<T> where T : notnull
 	/// <summary>
 	/// The attributes associated with this item.
 	/// </summary>
-	public IReadOnlyList<HelpItem<object>> Attributes { get; }
+	public virtual IReadOnlyList<HelpItem<object>> Attributes { get; }
 	/// <summary>
 	/// The item to present information about.
 	/// </summary>
-	public T Item { get; }
+	public virtual T Item { get; }
 	/// <summary>
 	/// The name of this item.
 	/// </summary>
-	public INameAttribute? Name { get; }
+	public virtual INameAttribute? Name { get; }
 	/// <summary>
 	/// The summary of this item.
 	/// </summary>
-	public ISummaryAttribute? Summary { get; }
-	private string DebuggerDisplay => $"Type = {Item.GetType()}, Attribute Count = {Attributes.Count}";
+	public virtual ISummaryAttribute? Summary { get; }
+	private string DebuggerDisplay
+		=> $"Type = {Item.GetType()}, Attribute Count = {Attributes.Count}";
 
 	/// <inheritdoc cref="HelpItem(T, IReadOnlyList{object}, Func{object, bool})"/>
 	public HelpItem(T item)
@@ -78,7 +79,4 @@ public class HelpItem<T> where T : notnull
 		}
 		Attributes = items.ToImmutableArray();
 	}
-
-	internal HelpItem<T2> Create<T2>(T2 item) where T2 : ICustomAttributeProvider
-		=> new(item, item.GetCustomAttributes(true));
 }
