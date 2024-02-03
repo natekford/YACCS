@@ -129,7 +129,7 @@ public sealed class ReflectionCommand : Command
 			parent = parent.DeclaringType;
 		}
 
-		return output.Select(x => new ImmutablePath(x));
+		return output.Select(x => new LocalizedPath(x));
 	}
 
 	private sealed class ImmutableReflectionCommand : ImmutableCommand

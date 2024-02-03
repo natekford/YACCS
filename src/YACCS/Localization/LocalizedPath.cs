@@ -2,16 +2,16 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 
-using YACCS.Localization;
+using YACCS.Commands;
 
-namespace YACCS.Commands.Models;
+namespace YACCS.Localization;
 
 /// <summary>
 /// An immutable list of strings which supports localization
 /// through <see cref="Localize.This(string, string?)"/>.
 /// </summary>
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-public sealed class ImmutablePath : IReadOnlyList<string>
+public sealed class LocalizedPath : IReadOnlyList<string>
 {
 	private readonly ImmutableArray<string> _Keys;
 	/// <inheritdoc />
@@ -22,12 +22,12 @@ public sealed class ImmutablePath : IReadOnlyList<string>
 	public string this[int index] => Localize.This(_Keys[index]);
 
 	/// <summary>
-	/// Creates a new <see cref="ImmutablePath"/>.
+	/// Creates a new <see cref="LocalizedPath"/>.
 	/// </summary>
 	/// <param name="keys">The values to use as parts of the name.</param>
-	public ImmutablePath(IEnumerable<string> keys)
+	public LocalizedPath(IEnumerable<string> keys)
 	{
-		if (keys is ImmutablePath name)
+		if (keys is LocalizedPath name)
 		{
 			_Keys = name._Keys;
 		}
@@ -38,11 +38,11 @@ public sealed class ImmutablePath : IReadOnlyList<string>
 	}
 
 	/// <summary>
-	/// Creates a new <see cref="ImmutablePath"/>.
+	/// Creates a new <see cref="LocalizedPath"/>.
 	/// </summary>
 	/// <param name="keys">The values to use as parts of the name.</param>
 	/// <returns>An immutable path.</returns>
-	public static ImmutablePath New(params string[] keys)
+	public static LocalizedPath New(params string[] keys)
 		=> new(keys);
 
 	/// <inheritdoc />

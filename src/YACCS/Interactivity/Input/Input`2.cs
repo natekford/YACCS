@@ -2,6 +2,7 @@
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
+using YACCS.Localization;
 using YACCS.Preconditions;
 using YACCS.Results;
 using YACCS.TypeReaders;
@@ -22,7 +23,7 @@ public abstract class Input<TContext, TInput> :
 	/// </summary>
 	protected static IImmutableCommand EmptyCommand { get; } = new DelegateCommand(
 		static () => { },
-		new[] { ImmutablePath.New("Input") },
+		new[] { LocalizedPath.New("Input") },
 		typeof(TContext)
 	).ToImmutable();
 

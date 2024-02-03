@@ -3,6 +3,7 @@
 using YACCS.Commands;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
+using YACCS.Localization;
 
 namespace YACCS.Tests.Commands;
 
@@ -61,7 +62,7 @@ public class CommandService_ParameterPreconditions_Tests
 		{
 		}
 
-		var commandBuilder = new DelegateCommand(Delegate, Array.Empty<ImmutablePath>());
+		var commandBuilder = new DelegateCommand(Delegate, Array.Empty<LocalizedPath>());
 		commandBuilder.Parameters[0]
 			.AsType<int>()
 			.AddParameterPrecondition(new FakeParameterPreconditionAttribute(disallowedValue))

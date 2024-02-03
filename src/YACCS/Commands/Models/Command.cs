@@ -118,7 +118,7 @@ public abstract class Command : EntityBase, IMutableCommand
 			ReturnType = returnType;
 			ContextType = mutable.ContextType;
 			Source = mutable.Source;
-			Paths = mutable.Paths.Select(x => new ImmutablePath(x)).ToImmutableArray();
+			Paths = mutable.Paths.Select(x => new LocalizedPath(x)).ToImmutableArray();
 			_TaskResult = new(() => ReflectionUtils.CreateDelegate(TaskResult, "task result"));
 
 			var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(mutable.Parameters.Count);

@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands.Models;
+using YACCS.Localization;
 using YACCS.Results;
 
 namespace YACCS.Tests.Commands.Models;
@@ -16,7 +17,7 @@ public class ConvertValue_Tests
 		{
 			++value;
 			return new ValueResult(value);
-		}, Array.Empty<ImmutablePath>()).ToImmutable();
+		}, Array.Empty<LocalizedPath>()).ToImmutable();
 		var results = new[]
 		{
 			await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
@@ -42,7 +43,7 @@ public class ConvertValue_Tests
 		{
 			++value;
 			return Task.CompletedTask;
-		}, Array.Empty<ImmutablePath>()).ToImmutable();
+		}, Array.Empty<LocalizedPath>()).ToImmutable();
 		var results = new[]
 		{
 			await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
@@ -65,7 +66,7 @@ public class ConvertValue_Tests
 		{
 			++value;
 			return Task.FromResult(value);
-		}, Array.Empty<ImmutablePath>()).ToImmutable();
+		}, Array.Empty<LocalizedPath>()).ToImmutable();
 		var results = new[]
 		{
 			await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
@@ -92,7 +93,7 @@ public class ConvertValue_Tests
 			++value;
 			// This can't be () => ++value otherwise it returns the value instead of
 			// being a void delegate
-		}, Array.Empty<ImmutablePath>()).ToImmutable();
+		}, Array.Empty<LocalizedPath>()).ToImmutable();
 		var results = new[]
 		{
 			await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
