@@ -27,21 +27,20 @@ public class NamedArgumentsCommand<T> : GeneratedCommand
 	public NamedArgumentsCommand(IImmutableCommand source, int priorityDifference)
 		: base(source, priorityDifference)
 	{
-		var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(1);
 		try
 		{
-			var parameter = Commands.Linq.Parameters.Create<T>("NamedArgDictionary");
-			parameter.AddParameterPrecondition(new GeneratedNamedArgumentsParameterPrecondition(Source))
+			var parameter = Commands.Linq.Parameters.Create<T>("NamedArgDictionary")
+				.AddParameterPrecondition(new GeneratedNamedArgumentsParameterPrecondition(Source))
 				.SetTypeReader(new GeneratedNamedArgumentsTypeReader(Source))
-				.AddAttribute(new RemainderAttribute());
-			parameters.Add(parameter.ToImmutable());
+				.AddAttribute(new RemainderAttribute())
+				.ToImmutable();
+			Parameters = [parameter];
 		}
 		catch (Exception e)
 		{
 			throw new InvalidOperationException($"Unable to build {typeof(T).Name} " +
 				$"parameter for '{source.Paths?.FirstOrDefault()}'.", e);
 		}
-		Parameters = parameters.MoveToImmutable();
 	}
 
 	/// <inheritdoc />

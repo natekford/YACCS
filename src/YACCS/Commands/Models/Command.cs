@@ -118,14 +118,8 @@ public abstract class Command : EntityBase, ICommand
 			ReturnType = returnType;
 			ContextType = mutable.ContextType;
 			Source = mutable.Source;
+			Paths = mutable.Paths.Select(x => new ImmutablePath(x)).ToImmutableArray();
 			_TaskResult = new(() => ReflectionUtils.CreateDelegate(TaskResult, "task result"));
-
-			var paths = ImmutableArray.CreateBuilder<IReadOnlyList<string>>(mutable.Paths.Count);
-			foreach (var path in mutable.Paths)
-			{
-				paths.Add(new ImmutablePath(path));
-			}
-			Paths = paths.MoveToImmutable();
 
 			var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(mutable.Parameters.Count);
 			for (var i = 0; i < mutable.Parameters.Count; ++i)
