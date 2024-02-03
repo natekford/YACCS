@@ -46,13 +46,8 @@ public sealed class DelegateCommand : Command
 		: base(@delegate.Method, contextType, source)
 	{
 		Delegate = @delegate;
-
-		foreach (var name in names)
-		{
-			Paths.Add(name);
-		}
-
-		Attributes.Add(@delegate);
+		Paths = [.. names];
+		Attributes.Add(Delegate);
 	}
 
 	/// <inheritdoc />

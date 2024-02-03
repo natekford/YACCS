@@ -36,6 +36,6 @@ public class HelpParameter(IImmutableParameter item)
 	/// The specified type reader of this parameter.
 	/// </summary>
 	public virtual HelpItem<ITypeReader>? TypeReader { get; }
-		= item.TypeReader is ITypeReader tr ? new HelpItem<ITypeReader>(tr) : null;
+		= item.TypeReader is ITypeReader tr ? new(tr) : null;
 	private string DebuggerDisplay => Item.FormatForDebuggerDisplay();
 }

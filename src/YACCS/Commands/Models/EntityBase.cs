@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace YACCS.Commands.Models;
 
@@ -28,13 +27,7 @@ public abstract class EntityBase : IEntityBase
 	/// <param name="provider"></param>
 	protected EntityBase(ICustomAttributeProvider? provider)
 	{
-		var attributes = Array.Empty<object>();
-		if (provider is not null)
-		{
-			attributes = provider.GetCustomAttributes(true);
-		}
-
-		Attributes = new List<object>(attributes);
-		BaseAttributes = Unsafe.As<object[], ImmutableArray<object>>(ref attributes);
+		BaseAttributes = provider?.GetCustomAttributes(true)?.ToImmutableArray() ?? [];
+		Attributes = BaseAttributes.ToList();
 	}
 }
