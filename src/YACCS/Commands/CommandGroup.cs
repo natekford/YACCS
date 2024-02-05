@@ -55,9 +55,12 @@ public abstract class CommandGroup<TContext> : ICommandGroup<TContext>, IOnComma
 			.Where(x => x.GetCustomAttribute<InjectContextAttribute>() is not null)
 			.Select(x => x.FieldType);
 		var constraints = pConstraints.Concat(fConstraints).Distinct().ToImmutableArray();
-		foreach (var command in commands)
+		if (constraints.Length > 0)
 		{
-			command.Attributes.Add(new ContextMustImplementAttribute(constraints));
+			foreach (var command in commands)
+			{
+				command.Attributes.Add(new ContextMustImplementAttribute(constraints));
+			}
 		}
 
 		return Task.CompletedTask;

@@ -61,8 +61,7 @@ public class NamedArgumentsCommand<T> : GeneratedCommand
 		return Source.ExecuteAsync(context, values);
 	}
 
-	private sealed class GeneratedNamedArgumentsParameterPrecondition(
-		IImmutableCommand command)
+	private sealed class GeneratedNamedArgumentsParameterPrecondition(IImmutableCommand command)
 		: NamedArgumentsParameterPreconditionBase<T>
 	{
 		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
@@ -86,8 +85,7 @@ public class NamedArgumentsCommand<T> : GeneratedCommand
 		}
 	}
 
-	private sealed class GeneratedNamedArgumentsTypeReader(
-		IImmutableCommand command)
+	private sealed class GeneratedNamedArgumentsTypeReader(IImmutableCommand command)
 		: NamedArgumentsTypeReaderBase<T>
 	{
 		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }

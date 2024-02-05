@@ -15,7 +15,7 @@ namespace YACCS.Commands.Models;
 
 /// <inheritdoc cref="IMutableCommand"/>
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-public abstract class Command : EntityBase, IMutableCommand
+public abstract class Command : Entity, IMutableCommand
 {
 	/// <inheritdoc />
 	public Type ContextType { get; protected set; }

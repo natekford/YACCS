@@ -12,7 +12,7 @@ public static class Utils
 {
 	public static async Task AddRangeAsync(
 		this CommandServiceBase commandService,
-		IAsyncEnumerable<ReflectedCommand> enumerable)
+		IAsyncEnumerable<ImmutableReflectionCommand> enumerable)
 	{
 		await foreach (var (_, command) in enumerable)
 		{

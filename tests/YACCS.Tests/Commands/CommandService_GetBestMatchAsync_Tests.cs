@@ -25,7 +25,7 @@ public class CommandService_GetBestMatchAsync_Tests
 			1
 		).ConfigureAwait(false);
 
-		Assert.IsFalse(result.InnerResult.IsSuccess);
+		Assert.IsFalse(result.Result.IsSuccess);
 		Assert.AreEqual(CommandStage.FailedTypeReader, result.Stage);
 		Assert.AreEqual(1, result.Index);
 
@@ -44,7 +44,7 @@ public class CommandService_GetBestMatchAsync_Tests
 			0
 		).ConfigureAwait(false);
 
-		Assert.IsFalse(result.InnerResult.IsSuccess);
+		Assert.IsFalse(result.Result.IsSuccess);
 		Assert.AreEqual(CommandStage.FailedParameterPrecondition, result.Stage);
 		Assert.AreEqual(1, result.Index);
 
@@ -63,7 +63,7 @@ public class CommandService_GetBestMatchAsync_Tests
 			0
 		).ConfigureAwait(false);
 
-		Assert.IsFalse(result.InnerResult.IsSuccess);
+		Assert.IsFalse(result.Result.IsSuccess);
 		Assert.AreEqual(CommandStage.FailedPrecondition, result.Stage);
 		Assert.AreEqual(0, result.Index);
 
@@ -82,7 +82,7 @@ public class CommandService_GetBestMatchAsync_Tests
 			0
 		).ConfigureAwait(false);
 
-		Assert.IsFalse(result.InnerResult.IsSuccess);
+		Assert.IsFalse(result.Result.IsSuccess);
 		Assert.AreEqual(CommandStage.FailedTypeReader, result.Stage);
 		Assert.AreEqual(0, result.Index);
 
@@ -100,7 +100,7 @@ public class CommandService_GetBestMatchAsync_Tests
 			new[] { "a" },
 			0
 		).ConfigureAwait(false);
-		Assert.IsFalse(score.InnerResult.IsSuccess);
+		Assert.IsFalse(score.Result.IsSuccess);
 		Assert.AreEqual(CommandStage.BadContext, score.Stage);
 	}
 
@@ -117,9 +117,9 @@ public class CommandService_GetBestMatchAsync_Tests
 				Array.Empty<string>(),
 				0
 			).ConfigureAwait(false);
-			Assert.IsFalse(score.InnerResult.IsSuccess);
+			Assert.IsFalse(score.Result.IsSuccess);
 			Assert.AreEqual(CommandStage.BadArgCount, score.Stage);
-			Assert.IsInstanceOfType(score.InnerResult, typeof(NotEnoughArgs));
+			Assert.IsInstanceOfType(score.Result, typeof(NotEnoughArgs));
 		}
 
 		// Too many
@@ -130,9 +130,9 @@ public class CommandService_GetBestMatchAsync_Tests
 				new[] { "a", "b", "c", "d", "e", "f" },
 				0
 			).ConfigureAwait(false);
-			Assert.IsFalse(score.InnerResult.IsSuccess);
+			Assert.IsFalse(score.Result.IsSuccess);
 			Assert.AreEqual(CommandStage.BadArgCount, score.Stage);
-			Assert.IsInstanceOfType(score.InnerResult, typeof(TooManyArgs));
+			Assert.IsInstanceOfType(score.Result, typeof(TooManyArgs));
 		}
 	}
 
@@ -147,7 +147,7 @@ public class CommandService_GetBestMatchAsync_Tests
 			0
 		).ConfigureAwait(false);
 
-		Assert.IsTrue(result.InnerResult.IsSuccess);
+		Assert.IsTrue(result.Result.IsSuccess);
 		Assert.AreEqual(CommandStage.CanExecute, result.Stage);
 		Assert.AreEqual(1, result.Index);
 

@@ -4,8 +4,8 @@ namespace YACCS.Commands.Attributes;
 
 /// <inheritdoc cref="IOverrideTypeReaderAttribute"/>
 [AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false)]
-public class OverrideTypeReaderAttribute<TReader> :
-	Attribute, IOverrideTypeReaderAttribute
+public class OverrideTypeReaderAttribute<TReader>
+	: Attribute, IOverrideTypeReaderAttribute
 	where TReader : ITypeReader, new()
 {
 	/// <inheritdoc cref="IOverrideTypeReaderAttribute.Reader" />

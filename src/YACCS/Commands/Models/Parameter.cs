@@ -13,7 +13,7 @@ namespace YACCS.Commands.Models;
 
 /// <inheritdoc cref="IMutableParameter"/>
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-public sealed class Parameter : EntityBase, IMutableParameter
+public sealed class Parameter : Entity, IMutableParameter
 {
 	private static readonly object NoDefaultValue = new();
 

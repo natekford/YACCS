@@ -14,8 +14,8 @@ namespace YACCS.Interactivity.Input;
 /// </summary>
 /// <typeparam name="TContext"></typeparam>
 /// <typeparam name="TInput"></typeparam>
-public abstract class Input<TContext, TInput> :
-	Interactivity<TContext, TInput>, IInput<TContext, TInput>
+public abstract class Input<TContext, TInput>
+	: Interactivity<TContext, TInput>, IInput<TContext, TInput>
 	where TContext : IContext
 {
 	/// <summary>
@@ -51,7 +51,7 @@ public abstract class Input<TContext, TInput> :
 		var eventTrigger = new TaskCompletionSource<TValue>(TaskCreationOptions.RunContinuationsAsynchronously);
 		return HandleInteractionAsync(context, options, eventTrigger, async input =>
 		{
-			foreach (var criterion in options.Criteria.ThisOrEmpty())
+			foreach (var criterion in options.Criteria ?? [])
 			{
 				var result = await criterion.JudgeAsync(context, input).ConfigureAwait(false);
 				if (!result.IsSuccess)
@@ -68,7 +68,7 @@ public abstract class Input<TContext, TInput> :
 			}
 
 			var meta = new CommandMeta(EmptyCommand, EmptyParameter<TValue>.Instance);
-			foreach (var precondition in options.Preconditions.ThisOrEmpty())
+			foreach (var precondition in options.Preconditions ?? [])
 			{
 				var result = await precondition.CheckAsync(
 					meta,
@@ -96,8 +96,8 @@ public abstract class Input<TContext, TInput> :
 	/// <inheritdoc cref="IImmutableParameter"/>
 	protected sealed class EmptyParameter<T> : IImmutableParameter
 	{
-		private readonly object[] _Attributes = [];
-		private readonly string _Name = $"Input_{typeof(T).FullName}";
+		private static readonly object[] _Attributes = [];
+		private static readonly string _Name = $"Input_{typeof(T).FullName}";
 
 		/// <summary>
 		/// A singleton instance of <see cref="EmptyParameter{T}"/>.
@@ -113,7 +113,7 @@ public abstract class Input<TContext, TInput> :
 		string IImmutableParameter.ParameterName => _Name;
 		Type IQueryableParameter.ParameterType { get; } = typeof(T);
 		IReadOnlyDictionary<string, IReadOnlyList<IParameterPrecondition>> IImmutableParameter.Preconditions { get; }
-			= ImmutableDictionary.Create<string, IReadOnlyList<IParameterPrecondition>>();
+			= ImmutableDictionary<string, IReadOnlyList<IParameterPrecondition>>.Empty;
 		string IImmutableEntity.PrimaryId { get; } = typeof(T).FullName;
 		ITypeReader? IImmutableParameter.TypeReader => null;
 	}

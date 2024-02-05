@@ -8,7 +8,7 @@ namespace YACCS.NamedArguments;
 /// <inheritdoc cref="GeneratedCommand(IImmutableCommand, int)"/>
 public sealed class NamedArgumentsCommand(
 	IImmutableCommand source,
-	int priorityDifference)
-	: NamedArgumentsCommand<Dictionary<string, object?>>(source, priorityDifference)
+	int priorityDifference
+) : NamedArgumentsCommand<Dictionary<string, object?>>(source, priorityDifference)
 {
 }

@@ -6,7 +6,7 @@ using YACCS.Commands;
 
 namespace YACCS.Examples;
 
-public sealed class ConsoleContext : IContext<string>, IDisposable, IMessagable
+public sealed class ConsoleContext : IContext, IDisposable, IMessagable
 {
 	private readonly ConsoleHandler _Console;
 
@@ -16,7 +16,6 @@ public sealed class ConsoleContext : IContext<string>, IDisposable, IMessagable
 	public IServiceProvider Services => Scope.ServiceProvider;
 	public DateTime Start { get; } = DateTime.UtcNow;
 	public Stopwatch Stopwatch { get; } = Stopwatch.StartNew();
-	string IContext<string>.Source => Input;
 	object IContext.Source => Input;
 
 	public ConsoleContext(IServiceScope scope, string input)

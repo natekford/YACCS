@@ -20,7 +20,4 @@ public static class InteractivityUtils
 		InputOptions<TContext, TInput, TValue> options)
 		where TContext : IContext
 		=> input.GetAsync(context, options);
-
-	internal static IEnumerable<T> ThisOrEmpty<T>(this IEnumerable<T>? enumerable)
-		=> enumerable ?? Array.Empty<T>();
 }

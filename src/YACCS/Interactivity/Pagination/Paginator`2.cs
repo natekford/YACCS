@@ -8,8 +8,8 @@ namespace YACCS.Interactivity.Pagination;
 /// </summary>
 /// <typeparam name="TContext"></typeparam>
 /// <typeparam name="TInput"></typeparam>
-public abstract class Paginator<TContext, TInput> :
-	Interactivity<TContext, TInput>, IPaginator<TContext, TInput>
+public abstract class Paginator<TContext, TInput>
+	: Interactivity<TContext, TInput>, IPaginator<TContext, TInput>
 	where TContext : IContext
 {
 	/// <inheritdoc />
@@ -25,7 +25,7 @@ public abstract class Paginator<TContext, TInput> :
 		var eventTrigger = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
 		var result = await HandleInteractionAsync(context, options, eventTrigger, async input =>
 		{
-			foreach (var criterion in options.Criteria.ThisOrEmpty())
+			foreach (var criterion in options.Criteria ?? [])
 			{
 				var result = await criterion.JudgeAsync(context, input).ConfigureAwait(false);
 				if (!result.IsSuccess)

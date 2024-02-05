@@ -19,7 +19,8 @@ namespace YACCS.Commands;
 public sealed class CommandTrie(
 	IReadOnlyDictionary<Type, ITypeReader> readers,
 	char separator,
-	IEqualityComparer<string> comparer) : Trie<string, IImmutableCommand>(comparer)
+	IEqualityComparer<string> comparer
+) : Trie<string, IImmutableCommand>(comparer)
 {
 	private readonly IReadOnlyDictionary<Type, ITypeReader> _Readers = readers;
 	private readonly char _Separator = separator;

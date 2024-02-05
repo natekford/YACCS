@@ -45,8 +45,7 @@ public static class AttributeUtils
 	{
 		if (count > 0)
 		{
-			var name = typeof(TAttribute).Name;
-			throw new InvalidOperationException($"Duplicate {name} attribute.");
+			throw new InvalidOperationException($"Duplicate {typeof(TAttribute).Name} attribute.");
 		}
 
 		++count;

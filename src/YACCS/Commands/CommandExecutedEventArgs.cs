@@ -35,8 +35,8 @@ public class CommandExecutedEventArgs(
 	IReadOnlyList<Exception>? beforeExceptions,
 	IReadOnlyList<Exception>? afterExceptions,
 	Exception? duringException,
-	IResult result)
-	: HandledEventArgs, IResult, INestedResult
+	IResult result
+) : HandledEventArgs, IResult, INestedResult
 {
 	/// <summary>
 	/// The exceptions which occurred after command execution.
@@ -58,7 +58,7 @@ public class CommandExecutedEventArgs(
 	/// The exception which occurred during command execution.
 	/// </summary>
 	public Exception? DuringException { get; } = duringException;
-	/// <inheritdoc />
+	/// <inheritdoc cref="INestedResult.InnerResult" />
 	public IResult Result { get; } = result;
 	IResult INestedResult.InnerResult => Result;
 	bool IResult.IsSuccess => Result.IsSuccess;

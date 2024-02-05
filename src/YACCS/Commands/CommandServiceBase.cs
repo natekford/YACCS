@@ -74,7 +74,7 @@ public abstract class CommandServiceBase : ICommandService
 		{
 			var best = await GetBestMatchAsync(context, args).ConfigureAwait(false);
 			// If a command is found and args are parsed, execute command in background
-			if (best.InnerResult.IsSuccess && best.Command is not null && best.Args is not null)
+			if (best.Result.IsSuccess && best.Command is not null && best.Args is not null)
 			{
 				_ = Task.Run(async () =>
 				{
@@ -118,8 +118,8 @@ public abstract class CommandServiceBase : ICommandService
 				// Add 1 to i to account for how we're in a node
 				var score = await GetCommandScoreAsync(context, command, input, i + 1).ConfigureAwait(false);
 				if (Config.MultiMatchHandling == MultiMatchHandling.Error
-					&& best?.InnerResult.IsSuccess == true
-					&& score.InnerResult.IsSuccess)
+					&& best?.Result.IsSuccess == true
+					&& score.Result.IsSuccess)
 				{
 					return CommandScore.MultiMatch;
 				}

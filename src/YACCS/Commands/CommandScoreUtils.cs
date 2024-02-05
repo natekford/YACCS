@@ -27,7 +27,7 @@ public static class CommandScoreUtils
 		// i.e. two commands:
 		// Echo Colored "text to echo" <-- Score = 2
 		// Echo "colored text to echo" <-- Score = 1
-		return new(context, command, STAGE, index, result, args: args);
+		return new(context, command, STAGE, index, result, Args: args);
 	}
 
 	/// <summary>
@@ -43,7 +43,7 @@ public static class CommandScoreUtils
 		IImmutableParameter parameter)
 	{
 		const CommandStage STAGE = CommandStage.FailedParameterPrecondition;
-		return new(context, command, STAGE, index, result, parameter: parameter);
+		return new(context, command, STAGE, index, result, Parameter: parameter);
 	}
 
 	/// <summary>
@@ -74,7 +74,7 @@ public static class CommandScoreUtils
 		IImmutableParameter parameter)
 	{
 		const CommandStage STAGE = CommandStage.FailedTypeReader;
-		return new(context, command, STAGE, index, result, parameter: parameter);
+		return new(context, command, STAGE, index, result, Parameter: parameter);
 	}
 
 	/// <summary>
@@ -105,7 +105,7 @@ public static class CommandScoreUtils
 	{
 		var result = Results.NotEnoughArgs.Instance;
 		const CommandStage STAGE = CommandStage.FailedTypeReader;
-		return new(context, command, STAGE, index, result, parameter: parameter);
+		return new(context, command, STAGE, index, result, Parameter: parameter);
 	}
 
 	/// <summary>

@@ -11,36 +11,38 @@ namespace YACCS.Commands;
 /// <remarks>
 /// Creates a new <see cref="CommandScore"/>.
 /// </remarks>
-/// <param name="context">
-/// <inheritdoc cref="Context" path="/summary"/>
+/// <param name="Context">
+/// <inheritdoc cref="CommandGroup{TContext}.Context" path="/summary"/>
 /// </param>
-/// <param name="command">
-/// <inheritdoc cref="Command" path="/summary"/>
+/// <param name="Command">
+/// <inheritdoc cref="IExecuteResult.Command" path="/summary"/>
 /// </param>
-/// <param name="stage">
-/// <inheritdoc cref="Stage" path="/summary"/>
+/// <param name="Stage">
+/// Indicates the current stage of command execution.
 /// </param>
-/// <param name="index">
-/// <inheritdoc cref="Index" path="/summary"/>
+/// <param name="Index">
+/// Indicates how many segments of the split string have been parsed.
 /// </param>
-/// <param name="result">
-/// <inheritdoc cref="InnerResult" path="/summary"/>
+/// <param name="Result">
+/// <inheritdoc cref="INestedResult.InnerResult" path="/summary"/>
 /// </param>
-/// <param name="parameter">
-/// <inheritdoc cref="Parameter" path="/summary"/>
+/// <param name="Parameter">
+/// <inheritdoc cref="IExecuteResult.Parameter" path="/summary"/>
 /// </param>
-/// <param name="args">
-/// <inheritdoc cref="Args" path="/summary"/>
+/// <param name="Args">
+/// The arguments for the command.
+/// These will be <see langword="null"/> if the command cannot execute
 /// </param>
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-public class CommandScore(
-	IContext context,
-	IImmutableCommand? command,
-	CommandStage stage,
-	int index,
-	IResult result,
-	IImmutableParameter? parameter = null,
-	IReadOnlyList<object?>? args = null) : IExecuteResult
+public record CommandScore(
+	IContext Context,
+	IImmutableCommand? Command,
+	CommandStage Stage,
+	int Index,
+	IResult Result,
+	IImmutableParameter? Parameter = null,
+	IReadOnlyList<object?>? Args = null
+) : IExecuteResult
 {
 	/// <summary>
 	/// Indicates that no suitable command was found.
@@ -58,29 +60,8 @@ public class CommandScore(
 	public static CommandScore QuoteMismatch { get; }
 		= new(null!, null, 0, 0, Results.QuoteMismatch.Instance);
 
-	/// <summary>
-	/// The arguments for the command.
-	/// </summary>
-	/// <remarks>
-	/// These will be <see langword="null"/> if the command cannot execute
-	/// </remarks>
-	public IReadOnlyList<object?>? Args { get; } = args;
-	/// <inheritdoc />
-	public IImmutableCommand? Command { get; } = command;
-	/// <inheritdoc cref="CommandGroup{TContext}.Context" path="/summary"/>
-	public IContext Context { get; } = context;
-	/// <summary>
-	/// Indicates how many segments of the split string have been parsed.
-	/// </summary>
-	public int Index { get; } = Math.Max(index, 0);
-	/// <inheritdoc />
-	public IResult InnerResult { get; } = result;
-	/// <inheritdoc />
-	public IImmutableParameter? Parameter { get; } = parameter;
-	/// <summary>
-	/// Indicates the current stage of command execution.
-	/// </summary>
-	public CommandStage Stage { get; } = stage;
 	private string DebuggerDisplay
-		=> $"Stage = {Stage}, Score = {Index}, Success = {InnerResult.IsSuccess}";
+		=> $"Stage = {Stage}, Score = {Index}, Success = {Result.IsSuccess}";
+
+	IResult INestedResult.InnerResult => Result;
 }

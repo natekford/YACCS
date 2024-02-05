@@ -22,8 +22,8 @@ namespace YACCS.Commands;
 public class CommandService(
 	CommandServiceConfig config,
 	IArgumentHandler handler,
-	IReadOnlyDictionary<Type, ITypeReader> readers)
-	: CommandServiceBase(config, handler, readers)
+	IReadOnlyDictionary<Type, ITypeReader> readers
+) : CommandServiceBase(config, handler, readers)
 {
 	/// <summary>
 	/// Fires when a command has been executed.
