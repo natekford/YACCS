@@ -46,7 +46,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(InvalidParameter));
+		Assert.AreSame(CachedResults.InvalidParameter, result.InnerResult);
 	}
 
 	[TestMethod]
@@ -86,7 +86,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(NotEnoughArgs));
+		Assert.AreSame(CachedResults.NotEnoughArgs, result.InnerResult);
 	}
 
 	[TestMethod]
@@ -111,7 +111,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(TooManyArgs));
+		Assert.AreSame(CachedResults.TooManyArgs, result.InnerResult);
 	}
 
 	[TestMethod]
@@ -246,7 +246,7 @@ public class GeneratedNamedArguments_Tests
 			SetMe.IntValue = i;
 			SetMe.StringValue = s;
 
-			return Success.Instance;
+			return CachedResults.Success;
 		}
 
 		[Command(nameof(Test2))]
@@ -284,9 +284,9 @@ public class GeneratedNamedArguments_Tests
 		{
 			if (value > -1)
 			{
-				return new(Success.Instance);
+				return new(CachedResults.Success);
 			}
-			return new(InvalidParameter.Instance);
+			return new(CachedResults.InvalidParameter);
 		}
 	}
 

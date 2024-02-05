@@ -9,8 +9,8 @@ namespace YACCS.NamedArguments;
 /// The base class for a named arguments parameter precondition.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class NamedArgumentsParameterPreconditionBase<T> :
-	ParameterPrecondition<IContext, T>
+public abstract class NamedArgumentsParameterPreconditionBase<T>
+	: ParameterPrecondition<IContext, T>
 {
 	/// <summary>
 	/// The parameters this precondition expects.
@@ -28,7 +28,7 @@ public abstract class NamedArgumentsParameterPreconditionBase<T> :
 	{
 		if (value is null)
 		{
-			return NullParameter.Instance;
+			return CachedResults.NullParameter;
 		}
 
 		foreach (var (property, parameter) in Parameters)
@@ -44,7 +44,7 @@ public abstract class NamedArgumentsParameterPreconditionBase<T> :
 				return result;
 			}
 		}
-		return Success.Instance;
+		return CachedResults.Success;
 	}
 
 	/// <summary>

@@ -200,7 +200,7 @@ public abstract class Command : Entity, IMutableCommand
 		/// <summary>
 		/// Converts an <see cref="object"/> into an <see cref="IResult"/>.
 		/// <br/>
-		/// If the method we're wrapping is void, it returns a <see cref="Success"/>.
+		/// If the method we're wrapping is void, it returns a <see cref="CachedResults.Success"/>.
 		/// <br/>
 		/// If <paramref name="value"/> is an <see cref="IResult"/>, it returns <paramref name="value"/> directly.
 		/// <br/>
@@ -215,7 +215,7 @@ public abstract class Command : Entity, IMutableCommand
 			// Void method. No value to return, we're done
 			if (ReturnType == typeof(void))
 			{
-				return new(Success.Instance);
+				return new(CachedResults.Success);
 			}
 
 			// We're given a result, we can just return that
@@ -247,7 +247,7 @@ public abstract class Command : Entity, IMutableCommand
 			// Not generic? No value to return, we're done
 			if (!ReturnType.IsGenericType)
 			{
-				return Success.Instance;
+				return CachedResults.Success;
 			}
 
 			// It has a value? Ok, let's get it

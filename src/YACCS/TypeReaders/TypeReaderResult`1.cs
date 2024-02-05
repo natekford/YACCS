@@ -58,5 +58,5 @@ public sealed class TypeReaderResult<T> : ITypeReaderResult<T>
 	public static TypeReaderResult<T> FromSuccess(
 		T value,
 		int? successfullyParsedCount = null)
-		=> new(Success.Instance, value, successfullyParsedCount);
+		=> new(CachedResults.Success, value, successfullyParsedCount);
 }

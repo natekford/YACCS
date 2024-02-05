@@ -43,7 +43,7 @@ public abstract class Locked<TContext, TValue> : ParameterPrecondition<TContext,
 		{
 			return new MustBeLocked(typeof(TValue));
 		}
-		return Success.Instance;
+		return CachedResults.Success;
 	}
 
 	/// <summary>

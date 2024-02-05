@@ -20,9 +20,9 @@ public class RequiresDay(DayOfWeek day)
 		// Use the current time zone's day
 		if (DateTime.Now.DayOfWeek != Day)
 		{
-			return new(new Failure(GetErrorMessage()));
+			return new(Result.Failure(GetErrorMessage()));
 		}
-		return new(Success.Instance);
+		return new(CachedResults.Success);
 	}
 
 	public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)

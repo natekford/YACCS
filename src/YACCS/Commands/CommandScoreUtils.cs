@@ -20,7 +20,7 @@ public static class CommandScoreUtils
 		int index,
 		IReadOnlyList<object?>? args)
 	{
-		var result = Success.Instance;
+		var result = CachedResults.Success;
 		const CommandStage STAGE = CommandStage.CanExecute;
 		// Subtract start index from int.MaxValue because the more args the less
 		// command name parts used, so the less specific the command is
@@ -87,7 +87,7 @@ public static class CommandScoreUtils
 		IImmutableCommand command,
 		int index)
 	{
-		var result = Results.InvalidContext.Instance;
+		var result = CachedResults.InvalidContext;
 		const CommandStage STAGE = CommandStage.BadContext;
 		return new(context, command, STAGE, index, result);
 	}
@@ -103,7 +103,7 @@ public static class CommandScoreUtils
 		int index,
 		IImmutableParameter parameter)
 	{
-		var result = Results.NotEnoughArgs.Instance;
+		var result = CachedResults.NotEnoughArgs;
 		const CommandStage STAGE = CommandStage.FailedTypeReader;
 		return new(context, command, STAGE, index, result, Parameter: parameter);
 	}
@@ -118,7 +118,7 @@ public static class CommandScoreUtils
 		IImmutableCommand command,
 		int index)
 	{
-		var result = Results.NotEnoughArgs.Instance;
+		var result = CachedResults.NotEnoughArgs;
 		const CommandStage STAGE = CommandStage.BadArgCount;
 		return new(context, command, STAGE, index, result);
 	}
@@ -133,7 +133,7 @@ public static class CommandScoreUtils
 		IImmutableCommand command,
 		int index)
 	{
-		var result = Results.TooManyArgs.Instance;
+		var result = CachedResults.TooManyArgs;
 		const CommandStage STAGE = CommandStage.BadArgCount;
 		return new(context, command, STAGE, index, result);
 	}

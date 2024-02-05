@@ -40,20 +40,20 @@ public abstract class Paginator<TContext, TInput>
 				// Converted value is null, indicating we should stop
 				// Easiest way to do that is to just set the dummy event trigger
 				eventTrigger.SetResult(null);
-				return InteractionEnded.Instance;
+				return CachedResults.InteractionEnded;
 			}
 
 			page = GetNewPage(page, options.MaxPage, converted.Value);
 			// Display the new page
 			await options.DisplayCallback.Invoke(page).ConfigureAwait(false);
-			return Success.Instance;
+			return CachedResults.Success;
 		}).ConfigureAwait(false);
 
 		// Since the only way to get SuccessResult is it eventTrigger gets set,
 		// return InteractionEndedResult on SuccessResult
-		if (result.InnerResult is Success)
+		if (ReferenceEquals(CachedResults.Success, result.InnerResult))
 		{
-			return InteractionEnded.Instance;
+			return CachedResults.InteractionEnded;
 		}
 		return result.InnerResult;
 	}

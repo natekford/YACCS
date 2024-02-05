@@ -132,7 +132,7 @@ public static class CommandServiceUtils
 	{
 		if (preconditions.Count == 0)
 		{
-			return new(Success.Instance);
+			return new(CachedResults.Success);
 		}
 
 		static async ValueTask<IResult> PrivateProcessAsync(
@@ -183,7 +183,7 @@ public static class CommandServiceUtils
 				// Group failed, command is a failure
 				return (orResult ?? andResult)!;
 			}
-			return Success.Instance;
+			return CachedResults.Success;
 		}
 
 		return PrivateProcessAsync(preconditions, converter, state);

@@ -16,6 +16,7 @@ public class CommandService_ExecuteAsync_Tests
 		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
 		const string input = $"{CommandsGroup._Name} {CommandsGroup._Disabled}";
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+
 		Assert.IsFalse(result.InnerResult.IsSuccess);
 		Assert.AreEqual(CommandsGroup._DisabledMessage, result.InnerResult.Response);
 	}
@@ -25,8 +26,9 @@ public class CommandService_ExecuteAsync_Tests
 	{
 		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
 		var result = await commandService.ExecuteAsync(context, "").ConfigureAwait(false);
+
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(CommandNotFound));
+		Assert.AreSame(CachedResults.CommandNotFound, result.InnerResult);
 	}
 
 	[TestMethod]
@@ -97,7 +99,7 @@ public class CommandService_ExecuteAsync_Tests
 
 		var asyncResult = await tcs.Task.ConfigureAwait(false);
 		Assert.IsTrue(asyncResult.Result.IsSuccess);
-		Assert.IsInstanceOfType(asyncResult.Result, typeof(Success));
+		Assert.AreSame(CachedResults.Success, asyncResult.Result);
 		Assert.IsNull(asyncResult.DuringException);
 		Assert.IsNull(asyncResult.BeforeExceptions);
 		Assert.AreEqual(1, asyncResult.AfterExceptions!.Count);
@@ -121,7 +123,7 @@ public class CommandService_ExecuteAsync_Tests
 
 		var asyncResult = await tcs.Task.ConfigureAwait(false);
 		Assert.IsTrue(asyncResult.Result.IsSuccess);
-		Assert.IsInstanceOfType(asyncResult.Result, typeof(Success));
+		Assert.AreSame(CachedResults.Success, asyncResult.Result);
 		Assert.IsNull(asyncResult.DuringException);
 		Assert.IsNull(asyncResult.AfterExceptions);
 		Assert.AreEqual(1, asyncResult.BeforeExceptions!.Count);
@@ -145,7 +147,7 @@ public class CommandService_ExecuteAsync_Tests
 
 		var asyncResult = await tcs.Task.ConfigureAwait(false);
 		Assert.IsFalse(asyncResult.Result.IsSuccess);
-		Assert.IsInstanceOfType(asyncResult.Result, typeof(ExceptionDuringCommand));
+		Assert.AreSame(CachedResults.ExceptionDuringCommand, asyncResult.Result);
 		Assert.IsInstanceOfType(asyncResult.DuringException, typeof(InvalidOperationException));
 		Assert.IsNull(asyncResult.BeforeExceptions);
 		Assert.IsNull(asyncResult.AfterExceptions);
@@ -159,7 +161,7 @@ public class CommandService_ExecuteAsync_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(MultiMatchHandlingError));
+		Assert.AreSame(CachedResults.MultiMatchHandlingError, result.InnerResult);
 	}
 
 	[TestMethod]
@@ -167,8 +169,9 @@ public class CommandService_ExecuteAsync_Tests
 	{
 		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
 		var result = await commandService.ExecuteAsync(context, "asdf").ConfigureAwait(false);
+
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(CommandNotFound));
+		Assert.AreSame(CachedResults.CommandNotFound, result.InnerResult);
 	}
 
 	[TestMethod]
@@ -176,8 +179,9 @@ public class CommandService_ExecuteAsync_Tests
 	{
 		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
 		var result = await commandService.ExecuteAsync(context, "\"an end quote is missing").ConfigureAwait(false);
+
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(QuoteMismatch));
+		Assert.AreSame(CachedResults.QuoteMismatch, result.InnerResult);
 	}
 
 	private static async ValueTask<(CommandService, FakeContext)> CreateAsync()

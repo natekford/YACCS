@@ -17,9 +17,9 @@ public class NotZero : ParameterPrecondition<IContext, int>, IRuntimeFormattable
 	{
 		if (value == 0)
 		{
-			return new(new Failure(GetErrorMessage()));
+			return new(Result.Failure(GetErrorMessage()));
 		}
-		return new(Success.Instance);
+		return new(CachedResults.Success);
 	}
 
 	public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)

@@ -4,12 +4,12 @@ using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 using YACCS.Results;
 
+using Dict = System.Collections.Generic.Dictionary<string, object?>;
+
 namespace YACCS.NamedArguments;
 
 /// <inheritdoc />
-/// <typeparam name="T"></typeparam>
-public class NamedArgumentsCommand<T> : GeneratedCommand
-	where T : IDictionary<string, object?>, new()
+public sealed class NamedArgumentsCommand : GeneratedCommand
 {
 	/// <inheritdoc />
 	public override int MaxLength => int.MaxValue;
@@ -19,7 +19,7 @@ public class NamedArgumentsCommand<T> : GeneratedCommand
 	public override IReadOnlyList<IImmutableParameter> Parameters { get; }
 
 	/// <summary>
-	/// Creates a new <see cref="NamedArgumentsCommand{T}"/>.
+	/// Creates a new <see cref="NamedArgumentsCommand"/>.
 	/// </summary>
 	/// <inheritdoc cref="GeneratedCommand(IImmutableCommand, int)"/>
 	public NamedArgumentsCommand(IImmutableCommand source, int priorityDifference)
@@ -27,7 +27,7 @@ public class NamedArgumentsCommand<T> : GeneratedCommand
 	{
 		try
 		{
-			var parameter = Commands.Linq.Parameters.Create<T>("NamedArgDictionary")
+			var parameter = Commands.Linq.Parameters.Create<Dict>("NamedArgDictionary")
 				.AddParameterPrecondition(new GeneratedNamedArgumentsParameterPrecondition(Source))
 				.SetTypeReader(new GeneratedNamedArgumentsTypeReader(Source))
 				.AddAttribute(new RemainderAttribute())
@@ -36,7 +36,7 @@ public class NamedArgumentsCommand<T> : GeneratedCommand
 		}
 		catch (Exception e)
 		{
-			throw new InvalidOperationException($"Unable to build {typeof(T).Name} " +
+			throw new InvalidOperationException($"Unable to build {typeof(Dict).Name} " +
 				$"parameter for '{source.Paths?.FirstOrDefault()}'.", e);
 		}
 	}
@@ -46,9 +46,9 @@ public class NamedArgumentsCommand<T> : GeneratedCommand
 		IContext context,
 		IReadOnlyList<object?> args)
 	{
-		if (args.Count != 1 || args[0] is not T dict)
+		if (args.Count != 1 || args[0] is not Dict dict)
 		{
-			return new(NamedArgInvalidDictionary.Instance);
+			return new(CachedResults.NamedArgInvalidDictionary);
 		}
 
 		var values = new object?[Source.Parameters.Count];
@@ -62,12 +62,12 @@ public class NamedArgumentsCommand<T> : GeneratedCommand
 	}
 
 	private sealed class GeneratedNamedArgumentsParameterPrecondition(IImmutableCommand command)
-		: NamedArgumentsParameterPreconditionBase<T>
+		: NamedArgumentsParameterPreconditionBase<Dict>
 	{
 		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 			= command.Parameters.ToParamDict(x => x.OriginalParameterName);
 
-		protected override bool TryGetProperty(T instance, string property, out object? value)
+		protected override bool TryGetProperty(Dict instance, string property, out object? value)
 		{
 			// If the value is already in the dictionary, we use that
 			// If it's not, check if it has a default value
@@ -86,12 +86,12 @@ public class NamedArgumentsCommand<T> : GeneratedCommand
 	}
 
 	private sealed class GeneratedNamedArgumentsTypeReader(IImmutableCommand command)
-		: NamedArgumentsTypeReaderBase<T>
+		: NamedArgumentsTypeReaderBase<Dict>
 	{
 		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 			= command.Parameters.ToParamDict(x => x.ParameterName);
 
-		protected override void SetProperty(T instance, string property, object? value)
+		protected override void SetProperty(Dict instance, string property, object? value)
 			=> instance[property] = value;
 	}
 }

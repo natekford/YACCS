@@ -48,17 +48,17 @@ public record CommandScore(
 	/// Indicates that no suitable command was found.
 	/// </summary>
 	public static CommandScore CommandNotFound { get; }
-		= new(null!, null, 0, 0, Results.CommandNotFound.Instance);
+		= new(null!, null, 0, 0, CachedResults.CommandNotFound);
 	/// <summary>
 	/// Indicates that there are too many suitable commands.
 	/// </summary>
 	public static CommandScore MultiMatch { get; }
-		= new(null!, null, 0, 0, MultiMatchHandlingError.Instance);
+		= new(null!, null, 0, 0, CachedResults.MultiMatchHandlingError);
 	/// <summary>
 	/// Indicates that there is an error parsing quotes.
 	/// </summary>
 	public static CommandScore QuoteMismatch { get; }
-		= new(null!, null, 0, 0, Results.QuoteMismatch.Instance);
+		= new(null!, null, 0, 0, CachedResults.QuoteMismatch);
 
 	private string DebuggerDisplay
 		=> $"Stage = {Stage}, Score = {Index}, Success = {Result.IsSuccess}";

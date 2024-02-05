@@ -15,9 +15,9 @@ public static class ResultUtils
 	public static IResult GetMostNestedResult(this INestedResult result)
 	{
 		var actual = result.InnerResult;
-		if (actual is INestedResult nested)
+		while (actual is INestedResult nested)
 		{
-			return nested.GetMostNestedResult();
+			actual = nested.InnerResult;
 		}
 		return actual;
 	}

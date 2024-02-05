@@ -12,7 +12,6 @@ public class NamedTypeReader_Tests : TypeReader_Tests<NamedTypeReader_Tests.Name
 {
 	private const int NUM = 1;
 	private const string STR = "joe";
-	public override Type ExpectedInvalidResultType => typeof(NamedArgBadCount);
 	public override ITypeReader<NamedClass> Reader { get; }
 		= new NamedArgumentsTypeReader<NamedClass>();
 
@@ -21,13 +20,13 @@ public class NamedTypeReader_Tests : TypeReader_Tests<NamedTypeReader_Tests.Name
 	{
 		await AssertFailureAsync<NamedArgDuplicate>(new[]
 		{
-				nameof(NamedClass.Number),
-				NUM.ToString(),
-				nameof(NamedClass.String),
-				STR,
-				nameof(NamedClass.String),
-				STR
-			}).ConfigureAwait(false);
+			nameof(NamedClass.Number),
+			NUM.ToString(),
+			nameof(NamedClass.String),
+			STR,
+			nameof(NamedClass.String),
+			STR
+		}).ConfigureAwait(false);
 	}
 
 	[TestMethod]
@@ -35,13 +34,13 @@ public class NamedTypeReader_Tests : TypeReader_Tests<NamedTypeReader_Tests.Name
 	{
 		await AssertFailureAsync<NamedArgNonExistent>(new[]
 		{
-				nameof(NamedClass.Number),
-				NUM.ToString(),
-				nameof(NamedClass.String),
-				STR,
-				"test",
-				STR
-			}).ConfigureAwait(false);
+			nameof(NamedClass.Number),
+			NUM.ToString(),
+			nameof(NamedClass.String),
+			STR,
+			"test",
+			STR
+		}).ConfigureAwait(false);
 	}
 
 	[TestMethod]
@@ -49,13 +48,13 @@ public class NamedTypeReader_Tests : TypeReader_Tests<NamedTypeReader_Tests.Name
 	{
 		var value = await AssertSuccessAsync(new[]
 		{
-				nameof(NamedClass.Number),
-				NUM.ToString(),
-				nameof(NamedClass.String),
-				STR,
-				nameof(NamedClass.FieldString),
-				STR
-			}).ConfigureAwait(false);
+			nameof(NamedClass.Number),
+			NUM.ToString(),
+			nameof(NamedClass.String),
+			STR,
+			nameof(NamedClass.FieldString),
+			STR
+		}).ConfigureAwait(false);
 		Assert.AreEqual(NUM, value.Number);
 		Assert.AreEqual(STR, value.String);
 		Assert.AreEqual(STR, value.FieldString);

@@ -54,7 +54,7 @@ public class ConvertValue_Tests
 		foreach (var result in results)
 		{
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsInstanceOfType(result, typeof(Success));
+			Assert.AreSame(CachedResults.Success, result);
 		}
 	}
 
@@ -104,7 +104,7 @@ public class ConvertValue_Tests
 		foreach (var result in results)
 		{
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsInstanceOfType(result, typeof(Success));
+			Assert.AreSame(CachedResults.Success, result);
 		}
 	}
 }

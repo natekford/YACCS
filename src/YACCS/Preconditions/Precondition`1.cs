@@ -10,13 +10,10 @@ namespace YACCS.Preconditions;
 /// </summary>
 /// <typeparam name="TContext"></typeparam>
 [AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
-public abstract class Precondition<TContext> :
-	GroupablePrecondition, IPrecondition<TContext>
+public abstract class Precondition<TContext>
+	: GroupablePrecondition, IPrecondition<TContext>
 	where TContext : IContext
 {
-	private static Task InvalidContext { get; }
-		= Task.FromResult(Results.InvalidContext.Instance);
-
 	/// <inheritdoc />
 	public virtual Task AfterExecutionAsync(
 		IImmutableCommand command,
@@ -63,7 +60,7 @@ public abstract class Precondition<TContext> :
 	{
 		if (context is not TContext tContext)
 		{
-			return InvalidContext;
+			return Task.FromResult(CachedResults.InvalidContext);
 		}
 		return AfterExecutionAsync(command, tContext, exception);
 	}
@@ -79,7 +76,7 @@ public abstract class Precondition<TContext> :
 	{
 		if (context is not TContext tContext)
 		{
-			return InvalidContext;
+			return Task.FromResult(CachedResults.InvalidContext);
 		}
 		return BeforeExecutionAsync(command, tContext);
 	}
@@ -95,7 +92,7 @@ public abstract class Precondition<TContext> :
 	{
 		if (context is not TContext tContext)
 		{
-			return new(Results.InvalidContext.Instance);
+			return new(CachedResults.InvalidContext);
 		}
 		return CheckAsync(command, tContext);
 	}

@@ -3,9 +3,6 @@
 /// <summary>
 /// Boxes a value so it can be returned as a result.
 /// </summary>
-/// <remarks>
-/// Creates a new <see cref="ValueResult"/>.
-/// </remarks>
 /// <param name="value">
 /// <inheritdoc cref="Value" path="/summary"/>
 /// </param>

@@ -9,7 +9,6 @@ namespace YACCS.Tests.TypeReaders;
 public abstract class TypeReader_Tests<T>
 {
 	public virtual IContext Context { get; } = new FakeContext();
-	public virtual Type ExpectedInvalidResultType { get; } = typeof(ParseFailed);
 	public virtual string Invalid { get; } = "asdf";
 	public abstract ITypeReader<T> Reader { get; }
 
@@ -19,7 +18,6 @@ public abstract class TypeReader_Tests<T>
 		await SetupAsync().ConfigureAwait(false);
 		var result = await Reader.ReadAsync(Context, new[] { Invalid }).ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, ExpectedInvalidResultType);
 	}
 
 	protected Task<TResult> AssertFailureAsync<TResult>(string input, IContext? context = null)

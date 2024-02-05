@@ -16,16 +16,18 @@ public class ParameterPrecondition_Tests
 	public async Task InvalidContext_Test()
 	{
 		var result = await _Precondition.CheckAsync(default, new OtherContext(), 1).ConfigureAwait(false);
+
 		Assert.IsFalse(result.IsSuccess);
-		Assert.IsInstanceOfType(result, typeof(InvalidContext));
+		Assert.AreSame(CachedResults.InvalidContext, result);
 	}
 
 	[TestMethod]
 	public async Task InvalidValue_Test()
 	{
 		var result = await _Precondition.CheckAsync(default, new FakeContext(), new object()).ConfigureAwait(false);
+
 		Assert.IsFalse(result.IsSuccess);
-		Assert.IsInstanceOfType(result, typeof(InvalidParameter));
+		Assert.AreSame(CachedResults.InvalidParameter, result);
 	}
 
 	[TestMethod]
@@ -33,6 +35,7 @@ public class ParameterPrecondition_Tests
 	{
 		var values = new[] { 1, 2, 3, -1, 5 };
 		var result = await _Precondition.CheckAsync(default, new FakeContext(), values).ConfigureAwait(false);
+
 		Assert.IsFalse(result.IsSuccess);
 	}
 
@@ -41,6 +44,7 @@ public class ParameterPrecondition_Tests
 	{
 		var values = new[] { 1, 2, 3, 4, 5 };
 		var result = await _Precondition.CheckAsync(default, new FakeContext(), values).ConfigureAwait(false);
+
 		Assert.IsTrue(result.IsSuccess);
 	}
 
@@ -49,6 +53,7 @@ public class ParameterPrecondition_Tests
 	{
 		var values = new object[] { 1, 2, 3, 4, 5, "joe" };
 		var result = await _Precondition.CheckAsync(default, new FakeContext(), values).ConfigureAwait(false);
+
 		Assert.IsFalse(result.IsSuccess);
 	}
 
@@ -57,6 +62,7 @@ public class ParameterPrecondition_Tests
 	{
 		var values = new int?[] { 1, 2, 3, 4, 5, null };
 		var result = await _Precondition.CheckAsync(default, new FakeContext(), values).ConfigureAwait(false);
+
 		Assert.IsTrue(result.IsSuccess);
 	}
 
@@ -64,6 +70,7 @@ public class ParameterPrecondition_Tests
 	public async Task SingleNullValue_Test()
 	{
 		var result = await _Precondition.CheckAsync(default, new FakeContext(), null).ConfigureAwait(false);
+
 		Assert.IsTrue(result.IsSuccess);
 	}
 
@@ -71,6 +78,7 @@ public class ParameterPrecondition_Tests
 	public async Task SingleValueFailure_Test()
 	{
 		var result = await _Precondition.CheckAsync(default, new FakeContext(), -1).ConfigureAwait(false);
+
 		Assert.IsFalse(result.IsSuccess);
 	}
 
@@ -79,6 +87,7 @@ public class ParameterPrecondition_Tests
 	{
 		var precondition = (IParameterPrecondition<FakeContext, int?>)_Precondition;
 		var result = await precondition.CheckAsync(default, new FakeContext(), 1).ConfigureAwait(false);
+
 		Assert.IsTrue(result.IsSuccess);
 	}
 
@@ -86,6 +95,7 @@ public class ParameterPrecondition_Tests
 	public async Task SingleValueSuccess_Test()
 	{
 		var result = await _Precondition.CheckAsync(default, new FakeContext(), 1).ConfigureAwait(false);
+
 		Assert.IsTrue(result.IsSuccess);
 	}
 
@@ -98,13 +108,13 @@ public class ParameterPrecondition_Tests
 		{
 			if (value is null)
 			{
-				return new(Success.Instance);
+				return new(CachedResults.Success);
 			}
 			if (value > -1)
 			{
-				return new(Success.Instance);
+				return new(CachedResults.Success);
 			}
-			return new(new Failure("joe"));
+			return new(Result.Failure("joe"));
 		}
 	}
 }

@@ -158,7 +158,7 @@ Parameters:{TRAILING}
 			FakeContext context)
 		{
 			await Task.Delay(250).ConfigureAwait(false);
-			return new Failure(OUTPUT);
+			return Result.Failure(OUTPUT);
 		}
 
 		public async ValueTask<string> FormatAsync(
@@ -211,9 +211,9 @@ Parameters:{TRAILING}
 		{
 			if (value > 100)
 			{
-				return new(InvalidParameter.Instance);
+				return new(CachedResults.InvalidParameter);
 			}
-			return new(Success.Instance);
+			return new(CachedResults.Success);
 		}
 	}
 }

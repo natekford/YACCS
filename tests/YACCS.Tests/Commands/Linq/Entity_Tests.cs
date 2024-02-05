@@ -59,18 +59,22 @@ public class Entity_Tests
 		public sealed class Help : CommandGroup<IContext>
 		{
 			[Command]
-			public Success CommandFour(IReadOnlyList<string> list) => Success.Instance;
+			public Result CommandFour(IReadOnlyList<string> list)
+				=> CachedResults.Success;
 
 			[Command(_7, _8, _9)]
 			[Id(_CommandOneId)]
-			public Success CommandOne() => Success.Instance;
+			public Result CommandOne()
+				=> CachedResults.Success;
 
 			[Command]
-			public Success CommandThree([Id(_PositionId)] int position, string arg) => Success.Instance;
+			public Result CommandThree([Id(_PositionId)] int position, string arg)
+				=> CachedResults.Success;
 
 			[Command]
 			[Id(_CommandTwoId)]
-			public Success CommandTwo(string arg) => Success.Instance;
+			public Result CommandTwo(string arg)
+				=> CachedResults.Success;
 
 			public override Task ModifyCommandsAsync(IServiceProvider services, List<ReflectionCommand> commands)
 			{

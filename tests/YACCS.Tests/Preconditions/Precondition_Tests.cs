@@ -18,13 +18,13 @@ public class Precondition_Tests
 
 		var result = await precondition.CheckAsync(command, context).ConfigureAwait(false);
 		Assert.IsFalse(result.IsSuccess);
-		Assert.IsInstanceOfType(result, typeof(InvalidContext));
+		Assert.AreSame(CachedResults.InvalidContext, result);
 
 		var before = precondition.BeforeExecutionAsync(command, context);
-		Assert.IsInstanceOfType(before, typeof(Task<InvalidContext>));
+		Assert.IsInstanceOfType(before, typeof(Task<LocalizedResult>));
 
 		var after = precondition.AfterExecutionAsync(command, context, null);
-		Assert.IsInstanceOfType(after, typeof(Task<InvalidContext>));
+		Assert.IsInstanceOfType(after, typeof(Task<LocalizedResult>));
 	}
 
 	[TestMethod]
@@ -47,6 +47,6 @@ public class Precondition_Tests
 	private class FakePrecondition : Precondition<FakeContext>
 	{
 		public override ValueTask<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
-			=> new(Success.Instance);
+			=> new(CachedResults.Success);
 	}
 }

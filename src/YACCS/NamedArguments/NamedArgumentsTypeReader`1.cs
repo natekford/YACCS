@@ -8,8 +8,8 @@ namespace YACCS.NamedArguments;
 /// Parses a <typeparamref name="T"/> via named properties or arguments.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed class NamedArgumentsTypeReader<T> : NamedArgumentsTypeReaderBase<T>
-	where T : new()
+public sealed class NamedArgumentsTypeReader<T>
+	: NamedArgumentsTypeReaderBase<T> where T : new()
 {
 	private readonly Action<T, string, object?> _Setter;
 

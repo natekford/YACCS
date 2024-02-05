@@ -11,8 +11,8 @@ namespace YACCS.NamedArguments;
 /// The base class for a named arguments type reader.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class NamedArgumentsTypeReaderBase<T> : TypeReader<T>
-	where T : new()
+public abstract class NamedArgumentsTypeReaderBase<T>
+	: TypeReader<T> where T : new()
 {
 	private static readonly char[] _TrimEnd = [':'];
 	private static readonly char[] _TrimStart = ['/', '-'];
@@ -115,23 +115,14 @@ public abstract class NamedArgumentsTypeReaderBase<T> : TypeReader<T>
 	/// <remarks>
 	/// Creates a new <see cref="DictResult"/>.
 	/// </remarks>
-	/// <param name="result">
-	/// <inheritdoc cref="Result" path="/summary"/>
+	/// <param name="Result">
+	/// The result of the parsing.
 	/// </param>
-	/// <param name="dict">
-	/// <inheritdoc cref="Dictionary" path="/summary"/>
+	/// <param name="Dictionary">
+	/// The dictionary that was parsed.
 	/// </param>
-	protected readonly struct DictResult(
-		ITypeReaderResult<T> result,
-		IReadOnlyDictionary<string, string> dict)
-	{
-		/// <summary>
-		/// The dictionary that was parsed.
-		/// </summary>
-		public IReadOnlyDictionary<string, string> Dictionary { get; } = dict;
-		/// <summary>
-		/// The result of the parsing.
-		/// </summary>
-		public ITypeReaderResult<T> Result { get; } = result;
-	}
+	protected readonly record struct DictResult(
+		ITypeReaderResult<T> Result,
+		IReadOnlyDictionary<string, string> Dictionary
+	);
 }

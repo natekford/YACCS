@@ -244,11 +244,11 @@ public class CommandBuilding_Tests
 
 		[Command(nameof(InheritanceAllowed), AllowInheritance = true)]
 		[Id(INHERITANCE_ALLOWED)]
-		public Success InheritanceAllowed() => Success.Instance;
+		public Result InheritanceAllowed() => CachedResults.Success;
 
 		[Command(nameof(InheritanceDisallowed), AllowInheritance = false)]
 		[Id(INHERITANCE_DISALLOWED)]
-		public Success InheritanceDisallowed() => Success.Instance;
+		public Result InheritanceDisallowed() => CachedResults.Success;
 	}
 
 	private class GroupChild : GroupBase;
@@ -263,11 +263,11 @@ public class CommandBuilding_Tests
 		[Command(nameof(Hidden))]
 		[Id(HIDDEN)]
 		[Hidden]
-		public Success Hidden() => Success.Instance;
+		public Result Hidden() => CachedResults.Success;
 
 		[Command(nameof(Visible))]
 		[Id(VISIBLE)]
-		public Success Visible() => Success.Instance;
+		public Result Visible() => CachedResults.Success;
 	}
 
 	private class RemainderAttributeGroup : CommandGroup<FakeContext>
@@ -278,14 +278,14 @@ public class CommandBuilding_Tests
 
 		[Command(nameof(InvalidRemainder))]
 		[Id(INVALID_REMAINDER)]
-		public Success InvalidRemainder([Remainder] string[] input, int a) => Success.Instance;
+		public Result InvalidRemainder([Remainder] string[] input, int a) => CachedResults.Success;
 
 		[Command(nameof(Params))]
 		[Id(PARAMS)]
-		public Success Params(params string[] input) => Success.Instance;
+		public Result Params(params string[] input) => CachedResults.Success;
 
 		[Command(nameof(ValidRemainder))]
 		[Id(VALID_REMAINDER)]
-		public Success ValidRemainder([Remainder] string[] input) => Success.Instance;
+		public Result ValidRemainder([Remainder] string[] input) => CachedResults.Success;
 	}
 }

@@ -156,7 +156,7 @@ public class Parameters_Tests
 	private sealed class NotNegative : ParameterPrecondition<FakeContext, int>
 	{
 		private const string _Message = "Is negative.";
-		private static readonly IResult _Failure = new Failure(_Message);
+		private static readonly Result _Failure = Result.Failure(_Message);
 
 		public override ValueTask<IResult> CheckAsync(
 			CommandMeta meta,
@@ -165,7 +165,7 @@ public class Parameters_Tests
 		{
 			if (value >= 0)
 			{
-				return new(Success.Instance);
+				return new(CachedResults.Success);
 			}
 			return new(_Failure);
 		}

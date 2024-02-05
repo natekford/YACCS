@@ -34,6 +34,6 @@ public class RangeParameterPrecondition : ParameterPrecondition<IContext, int>
 		{
 			return new(_TooHigh);
 		}
-		return new(Success.Instance);
+		return new(CachedResults.Success);
 	}
 }

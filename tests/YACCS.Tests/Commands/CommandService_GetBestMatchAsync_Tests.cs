@@ -119,7 +119,7 @@ public class CommandService_GetBestMatchAsync_Tests
 			).ConfigureAwait(false);
 			Assert.IsFalse(score.Result.IsSuccess);
 			Assert.AreEqual(CommandStage.BadArgCount, score.Stage);
-			Assert.IsInstanceOfType(score.Result, typeof(NotEnoughArgs));
+			Assert.AreSame(CachedResults.NotEnoughArgs, score.Result);
 		}
 
 		// Too many
@@ -132,7 +132,7 @@ public class CommandService_GetBestMatchAsync_Tests
 			).ConfigureAwait(false);
 			Assert.IsFalse(score.Result.IsSuccess);
 			Assert.AreEqual(CommandStage.BadArgCount, score.Stage);
-			Assert.IsInstanceOfType(score.Result, typeof(TooManyArgs));
+			Assert.AreSame(CachedResults.TooManyArgs, score.Result);
 		}
 	}
 

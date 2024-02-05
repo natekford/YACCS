@@ -12,8 +12,8 @@ namespace YACCS.Preconditions;
 /// <typeparam name="TContext"></typeparam>
 /// <typeparam name="TValue"></typeparam>
 [AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
-public abstract class ParameterPrecondition<TContext, TValue> :
-	GroupablePrecondition, IParameterPrecondition<TContext, TValue>
+public abstract class ParameterPrecondition<TContext, TValue>
+	: GroupablePrecondition, IParameterPrecondition<TContext, TValue>
 	where TContext : IContext
 {
 	/// <inheritdoc />
@@ -40,7 +40,7 @@ public abstract class ParameterPrecondition<TContext, TValue> :
 	{
 		if (context is not TContext tContext)
 		{
-			return new(InvalidContext.Instance);
+			return new(CachedResults.InvalidContext);
 		}
 		if (value is TValue tValue)
 		{
@@ -68,7 +68,7 @@ public abstract class ParameterPrecondition<TContext, TValue> :
 		{
 			return CheckUntypedEnumerableAsync(meta, tContext, tUntypedValues);
 		}
-		return new(InvalidParameter.Instance);
+		return new(CachedResults.InvalidParameter);
 	}
 
 	private async ValueTask<IResult> CheckTypedEnumerableAsync(
@@ -84,7 +84,7 @@ public abstract class ParameterPrecondition<TContext, TValue> :
 				return result;
 			}
 		}
-		return Success.Instance;
+		return CachedResults.Success;
 	}
 
 	private async ValueTask<IResult> CheckUntypedEnumerableAsync(
@@ -97,7 +97,7 @@ public abstract class ParameterPrecondition<TContext, TValue> :
 			var tValue = value is TValue temp ? temp : default;
 			if (value is not null && tValue is null)
 			{
-				return InvalidParameter.Instance;
+				return CachedResults.InvalidParameter;
 			}
 
 			var result = await CheckAsync(meta, context, tValue).ConfigureAwait(false);
@@ -106,6 +106,6 @@ public abstract class ParameterPrecondition<TContext, TValue> :
 				return result;
 			}
 		}
-		return Success.Instance;
+		return CachedResults.Success;
 	}
 }

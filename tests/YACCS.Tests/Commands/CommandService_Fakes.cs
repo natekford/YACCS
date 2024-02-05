@@ -41,7 +41,7 @@ public class CommandsGroup : CommandGroup<FakeContext>
 	public async Task<IResult> Delay()
 	{
 		await Task.Delay(DELAY).ConfigureAwait(false);
-		return new Failure(_DelayedMessage);
+		return Result.Failure(_DelayedMessage);
 	}
 
 	[Command(_Disabled)]
@@ -91,7 +91,7 @@ public class CommandsGroup : CommandGroup<FakeContext>
 
 	private class DisabledPrecondition : Precondition<FakeContext>
 	{
-		private static readonly IResult _Failure = new Failure(_DisabledMessage);
+		private static readonly Result _Failure = Result.Failure(_DisabledMessage);
 
 		public override ValueTask<IResult> CheckAsync(
 			IImmutableCommand command,
@@ -110,7 +110,7 @@ public class CommandsGroup : CommandGroup<FakeContext>
 		public override ValueTask<IResult> CheckAsync(
 			IImmutableCommand command,
 			FakeContext context)
-			=> new(Success.Instance);
+			=> new(CachedResults.Success);
 	}
 
 	private class FakePreconditionWhichThrowsBefore : Precondition<FakeContext>
@@ -123,7 +123,7 @@ public class CommandsGroup : CommandGroup<FakeContext>
 		public override ValueTask<IResult> CheckAsync(
 			IImmutableCommand command,
 			FakeContext context)
-			=> new(Success.Instance);
+			=> new(CachedResults.Success);
 	}
 }
 
@@ -136,7 +136,7 @@ public class FakeParameterPreconditionAttribute(int value)
 		CommandMeta meta,
 		FakeContext context,
 		[MaybeNull] int value)
-		=> new(value == DisallowedValue ? new Failure("lol") : Success.Instance);
+		=> new(value == DisallowedValue ? Result.Failure("lol") : CachedResults.Success);
 }
 
 public class FakePrecondition(bool success) : Precondition<FakeContext>
@@ -144,7 +144,7 @@ public class FakePrecondition(bool success) : Precondition<FakeContext>
 	public override ValueTask<IResult> CheckAsync(
 		IImmutableCommand command,
 		FakeContext context)
-		=> new(success ? Success.Instance : Failure.Instance);
+		=> new(success ? CachedResults.Success : CachedResults.Failure);
 }
 
 public class WasIReachedParameterPreconditionAttribute : ParameterPrecondition<FakeContext, int>
@@ -157,7 +157,7 @@ public class WasIReachedParameterPreconditionAttribute : ParameterPrecondition<F
 		[MaybeNull] int value)
 	{
 		IWasReached = true;
-		return new(Success.Instance);
+		return new(CachedResults.Success);
 	}
 }
 

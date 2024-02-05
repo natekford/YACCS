@@ -19,7 +19,7 @@ public class LocalizedResults_Tests
 	[TestMethod]
 	public void SingletonLocalizedResult_Test()
 	{
-		var result = Canceled.Instance;
+		var result = CachedResults.Canceled;
 
 		Assert.AreEqual("An operation was canceled.", result.Response);
 		Assert.AreEqual("An operation was canceled.", result.ToString());

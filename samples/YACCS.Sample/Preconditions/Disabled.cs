@@ -10,5 +10,5 @@ public class Disabled : Precondition<IContext>
 	public override ValueTask<IResult> CheckAsync(
 		IImmutableCommand command,
 		IContext context)
-		=> new(new Failure("Command is disabled."));
+		=> new(Result.Failure("Command is disabled."));
 }
