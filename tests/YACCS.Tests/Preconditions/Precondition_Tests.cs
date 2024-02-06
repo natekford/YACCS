@@ -21,10 +21,10 @@ public class Precondition_Tests
 		Assert.AreSame(CachedResults.InvalidContext, result);
 
 		var before = precondition.BeforeExecutionAsync(command, context);
-		Assert.IsInstanceOfType(before, typeof(Task<LocalizedResult>));
+		Assert.IsInstanceOfType(before, typeof(Task<InvalidContext>));
 
 		var after = precondition.AfterExecutionAsync(command, context, null);
-		Assert.IsInstanceOfType(after, typeof(Task<LocalizedResult>));
+		Assert.IsInstanceOfType(after, typeof(Task<InvalidContext>));
 	}
 
 	[TestMethod]

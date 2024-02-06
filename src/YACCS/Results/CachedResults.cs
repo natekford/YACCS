@@ -1,6 +1,4 @@
-﻿using YACCS.Localization;
-
-namespace YACCS.Results;
+﻿namespace YACCS.Results;
 
 /// <summary>
 /// Cached results.
@@ -10,88 +8,71 @@ public static class CachedResults
 	/// <summary>
 	/// Something was canceled.
 	/// </summary>
-	public static LocalizedResult Canceled { get; }
-		= new(false, Keys.CanceledResult);
+	public static Canceled Canceled { get; } = new();
 	/// <summary>
 	/// A command was unable to be found.
 	/// </summary>
-	public static LocalizedResult CommandNotFound { get; }
-		= new(false, Keys.CommandNotFoundResult);
+	public static CommandNotFound CommandNotFound { get; } = new();
 	/// <summary>
 	/// An exception occurred after a command was executed.
 	/// </summary>
-	public static LocalizedResult ExceptionAfterCommand { get; }
-		= new(false, Keys.ExceptionAfterCommandResult);
+	public static ExceptionAfterCommand ExceptionAfterCommand { get; } = new();
 	/// <summary>
 	/// An exception occurred while a command was being executed.
 	/// </summary>
-	public static LocalizedResult ExceptionDuringCommand { get; }
-		= new(false, Keys.ExceptionDuringCommandResult);
+	public static ExceptionDuringCommand ExceptionDuringCommand { get; } = new();
 	/// <summary>
 	/// A non-specific result indicating failure.
 	/// </summary>
-	public static Result Failure { get; }
-		= new(false, string.Empty);
+	public static Failure Failure { get; } = new();
 	/// <summary>
 	/// An interaction ended (not canceled or timed out).
 	/// </summary>
-	public static LocalizedResult InteractionEnded { get; }
-		= new(false, Keys.InteractionEndedResult);
+	public static InteractionEnded InteractionEnded { get; } = new();
 	/// <summary>
 	/// The supplied context is not valid for the command attempting to be executed.
 	/// </summary>
-	public static LocalizedResult InvalidContext { get; }
-		= new(false, Keys.InvalidContextResult);
+	public static InvalidContext InvalidContext { get; } = new();
 	/// <summary>
 	/// The passed in parameter is not the correct type for the parameter precondition
 	/// receiving it.
 	/// </summary>
-	public static LocalizedResult InvalidParameter { get; }
-		= new(false, Keys.InvalidParameterResult);
+	public static InvalidParameter InvalidParameter { get; } = new();
 	/// <summary>
 	/// Multiple commands matched the passed in arguments and the command service was configured
 	/// to treat this as an error.
 	/// </summary>
-	public static LocalizedResult MultiMatchHandlingError { get; }
-		= new(false, Keys.MultiMatchHandlingErrorResult);
+	public static MultiMatchHandlingError MultiMatchHandlingError { get; } = new();
 	/// <summary>
 	/// There was an odd number of arguments supplied to a named argument parameter.
 	/// </summary>
-	public static LocalizedResult NamedArgBadCount { get; }
-		= new(false, Keys.NamedArgBadCountResult);
+	public static NamedArgBadCount NamedArgBadCount { get; } = new();
 	/// <summary>
 	/// The passed in dictionary for named argument command execution is an invalid type.
 	/// </summary>
-	public static LocalizedResult NamedArgInvalidDictionary { get; }
-		= new(false, Keys.NamedArgInvalidDictionaryResult);
+	public static NamedArgInvalidDictionary NamedArgInvalidDictionary { get; } = new();
 	/// <summary>
 	/// Not enough arguments were provided to the command.
 	/// </summary>
-	public static LocalizedResult NotEnoughArgs { get; }
-		= new(false, Keys.NotEnoughArgsResult);
+	public static NotEnoughArgs NotEnoughArgs { get; } = new();
 	/// <summary>
 	/// A parameter was null when it should not have been.
 	/// </summary>
-	public static LocalizedResult NullParameter { get; }
-		= new(false, Keys.NullParameterResult);
+	public static NullParameter NullParameter { get; } = new();
 	/// <summary>
 	/// Provided string had quotes that were unable to be parsed.
 	/// </summary>
-	public static LocalizedResult QuoteMismatch { get; }
-		= new(false, Keys.QuoteMismatchResult);
+	public static QuoteMismatch QuoteMismatch { get; } = new();
 	/// <summary>
 	/// A non-specific result indicating success.
 	/// </summary>
-	public static Result Success { get; }
-		= new(true, string.Empty);
+	public static Success Success { get; } = new();
 	/// <summary>
 	/// A timed function finished without success or cancellation.
 	/// </summary>
-	public static LocalizedResult TimedOut { get; }
-		= new(false, Keys.TimedOutResult);
+	public static TimedOut TimedOut { get; } = new();
 	/// <summary>
 	/// Too many arguments were provided to the command.
 	/// </summary>
-	public static LocalizedResult TooManyArgs { get; }
-		= new(false, Keys.TooManyArgsResult);
+	public static TooManyArgs TooManyArgs { get; } = new();
 }

@@ -18,7 +18,7 @@ public class NamedTypeReader_Tests : TypeReader_Tests<NamedTypeReader_Tests.Name
 	[TestMethod]
 	public async Task DuplicateKey_Test()
 	{
-		await AssertFailureAsync(new[]
+		await AssertFailureAsync<NamedArgDuplicate>(new[]
 		{
 			nameof(NamedClass.Number),
 			NUM.ToString(),
@@ -32,7 +32,7 @@ public class NamedTypeReader_Tests : TypeReader_Tests<NamedTypeReader_Tests.Name
 	[TestMethod]
 	public async Task InvalidKey_Test()
 	{
-		await AssertFailureAsync(new[]
+		await AssertFailureAsync<NamedArgNonExistent>(new[]
 		{
 			nameof(NamedClass.Number),
 			NUM.ToString(),

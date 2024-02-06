@@ -17,7 +17,7 @@ public class CommandsCategoriesTypeReader_Tests :
 
 	[TestMethod]
 	public async Task Empty_Test()
-		=> await AssertFailureAsync(Array.Empty<string>()).ConfigureAwait(false);
+		=> await AssertFailureAsync<ParseFailed>(Array.Empty<string>()).ConfigureAwait(false);
 
 	[TestMethod]
 	public async Task OneCategory_Test()

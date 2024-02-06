@@ -29,7 +29,7 @@ public sealed class ConsoleInteractivityManager(ConsoleHandler console)
 				}
 
 				var result = await onInput.Invoke(input).ConfigureAwait(false);
-				if (ReferenceEquals(CachedResults.InteractionEnded, result))
+				if (result is InteractionEnded)
 				{
 					return;
 				}

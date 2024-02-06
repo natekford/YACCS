@@ -61,7 +61,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.AreEqual(typeof(int), ((LocalizedResult<Type>)result.InnerResult).Value);
+		Assert.IsInstanceOfType<ParseFailed>(result.InnerResult);
 	}
 
 	[TestMethod]
@@ -127,6 +127,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
+		Assert.IsInstanceOfType<NamedArgNonExistent>(result.InnerResult);
 		Assert.AreEqual(FAKE_NAME, ((LocalizedResult<string>)result.InnerResult).Value);
 	}
 
@@ -155,7 +156,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, INPUT).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.AreEqual("d", ((LocalizedResult<string>)result.InnerResult).Value);
+		Assert.IsInstanceOfType<NamedArgMissingValue>(result.InnerResult);
 	}
 
 	[TestMethod]
@@ -169,7 +170,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.AreEqual("d", ((LocalizedResult<string>)result.InnerResult).Value);
+		Assert.IsInstanceOfType<NamedArgMissingValue>(result.InnerResult);
 	}
 
 	[TestMethod]

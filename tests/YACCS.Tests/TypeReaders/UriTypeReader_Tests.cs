@@ -12,7 +12,7 @@ public class UriTypeReader_Tests : TypeReader_Tests<Uri>
 
 	[TestMethod]
 	public async Task Empty_Test()
-		=> await AssertFailureAsync("").ConfigureAwait(false);
+		=> await AssertFailureAsync<ParseFailed>("").ConfigureAwait(false);
 
 	[TestMethod]
 	public async Task Escaped_Test()
@@ -20,11 +20,11 @@ public class UriTypeReader_Tests : TypeReader_Tests<Uri>
 
 	[TestMethod]
 	public async Task Exception_Test()
-		=> await AssertFailureAsync("www.google.com").ConfigureAwait(false);
+		=> await AssertFailureAsync<ParseFailed>("www.google.com").ConfigureAwait(false);
 
 	[TestMethod]
 	public async Task Null_Test()
-		=> await AssertFailureAsync(default(string)!).ConfigureAwait(false);
+		=> await AssertFailureAsync<ParseFailed>(default(string)!).ConfigureAwait(false);
 
 	[TestMethod]
 	public async Task Valid_Test()

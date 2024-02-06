@@ -61,7 +61,7 @@ public abstract class NamedArgumentsTypeReaderBase<T>
 		// we know something is missing
 		if (input.Length % 2 != 0)
 		{
-			return new(new DictResult(CachedResults<T>.NamedArgBadCount.Result, default!));
+			return new(new DictResult(CachedResults<T>.NamedArgBadCount.Result, []));
 		}
 
 		var dict = new Dictionary<string, string>();
@@ -123,6 +123,6 @@ public abstract class NamedArgumentsTypeReaderBase<T>
 	/// </param>
 	protected readonly record struct DictResult(
 		ITypeReaderResult<T> Result,
-		IReadOnlyDictionary<string, string> Dictionary
+		Dictionary<string, string> Dictionary
 	);
 }

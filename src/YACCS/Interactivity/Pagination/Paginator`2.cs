@@ -51,7 +51,7 @@ public abstract class Paginator<TContext, TInput>
 
 		// Since the only way to get SuccessResult is it eventTrigger gets set,
 		// return InteractionEndedResult on SuccessResult
-		if (ReferenceEquals(CachedResults.Success, result.InnerResult))
+		if (result.InnerResult is Success)
 		{
 			return CachedResults.InteractionEnded;
 		}
