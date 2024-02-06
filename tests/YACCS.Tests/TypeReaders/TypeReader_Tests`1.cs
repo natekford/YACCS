@@ -20,18 +20,17 @@ public abstract class TypeReader_Tests<T>
 		Assert.IsFalse(result.InnerResult.IsSuccess);
 	}
 
-	protected Task<TResult> AssertFailureAsync<TResult>(string input, IContext? context = null)
-		=> AssertFailureAsync<TResult>(new[] { input }, context);
+	protected Task<IResult> AssertFailureAsync(string input, IContext? context = null)
+		=> AssertFailureAsync(new[] { input }, context);
 
-	protected async Task<TResult> AssertFailureAsync<TResult>(string[] input, IContext? context = null)
+	protected async Task<IResult> AssertFailureAsync(string[] input, IContext? context = null)
 	{
 		await SetupAsync().ConfigureAwait(false);
 
 		context ??= Context;
 		var result = await Reader.ReadAsync(context, input).ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(TResult));
-		return (TResult)result.InnerResult;
+		return result.InnerResult;
 	}
 
 	protected Task<T> AssertSuccessAsync(string input, IContext? context = null)

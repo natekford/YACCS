@@ -61,7 +61,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(ParseFailed));
+		Assert.AreEqual(typeof(int), ((LocalizedResult<Type>)result.InnerResult).Value);
 	}
 
 	[TestMethod]
@@ -127,8 +127,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgNonExistent));
-		Assert.AreEqual(FAKE_NAME, ((NamedArgNonExistent)result.InnerResult).Name);
+		Assert.AreEqual(FAKE_NAME, ((LocalizedResult<string>)result.InnerResult).Value);
 	}
 
 	[TestMethod]
@@ -156,7 +155,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, INPUT).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgMissingValue));
+		Assert.AreEqual("d", ((LocalizedResult<string>)result.InnerResult).Value);
 	}
 
 	[TestMethod]
@@ -170,7 +169,7 @@ public class GeneratedNamedArguments_Tests
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.InnerResult, typeof(NamedArgMissingValue));
+		Assert.AreEqual("d", ((LocalizedResult<string>)result.InnerResult).Value);
 	}
 
 	[TestMethod]
@@ -234,11 +233,11 @@ public class GeneratedNamedArguments_Tests
 		[GenerateNamedArguments]
 		public async Task<IResult> Test(
 			[Name(D)]
-				double d,
+			double d,
 			[Name(I)]
-				int i,
+			int i,
 			[Name(S)]
-				string s = S_DEFAULT)
+			string s = S_DEFAULT)
 		{
 			await Task.Delay(50).ConfigureAwait(false);
 

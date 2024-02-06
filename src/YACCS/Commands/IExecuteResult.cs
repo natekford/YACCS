@@ -9,7 +9,7 @@ namespace YACCS.Commands;
 /// </summary>
 /// <remarks>
 /// For the default implementation of <see cref="CommandServiceBase"/>,
-/// these results will only be errors or <see cref="CachedResults.Success"/>.
+/// these results will only be errors or <see cref="Results.CachedResults.Success"/>.
 /// All command results will get sent to
 /// <see cref="CommandServiceBase.CommandExecutedAsync(CommandExecutedEventArgs)"/>.
 /// <br/>

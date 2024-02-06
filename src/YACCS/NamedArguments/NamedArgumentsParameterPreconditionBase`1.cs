@@ -35,7 +35,7 @@ public abstract class NamedArgumentsParameterPreconditionBase<T>
 		{
 			if (!TryGetProperty(value, property, out var propertyValue))
 			{
-				return new NamedArgMissingValue(property);
+				return UncachedResults.NamedArgMissingValue(property);
 			}
 
 			var result = await meta.Command.CanExecuteAsync(parameter, context, propertyValue).ConfigureAwait(false);

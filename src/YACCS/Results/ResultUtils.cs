@@ -33,6 +33,7 @@ public static class ResultUtils
 		this IResult result,
 		[NotNullWhen(true)] out T value)
 	{
+		// Recursion is less complicated than a do while loop for this
 		if (result is ValueResult vResult && vResult.Value is T t)
 		{
 			value = t;

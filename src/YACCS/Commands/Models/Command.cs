@@ -200,7 +200,7 @@ public abstract class Command : Entity, IMutableCommand
 		/// <summary>
 		/// Converts an <see cref="object"/> into an <see cref="IResult"/>.
 		/// <br/>
-		/// If the method we're wrapping is void, it returns a <see cref="CachedResults.Success"/>.
+		/// If the method we're wrapping is void, it returns a <see cref="Results.CachedResults.Success"/>.
 		/// <br/>
 		/// If <paramref name="value"/> is an <see cref="IResult"/>, it returns <paramref name="value"/> directly.
 		/// <br/>

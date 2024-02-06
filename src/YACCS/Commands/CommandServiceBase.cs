@@ -54,7 +54,7 @@ public abstract class CommandServiceBase : ICommandService
 	}
 
 	/// <inheritdoc cref="ICommandService.ExecuteAsync(IContext, ReadOnlySpan{char})" />
-	/// <returns>A failure result or <see cref="CachedResults.Success"/>.</returns>
+	/// <returns>A failure result or <see cref="Results.CachedResults.Success"/>.</returns>
 	/// <inheritdoc cref="IExecuteResult" path="/remarks"/>
 	public virtual ValueTask<IExecuteResult> ExecuteAsync(
 		IContext context,

@@ -10,7 +10,7 @@ public class LocalizedResults_Tests
 	[TestMethod]
 	public void FormattableLocalizedResult_Test()
 	{
-		var result = new MustBeLessThan(5);
+		var result = UncachedResults.MustBeLessThan(5);
 
 		Assert.AreEqual("Must be less than or equal to 5.", result.Response);
 		Assert.AreEqual("Must be less than or equal to 5.", result.ToString());

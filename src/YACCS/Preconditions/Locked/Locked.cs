@@ -37,11 +37,11 @@ public abstract class Locked<TContext, TValue> : ParameterPrecondition<TContext,
 		var locked = await IsLockedAsync(meta, context, value).ConfigureAwait(false);
 		if (locked && RequiredStatus == Item.Unlocked)
 		{
-			return new MustBeUnlocked(typeof(TValue));
+			return UncachedResults.MustBeUnlocked(typeof(TValue));
 		}
 		else if (!locked && RequiredStatus == Item.Locked)
 		{
-			return new MustBeLocked(typeof(TValue));
+			return UncachedResults.MustBeLocked(typeof(TValue));
 		}
 		return CachedResults.Success;
 	}

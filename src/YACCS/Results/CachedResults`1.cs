@@ -22,9 +22,9 @@ public static class CachedResults<T>
 	/// <inheritdoc cref="CachedResults.NamedArgBadCount"/>
 	public static CachedTypeReaderResult NamedArgBadCount { get; }
 		= new(CachedResults.NamedArgBadCount);
-	/// <inheritdoc cref="Results.ParseFailed"/>
+	/// <inheritdoc cref="UncachedResults.ParseFailed"/>
 	public static CachedTypeReaderResult ParseFailed { get; }
-		= new(new ParseFailed(typeof(T)));
+		= new(UncachedResults.ParseFailed(typeof(T)));
 	/// <inheritdoc cref="CachedResults.TimedOut"/>
 	public static CachedTypeReaderResult TimedOut { get; }
 		= new(CachedResults.TimedOut);
