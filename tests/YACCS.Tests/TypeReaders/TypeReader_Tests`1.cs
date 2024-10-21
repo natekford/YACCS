@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands;
-using YACCS.Results;
 using YACCS.TypeReaders;
 
 namespace YACCS.Tests.TypeReaders;
