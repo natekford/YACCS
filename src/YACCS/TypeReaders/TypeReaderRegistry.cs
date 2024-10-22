@@ -33,6 +33,8 @@ public class TypeReaderRegistry : TypeRegistry<ITypeReader>
 	{
 		RegisterClass(new StringTypeReader());
 		RegisterClass(new UriTypeReader());
+		RegisterClass(new FileInfoTypeReader());
+		RegisterClass(new DirectoryInfoTypeReader());
 		RegisterStruct(new TryParseTypeReader<char>(char.TryParse));
 		RegisterStruct(new TryParseTypeReader<bool>(bool.TryParse));
 		RegisterStruct(new NumberTypeReader<sbyte>(sbyte.TryParse));
