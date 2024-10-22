@@ -3,11 +3,11 @@ using YACCS.Results;
 
 namespace YACCS.Examples.Interactivity;
 
-public sealed class ConsoleInteractivityManager(ConsoleHandler console)
+public static class ConsoleSubscription
 {
-	private readonly ConsoleHandler _Console = console;
-
-	public Task<IAsyncDisposable> SubscribeAsync(OnInput<string> onInput)
+	public static Task<IAsyncDisposable> SubscribeAsync(
+		this ConsoleHandler console,
+		OnInput<string> onInput)
 	{
 		var source = new CancellationTokenSource();
 		// Run in the background, treat this like an event
@@ -16,7 +16,7 @@ public sealed class ConsoleInteractivityManager(ConsoleHandler console)
 			// Only keep the loop going when not canceled
 			while (!source.IsCancellationRequested)
 			{
-				var input = await _Console.ReadLineAsync(source.Token).ConfigureAwait(false);
+				var input = await console.ReadLineAsync(source.Token).ConfigureAwait(false);
 				// Even though we have the loop condition already checking this,
 				// check it again so we don't invoke the delegate after timeout/cancel
 				if (source.IsCancellationRequested)
@@ -35,15 +35,14 @@ public sealed class ConsoleInteractivityManager(ConsoleHandler console)
 				}
 
 				// Since it's not InteractionEnded, we can print it out safely
-				_Console.WriteResult(result);
+				console.WriteResult(result);
 			}
 		}, source.Token);
 
-		var subscription = new ConsoleSubscription(source);
-		return Task.FromResult<IAsyncDisposable>(subscription);
+		return Task.FromResult<IAsyncDisposable>(new Subscription(source));
 	}
 
-	private sealed class ConsoleSubscription(CancellationTokenSource source)
+	private sealed class Subscription(CancellationTokenSource source)
 		: IAsyncDisposable
 	{
 		public ValueTask DisposeAsync()

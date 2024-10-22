@@ -45,8 +45,8 @@ public sealed class ConsoleHandler
 	public void ReleaseIOLock()
 		=> ReleaseIfZero(_IOLock);
 
-	public Task WaitForIOLockAsync(CancellationToken token = default)
-		=> _IOLock.WaitAsync(token);
+	public async Task WaitForIOLockAsync(CancellationToken token = default)
+		=> await _IOLock.WaitAsync(token).ConfigureAwait(false);
 
 #pragma warning disable CA1822 // Mark members as static
 

@@ -23,7 +23,6 @@ public sealed class Program
 			.AddSingleton<ConsoleCommandService>()
 			.AddSingleton<ConsoleHandler>()
 			.AddSingleton<ConsoleInput>()
-			.AddSingleton<ConsoleInteractivityManager>()
 			.AddSingleton<ConsolePaginator>()
 			.AddSingleton<IEnumerable<Assembly>>(new[] { typeof(Program).Assembly })
 			.AddSingleton<ICommandService>(x => x.GetRequiredService<ConsoleCommandService>())

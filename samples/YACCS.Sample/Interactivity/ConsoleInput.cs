@@ -6,10 +6,10 @@ namespace YACCS.Examples.Interactivity;
 
 public sealed class ConsoleInput(
 	IReadOnlyDictionary<Type, ITypeReader> readers,
-	ConsoleInteractivityManager interactivity)
+	ConsoleHandler console)
 	: Input<ConsoleContext, string>(readers)
 {
-	private readonly ConsoleInteractivityManager _Interactivity = interactivity;
+	private readonly ConsoleHandler _Console = console;
 
 	protected override string GetInputString(string input)
 		=> input;
@@ -17,5 +17,5 @@ public sealed class ConsoleInput(
 	protected override Task<IAsyncDisposable> SubscribeAsync(
 		ConsoleContext _,
 		OnInput<string> onInput)
-		=> _Interactivity.SubscribeAsync(onInput);
+		=> _Console.SubscribeAsync(onInput);
 }

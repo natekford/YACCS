@@ -12,9 +12,12 @@ public class Commands : ConsoleCommands
 	public override string Abstract() => "What's 9 + 10?";
 
 	[Command(nameof(Delay))]
-	public async Task<string> Delay()
+	public async Task<string> Delay(bool block = true)
 	{
-		Console.ReleaseIOLock();
+		if (!block)
+		{
+			Console.ReleaseIOLock();
+		}
 		await Task.Delay(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
 		return "I delayed for 10 seconds.";
 	}
@@ -68,9 +71,12 @@ public class Commands : ConsoleCommands
 		=> new Result(true, "This command gives a success result for no reason.");
 
 	[Command(nameof(Sleep))]
-	public string Sleep()
+	public string Sleep(bool block = true)
 	{
-		Console.ReleaseIOLock();
+		if (!block)
+		{
+			Console.ReleaseIOLock();
+		}
 		Thread.Sleep(TimeSpan.FromSeconds(10));
 		return "I slept for 10 seconds.";
 	}
