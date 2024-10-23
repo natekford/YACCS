@@ -5,16 +5,16 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 	
-	<PropertyGroup>
-		<DocumentationFile></DocumentationFile>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DocumentationFile>bin\Debug\netstandard2.1\YACCS.xml</DocumentationFile>
 		<DebugType>portable</DebugType>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <DebugType>portable</DebugType>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="DotNet.ReproducibleBuilds" Version="1.2.25">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 		<PackageReference Include="MinVer" Version="6.0.0">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
