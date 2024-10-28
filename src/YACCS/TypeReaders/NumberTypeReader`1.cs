@@ -26,7 +26,7 @@ public class NumberTypeReader<T>(NumberDelegate<T> @delegate)
 		return (string input, [MaybeNullWhen(false)] out T result) =>
 		{
 			var provider = CultureInfo.CurrentCulture;
-			const NumberStyles STYLE = NumberStyles.Number;
+			const NumberStyles STYLE = NumberStyles.Integer | NumberStyles.AllowDecimalPoint;
 			return @delegate(input, STYLE, provider, out result);
 		};
 	}

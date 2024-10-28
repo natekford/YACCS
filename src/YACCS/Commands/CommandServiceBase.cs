@@ -118,7 +118,7 @@ public abstract class CommandServiceBase : ICommandService
 				// Add 1 to i to account for how we're in a node
 				var score = await GetCommandScoreAsync(context, command, input, i + 1).ConfigureAwait(false);
 				if (Config.MultiMatchHandling == MultiMatchHandling.Error
-					&& best?.Result.IsSuccess == true
+					&& best?.Result?.IsSuccess == true
 					&& score.Result.IsSuccess)
 				{
 					return CommandScore.MultiMatch;

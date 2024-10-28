@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using YACCS.Results;
 using YACCS.TypeReaders;
 
 namespace YACCS.Tests.TypeReaders;
@@ -15,7 +16,11 @@ public class ArrayTypeReader_Tests : TypeReader_Tests<int[]>
 	}
 
 	[TestMethod]
-	public async Task Int_Test()
+	public async Task Comma_Test()
+		=> await AssertFailureAsync<ParseFailed>("1,2,3").ConfigureAwait(false);
+
+	[TestMethod]
+	public async Task Space_Test()
 	{
 		var value = await AssertSuccessAsync("1 2 3").ConfigureAwait(false);
 		Assert.AreEqual(1, value[0]);
