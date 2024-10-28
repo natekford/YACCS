@@ -1,4 +1,6 @@
-﻿namespace YACCS.Commands.Building;
+﻿using System;
+
+namespace YACCS.Commands.Building;
 
 /// <summary>
 /// Defines a method for determining if a context is valid.

@@ -1,5 +1,9 @@
 ﻿using MorseCode.ITask;
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 using YACCS.Commands.CommandScores;
 using YACCS.Commands.Models;
 using YACCS.Parsing;

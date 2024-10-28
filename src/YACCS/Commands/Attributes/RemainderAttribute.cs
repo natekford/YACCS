@@ -1,4 +1,6 @@
-﻿namespace YACCS.Commands.Attributes;
+﻿using System;
+
+namespace YACCS.Commands.Attributes;
 
 /// <summary>
 /// An attribute indicating the parameter has an unlimited <see cref="LengthAttribute.Length"/>.

@@ -1,4 +1,6 @@
-﻿namespace YACCS.Commands.Attributes;
+﻿using System;
+
+namespace YACCS.Commands.Attributes;
 
 /// <summary>
 /// An attribute indicating the parameter is <see cref="IContext"/> and should not

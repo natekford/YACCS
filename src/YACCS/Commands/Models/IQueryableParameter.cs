@@ -1,4 +1,6 @@
-﻿namespace YACCS.Commands.Models;
+﻿using System;
+
+namespace YACCS.Commands.Models;
 
 /// <summary>
 /// A parameter which supports querying.

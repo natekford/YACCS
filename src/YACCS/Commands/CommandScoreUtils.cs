@@ -1,4 +1,6 @@
-﻿using YACCS.Commands.Models;
+﻿using System.Collections.Generic;
+
+using YACCS.Commands.Models;
 using YACCS.Results;
 
 // Different namespace since they're extension methods

@@ -1,4 +1,6 @@
-﻿namespace YACCS.Results;
+﻿using System;
+
+namespace YACCS.Results;
 
 /// <summary>
 /// Uncached results.

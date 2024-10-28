@@ -1,4 +1,6 @@
-﻿namespace YACCS.TypeReaders;
+﻿using System;
+
+namespace YACCS.TypeReaders;
 
 /// <summary>
 /// Used in <see cref="TypeReaderUtils.ThrowIfUnregisteredServices(ITypeReader, IServiceProvider)"/>.

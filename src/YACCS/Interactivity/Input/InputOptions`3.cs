@@ -1,4 +1,6 @@
-﻿using YACCS.Commands;
+﻿using System.Collections.Generic;
+
+using YACCS.Commands;
 using YACCS.Preconditions;
 using YACCS.TypeReaders;
 

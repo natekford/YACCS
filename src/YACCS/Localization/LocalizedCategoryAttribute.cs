@@ -1,4 +1,6 @@
-﻿using YACCS.Commands.Attributes;
+﻿using System;
+
+using YACCS.Commands.Attributes;
 
 namespace YACCS.Localization;
 

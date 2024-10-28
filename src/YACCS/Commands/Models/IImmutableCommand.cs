@@ -1,4 +1,7 @@
-﻿using YACCS.Commands.Attributes;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+
+using YACCS.Commands.Attributes;
 using YACCS.Preconditions;
 using YACCS.Results;
 

@@ -1,4 +1,6 @@
-﻿namespace YACCS.Trie;
+﻿using System.Collections.Generic;
+
+namespace YACCS.Trie;
 
 /// <summary>
 /// A <a href="https://en.wikipedia.org/wiki/Trie">trie</a> data structure.

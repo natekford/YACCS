@@ -1,4 +1,6 @@
-﻿namespace YACCS.Commands.Attributes;
+﻿using System;
+
+namespace YACCS.Commands.Attributes;
 
 /// <inheritdoc cref="ICategoryAttribute"/>
 /// <summary>

@@ -1,4 +1,7 @@
-﻿namespace YACCS.Commands.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace YACCS.Commands.Models;
 
 /// <summary>
 /// A command which supports querying.

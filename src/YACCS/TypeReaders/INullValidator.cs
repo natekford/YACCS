@@ -1,4 +1,6 @@
-﻿namespace YACCS.TypeReaders;
+﻿using System;
+
+namespace YACCS.TypeReaders;
 
 /// <summary>
 /// Defines a method for determining if input represents null.

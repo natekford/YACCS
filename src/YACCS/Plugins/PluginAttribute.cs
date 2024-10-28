@@ -1,4 +1,6 @@
-﻿namespace YACCS.CommandAssemblies;
+﻿using System;
+
+namespace YACCS.CommandAssemblies;
 
 /// <summary>
 /// Specifies the assembly contains plugins.

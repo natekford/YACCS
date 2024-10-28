@@ -1,4 +1,7 @@
-﻿using YACCS.Help;
+﻿using System;
+using System.Threading.Tasks;
+
+using YACCS.Help;
 using YACCS.Help.Attributes;
 using YACCS.Localization;
 

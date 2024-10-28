@@ -1,4 +1,6 @@
-﻿namespace YACCS.Help.Attributes;
+﻿using System;
+
+namespace YACCS.Help.Attributes;
 
 /// <inheritdoc cref="ISummaryAttribute" />
 /// <summary>

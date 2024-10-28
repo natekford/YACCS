@@ -1,6 +1,7 @@
 ﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 using System.Collections.Immutable;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -84,28 +85,30 @@ public static class Keys
 		= Create("An exception occurred while a command was executing.");
 	public static NeedsLocalization InteractionEndedResult { get; }
 		= Create("Interaction ended.");
-	public static NeedsLocalization MustBeGreaterThan { get; }
-		= Create("Must be greater than or equal to {0}.");
-	public static NeedsLocalization MustBeLessThan { get; }
-		= Create("Must be less than or equal to {0}.");
-	public static NeedsLocalization MustBeLocked { get; }
-		= Create("Unable to find an existing {0} using the supplied value.");
-	public static NeedsLocalization MustBeUnlocked { get; }
-		= Create("There is already an existing {0} using the supplied value.");
 	public static NeedsLocalization InvalidContextResult { get; }
 		= Create("Invalid context type.");
 	public static NeedsLocalization InvalidParameterResult { get; }
 		= Create("Invalid parameter type.");
 	public static NeedsLocalization MultiMatchHandlingErrorResult { get; }
 		= Create("Multiple commands match.");
+	public static NeedsLocalization MustBeGreaterThan { get; }
+					= Create("Must be greater than or equal to {0}.");
+	public static NeedsLocalization MustBeLessThan { get; }
+		= Create("Must be less than or equal to {0}.");
+	public static NeedsLocalization MustBeLocked { get; }
+		= Create("Unable to find an existing {0} using the supplied value.");
+	public static NeedsLocalization MustBeUnlocked { get; }
+		= Create("There is already an existing {0} using the supplied value.");
 	public static NeedsLocalization NamedArgBadCountResult { get; }
 		= Create("There is not an even number of arguments supplied.");
 	public static NeedsLocalization NamedArgDuplicateResult { get; }
 		= Create("Duplicate value for named argument {0}.");
 	public static NeedsLocalization NamedArgInvalidDictionaryResult { get; }
 		= Create("Invalid dictionary supplied.");
+	public static NeedsLocalization NamedArgMissingValueResult { get; }
+		= Create("Missing a value for argument {0}.");
 	public static NeedsLocalization NamedArgNonExistentResult { get; }
-		= Create("Nonexistent named argument {0}.");
+			= Create("Nonexistent named argument {0}.");
 	public static NeedsLocalization NotEnoughArgsResult { get; }
 		= Create("Not enough arguments provided.");
 	public static NeedsLocalization NullParameterResult { get; }
@@ -114,8 +117,6 @@ public static class Keys
 		= Create("Failed to parse {0}.");
 	public static NeedsLocalization QuoteMismatchResult { get; }
 		= Create("There is a quote mismatch.");
-	public static NeedsLocalization NamedArgMissingValueResult { get; }
-		= Create("Missing a value for argument {0}.");
 	public static NeedsLocalization TimedOutResult { get; }
 		= Create("An operation timed out.");
 	public static NeedsLocalization TooManyArgsResult { get; }

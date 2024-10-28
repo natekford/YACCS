@@ -1,4 +1,6 @@
-﻿namespace YACCS.Commands;
+﻿using System;
+
+namespace YACCS.Commands;
 
 /// <summary>
 /// Defines a context used to invoke commands.

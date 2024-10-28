@@ -1,4 +1,6 @@
-﻿using YACCS.Localization;
+﻿using System;
+
+using YACCS.Localization;
 
 namespace YACCS.Results;
 

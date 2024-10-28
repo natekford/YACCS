@@ -1,4 +1,6 @@
-﻿namespace YACCS.Commands.Attributes;
+﻿using System.Collections.Generic;
+
+namespace YACCS.Commands.Attributes;
 
 /// <summary>
 /// An attribute for declaring a method as a command.

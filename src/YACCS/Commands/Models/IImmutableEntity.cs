@@ -1,4 +1,6 @@
-﻿namespace YACCS.Commands.Models;
+﻿using System.Collections.Generic;
+
+namespace YACCS.Commands.Models;
 
 /// <summary>
 /// The base interface for most immutable command objects.
