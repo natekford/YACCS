@@ -1,7 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using System.Globalization;
-
 using YACCS.Commands;
 using YACCS.TypeReaders;
 

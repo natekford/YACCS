@@ -5,19 +5,21 @@ using System.Reflection;
 
 namespace YACCS;
 
-/// <summary>
-/// Utilities for reflection.
-/// </summary>
-public static class ReflectionUtils
+internal static class ReflectionUtils
 {
-	/// <summary>
-	/// Creates a new <paramref name="type"/> and then casts it to <typeparamref name="T"/>.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="type">The type to create.</param>
-	/// <param name="args">The arguments for the constructor.</param>
-	/// <returns>A new instance of <typeparamref name="T"/>.</returns>
-	public static T CreateInstance<T>(this Type type, params object[] args)
+	internal static T CreateDelegate<T>(Func<T> factory, string name)
+	{
+		try
+		{
+			return factory();
+		}
+		catch (Exception ex)
+		{
+			throw new ArgumentException($"Unable to create the delegate '{name}'.", ex);
+		}
+	}
+
+	internal static T CreateInstance<T>(this Type type, params object[] args)
 	{
 		object instance;
 		try
@@ -35,18 +37,6 @@ public static class ReflectionUtils
 		}
 		throw new ArgumentException(
 			$"{type.Name} does not implement {typeof(T).FullName}.", nameof(type));
-	}
-
-	internal static T CreateDelegate<T>(Func<T> factory, string name)
-	{
-		try
-		{
-			return factory();
-		}
-		catch (Exception ex)
-		{
-			throw new ArgumentException($"Unable to create the delegate '{name}'.", ex);
-		}
 	}
 
 	internal static (IEnumerable<PropertyInfo>, IEnumerable<FieldInfo>) GetWritableMembers(

@@ -11,7 +11,7 @@ using YACCS.TypeReaders;
 
 namespace YACCS.Examples;
 
-public sealed class ConsoleCommandService : CommandServiceBase
+public sealed class ConsoleCommandService : CommandService
 {
 	private readonly IEnumerable<Assembly> _CommandAssemblies;
 	private readonly Localized<CommandTrie> _Commands;
@@ -49,7 +49,7 @@ public sealed class ConsoleCommandService : CommandServiceBase
 		{
 			_Console.WriteLine(exceptions, ConsoleColor.Red);
 		}
-		return Task.CompletedTask;
+		return base.CommandExecutedAsync(e);
 	}
 
 	private async Task AddDelegateCommandsAsync()

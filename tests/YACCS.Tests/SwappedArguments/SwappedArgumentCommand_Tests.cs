@@ -61,7 +61,7 @@ public class SwappedArgumentCommand_Tests
 	[TestMethod]
 	public async Task ThrowsWhenTryingToSwapRemainder()
 	{
-		var commands = typeof(CommandsGroupThrow).GetAllCommandsAsync(EmptyServiceProvider.Instance);
+		var commands = typeof(CommandsGroupThrow).GetAllCommandsAsync(FakeServiceProvider.Instance);
 
 		var i = 0;
 		await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
@@ -76,7 +76,7 @@ public class SwappedArgumentCommand_Tests
 		Assert.AreEqual(1, i);
 	}
 
-	private async ValueTask<(CommandService, SetMe, FakeContext)> CreateAsync()
+	private async ValueTask<(FakeCommandService, SetMe, FakeContext)> CreateAsync()
 	{
 		var setMe = new SetMe();
 		var context = new FakeContext()
@@ -84,7 +84,7 @@ public class SwappedArgumentCommand_Tests
 			Services = Utils.CreateServiceCollection().AddSingleton(setMe).BuildServiceProvider(),
 		};
 
-		var commandService = context.Get<CommandService>();
+		var commandService = context.Get<FakeCommandService>();
 		var commands = typeof(CommandsGroup).GetAllCommandsAsync(context.Services);
 		await commandService.AddRangeAsync(commands).ConfigureAwait(false);
 
@@ -101,11 +101,11 @@ public class SwappedArgumentCommand_Tests
 		public void RemoveMessages(
 			int amount,
 			[Swappable]
-				char? user = null,
+			char? user = null,
 			[Swappable]
-				bool? channel = null,
+			bool? channel = null,
 			[Swappable]
-				DateTime? time = null)
+			DateTime? time = null)
 		{
 			SetMe.Amount = amount;
 			SetMe.User = user;
@@ -121,12 +121,12 @@ public class SwappedArgumentCommand_Tests
 		public void ShouldThrow(
 			int amount,
 			[Swappable]
-				char? user = null,
+			char? user = null,
 			[Swappable]
-				bool? channel = null,
+			bool? channel = null,
 			[Swappable]
-				[Remainder]
-				DateTime? time = null)
+			[Remainder]
+			DateTime? time = null)
 		{
 		}
 	}

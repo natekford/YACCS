@@ -3,7 +3,9 @@
 using System.Diagnostics;
 
 using YACCS.Commands;
+using YACCS.Parsing;
 using YACCS.Results;
+using YACCS.TypeReaders;
 
 namespace YACCS.Tests.Commands;
 
@@ -13,7 +15,7 @@ public class CommandService_ExecuteAsync_Tests
 	[TestMethod]
 	public async Task BestMatchIsDisabled_Test()
 	{
-		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+		var (commandService, context, _) = await CreateAsync().ConfigureAwait(false);
 		const string input = $"{CommandsGroup._Name} {CommandsGroup._Disabled}";
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
@@ -24,7 +26,7 @@ public class CommandService_ExecuteAsync_Tests
 	[TestMethod]
 	public async Task EmptyInput_Test()
 	{
-		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+		var (commandService, context, _) = await CreateAsync().ConfigureAwait(false);
 		var result = await commandService.ExecuteAsync(context, "").ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
@@ -34,36 +36,23 @@ public class CommandService_ExecuteAsync_Tests
 	[TestMethod]
 	public async Task EnsureDisposesContext_Test()
 	{
-		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-		var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-		context = new DisposableContext(tcs);
-
-		var shouldGetArgs = new TaskCompletionSource<CommandExecutedEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
-		commandService.CommandExecuted += (e) =>
-		{
-			shouldGetArgs.SetResult(e);
-			return Task.CompletedTask;
-		};
+		var (commandService, _, tcs) = await CreateAsync().ConfigureAwait(false);
+		var contextTcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+		var context = new DisposableContext(contextTcs);
 
 		const string input = $"{CommandsGroup._Name} {CommandsGroup._Throws}";
 		var syncResult = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 		Assert.IsTrue(syncResult.InnerResult.IsSuccess);
 
-		await tcs.Task.ConfigureAwait(false);
-		Assert.IsTrue(shouldGetArgs.Task.IsCompleted);
-		Assert.IsInstanceOfType(shouldGetArgs.Task.Result, typeof(CommandExecutedEventArgs));
+		await contextTcs.Task.ConfigureAwait(false);
+		Assert.IsTrue(tcs.Task.IsCompleted);
+		Assert.IsInstanceOfType(tcs.Task.Result, typeof(CommandExecutedEventArgs));
 	}
 
 	[TestMethod]
 	public async Task ExecutionDelay_Test()
 	{
-		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-		var tcs = new TaskCompletionSource<CommandExecutedEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
-		commandService.CommandExecuted += (e) =>
-		{
-			tcs.SetResult(e);
-			return Task.CompletedTask;
-		};
+		var (commandService, context, tcs) = await CreateAsync().ConfigureAwait(false);
 
 		const string input = $"{CommandsGroup._Name} {CommandsGroup._Delay}";
 		var sw = new Stopwatch();
@@ -85,13 +74,7 @@ public class CommandService_ExecuteAsync_Tests
 	[TestMethod]
 	public async Task ExecutionExceptionAfter_Test()
 	{
-		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-		var tcs = new TaskCompletionSource<CommandExecutedEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
-		commandService.CommandExecuted += (e) =>
-		{
-			tcs.SetResult(e);
-			return Task.CompletedTask;
-		};
+		var (commandService, context, tcs) = await CreateAsync().ConfigureAwait(false);
 
 		const string input = $"{CommandsGroup._Name} {CommandsGroup._ThrowsAfter}";
 		var syncResult = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
@@ -109,13 +92,7 @@ public class CommandService_ExecuteAsync_Tests
 	[TestMethod]
 	public async Task ExecutionExceptionBefore_Test()
 	{
-		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-		var tcs = new TaskCompletionSource<CommandExecutedEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
-		commandService.CommandExecuted += (e) =>
-		{
-			tcs.SetResult(e);
-			return Task.CompletedTask;
-		};
+		var (commandService, context, tcs) = await CreateAsync().ConfigureAwait(false);
 
 		const string input = $"{CommandsGroup._Name} {CommandsGroup._ThrowsBefore}";
 		var syncResult = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
@@ -133,13 +110,7 @@ public class CommandService_ExecuteAsync_Tests
 	[TestMethod]
 	public async Task ExecutionExceptionDuring_Test()
 	{
-		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
-		var tcs = new TaskCompletionSource<CommandExecutedEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
-		commandService.CommandExecuted += (e) =>
-		{
-			tcs.SetResult(e);
-			return Task.CompletedTask;
-		};
+		var (commandService, context, tcs) = await CreateAsync().ConfigureAwait(false);
 
 		const string input = $"{CommandsGroup._Name} {CommandsGroup._Throws}";
 		var syncResult = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
@@ -156,7 +127,7 @@ public class CommandService_ExecuteAsync_Tests
 	[TestMethod]
 	public async Task Multimatch_Test()
 	{
-		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+		var (commandService, context, _) = await CreateAsync().ConfigureAwait(false);
 		const string input = $"{CommandsGroup._Name} 1";
 		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
@@ -167,7 +138,7 @@ public class CommandService_ExecuteAsync_Tests
 	[TestMethod]
 	public async Task NoCommandsFound_Test()
 	{
-		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+		var (commandService, context, _) = await CreateAsync().ConfigureAwait(false);
 		var result = await commandService.ExecuteAsync(context, "asdf").ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
@@ -177,14 +148,14 @@ public class CommandService_ExecuteAsync_Tests
 	[TestMethod]
 	public async Task QuoteMismatch_Test()
 	{
-		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+		var (commandService, context, _) = await CreateAsync().ConfigureAwait(false);
 		var result = await commandService.ExecuteAsync(context, "\"an end quote is missing").ConfigureAwait(false);
 
 		Assert.IsFalse(result.InnerResult.IsSuccess);
 		Assert.AreSame(CachedResults.QuoteMismatch, result.InnerResult);
 	}
 
-	private static async ValueTask<(CommandService, FakeContext)> CreateAsync()
+	private static async ValueTask<(FakeCommandService, FakeContext, TaskCompletionSource<CommandExecutedEventArgs>)> CreateAsync()
 	{
 		var context = new FakeContext
 		{
@@ -194,11 +165,18 @@ public class CommandService_ExecuteAsync_Tests
 			}),
 		};
 
-		var commandService = context.Get<CommandService>();
+		var commandService = context.Get<FakeCommandService>();
 		var commands = typeof(CommandsGroup).GetDirectCommandsAsync(context.Services);
 		await commandService.AddRangeAsync(commands).ConfigureAwait(false);
 
-		return (commandService, context);
+		var tcs = new TaskCompletionSource<CommandExecutedEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
+		commandService.CommandExecuted = e =>
+		{
+			tcs.SetResult(e);
+			return Task.CompletedTask;
+		};
+
+		return (commandService, context, tcs);
 	}
 
 	private sealed class DisposableContext(TaskCompletionSource tcs)

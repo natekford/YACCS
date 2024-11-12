@@ -11,7 +11,7 @@ namespace YACCS.Tests;
 public static class Utils
 {
 	public static async Task AddRangeAsync(
-		this CommandServiceBase commandService,
+		this CommandService commandService,
 		IAsyncEnumerable<ImmutableReflectionCommand> enumerable)
 	{
 		await foreach (var (_, command) in enumerable)
@@ -30,7 +30,7 @@ public static class Utils
 			config.EndQuotes
 		);
 		var readers = new TypeReaderRegistry();
-		var commandService = new CommandService(config, handler, readers);
+		var commandService = new FakeCommandService(config, handler, readers);
 
 		return new ServiceCollection()
 			.AddSingleton<IArgumentHandler>(handler)

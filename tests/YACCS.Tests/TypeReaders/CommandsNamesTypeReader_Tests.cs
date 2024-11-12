@@ -26,7 +26,7 @@ public class CommandsNamesTypeReader_Tests :
 
 	protected override Task SetupAsync()
 	{
-		var commandService = Context.Get<CommandService>();
+		var commandService = Context.Get<FakeCommandService>();
 		var commands = typeof(FakeCommandGroup).GetDirectCommandsAsync(Context.Services);
 		return commandService.AddRangeAsync(commands);
 	}

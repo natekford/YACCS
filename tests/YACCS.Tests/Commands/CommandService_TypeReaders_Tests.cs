@@ -140,7 +140,7 @@ public class CommandService_TypeReaders_Tests
 			TypeReader = reader,
 		}.ToImmutable();
 		var context = new FakeContext();
-		var commandService = context.Get<CommandService>();
+		var commandService = context.Get<FakeCommandService>();
 		return commandService.ProcessTypeReadersAsync(context, parameter, input, startIndex);
 	}
 

@@ -7,17 +7,13 @@ namespace YACCS.Commands;
 
 /// <summary>
 /// A result returned from
-/// <see cref="CommandServiceBase.ExecuteAsync(IContext, ReadOnlySpan{char})"/>.
+/// <see cref="CommandService.ExecuteAsync(IContext, ReadOnlySpan{char})"/>.
 /// </summary>
 /// <remarks>
-/// For the default implementation of <see cref="CommandServiceBase"/>,
-/// these results will only be errors or <see cref="Results.CachedResults.Success"/>.
+/// For the default implementation of <see cref="CommandService"/>,
+/// these results will only be errors or <see cref="CachedResults.Success"/>.
 /// All command results will get sent to
-/// <see cref="CommandServiceBase.CommandExecutedAsync(CommandExecutedEventArgs)"/>.
-/// <br/>
-/// <br/>
-/// For the default implementation of <see cref="CommandService"/>, the above method
-/// fires <see cref="CommandService.CommandExecuted"/>.
+/// <see cref="CommandService.CommandExecutedAsync(CommandExecutedEventArgs)"/>.
 /// </remarks>
 public interface IExecuteResult : INestedResult
 {

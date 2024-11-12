@@ -188,7 +188,7 @@ public class GeneratedNamedArguments_Tests
 		Assert.AreEqual(CommandsGroup.S_DEFAULT, setMe.StringValue);
 	}
 
-	private static async ValueTask<(CommandService, SetMe, FakeContext)> CreateAsync()
+	private static async ValueTask<(FakeCommandService, SetMe, FakeContext)> CreateAsync()
 	{
 		var setMe = new SetMe();
 		var context = new FakeContext()
@@ -196,7 +196,7 @@ public class GeneratedNamedArguments_Tests
 			Services = Utils.CreateServiceCollection().AddSingleton(setMe).BuildServiceProvider(),
 		};
 
-		var commandService = context.Get<CommandService>();
+		var commandService = context.Get<FakeCommandService>();
 		var commands = typeof(CommandsGroup).GetAllCommandsAsync(context.Services);
 		await commandService.AddRangeAsync(commands).ConfigureAwait(false);
 
@@ -204,7 +204,7 @@ public class GeneratedNamedArguments_Tests
 	}
 
 	private static async Task ExecuteSuccessfulCommandAsync(
-		CommandService commandService,
+		FakeCommandService commandService,
 		IContext context,
 		string input)
 	{

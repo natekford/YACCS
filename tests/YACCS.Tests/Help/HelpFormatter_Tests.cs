@@ -104,11 +104,11 @@ Parameters:{TRAILING}
 	public void TagFormatterValue_Test()
 		=> Assert.AreEqual("joe", Format<TagFormatter>($"{"joe":value}"));
 
-	private static async ValueTask<(CommandService, HelpFormatter, FakeContext)> CreateAsync()
+	private static async ValueTask<(FakeCommandService, HelpFormatter, FakeContext)> CreateAsync()
 	{
 		var context = new FakeContext();
 		var formatter = new HelpFormatter(new TypeNameRegistry(), new TagFormatter());
-		var commandService = context.Get<CommandService>();
+		var commandService = context.Get<FakeCommandService>();
 		var commands = typeof(CommandGroup).GetDirectCommandsAsync(context.Services);
 		await commandService.AddRangeAsync(commands).ConfigureAwait(false);
 		return (commandService, formatter, context);

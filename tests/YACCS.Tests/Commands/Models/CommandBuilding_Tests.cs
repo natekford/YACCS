@@ -25,7 +25,7 @@ public class CommandBuilding_Tests
 		Assert.AreEqual(1, declaredCommands.Count);
 
 		var concreteType = 0;
-		await foreach (var actualCommand in typeof(GroupGeneric<object>).GetDirectCommandsAsync(EmptyServiceProvider.Instance))
+		await foreach (var actualCommand in typeof(GroupGeneric<object>).GetDirectCommandsAsync(FakeServiceProvider.Instance))
 		{
 			++concreteType;
 		}
@@ -33,7 +33,7 @@ public class CommandBuilding_Tests
 
 		await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
 		{
-			await foreach (var actualCommand in typeof(GroupGeneric<>).GetDirectCommandsAsync(EmptyServiceProvider.Instance))
+			await foreach (var actualCommand in typeof(GroupGeneric<>).GetDirectCommandsAsync(FakeServiceProvider.Instance))
 			{
 			}
 		}).ConfigureAwait(false);
@@ -71,7 +71,7 @@ public class CommandBuilding_Tests
 	public async Task CommandMethodInfoBuilding_Test()
 	{
 		var commands = new List<IImmutableCommand>();
-		await foreach (var (_, command) in typeof(GroupBase).GetAllCommandsAsync(EmptyServiceProvider.Instance))
+		await foreach (var (_, command) in typeof(GroupBase).GetAllCommandsAsync(FakeServiceProvider.Instance))
 		{
 			commands.Add(command);
 		}
@@ -88,7 +88,7 @@ public class CommandBuilding_Tests
 	public async Task CommandMethodInfoBuildingWithInheritanceInvolved_Test()
 	{
 		var commands = new List<IImmutableCommand>();
-		await foreach (var (_, command) in typeof(GroupChild).GetAllCommandsAsync(EmptyServiceProvider.Instance))
+		await foreach (var (_, command) in typeof(GroupChild).GetAllCommandsAsync(FakeServiceProvider.Instance))
 		{
 			commands.Add(command);
 		}
@@ -105,7 +105,7 @@ public class CommandBuilding_Tests
 	public async Task HiddenAttribute_Test()
 	{
 		var commands = new List<IImmutableCommand>();
-		await foreach (var (_, command) in typeof(HiddenAttributeGroup).GetAllCommandsAsync(EmptyServiceProvider.Instance))
+		await foreach (var (_, command) in typeof(HiddenAttributeGroup).GetAllCommandsAsync(FakeServiceProvider.Instance))
 		{
 			commands.Add(command);
 		}

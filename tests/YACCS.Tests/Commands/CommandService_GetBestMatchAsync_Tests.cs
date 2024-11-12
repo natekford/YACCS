@@ -155,7 +155,7 @@ public class CommandService_GetBestMatchAsync_Tests
 		Assert.IsTrue(parameter.GetAttributes<WasIReachedParameterPreconditionAttribute>().Single().IWasReached);
 	}
 
-	private static (CommandService, FakeContext, IMutableCommand, IMutableParameter) Create(bool success, int disallowedValue)
+	private static (FakeCommandService, FakeContext, IMutableCommand, IMutableParameter) Create(bool success, int disallowedValue)
 	{
 		static void Delegate(int arg)
 		{
@@ -171,6 +171,6 @@ public class CommandService_GetBestMatchAsync_Tests
 			.AddParameterPrecondition(new WasIReachedParameterPreconditionAttribute());
 
 		var context = new FakeContext();
-		return (context.Get<CommandService>(), context, commandBuilder, commandBuilder.Parameters[0]);
+		return (context.Get<FakeCommandService>(), context, commandBuilder, commandBuilder.Parameters[0]);
 	}
 }
