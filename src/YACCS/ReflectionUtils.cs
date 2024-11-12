@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace YACCS;
 
 internal static class ReflectionUtils
 {
-	internal static T CreateDelegate<T>(Func<T> factory, string name)
+	internal static T CreateDelegate<T>(
+		Func<T> factory,
+		[CallerArgumentExpression(nameof(factory))] string caller = "")
 	{
 		try
 		{
@@ -15,7 +18,8 @@ internal static class ReflectionUtils
 		}
 		catch (Exception ex)
 		{
-			throw new ArgumentException($"Unable to create the delegate '{name}'.", ex);
+			// Throw a much more understandable exception
+			throw new ArgumentException($"Unable to create the delegate '{caller}'.", ex);
 		}
 	}
 

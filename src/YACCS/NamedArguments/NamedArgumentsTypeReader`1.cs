@@ -25,7 +25,7 @@ public sealed class NamedArgumentsTypeReader<T>
 	/// </summary>
 	public NamedArgumentsTypeReader()
 	{
-		_Setter = ReflectionUtils.CreateDelegate(Setter, "setter");
+		_Setter = ReflectionUtils.CreateDelegate(Setter);
 	}
 
 	/// <inheritdoc />

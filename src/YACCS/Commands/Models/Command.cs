@@ -79,7 +79,7 @@ public abstract class Command : Entity, IMutableCommand
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	protected abstract class ImmutableCommand : IImmutableCommand
 	{
-		private readonly Lazy<Func<Task, object>> _TaskResult;
+		private readonly Lazy<Func<Task, object>> _GetTaskResult;
 		private readonly ConcurrentDictionary<Type, bool> _ValidContexts = new();
 
 		/// <inheritdoc />
@@ -124,7 +124,7 @@ public abstract class Command : Entity, IMutableCommand
 			ContextType = mutable.ContextType;
 			Source = mutable.Source;
 			Paths = mutable.Paths.Select(x => new LocalizedPath(x)).ToImmutableArray();
-			_TaskResult = new(() => ReflectionUtils.CreateDelegate(TaskResult, "task result"));
+			_GetTaskResult = new(() => ReflectionUtils.CreateDelegate(GetTaskResult));
 
 			var parameters = ImmutableArray.CreateBuilder<IImmutableParameter>(mutable.Parameters.Count);
 			for (var i = 0; i < mutable.Parameters.Count; ++i)
@@ -255,11 +255,11 @@ public abstract class Command : Entity, IMutableCommand
 			}
 
 			// It has a value? Ok, let's get it
-			var value = _TaskResult.Value.Invoke(task);
+			var value = _GetTaskResult.Value.Invoke(task);
 			return await ConvertValueAsync(value).ConfigureAwait(false);
 		}
 
-		private Func<Task, object> TaskResult()
+		private Func<Task, object> GetTaskResult()
 		{
 			/*
 			 *	(Task Task) =>

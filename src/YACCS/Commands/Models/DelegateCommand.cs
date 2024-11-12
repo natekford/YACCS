@@ -66,7 +66,7 @@ public sealed class DelegateCommand : Command
 			: base(mutable, mutable.Delegate.Method.ReturnType)
 		{
 			_Delegate = mutable.Delegate;
-			_Execute = ReflectionUtils.CreateDelegate(Execute, "execute");
+			_Execute = ReflectionUtils.CreateDelegate(Execute);
 		}
 
 		public override ValueTask<IResult> ExecuteAsync(

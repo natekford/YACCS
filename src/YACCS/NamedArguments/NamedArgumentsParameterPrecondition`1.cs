@@ -26,7 +26,7 @@ public sealed class NamedArgumentsParameterPrecondition<T>
 	public NamedArgumentsParameterPrecondition()
 	{
 		Parameters = typeof(T).CreateParamDict(x => x.OriginalParameterName);
-		_Getter = ReflectionUtils.CreateDelegate(Getter, "getter");
+		_Getter = ReflectionUtils.CreateDelegate(Getter);
 	}
 
 	/// <inheritdoc />

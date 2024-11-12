@@ -9,7 +9,7 @@ public class ReflectionUtils_Tests
 	public void CreateDelegate_Test()
 	{
 		var i = 0;
-		var del = ReflectionUtils.CreateDelegate<Action>(() => () => ++i, "inc");
+		var del = ReflectionUtils.CreateDelegate<Action>(() => () => ++i);
 		del();
 		Assert.AreEqual(1, i);
 	}
@@ -22,7 +22,7 @@ public class ReflectionUtils_Tests
 			_ = ReflectionUtils.CreateDelegate<Action>(() =>
 			{
 				throw new InvalidOperationException("lol");
-			}, "exception");
+			});
 		});
 		Assert.IsNotNull(ex.InnerException);
 	}

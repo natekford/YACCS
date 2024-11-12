@@ -152,8 +152,8 @@ public sealed class ReflectionCommand : Command
 			_GroupType = mutable.GroupType;
 			_Method = mutable.Method;
 
-			_Constructor = ReflectionUtils.CreateDelegate(Constructor, "constructor + injection");
-			_Execute = ReflectionUtils.CreateDelegate(Execute, "execute");
+			_Constructor = ReflectionUtils.CreateDelegate(Constructor);
+			_Execute = ReflectionUtils.CreateDelegate(Execute);
 		}
 
 		public override async ValueTask<IResult> ExecuteAsync(
