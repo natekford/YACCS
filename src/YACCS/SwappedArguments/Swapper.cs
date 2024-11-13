@@ -30,6 +30,7 @@ public sealed class Swapper
 		MapForward = indices
 			.OrderBy(x => x)
 			.Zip(indices, (a, b) => (A: a, B: b))
+			.Where(x => x.A != x.B)
 			.ToFrozenDictionary(x => x.A, x => x.B);
 
 		MapBackward = MapForward.ToFrozenDictionary(x => x.Value, x => x.Key);

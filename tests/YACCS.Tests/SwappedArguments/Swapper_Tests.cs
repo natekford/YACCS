@@ -10,8 +10,9 @@ public class Swapper_Tests
 	[TestMethod]
 	public void Basic_Test()
 	{
-		var indices = new int[] { 4, 2, 3 };
+		var indices = new int[] { 4, 2, 3, 7 };
 		var swapper = new Swapper(indices);
+		Assert.AreEqual(3, swapper.MapForward.Count);
 
 		var original = Enumerable.Range(0, 10).ToArray();
 		var copy = swapper.SwapForwards(original);
