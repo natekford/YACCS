@@ -10,9 +10,6 @@ namespace YACCS.Commands;
 /// <summary>
 /// Provides data about command execution.
 /// </summary>
-/// <remarks>
-/// Creates a new <see cref="CommandExecutedEventArgs"/>.
-/// </remarks>
 /// <param name="command">
 /// <inheritdoc cref="Command" path="/summary"/>
 /// </param>

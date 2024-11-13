@@ -3,9 +3,6 @@
 /// <summary>
 /// Localizes a string or displays a fallback.
 /// </summary>
-/// <remarks>
-/// Creates a new <see cref="NeedsLocalization"/>.
-/// </remarks>
 /// <param name="key">
 /// <inheritdoc cref="Key" path="/summary"/>
 /// </param>

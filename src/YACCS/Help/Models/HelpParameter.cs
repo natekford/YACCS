@@ -13,9 +13,6 @@ namespace YACCS.Help.Models;
 /// <summary>
 /// Information to display about a parameter in a help command.
 /// </summary>
-/// <remarks>
-/// Creates a new <see cref="HelpParameter"/>.
-/// </remarks>
 /// <param name="item">The parameter to present information about.</param>
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 public class HelpParameter(IImmutableParameter item)

@@ -7,9 +7,6 @@ namespace YACCS.Parsing;
 /// <summary>
 /// Handles joining and splitting strings.
 /// </summary>
-/// <remarks>
-/// Creates a new <see cref="ArgumentHandler"/>.
-/// </remarks>
 /// <param name="separator">The character to treat as a space.</param>
 /// <param name="start">The characters to treat as the start of a quote.</param>
 /// <param name="end">The characters to treat as the end of a quote.</param>

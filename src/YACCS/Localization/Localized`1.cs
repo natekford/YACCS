@@ -20,9 +20,6 @@ public static class Localized
 /// Creates an instance of a specified value for each culture.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-/// <remarks>
-/// Creates a new <see cref="Localized{T}"/>.
-/// </remarks>
 /// <param name="valueFactory"></param>
 public sealed class Localized<T>(Func<CultureInfo, T> valueFactory)
 	: IReadOnlyDictionary<CultureInfo, T>

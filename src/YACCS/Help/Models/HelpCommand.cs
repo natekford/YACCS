@@ -13,9 +13,6 @@ namespace YACCS.Help.Models;
 /// <summary>
 /// Information to display about a command in a help command.
 /// </summary>
-/// <remarks>
-/// Creates a new <see cref="HelpCommand"/>.
-/// </remarks>
 /// <param name="item">The command to present information about.</param>
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 public class HelpCommand(IImmutableCommand item)

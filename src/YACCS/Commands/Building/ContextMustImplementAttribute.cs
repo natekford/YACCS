@@ -9,9 +9,6 @@ namespace YACCS.Commands.Building;
 /// <summary>
 /// Specifies what types a context must implement.
 /// </summary>
-/// <remarks>
-/// Creates a new <see cref="ContextMustImplementAttribute"/>.
-/// </remarks>
 /// <param name="types">
 /// <inheritdoc cref="Types" path="/summary"/>
 /// </param>

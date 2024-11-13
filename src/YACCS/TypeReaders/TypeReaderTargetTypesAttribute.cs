@@ -7,9 +7,6 @@ namespace YACCS.TypeReaders;
 /// <summary>
 /// Allows for specifying what types a type reader targets.
 /// </summary>
-/// <remarks>
-/// Creates a new <see cref="TypeReaderTargetTypesAttribute"/>.
-/// </remarks>
 /// <param name="types">
 /// <inheritdoc cref="TargetTypes" path="/summary"/>
 /// </param>

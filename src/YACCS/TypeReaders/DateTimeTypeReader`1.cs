@@ -15,9 +15,6 @@ public delegate bool DateTimeDelegate<T>(
 /// Parses a <typeparamref name="T"/> via <see cref="DateTimeDelegate{T}"/>.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-/// <remarks>
-/// Creates a new <see cref="DateTimeTypeReader{T}"/>.
-/// </remarks>
 /// <param name="delegate">The delegate to use when parsing.</param>
 public class DateTimeTypeReader<T>(DateTimeDelegate<T> @delegate)
 	: TryParseTypeReader<T>(Convert(@delegate))

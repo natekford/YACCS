@@ -6,9 +6,6 @@ namespace YACCS.Localization;
 /// <summary>
 /// Wrapper for a <see cref="ResourceManager"/>.
 /// </summary>
-/// <remarks>
-/// Creates a new <see cref="ResourceManagerLocalizer"/>.
-/// </remarks>
 /// <param name="resourceManager">The resource manager to use for localization.</param>
 public sealed class ResourceManagerLocalizer(ResourceManager resourceManager)
 	: ILocalizer

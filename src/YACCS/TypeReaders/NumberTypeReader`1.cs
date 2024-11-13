@@ -15,9 +15,6 @@ public delegate bool NumberDelegate<T>(
 /// Parses a <typeparamref name="T"/> via <see cref="NumberDelegate{T}"/>.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-/// <remarks>
-/// Creates a new <see cref="NumberTypeReader{T}"/>.
-/// </remarks>
 /// <param name="delegate">The delegate to use when parsing.</param>
 public class NumberTypeReader<T>(NumberDelegate<T> @delegate)
 	: TryParseTypeReader<T>(Convert(@delegate))

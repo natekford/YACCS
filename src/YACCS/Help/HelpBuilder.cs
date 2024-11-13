@@ -16,9 +16,6 @@ namespace YACCS.Help;
 /// <summary>
 /// Builds a string that represents a command.
 /// </summary>
-/// <remarks>
-/// Creates a new <see cref="HelpBuilder"/>.
-/// </remarks>
 /// <param name="context">
 /// <inheritdoc cref="Context" path="/summary"/>
 /// </param>

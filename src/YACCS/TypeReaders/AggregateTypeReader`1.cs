@@ -13,9 +13,6 @@ namespace YACCS.TypeReaders;
 /// Parses a <typeparamref name="T"/> via the wrapped type readers.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-/// <remarks>
-/// Creates a new <see cref="AggregateTypeReader{T}"/>.
-/// </remarks>
 /// <param name="readers">The type readers to wrap.</param>
 public sealed class AggregateTypeReader<T>(IEnumerable<ITypeReader<T>> readers)
 	: TypeReader<T>

@@ -144,9 +144,6 @@ public static class CommandCreationUtils
 	/// <summary>
 	/// Contains a newly created command and the <see cref="Type"/> which defined it.
 	/// </summary>
-	/// <remarks>
-	/// Creates a new <see cref="ImmutableReflectionCommand"/>.
-	/// </remarks>
 	/// <param name="DefiningType">
 	/// The newly created command.
 	/// </param>

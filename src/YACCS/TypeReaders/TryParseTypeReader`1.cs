@@ -27,9 +27,6 @@ public delegate bool TryParseDelegate<TValue>(
 /// Parses a <typeparamref name="TValue"/> via <see cref="TryParseDelegate{TValue}"/>.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
-/// <remarks>
-/// Creates a new <see cref="TryParseTypeReader{TValue}"/>.
-/// </remarks>
 /// <param name="delegate">The delegate to use when parsing.</param>
 public class TryParseTypeReader<TValue>(TryParseDelegate<TValue> @delegate)
 	: TypeReader<TValue>

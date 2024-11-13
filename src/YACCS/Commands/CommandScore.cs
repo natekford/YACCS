@@ -9,9 +9,6 @@ namespace YACCS.Commands;
 /// <summary>
 /// Contains information signifying the score of parsing a command.
 /// </summary>
-/// <remarks>
-/// Creates a new <see cref="CommandScore"/>.
-/// </remarks>
 /// <param name="Context">
 /// <inheritdoc cref="CommandGroup{TContext}.Context" path="/summary"/>
 /// </param>

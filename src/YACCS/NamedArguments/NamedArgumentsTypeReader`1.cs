@@ -14,19 +14,11 @@ namespace YACCS.NamedArguments;
 public sealed class NamedArgumentsTypeReader<T>
 	: NamedArgumentsTypeReaderBase<T> where T : new()
 {
-	private readonly Action<T, string, object?> _Setter;
+	private readonly Action<T, string, object?> _Setter = ReflectionUtils.CreateDelegate(Setter);
 
 	/// <inheritdoc />
 	protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 		= typeof(T).CreateParamDict(x => x.ParameterName);
-
-	/// <summary>
-	/// Creates an instance of <see cref="NamedArgumentsTypeReader{T}"/>.
-	/// </summary>
-	public NamedArgumentsTypeReader()
-	{
-		_Setter = ReflectionUtils.CreateDelegate(Setter);
-	}
 
 	/// <inheritdoc />
 	protected override void SetProperty(T instance, string property, object? value)

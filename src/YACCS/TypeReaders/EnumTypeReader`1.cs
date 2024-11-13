@@ -13,9 +13,6 @@ public delegate bool EnumDelegate<TEnum>(
 /// Parses a <typeparamref name="TEnum"/> via <see cref="EnumDelegate{TEnum}"/>.
 /// </summary>
 /// <typeparam name="TEnum"></typeparam>
-/// <remarks>
-/// Creates a new <see cref="EnumTypeReader{T}"/>.
-/// </remarks>
 /// <param name="delegate">The delegate to use when parsing.</param>
 public class EnumTypeReader<TEnum>(EnumDelegate<TEnum> @delegate)
 	: TryParseTypeReader<TEnum>(Convert(@delegate))

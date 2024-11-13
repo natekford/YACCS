@@ -14,9 +14,6 @@ public delegate bool TimeSpanDelegate<T>(
 /// Parses a <typeparamref name="T"/> via <see cref="TimeSpanDelegate{T}"/>.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-/// <remarks>
-/// Creates a new <see cref="TimeSpanTypeReader{T}"/>.
-/// </remarks>
 /// <param name="delegate">The delegate to use when parsing.</param>
 public class TimeSpanTypeReader<T>(TimeSpanDelegate<T> @delegate)
 	: TryParseTypeReader<T>(Convert(@delegate))

@@ -5,15 +5,8 @@ namespace YACCS.TypeReaders;
 /// <summary>
 /// Parses a <see cref="Uri"/>.
 /// </summary>
-public class UriTypeReader : TryParseTypeReader<Uri>
+public class UriTypeReader() : TryParseTypeReader<Uri>(TryParse)
 {
-	/// <summary>
-	/// Creates a new <see cref="UriTypeReader"/>.
-	/// </summary>
-	public UriTypeReader() : base(TryParse)
-	{
-	}
-
 	private static bool TryParse(string s, out Uri result)
 	{
 		if (string.IsNullOrWhiteSpace(s))

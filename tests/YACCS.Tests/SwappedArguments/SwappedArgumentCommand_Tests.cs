@@ -25,11 +25,11 @@ public class SwappedArgumentCommand_Tests
 
 		var args = new[]
 		{
-				AMOUNT.ToString(),
-				USER.ToString(),
-				CHANNEL.ToString(),
-				$"\"{TIME}\"",
-			};
+			AMOUNT.ToString(),
+			USER.ToString(),
+			CHANNEL.ToString(),
+			$"\"{TIME}\"",
+		};
 
 		var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 		commandService.CommandExecuted += (e) =>

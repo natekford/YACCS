@@ -116,9 +116,6 @@ public abstract class NamedArgumentsTypeReaderBase<T>
 	/// <summary>
 	/// Contains a result and a dictionary.
 	/// </summary>
-	/// <remarks>
-	/// Creates a new <see cref="DictResult"/>.
-	/// </remarks>
 	/// <param name="Result">
 	/// The result of the parsing.
 	/// </param>

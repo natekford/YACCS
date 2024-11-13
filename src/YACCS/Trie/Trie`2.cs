@@ -11,7 +11,7 @@ namespace YACCS.Trie;
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 public abstract class Trie<TKey, TValue> : ITrie<TKey, TValue>
 {
-	private readonly HashSet<TValue> _Items;
+	private readonly HashSet<TValue> _Items = [];
 	private readonly Node _Root;
 
 	/// <inheritdoc />
@@ -28,7 +28,6 @@ public abstract class Trie<TKey, TValue> : ITrie<TKey, TValue>
 	/// <param name="comparer">The comparer to use when comparing keys.</param>
 	protected Trie(IEqualityComparer<TKey> comparer)
 	{
-		_Items = [];
 		_Root = new(default!, null, comparer);
 	}
 

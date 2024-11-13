@@ -15,19 +15,11 @@ public sealed class NamedArgumentsParameterPrecondition<T>
 	: NamedArgumentsParameterPreconditionBase<T>
 {
 	private static readonly object NotFound = new();
-	private readonly Func<T, string, object> _Getter;
+	private readonly Func<T, string, object> _Getter = ReflectionUtils.CreateDelegate(Getter);
 
 	/// <inheritdoc />
 	protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
-
-	/// <summary>
-	/// Creates an instance of <see cref="NamedArgumentsParameterPrecondition{T}"/>.
-	/// </summary>
-	public NamedArgumentsParameterPrecondition()
-	{
-		Parameters = typeof(T).CreateParamDict(x => x.OriginalParameterName);
-		_Getter = ReflectionUtils.CreateDelegate(Getter);
-	}
+		= typeof(T).CreateParamDict(x => x.OriginalParameterName);
 
 	/// <inheritdoc />
 	protected override bool TryGetProperty(T instance, string property, out object? value)

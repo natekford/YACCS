@@ -19,13 +19,13 @@ public static class PluginUtils
 {
 	/// <summary>
 	/// For each assembly in <paramref name="assemblies"/>, gets each supported culture
-	/// via <see cref="SupportedCulturesAttribute"/> and then creates commands after
+	/// via <see cref="PluginAttribute"/> and then creates commands after
 	/// setting <see cref="CultureInfo.CurrentUICulture"/> to each subsequent culture.
 	/// </summary>
 	/// <param name="assemblies">The assemblies to look through.</param>
 	/// <param name="services">The services to use for dependency injection.</param>
 	/// <returns>A dictionary of cultures and reflected commands.</returns>
-	public static async Task<Dictionary<CultureInfo, List<ImmutableReflectionCommand>>> GetCommandsInSupportedCultures(
+	public static async Task<Dictionary<CultureInfo, List<ImmutableReflectionCommand>>> CreateCommandsInSupportedCultures(
 		this IEnumerable<Assembly> assemblies,
 		IServiceProvider services)
 	{
@@ -33,13 +33,13 @@ public static class PluginUtils
 		var originalCulture = CultureInfo.CurrentUICulture;
 		foreach (var assembly in assemblies)
 		{
-			var attr = assembly.GetCustomAttribute<SupportedCulturesAttribute>();
+			var attr = assembly.GetCustomAttribute<PluginAttribute>();
 			if (attr is null)
 			{
 				continue;
 			}
 
-			foreach (var culture in attr.SupportedCultures)
+			foreach (var culture in attr.SupportedCultures.Select(CultureInfo.GetCultureInfo))
 			{
 				// In case any commands have to be initialized in the culture they're
 				// going to be used in
@@ -60,30 +60,51 @@ public static class PluginUtils
 	}
 
 	/// <summary>
-	/// Gets all instantiators from attributes on an assembly that
-	/// implement <see cref="PluginAttribute{T}"/>.
+	/// Gets all instantiators from <paramref name="pluginAssemblies"/>,
+	/// adds services to <paramref name="serviceCollection"/>,
+	/// and then configures the added services.
 	/// </summary>
-	/// <typeparam name="T">The type of service collection that is being used.</typeparam>
-	/// <param name="assemblies">The assemblies to look through.</param>
-	/// <returns>A list of service instantiators.</returns>
-	public static List<PluginAttribute<T>> GetPlugins<T>(this IEnumerable<Assembly> assemblies)
+	/// <param name="serviceCollection">
+	/// The services to add to, and later create a <see cref="IServiceProvider"/> from.
+	/// </param>
+	/// <param name="pluginAssemblies">The assemblies to treat as plugins.</param>
+	/// <param name="createServiceProvider">
+	/// Creates a <see cref="IServiceProvider"/> from <paramref name="serviceCollection"/>.
+	/// </param>
+	/// <returns></returns>
+	public static async Task InstantiatePlugins<TServiceCollection>(
+		TServiceCollection serviceCollection,
+		IEnumerable<Assembly> pluginAssemblies,
+		Func<TServiceCollection, IServiceProvider> createServiceProvider)
 	{
-		return assemblies
-			.Select(x => x.CustomAttributes.OfType<PluginAttribute<T>>().SingleOrDefault())
+		var plugins = pluginAssemblies
+			.Select(x => x.GetCustomAttribute<PluginAttribute>())
 			.Where(x => x is not null)
 			.ToList();
+
+		foreach (var plugin in plugins)
+		{
+			await plugin.AddServicesAsync(serviceCollection!).ConfigureAwait(false);
+		}
+
+		var serviceProvider = createServiceProvider(serviceCollection);
+		foreach (var plugin in plugins)
+		{
+			await plugin.ConfigureServicesAsync(serviceProvider).ConfigureAwait(false);
+		}
 	}
 
 	/// <summary>
-	/// Loads each assembly and checks if it's marked with
-	/// <see cref="PluginAttribute"/>.
+	/// Loads each assembly and checks if it's marked with <see cref="PluginAttribute"/>.
 	/// </summary>
-	/// <param name="dlls">The dlls to load as plugin assemblies.</param>
+	/// <param name="dllPaths">The dlls to load as plugin assemblies.</param>
 	/// <returns>A dictionary of plugin assemblies.</returns>
-	public static Dictionary<string, Assembly> Load(this IEnumerable<string> dlls)
+	/// <remarks>All assemblies passed into this method will be loaded.</remarks>
+	public static Dictionary<string, Assembly> LoadPluginAssemblies(
+		this IEnumerable<string> dllPaths)
 	{
-		return dlls
-			.Select(x => Assembly.LoadFrom(x))
+		return dllPaths
+			.Select(x => Assembly.Load(x))
 			.Where(x => x.GetCustomAttribute<PluginAttribute>() is not null)
 			.ToDictionary(x => x.FullName, x => x);
 	}

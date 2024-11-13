@@ -12,9 +12,6 @@ namespace YACCS.Help;
 /// <summary>
 /// Formats a command to a string.
 /// </summary>
-/// <remarks>
-/// Creates an instance of <see cref="HelpFormatter"/>.
-/// </remarks>
 /// <param name="typeNames">
 /// <inheritdoc cref="TypeNames" path="/summary"/>
 /// </param>

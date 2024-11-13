@@ -11,9 +11,6 @@ namespace YACCS.Commands;
 /// <summary>
 /// A <see cref="Trie{TKey, TValue}"/> specifically for commands.
 /// </summary>
-/// <remarks>
-/// Creates a new <see cref="CommandTrie"/>.
-/// </remarks>
 /// <param name="readers">
 /// The type readers to search through when determining if each parameter has a
 /// registered type reader.

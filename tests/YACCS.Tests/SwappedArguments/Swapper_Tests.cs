@@ -46,9 +46,9 @@ public class Swapper_Tests
 		var original = Enumerable.Range(0, 10).ToArray();
 
 		var orderings = new List<int[]>
-			{
-				original
-			};
+		{
+			original
+		};
 		foreach (var swapper in Swapper.CreateSwappers(indices))
 		{
 			var copy = original.ToArray();

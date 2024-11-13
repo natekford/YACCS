@@ -8,9 +8,6 @@ namespace YACCS.Results;
 /// The base class of a result which can be localized and must format arguments in
 /// some way at runtime.
 /// </summary>
-/// <remarks>
-/// Creates a new <see cref="LocalizedResult{T}"/>.
-/// </remarks>
 /// <inheritdoc cref="Result(bool, string)"/>
 public class LocalizedResult<T>(
 	bool isSuccess,
