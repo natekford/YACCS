@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Frozen;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -10,26 +13,26 @@ namespace YACCS.SwappedArguments;
 public sealed class Swapper
 {
 	/// <summary>
-	/// The indices that will get swapped.
+	/// The indices to move when going from an unswapped list to swapped list.
 	/// </summary>
-	public ImmutableArray<int> Indices { get; }
+	public FrozenDictionary<int, int> MapBackward { get; }
 	/// <summary>
-	/// The steps to take to swap <see cref="Indices"/>.
+	/// The indices to move when going from a swapped list to unswapped list.
 	/// </summary>
-	public ImmutableArray<(int, int)> Swaps { get; }
+	public FrozenDictionary<int, int> MapForward { get; }
 
 	/// <summary>
 	/// Creates a new <see cref="Swapper"/>.
 	/// </summary>
-	/// <param name="indices">
-	/// <inheritdoc cref="Indices" path="/summary"/>
-	/// </param>
+	/// <param name="indices">The indices to swap.</param>
 	public Swapper(IEnumerable<int> indices)
 	{
-		var copy = indices.ToList();
-		Indices = [.. copy];
+		static void Swap<T>(IList<T> source, int left, int right)
+			=> (source[right], source[left]) = (source[left], source[right]);
 
-		var swaps = new List<(int, int)>();
+		var copy = indices.ToList();
+		var steps = new List<(int, int)>();
+		var max = 0;
 		for (var i = 0; i < copy.Count - 1; ++i)
 		{
 			var minIndex = i;
@@ -41,13 +44,28 @@ public sealed class Swapper
 				}
 			}
 
+			max = Math.Max(max, copy[i]);
 			if (copy[minIndex] != copy[i])
 			{
-				swaps.Add((copy[minIndex], copy[i]));
+				steps.Add((copy[minIndex], copy[i]));
 				Swap(copy, minIndex, i);
 			}
 		}
-		Swaps = [.. swaps];
+
+		var mapForward = new Dictionary<int, int>();
+		var c = 0;
+		foreach (var index in indices)
+		{
+			mapForward[copy[c++]] = index;
+		}
+		MapForward = mapForward.ToFrozenDictionary();
+
+		var mapBackward = new Dictionary<int, int>();
+		foreach (var (key, value) in MapForward)
+		{
+			mapBackward[value] = key;
+		}
+		MapBackward = mapBackward.ToFrozenDictionary();
 	}
 
 	/// <summary>
@@ -102,34 +120,39 @@ public sealed class Swapper
 	}
 
 	/// <summary>
-	/// Swaps the items which have indices in <see cref="Indices"/>.
+	/// Creates a new list with the items in the original order.
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <param name="source">The list to reorder.</param>
-	public void Swap<T>(IList<T> source)
-	{
-		for (var i = 0; i < Swaps.Length; ++i)
-		{
-			Swap(source, Swaps[i]);
-		}
-	}
+	public IReadOnlyList<T> SwapBackwards<T>(IReadOnlyList<T> source)
+		=> new SwapWrapper<T>(source, MapBackward);
 
 	/// <summary>
-	/// Returns the items to their original index.
+	/// Creates a new list with the items in the desired order.
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <param name="source">The list to reorder.</param>
-	public void SwapBack<T>(IList<T> source)
+	public IReadOnlyList<T> SwapForwards<T>(IReadOnlyList<T> source)
+		=> new SwapWrapper<T>(source, MapForward);
+
+	private sealed class SwapWrapper<T>(
+		IReadOnlyList<T> source,
+		FrozenDictionary<int, int> map)
+		: IReadOnlyList<T>
 	{
-		for (var i = Swaps.Length - 1; i >= 0; --i)
+		public int Count => source.Count;
+
+		public T this[int index]
+			=> map.TryGetValue(index, out var i) ? source[i] : source[index];
+
+		public IEnumerator<T> GetEnumerator()
 		{
-			Swap(source, Swaps[i]);
+			for (var i = 0; i < Count; ++i)
+			{
+				yield return this[i];
+			}
 		}
+
+		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}
-
-	private static void Swap<T>(IList<T> source, (int Left, int Right) indices)
-		=> Swap(source, indices.Left, indices.Right);
-
-	private static void Swap<T>(IList<T> source, int left, int right)
-		=> (source[right], source[left]) = (source[left], source[right]);
 }

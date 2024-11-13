@@ -47,7 +47,7 @@ public sealed class GenerateSwappedArgumentsAttribute : Attribute, ICommandGener
 
 		foreach (var swapper in Swapper.CreateSwappers(indices))
 		{
-			yield return new(source, PriorityDifference * swapper.Swaps.Length, swapper);
+			yield return new(source, PriorityDifference * swapper.MapForward.Count, swapper);
 		}
 	}
 }

@@ -12,20 +12,18 @@ public class Swapper_Tests
 	{
 		var indices = new int[] { 4, 2, 3 };
 		var swapper = new Swapper(indices);
-		Assert.IsTrue(indices.SequenceEqual(swapper.Indices));
 
 		var original = Enumerable.Range(0, 10).ToArray();
-		var copy = original.ToArray();
-		swapper.Swap(copy);
+		var copy = swapper.SwapForwards(original);
 
 		var expected = original.ToArray();
-		expected[2] = original[swapper.Indices[0]];
-		expected[3] = original[swapper.Indices[1]];
-		expected[4] = original[swapper.Indices[2]];
+		expected[2] = original[4];
+		expected[3] = original[2];
+		expected[4] = original[3];
 		Assert.IsTrue(expected.SequenceEqual(copy));
 
-		swapper.SwapBack(copy);
-		Assert.IsTrue(original.SequenceEqual(copy));
+		var copy2 = swapper.SwapBackwards(copy);
+		Assert.IsTrue(original.SequenceEqual(copy2));
 	}
 
 	[TestMethod]
@@ -35,7 +33,7 @@ public class Swapper_Tests
 
 		Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
 		{
-			swapper.Swap(new[] { 1 });
+			_ = swapper.SwapForwards(new[] { 0, 1 }).ToList();
 		});
 	}
 
@@ -51,15 +49,26 @@ public class Swapper_Tests
 		};
 		foreach (var swapper in Swapper.CreateSwappers(indices))
 		{
-			var copy = original.ToArray();
-			swapper.Swap(copy);
+			var copy = swapper.SwapForwards(original);
 			Assert.IsFalse(orderings.Any(x => x.SequenceEqual(copy)));
-			orderings.Add(copy);
+			orderings.Add([.. copy]);
 
-			var copy2 = copy.ToArray();
-			swapper.SwapBack(copy2);
+			var copy2 = swapper.SwapBackwards(copy);
 			Assert.IsTrue(original.SequenceEqual(copy2));
 		}
 		Assert.AreEqual(120, orderings.Count);
+	}
+
+	[TestMethod]
+	public void SwapTwoItems_Test()
+	{
+		var swapper = new Swapper(new[] { 1, 0 });
+		var original = new[] { 'a', 'b' };
+
+		var copy = swapper.SwapForwards(original);
+		Assert.IsTrue(new[] { 'b', 'a' }.SequenceEqual(copy));
+
+		var copy2 = swapper.SwapBackwards(copy);
+		Assert.IsTrue(original.SequenceEqual(copy2));
 	}
 }

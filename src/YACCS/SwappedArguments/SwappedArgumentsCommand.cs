@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
@@ -34,20 +32,12 @@ public class SwappedArgumentsCommand : GeneratedCommand
 		Swapper swapper) : base(source, priorityDifference)
 	{
 		_Swapper = swapper;
-
-		var builder = ImmutableArray.CreateBuilder<IImmutableParameter>(Source.Parameters.Count);
-		builder.AddRange(source.Parameters);
-		_Swapper.Swap(builder);
-		Parameters = builder.MoveToImmutable();
+		Parameters = [.. _Swapper.SwapForwards(source.Parameters)];
 	}
 
 	/// <inheritdoc />
 	public override ValueTask<IResult> ExecuteAsync(
 		IContext context,
 		IReadOnlyList<object?> args)
-	{
-		var copy = args.ToArray();
-		_Swapper.SwapBack(copy);
-		return Source.ExecuteAsync(context, copy);
-	}
+		=> Source.ExecuteAsync(context, _Swapper.SwapBackwards(args));
 }

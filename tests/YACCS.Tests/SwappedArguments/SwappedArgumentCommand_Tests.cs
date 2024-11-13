@@ -40,8 +40,7 @@ public class SwappedArgumentCommand_Tests
 
 		foreach (var swapper in Swapper.CreateSwappers(new[] { 1, 2, 3 }))
 		{
-			var copy = args.ToArray();
-			swapper.Swap(copy);
+			var copy = swapper.SwapForwards(args);
 
 			var input = string.Join(' ', copy.Prepend(nameof(CommandsGroup.RemoveMessages)));
 			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
