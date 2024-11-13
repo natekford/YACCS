@@ -27,45 +27,12 @@ public sealed class Swapper
 	/// <param name="indices">The indices to swap.</param>
 	public Swapper(IEnumerable<int> indices)
 	{
-		static void Swap<T>(IList<T> source, int left, int right)
-			=> (source[right], source[left]) = (source[left], source[right]);
+		MapForward = indices
+			.OrderBy(x => x)
+			.Zip(indices, (a, b) => (A: a, B: b))
+			.ToFrozenDictionary(x => x.A, x => x.B);
 
-		var copy = indices.ToList();
-		var steps = new List<(int, int)>();
-		var max = 0;
-		for (var i = 0; i < copy.Count - 1; ++i)
-		{
-			var minIndex = i;
-			for (var j = i + 1; j < copy.Count; ++j)
-			{
-				if (copy[j] < copy[minIndex])
-				{
-					minIndex = j;
-				}
-			}
-
-			max = Math.Max(max, copy[i]);
-			if (copy[minIndex] != copy[i])
-			{
-				steps.Add((copy[minIndex], copy[i]));
-				Swap(copy, minIndex, i);
-			}
-		}
-
-		var mapForward = new Dictionary<int, int>();
-		var c = 0;
-		foreach (var index in indices)
-		{
-			mapForward[copy[c++]] = index;
-		}
-		MapForward = mapForward.ToFrozenDictionary();
-
-		var mapBackward = new Dictionary<int, int>();
-		foreach (var (key, value) in MapForward)
-		{
-			mapBackward[value] = key;
-		}
-		MapBackward = mapBackward.ToFrozenDictionary();
+		MapBackward = MapForward.ToFrozenDictionary(x => x.Value, x => x.Key);
 	}
 
 	/// <summary>
