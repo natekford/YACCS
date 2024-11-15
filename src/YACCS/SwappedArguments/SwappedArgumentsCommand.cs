@@ -16,20 +16,13 @@ public class SwappedArgumentsCommand : GeneratedCommand
 
 	/// <inheritdoc />
 	public override IReadOnlyList<IImmutableParameter> Parameters { get; }
-	/// <inheritdoc />
-	public override int Priority { get; }
 
 	/// <summary>
 	/// Creates a new <see cref="SwappedArgumentsCommand"/>.
 	/// </summary>
 	/// <inheritdoc cref="GeneratedCommand(IImmutableCommand, int)"/>
-	/// <param name="source"></param>
-	/// <param name="priorityDifference"></param>
-	/// <param name="swapper">The swapper to use for swapping arguments.</param>
-	public SwappedArgumentsCommand(
-		IImmutableCommand source,
-		int priorityDifference,
-		Swapper swapper) : base(source, priorityDifference)
+	public SwappedArgumentsCommand(IImmutableCommand source, int priorityDifference, Swapper swapper)
+		: base(source, priorityDifference)
 	{
 		_Swapper = swapper;
 		Parameters = [.. _Swapper.SwapForwards(source.Parameters)];

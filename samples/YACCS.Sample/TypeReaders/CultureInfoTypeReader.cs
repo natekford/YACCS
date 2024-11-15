@@ -3,7 +3,7 @@ using System.Globalization;
 
 using YACCS.TypeReaders;
 
-namespace YACCS.Examples.TypeReaders;
+namespace YACCS.Sample.TypeReaders;
 
 [TypeReaderTargetTypes(typeof(CultureInfo))]
 public class CultureInfoTypeReader : TryParseTypeReader<CultureInfo>

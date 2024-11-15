@@ -4,7 +4,7 @@ using YACCS.Commands;
 using YACCS.Preconditions;
 using YACCS.Results;
 
-namespace YACCS.Examples.Preconditions;
+namespace YACCS.Sample.Preconditions;
 
 public class RangeParameterPrecondition : ParameterPrecondition<IContext, int>
 {

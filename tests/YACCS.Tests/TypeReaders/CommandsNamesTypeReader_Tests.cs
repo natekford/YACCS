@@ -17,10 +17,10 @@ public class CommandsNamesTypeReader_Tests :
 	[TestMethod]
 	public async Task Valid_Test()
 	{
-		var value = await AssertSuccessAsync(new[]
-		{
+		var value = await AssertSuccessAsync(
+		[
 				FakeCommandGroup._Name
-			}).ConfigureAwait(false);
+			]).ConfigureAwait(false);
 		Assert.AreEqual(1, value.Count);
 	}
 

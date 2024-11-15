@@ -9,7 +9,7 @@ using YACCS.Parsing;
 using YACCS.Trie;
 using YACCS.TypeReaders;
 
-namespace YACCS.Examples;
+namespace YACCS.Sample;
 
 public sealed class ConsoleCommandService : CommandService
 {
@@ -58,8 +58,7 @@ public sealed class ConsoleCommandService : CommandService
 		static int Add(int a, int b)
 			=> a + b;
 
-		var paths = new[] { LocalizedPath.New(nameof(Add)) };
-		var add = new DelegateCommand(Add, paths);
+		var add = new DelegateCommand(Add, [LocalizedPath.New(nameof(Add))]);
 		await foreach (var command in add.ToMultipleImmutableAsync(_Services))
 		{
 			Commands.Add(command);

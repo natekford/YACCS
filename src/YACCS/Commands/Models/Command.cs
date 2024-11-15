@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
@@ -26,11 +27,12 @@ public abstract class Command : Entity, IMutableCommand
 	/// <inheritdoc />
 	public IReadOnlyList<IMutableParameter> Parameters { get; protected set; }
 	/// <inheritdoc />
-	public IList<IReadOnlyList<string>> Paths { get; set; }
+	public IList<IReadOnlyList<string>> Paths { get; protected set; } = [];
 	/// <inheritdoc />
-	public IImmutableCommand? Source { get; protected set; }
+	public IImmutableCommand? Source { get; init; }
 	IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
-	IEnumerable<IReadOnlyList<string>> IQueryableCommand.Paths => Paths;
+	IReadOnlyList<IReadOnlyList<string>> IQueryableCommand.Paths
+		=> new ReadOnlyCollection<IReadOnlyList<string>>(Paths);
 	private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 	/// <summary>
@@ -38,13 +40,9 @@ public abstract class Command : Entity, IMutableCommand
 	/// </summary>
 	/// <param name="method"></param>
 	/// <param name="contextType"></param>
-	/// <param name="source"></param>
-	protected Command(MethodInfo method, Type contextType, IImmutableCommand? source)
-		: base(method)
+	protected Command(MethodInfo method, Type contextType) : base(method)
 	{
-		Source = source;
 		ContextType = contextType;
-		Paths = new List<IReadOnlyList<string>>();
 		Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IMutableParameter>();
 	}
 
@@ -106,7 +104,6 @@ public abstract class Command : Entity, IMutableCommand
 		public IImmutableCommand? Source { get; }
 		IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
-		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Paths => Paths;
 		/// <summary>
 		/// The return type for this command.
 		/// </summary>

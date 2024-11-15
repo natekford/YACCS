@@ -2,7 +2,7 @@
 using YACCS.Interactivity.Input;
 using YACCS.TypeReaders;
 
-namespace YACCS.Examples.Interactivity;
+namespace YACCS.Sample.Interactivity;
 
 public sealed class ConsoleInput(
 	IReadOnlyDictionary<Type, ITypeReader> readers,

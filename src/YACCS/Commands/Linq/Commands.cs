@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 
@@ -127,12 +128,9 @@ public static class Commands
 		Type IQueryableCommand.ContextType => actual.ContextType;
 		IReadOnlyList<IMutableParameter> IMutableCommand.Parameters => actual.Parameters;
 		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => actual.Parameters;
-		IList<IReadOnlyList<string>> IMutableCommand.Paths
-		{
-			get => actual.Paths;
-			set => actual.Paths = value;
-		}
-		IEnumerable<IReadOnlyList<string>> IQueryableCommand.Paths => actual.Paths;
+		IList<IReadOnlyList<string>> IMutableCommand.Paths => actual.Paths;
+		IReadOnlyList<IReadOnlyList<string>> IQueryableCommand.Paths
+			=> new ReadOnlyCollection<IReadOnlyList<string>>(actual.Paths);
 		IImmutableCommand? IQueryableCommand.Source => actual.Source;
 		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 

@@ -22,7 +22,7 @@ public class ContextTypeReader_Tests : TypeReader_Tests<OtherContext>
 	public async Task Valid_Test()
 	{
 		var context = new OtherContext();
-		var value = await AssertSuccessAsync(Array.Empty<string>(), context).ConfigureAwait(false);
+		var value = await AssertSuccessAsync([], context).ConfigureAwait(false);
 		Assert.AreEqual(context, value);
 	}
 }

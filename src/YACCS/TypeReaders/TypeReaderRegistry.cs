@@ -79,7 +79,7 @@ public class TypeReaderRegistry : TypeRegistry<ITypeReader>
 		reader.ThrowIfInvalidTypeReader(type);
 		if (type.IsValueType)
 		{
-			_RegisterStruct.MakeGenericMethod(type).Invoke(this, new[] { reader });
+			_RegisterStruct.MakeGenericMethod(type).Invoke(this, [reader]);
 		}
 		else
 		{

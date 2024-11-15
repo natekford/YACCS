@@ -28,38 +28,20 @@ public sealed class ReflectionCommand : Command
 	/// </summary>
 	public MethodInfo Method { get; }
 
-	/// <inheritdoc cref="ReflectionCommand(MethodInfo, IImmutableCommand)"/>
+	/// <inheritdoc cref="ReflectionCommand(MethodInfo)"/>
 	public ReflectionCommand(MethodInfo method)
-		: this(method, method.ReflectedType, null)
+		: this(method, method.ReflectedType)
 	{
 	}
 
-	/// <summary>
-	/// Creates a new <see cref="ReflectionCommand"/>.
-	/// </summary>
-	/// <param name="method">The method to wrap.</param>
-	/// <param name="source">The command this one is being marked as generated from.</param>
-	public ReflectionCommand(MethodInfo method, IImmutableCommand source)
-		: this(method, method.ReflectedType, source)
-	{
-	}
-
-	private ReflectionCommand(
-		MethodInfo method,
-		Type groupType,
-		IImmutableCommand? source)
-		: base(method, GetContextType(groupType), source)
+	private ReflectionCommand(MethodInfo method, Type groupType)
+		: base(method, GetContextType(groupType))
 	{
 		GroupType = groupType;
 		Method = method;
 
 		Attributes.Add(Method);
-
-		// Add in all names
-		foreach (var name in GetFullPaths(groupType, method))
-		{
-			Paths.Add(name);
-		}
+		Paths = GetFullPaths(groupType, method).ToList();
 
 		// Add in all attributes
 		var type = groupType;
@@ -104,12 +86,12 @@ public sealed class ReflectionCommand : Command
 			.GetCustomAttributes(true)
 			.OfType<ICommandAttribute>()
 			.SingleOrDefault()
-			?.Names ?? Enumerable.Empty<string>();
+			?.Names ?? [];
 
 		var output = new List<IEnumerable<string>>(names.Select(x => new[] { x }));
 		if (output.Count == 0)
 		{
-			output.Add(Enumerable.Empty<string>());
+			output.Add([]);
 		}
 
 		var parent = group;
@@ -219,10 +201,10 @@ public sealed class ReflectionCommand : Command
 						);
 					return injector.CreateInjection(context, member);
 				});
-				var body = Expression.Block(new[]
-				{
+				var body = Expression.Block(
+				[
 					group
-				}, setters.Prepend(assignGroup).Append(group));
+				], setters.Prepend(assignGroup).Append(group));
 
 				var lambda = Expression.Lambda<Func<IContext, ICommandGroup>>(
 					body,

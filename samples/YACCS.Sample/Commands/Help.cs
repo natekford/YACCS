@@ -2,13 +2,13 @@
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Building;
 using YACCS.Commands.Models;
-using YACCS.Examples.Preconditions;
 using YACCS.Help;
 using YACCS.Interactivity;
 using YACCS.Results;
+using YACCS.Sample.Preconditions;
 using YACCS.TypeReaders;
 
-namespace YACCS.Examples.Commands;
+namespace YACCS.Sample.Commands;
 
 [Command(nameof(Help))]
 public class Help : ConsoleCommands
@@ -69,10 +69,10 @@ public class Help : ConsoleCommands
 
 			var result = await Input.GetAsync(Context, default(int), new()
 			{
-				Preconditions = new[]
-				{
+				Preconditions =
+				[
 					new RangeParameterPrecondition(1, executableCommands.Count)
-				}
+				]
 			}).ConfigureAwait(false);
 			if (!result.InnerResult.IsSuccess)
 			{

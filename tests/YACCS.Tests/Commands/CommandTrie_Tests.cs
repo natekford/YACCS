@@ -28,7 +28,7 @@ public class CommandTrie_Tests
 	public void AddAndRemove_Test()
 	{
 		var c1 = FakeDelegateCommand.New()
-			.AddPath(new[] { "1" })
+			.AddPath(["1"])
 			.ToImmutable();
 		_Trie.Add(c1);
 		Assert.AreEqual(1, _Trie.Count);
@@ -37,8 +37,8 @@ public class CommandTrie_Tests
 		Assert.AreEqual(1, _Trie.Root["1"].Count);
 
 		var c2 = FakeDelegateCommand.New()
-			.AddPath(new[] { "2" })
-			.AddPath(new[] { "3" })
+			.AddPath(["2"])
+			.AddPath(["3"])
 			.ToImmutable();
 		_Trie.Add(c2);
 		Assert.AreEqual(2, _Trie.Count);
@@ -49,9 +49,9 @@ public class CommandTrie_Tests
 		Assert.AreEqual(1, _Trie.Root["3"].Count);
 
 		var c3 = FakeDelegateCommand.New()
-			.AddPath(new[] { "4", "1" })
-			.AddPath(new[] { "4", "2" })
-			.AddPath(new[] { "4", "3" })
+			.AddPath(["4", "1"])
+			.AddPath(["4", "2"])
+			.AddPath(["4", "3"])
 			.ToImmutable();
 		_Trie.Add(c3);
 		Assert.AreEqual(3, _Trie.Count);
@@ -63,7 +63,7 @@ public class CommandTrie_Tests
 		Assert.AreEqual(1, _Trie.Root["4"]["3"].GetAllDistinctItems().Count);
 
 		var c4 = FakeDelegateCommand.New()
-			.AddPath(new[] { "4", "1" })
+			.AddPath(["4", "1"])
 			.ToImmutable();
 		_Trie.Add(c4);
 		Assert.AreEqual(4, _Trie.Count);
@@ -76,7 +76,7 @@ public class CommandTrie_Tests
 
 		var c5 = FakeDelegateCommand.New()
 			.AddAttribute(new IdAttribute(DUPE_ID))
-			.AddPath(new[] { "5" })
+			.AddPath(["5"])
 			.ToImmutable();
 		_Trie.Add(c5);
 		Assert.AreEqual(5, _Trie.Count);
@@ -85,7 +85,7 @@ public class CommandTrie_Tests
 		Assert.AreEqual(1, _Trie.Root["5"].Count);
 
 		var c6 = FakeDelegateCommand.New()
-			.AddPath(new[] { "4" })
+			.AddPath(["4"])
 			.ToImmutable();
 		Assert.IsTrue(_Trie.Remove(c4));
 		_Trie.Add(c6);
@@ -141,7 +141,7 @@ public class CommandTrie_Tests
 		const int COUNT = 100000;
 		for (var i = 0; i < COUNT; ++i)
 		{
-			command.AddPath(new[] { i.ToString() });
+			command.AddPath([i.ToString()]);
 		}
 		var immutable = command.ToImmutable();
 
@@ -155,7 +155,7 @@ public class CommandTrie_Tests
 	public void Duplicate_Test()
 	{
 		var c1 = FakeDelegateCommand.New()
-			.AddPath(new[] { "a" })
+			.AddPath(["a"])
 			.AddAttribute(new IdAttribute(DUPE_ID))
 			.ToImmutable();
 		_Trie.Add(c1);
@@ -164,7 +164,7 @@ public class CommandTrie_Tests
 		Assert.IsTrue(_Trie.Contains(c1));
 
 		var c2 = FakeDelegateCommand.New()
-			.AddPath(new[] { "a" })
+			.AddPath(["a"])
 			.AddAttribute(new IdAttribute(DUPE_ID))
 			.ToImmutable();
 		Assert.IsFalse(_Trie.Contains(c2));
@@ -172,7 +172,7 @@ public class CommandTrie_Tests
 		Assert.IsTrue(_Trie.Contains(c2));
 
 		var c3 = FakeDelegateCommand.New()
-			.AddPath(new[] { "b" })
+			.AddPath(["b"])
 			.AddAttribute(new IdAttribute(DUPE_ID))
 			.ToImmutable();
 		_Trie.Add(c3);
@@ -180,7 +180,7 @@ public class CommandTrie_Tests
 		Assert.AreEqual(1, _Trie.Root["b"].GetAllDistinctItems().Count);
 		Assert.IsTrue(_Trie.Contains(c3));
 
-		var c4 = new DelegateCommand((string x) => { }, new[] { new[] { "a" } })
+		var c4 = new DelegateCommand((string x) => { }, [["a"]])
 			.AddAttribute(new IdAttribute(DUPE_ID))
 			.ToImmutable();
 		_Trie.Add(c4);
@@ -197,18 +197,18 @@ public class CommandTrie_Tests
 			.ToImmutable();
 		_Trie.Add(c1);
 		var c2 = FakeDelegateCommand.New()
-			.AddPath(new[] { "2" })
-			.AddPath(new[] { "3" })
+			.AddPath(["2"])
+			.AddPath(["3"])
 			.ToImmutable();
 		_Trie.Add(c2);
 		var c3 = FakeDelegateCommand.New()
-			.AddPath(new[] { "4", "1" })
-			.AddPath(new[] { "4", "2" })
-			.AddPath(new[] { "4", "3" })
+			.AddPath(["4", "1"])
+			.AddPath(["4", "2"])
+			.AddPath(["4", "3"])
 			.ToImmutable();
 		_Trie.Add(c3);
 		var c4 = FakeDelegateCommand.New()
-			.AddPath(new[] { "4", "1" })
+			.AddPath(["4", "1"])
 			.ToImmutable();
 		_Trie.Add(c4);
 
@@ -257,7 +257,7 @@ public class CommandTrie_Tests
 		{
 		}
 
-		var command = new DelegateCommand(Delegate, new[] { new[] { "joe" } }, typeof(FakeContext));
+		var command = new DelegateCommand(Delegate, [["joe"]], typeof(FakeContext));
 		command.Parameters[0].TypeReader = new TestTypeReader(typeof(OtherContext));
 		Assert.ThrowsException<ArgumentException>(() =>
 		{
@@ -273,7 +273,7 @@ public class CommandTrie_Tests
 	public void NameWithSeparator_Test()
 	{
 		var command = FakeDelegateCommand.New()
-			.AddPath(new[] { "asdf asdf", "bob" })
+			.AddPath(["asdf asdf", "bob"])
 			.ToImmutable();
 		Assert.ThrowsException<ArgumentException>(() =>
 		{
@@ -296,11 +296,11 @@ public class CommandTrie_Tests
 	public void RemoveInvalidPath_Test()
 	{
 		var command = FakeDelegateCommand.New()
-			.AddPath(new[] { "a", "b" })
+			.AddPath(["a", "b"])
 			.ToImmutable();
 		_Trie.Add(command);
 
-		var extraPath = new ExtraPath(new[] { "a", "c" });
+		var extraPath = new ExtraPath(["a", "c"]);
 		var newPaths = command.Paths.Append(extraPath).ToArray();
 
 		var pathField = command.GetType().BaseType!.GetField(

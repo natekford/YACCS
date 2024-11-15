@@ -30,11 +30,11 @@ public class Swapper_Tests
 	[TestMethod]
 	public void IndexOutOfRange_Test()
 	{
-		var swapper = new Swapper(new[] { 99, 1 });
+		var swapper = new Swapper([99, 1]);
 
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() =>
+		Assert.ThrowsException<IndexOutOfRangeException>(() =>
 		{
-			_ = swapper.SwapForwards(new[] { 0, 1 }).ToList();
+			_ = swapper.SwapForwards([0, 1]).ToList();
 		});
 	}
 
@@ -63,7 +63,7 @@ public class Swapper_Tests
 	[TestMethod]
 	public void SwapTwoItems_Test()
 	{
-		var swapper = new Swapper(new[] { 1, 0 });
+		var swapper = new Swapper([1, 0]);
 		var original = new[] { 'a', 'b' };
 
 		var copy = swapper.SwapForwards(original);

@@ -29,7 +29,7 @@ public sealed class GenerateNamedArgumentsAttribute : Attribute,
 	public ValueTask<IEnumerable<IImmutableCommand>> GenerateCommandsAsync(
 		IServiceProvider services,
 		IImmutableCommand source)
-		=> new(new[] { new NamedArgumentsCommand(source, PriorityDifference) });
+		=> new([new NamedArgumentsCommand(source, PriorityDifference)]);
 
 	/// <inheritdoc />
 	public ITypeReader GenerateTypeReader(Type type)

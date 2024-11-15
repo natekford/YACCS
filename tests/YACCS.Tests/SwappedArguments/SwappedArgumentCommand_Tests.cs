@@ -38,7 +38,7 @@ public class SwappedArgumentCommand_Tests
 			return Task.CompletedTask;
 		};
 
-		foreach (var swapper in Swapper.CreateSwappers(new[] { 1, 2, 3 }))
+		foreach (var swapper in Swapper.CreateSwappers([1, 2, 3]))
 		{
 			var copy = swapper.SwapForwards(args);
 

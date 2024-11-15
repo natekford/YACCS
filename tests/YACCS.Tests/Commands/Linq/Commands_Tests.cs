@@ -23,17 +23,17 @@ public class Commands_Tests
 		FakeDelegateCommand.New().AddAttribute(new IdAttribute(NORM_ID)),
 		new ReflectionCommand(typeof(GroupBase).GetMethod(nameof(GroupBase.CommandParent))!)
 		{
-			Attributes = new List<object>
-				{
+			Attributes =
+				[
 					new IdAttribute(PARENT_ID),
-				},
+				],
 		},
 		new ReflectionCommand(typeof(GroupChild).GetMethod(nameof(GroupChild.CommandChild))!)
 		{
-			Attributes = new List<object>
-				{
+			Attributes =
+				[
 					new IdAttribute(CHILD_ID),
-				},
+				],
 		},
 	];
 
@@ -42,7 +42,7 @@ public class Commands_Tests
 	{
 		var command = _Commands.ById(NORM_ID).Single().AsContext<FakeContext>();
 		Assert.AreEqual(0, command.Paths.Count);
-		command.AddPath(new[] { "joe", "mama" });
+		command.AddPath(["joe", "mama"]);
 		Assert.AreEqual(1, command.Paths.Count);
 	}
 

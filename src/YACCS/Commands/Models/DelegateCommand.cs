@@ -27,26 +27,15 @@ public sealed class DelegateCommand : Command
 		Delegate @delegate,
 		IEnumerable<IReadOnlyList<string>> paths,
 		Type? contextType = null)
-		: this(@delegate, contextType ?? typeof(IContext), null, paths)
-	{
-	}
-
-	/// <summary>
-	/// Creates a new <see cref="DelegateCommand"/>.
-	/// </summary>
-	/// <param name="delegate">The delegate to wrap.</param>
-	/// <param name="source">The command this one is being marked as generated from.</param>
-	public DelegateCommand(Delegate @delegate, IImmutableCommand source)
-		: this(@delegate, source.ContextType, source, source.Paths)
+		: this(@delegate, contextType ?? typeof(IContext), paths)
 	{
 	}
 
 	private DelegateCommand(
 		Delegate @delegate,
 		Type contextType,
-		IImmutableCommand? source,
 		IEnumerable<IReadOnlyList<string>> names)
-		: base(@delegate.Method, contextType, source)
+		: base(@delegate.Method, contextType)
 	{
 		Delegate = @delegate;
 		Paths = [.. names];

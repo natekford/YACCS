@@ -3,7 +3,7 @@
 using YACCS.Commands;
 using YACCS.Results;
 
-namespace YACCS.Examples;
+namespace YACCS.Sample;
 
 public sealed class ConsoleHandler
 {

@@ -3,7 +3,7 @@ using YACCS.Commands.Attributes;
 using YACCS.Commands.Building;
 using YACCS.Commands.Models;
 
-namespace YACCS.Examples.Commands;
+namespace YACCS.Sample.Commands;
 
 public class ConstrainedContextCommands : CommandGroup<IContext>
 {

@@ -1,7 +1,7 @@
 ﻿using YACCS.Interactivity;
 using YACCS.Results;
 
-namespace YACCS.Examples.Interactivity;
+namespace YACCS.Sample.Interactivity;
 
 public static class ConsoleSubscription
 {

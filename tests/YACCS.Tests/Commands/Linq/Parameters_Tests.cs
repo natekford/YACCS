@@ -22,26 +22,26 @@ public class Parameters_Tests
 	[
 		new Parameter(typeof(Child), "", null)
 		{
-			Attributes = new List<object>
-				{
+			Attributes =
+				[
 					new IdAttribute(DUPE_ID),
 					new IdAttribute(CHILD_ID),
-				},
+				],
 		},
 		new Parameter(typeof(Base), "", null)
 		{
-			Attributes = new List<object>
-				{
+			Attributes =
+				[
 					new IdAttribute(DUPE_ID),
 					new IdAttribute(PARENT_ID),
-				},
+				],
 		},
 		new Parameter(typeof(int), "", null)
 		{
-			Attributes = new List<object>
-				{
+			Attributes =
+				[
 					new IdAttribute(NORM_ID),
-				},
+				],
 		},
 		new Parameter(typeof(int), "", null),
 	];

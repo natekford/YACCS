@@ -1,6 +1,6 @@
 ﻿using YACCS.Help;
 
-namespace YACCS.Examples;
+namespace YACCS.Sample;
 
 public sealed class ConsoleTagFormatter(IReadOnlyDictionary<Type, string> names)
 	: TagFormatter

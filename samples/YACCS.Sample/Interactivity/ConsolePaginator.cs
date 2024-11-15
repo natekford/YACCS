@@ -1,7 +1,7 @@
 ﻿using YACCS.Interactivity;
 using YACCS.Interactivity.Pagination;
 
-namespace YACCS.Examples.Interactivity;
+namespace YACCS.Sample.Interactivity;
 
 public sealed class ConsolePaginator(ConsoleHandler console)
 	: Paginator<ConsoleContext, string>

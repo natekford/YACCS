@@ -17,26 +17,26 @@ public class CommandsCategoriesTypeReader_Tests :
 
 	[TestMethod]
 	public async Task Empty_Test()
-		=> await AssertFailureAsync<ParseFailed>(Array.Empty<string>()).ConfigureAwait(false);
+		=> await AssertFailureAsync<ParseFailed>([]).ConfigureAwait(false);
 
 	[TestMethod]
 	public async Task OneCategory_Test()
 	{
-		var value = await AssertSuccessAsync(new[]
-		{
+		var value = await AssertSuccessAsync(
+		[
 			FakeCommandGroup._Category1
-		}).ConfigureAwait(false);
+		]).ConfigureAwait(false);
 		Assert.AreEqual(2, value.Count);
 	}
 
 	[TestMethod]
 	public async Task TwoCategories_Test()
 	{
-		var value = await AssertSuccessAsync(new[]
-		{
+		var value = await AssertSuccessAsync(
+		[
 			FakeCommandGroup._Category1,
 			FakeCommandGroup._Category2
-		}).ConfigureAwait(false);
+		]).ConfigureAwait(false);
 		Assert.AreEqual(1, value.Count);
 	}
 

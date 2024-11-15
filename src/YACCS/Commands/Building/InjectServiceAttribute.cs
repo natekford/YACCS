@@ -35,7 +35,7 @@ public sealed class InjectServiceAttribute : InjectableAttribute
 		var serviceAssign = Expression.Assign(member, serviceCast);
 
 		var ifThen = Expression.IfThen(isType, serviceAssign);
-		var body = Expression.Block(new[] { temp }, tempAssign, ifThen);
+		var body = Expression.Block([temp], tempAssign, ifThen);
 
 		// Catch any exceptions and throw a more informative one
 		var message = $"Failed setting the service '{member.Member}' for " +

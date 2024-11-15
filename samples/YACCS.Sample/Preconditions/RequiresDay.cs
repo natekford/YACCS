@@ -6,7 +6,7 @@ using YACCS.Localization;
 using YACCS.Preconditions;
 using YACCS.Results;
 
-namespace YACCS.Examples.Preconditions;
+namespace YACCS.Sample.Preconditions;
 
 [AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = true, Inherited = true)]
 public class RequiresDay(DayOfWeek day)

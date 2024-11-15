@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 using YACCS.Commands;
 
-namespace YACCS.Examples;
+namespace YACCS.Sample;
 
 public sealed class ConsoleContext : IContext, IDisposable, IMessagable
 {

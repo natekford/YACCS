@@ -20,7 +20,7 @@ public abstract class TypeReader_Tests<T>
 	}
 
 	protected Task<TResult> AssertFailureAsync<TResult>(string input, IContext? context = null)
-		=> AssertFailureAsync<TResult>(new[] { input }, context);
+		=> AssertFailureAsync<TResult>([input], context);
 
 	protected async Task<TResult> AssertFailureAsync<TResult>(string[] input, IContext? context = null)
 	{
@@ -34,7 +34,7 @@ public abstract class TypeReader_Tests<T>
 	}
 
 	protected Task<T> AssertSuccessAsync(string input, IContext? context = null)
-		=> AssertSuccessAsync(new[] { input }, context);
+		=> AssertSuccessAsync([input], context);
 
 	protected async Task<T> AssertSuccessAsync(string[] input, IContext? context = null)
 	{

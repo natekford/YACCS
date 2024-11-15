@@ -11,11 +11,14 @@ namespace YACCS.Commands.Models;
 /// <summary>
 /// A generated command.
 /// </summary>
+/// <param name="source">The source of this generated command.</param>
+/// <param name="priorityDifference">
+/// <inheritdoc cref="PriorityDifference" path="/summary"/>
+/// </param>
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
-public abstract class GeneratedCommand : IImmutableCommand
+public abstract class GeneratedCommand(IImmutableCommand source, int priorityDifference)
+	: IImmutableCommand
 {
-	private readonly int _PriorityDifference;
-
 	/// <inheritdoc />
 	public virtual IReadOnlyList<object> Attributes => Source.Attributes;
 	/// <inheritdoc />
@@ -35,24 +38,16 @@ public abstract class GeneratedCommand : IImmutableCommand
 	/// <inheritdoc />
 	public virtual string PrimaryId => Source.PrimaryId;
 	/// <inheritdoc />
-	public virtual int Priority => Source.Priority - _PriorityDifference;
+	public virtual int Priority => Source.Priority - PriorityDifference;
+	/// <summary>
+	/// The amount to lower the priority by in relation to the source's priority.
+	/// </summary>
+	public virtual int PriorityDifference { get; set; } = priorityDifference;
 	/// <inheritdoc />
-	public IImmutableCommand Source { get; }
+	public IImmutableCommand Source { get; } = source;
 	IEnumerable<object> IQueryableEntity.Attributes => Attributes;
 	IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
-	IEnumerable<IReadOnlyList<string>> IQueryableCommand.Paths => Paths;
 	private string DebuggerDisplay => this.FormatForDebuggerDisplay();
-
-	/// <summary>
-	/// Creates a new <see cref="GeneratedCommand"/>.
-	/// </summary>
-	/// <param name="source">The source of this generated command.</param>
-	/// <param name="priorityDifference">The amount to lower the priority by.</param>
-	protected GeneratedCommand(IImmutableCommand source, int priorityDifference)
-	{
-		Source = source;
-		_PriorityDifference = priorityDifference;
-	}
 
 	/// <inheritdoc />
 	public abstract ValueTask<IResult> ExecuteAsync(

@@ -4,7 +4,6 @@ using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
-using YACCS.Localization;
 using YACCS.Results;
 
 namespace YACCS.Tests.Commands;
@@ -161,7 +160,7 @@ public class CommandService_GetBestMatchAsync_Tests
 		{
 		}
 
-		var commandBuilder = new DelegateCommand(Delegate, Array.Empty<LocalizedPath>(), typeof(FakeContext))
+		var commandBuilder = new DelegateCommand(Delegate, [], typeof(FakeContext))
 			.AsContext<FakeContext>()
 			.AddPrecondition(new FakePrecondition(success))
 			.AddPrecondition(new WasIReachedPrecondition());

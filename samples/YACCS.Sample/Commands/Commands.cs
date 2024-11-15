@@ -1,11 +1,11 @@
 ﻿using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
-using YACCS.Examples.Preconditions;
 using YACCS.Help.Attributes;
 using YACCS.NamedArguments;
 using YACCS.Results;
+using YACCS.Sample.Preconditions;
 
-namespace YACCS.Examples.Commands;
+namespace YACCS.Sample.Commands;
 
 public class Commands : ConsoleCommands
 {

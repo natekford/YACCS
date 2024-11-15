@@ -1,8 +1,8 @@
 ﻿using YACCS.Commands.Attributes;
-using YACCS.Examples.Preconditions;
 using YACCS.Preconditions;
+using YACCS.Sample.Preconditions;
 
-namespace YACCS.Examples.Commands;
+namespace YACCS.Sample.Commands;
 
 public class PreconditionGroupingCommands : ConsoleCommands
 {

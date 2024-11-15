@@ -11,7 +11,7 @@ public interface IMutableCommand : IMutableEntity, IQueryableCommand
 	/// <inheritdoc cref="IQueryableCommand.Parameters"/>
 	new IReadOnlyList<IMutableParameter> Parameters { get; }
 	/// <inheritdoc cref="IQueryableCommand.Paths"/>
-	new IList<IReadOnlyList<string>> Paths { get; set; }
+	new IList<IReadOnlyList<string>> Paths { get; }
 
 	/// <summary>
 	/// Creates a new <see cref="IImmutableCommand"/>.

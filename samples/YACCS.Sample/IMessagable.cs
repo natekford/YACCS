@@ -1,4 +1,4 @@
-﻿namespace YACCS.Examples;
+﻿namespace YACCS.Sample;
 
 public interface IMessagable
 {

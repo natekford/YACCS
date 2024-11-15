@@ -46,7 +46,7 @@ internal static class ExpressionUtils
 			.Single(x => x.GetIndexParameters().Length == 1);
 		var argsCast = method.GetParameters().Select((x, i) =>
 		{
-			var access = Expression.MakeIndex(args, indexer, new[] { Expression.Constant(i) });
+			var access = Expression.MakeIndex(args, indexer, [Expression.Constant(i)]);
 			return Expression.Convert(access, x.ParameterType);
 		});
 
@@ -73,7 +73,7 @@ internal static class ExpressionUtils
 
 		var parameters = instance is ParameterExpression instanceParameter
 			? new[] { instanceParameter, args }
-			: new[] { args };
+			: [args];
 
 		var lambda = Expression.Lambda<T>(
 			body,

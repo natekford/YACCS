@@ -3,13 +3,13 @@
 using System.Reflection;
 
 using YACCS.Commands;
-using YACCS.Examples.Interactivity;
 using YACCS.Help;
 using YACCS.Localization;
 using YACCS.Parsing;
+using YACCS.Sample.Interactivity;
 using YACCS.TypeReaders;
 
-namespace YACCS.Examples;
+namespace YACCS.Sample;
 
 public sealed class Program
 {
@@ -24,7 +24,7 @@ public sealed class Program
 			.AddSingleton<ConsoleHandler>()
 			.AddSingleton<ConsoleInput>()
 			.AddSingleton<ConsolePaginator>()
-			.AddSingleton<IEnumerable<Assembly>>(new[] { typeof(Program).Assembly })
+			.AddSingleton<IEnumerable<Assembly>>([typeof(Program).Assembly])
 			.AddSingleton<ICommandService>(x => x.GetRequiredService<ConsoleCommandService>())
 			.AddSingleton<IArgumentHandler>(x =>
 			{

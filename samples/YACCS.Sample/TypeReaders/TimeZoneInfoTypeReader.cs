@@ -2,7 +2,7 @@
 
 using YACCS.TypeReaders;
 
-namespace YACCS.Examples.TypeReaders;
+namespace YACCS.Sample.TypeReaders;
 
 [TypeReaderTargetTypes(typeof(TimeZoneInfo))]
 public class TimeZoneInfoTypeReader : TryParseTypeReader<TimeZoneInfo>

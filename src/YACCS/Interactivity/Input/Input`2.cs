@@ -17,7 +17,10 @@ namespace YACCS.Interactivity.Input;
 /// </summary>
 /// <typeparam name="TContext"></typeparam>
 /// <typeparam name="TInput"></typeparam>
-public abstract class Input<TContext, TInput>
+/// <param name="typeReaders">
+/// <inheritdoc cref="TypeReaders" path="/summary"/>
+/// </param>
+public abstract class Input<TContext, TInput>(IReadOnlyDictionary<Type, ITypeReader> typeReaders)
 	: Interactivity<TContext, TInput>, IInput<TContext, TInput>
 	where TContext : IContext
 {
@@ -26,25 +29,14 @@ public abstract class Input<TContext, TInput>
 	/// </summary>
 	protected static IImmutableCommand EmptyCommand { get; } = new DelegateCommand(
 		static () => { },
-		new[] { LocalizedPath.New("Input") },
+		[LocalizedPath.New("Input")],
 		typeof(TContext)
 	).ToImmutable();
 
 	/// <summary>
 	/// The type readers used for parsing values.
 	/// </summary>
-	protected IReadOnlyDictionary<Type, ITypeReader> TypeReaders { get; }
-
-	/// <summary>
-	/// Creates a new <see cref="Input{TContext, TInput}"/>.
-	/// </summary>
-	/// <param name="typeReaders">
-	/// <inheritdoc cref="TypeReaders" path="/summary"/>
-	/// </param>
-	protected Input(IReadOnlyDictionary<Type, ITypeReader> typeReaders)
-	{
-		TypeReaders = typeReaders;
-	}
+	protected IReadOnlyDictionary<Type, ITypeReader> TypeReaders { get; } = typeReaders;
 
 	/// <inheritdoc />
 	public virtual Task<ITypeReaderResult<TValue>> GetAsync<TValue>(

@@ -19,7 +19,7 @@ public interface IQueryableCommand : IQueryableEntity
 	/// <summary>
 	/// The full paths that lead to this command.
 	/// </summary>
-	IEnumerable<IReadOnlyList<string>> Paths { get; }
+	IReadOnlyList<IReadOnlyList<string>> Paths { get; }
 	/// <summary>
 	/// The source of this command if this instance is generated.
 	/// </summary>

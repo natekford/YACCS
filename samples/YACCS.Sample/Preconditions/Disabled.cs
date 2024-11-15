@@ -3,7 +3,7 @@ using YACCS.Commands.Models;
 using YACCS.Preconditions;
 using YACCS.Results;
 
-namespace YACCS.Examples.Preconditions;
+namespace YACCS.Sample.Preconditions;
 
 public class Disabled : Precondition<IContext>
 {

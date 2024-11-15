@@ -7,3 +7,6 @@ dotnet_diagnostic.RCS1021.severity = none
 dotnet_diagnostic.RCS1047.severity = none
 
 csharp_style_namespace_declarations=file_scoped:suggestion
+
+# IDE0290: Use primary constructor
+dotnet_diagnostic.IDE0290.severity = none

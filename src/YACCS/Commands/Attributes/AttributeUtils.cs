@@ -37,7 +37,7 @@ public static class AttributeUtils
 	{
 		foreach (var group in precondition.Groups.DefaultIfEmpty(string.Empty))
 		{
-			dict.GetOrAdd(group, _ => new()).Add(precondition);
+			dict.GetOrAdd(group, _ => []).Add(precondition);
 		}
 	}
 

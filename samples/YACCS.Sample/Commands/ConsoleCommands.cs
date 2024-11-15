@@ -2,9 +2,9 @@
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Building;
 using YACCS.Commands.Models;
-using YACCS.Examples.Interactivity;
+using YACCS.Sample.Interactivity;
 
-namespace YACCS.Examples.Commands;
+namespace YACCS.Sample.Commands;
 
 public abstract class ConsoleCommands : CommandGroup<ConsoleContext>
 {
