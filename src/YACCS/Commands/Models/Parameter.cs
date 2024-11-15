@@ -20,6 +20,8 @@ public sealed class Parameter : Entity, IMutableParameter
 {
 	private static readonly object NoDefaultValue = new();
 
+	private ITypeReader? _TypeReader;
+
 	/// <inheritdoc />
 	public object? DefaultValue { get; set; } = NoDefaultValue;
 	/// <inheritdoc />
@@ -41,11 +43,11 @@ public sealed class Parameter : Entity, IMutableParameter
 	/// <inheritdoc />
 	public ITypeReader? TypeReader
 	{
-		get;
+		get => _TypeReader;
 		set
 		{
 			value?.ThrowIfInvalidTypeReader(ParameterType);
-			field = value;
+			_TypeReader = value;
 		}
 	}
 	private string DebuggerDisplay => this.FormatForDebuggerDisplay();
