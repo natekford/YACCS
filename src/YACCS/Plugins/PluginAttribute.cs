@@ -12,7 +12,7 @@ public class PluginAttribute : Attribute
 	/// <summary>
 	/// The languages this assembly supports.
 	/// </summary>
-	public string[] SupportedCultures { get; init; } = [];
+	public virtual string[] SupportedCultures { get; init; } = [];
 
 	/// <summary>
 	/// Adds services to <paramref name="services"/>.

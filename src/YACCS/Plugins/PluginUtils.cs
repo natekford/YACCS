@@ -6,11 +6,10 @@ using System.Reflection;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
-using YACCS.Plugins;
 
 using static YACCS.Commands.CommandCreationUtils;
 
-namespace YACCS.CommandAssemblies;
+namespace YACCS.Plugins;
 
 /// <summary>
 /// Utilities for plugins.
