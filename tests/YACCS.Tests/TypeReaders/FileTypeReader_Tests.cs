@@ -12,7 +12,7 @@ public class FileTypeReader_Tests : TypeReader_Tests<FileInfo>
 
 	[TestMethod]
 	public async Task Empty_Test()
-		=> await AssertFailureAsync<ParseFailed>("").ConfigureAwait(false);
+		=> await AssertFailureAsync<ParseFailed>([""]).ConfigureAwait(false);
 
 	[TestMethod]
 	public async Task Valid_Test()
@@ -21,7 +21,7 @@ public class FileTypeReader_Tests : TypeReader_Tests<FileInfo>
 		Directory.CreateDirectory(Path.GetDirectoryName(path)!);
 		File.Create(path).Dispose();
 
-		await AssertSuccessAsync(path).ConfigureAwait(false);
+		await AssertSuccessAsync([path]).ConfigureAwait(false);
 	}
 
 	private string GetPath(string name)

@@ -17,12 +17,12 @@ public class ArrayTypeReader_Tests : TypeReader_Tests<int[]>
 
 	[TestMethod]
 	public async Task Comma_Test()
-		=> await AssertFailureAsync<ParseFailed>("1,2,3").ConfigureAwait(false);
+		=> await AssertFailureAsync<ParseFailed>(["1,2,3"]).ConfigureAwait(false);
 
 	[TestMethod]
 	public async Task Space_Test()
 	{
-		var value = await AssertSuccessAsync("1 2 3").ConfigureAwait(false);
+		var value = await AssertSuccessAsync(["1 2 3"]).ConfigureAwait(false);
 		Assert.AreEqual(1, value[0]);
 		Assert.AreEqual(2, value[1]);
 		Assert.AreEqual(3, value[2]);

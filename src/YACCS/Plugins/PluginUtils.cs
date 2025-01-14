@@ -21,12 +21,12 @@ public static class PluginUtils
 	/// via <see cref="PluginAttribute"/> and then creates commands after
 	/// setting <see cref="CultureInfo.CurrentUICulture"/> to each subsequent culture.
 	/// </summary>
-	/// <param name="assemblies">The assemblies to look through.</param>
 	/// <param name="services">The services to use for dependency injection.</param>
+	/// <param name="assemblies">The assemblies to look through.</param>
 	/// <returns>A dictionary of cultures and reflected commands.</returns>
 	public static async Task<Dictionary<CultureInfo, List<ImmutableReflectionCommand>>> CreateCommandsInSupportedCultures(
-		this IEnumerable<Assembly> assemblies,
-		IServiceProvider services)
+		this IServiceProvider services,
+		IEnumerable<Assembly> assemblies)
 	{
 		var dict = new Dictionary<CultureInfo, List<ImmutableReflectionCommand>>();
 		var originalCulture = CultureInfo.CurrentUICulture;
@@ -72,7 +72,7 @@ public static class PluginUtils
 	/// </param>
 	/// <returns></returns>
 	public static async Task InstantiatePlugins<TServiceCollection>(
-		TServiceCollection serviceCollection,
+		this TServiceCollection serviceCollection,
 		IEnumerable<Assembly> pluginAssemblies,
 		Func<TServiceCollection, IServiceProvider> createServiceProvider)
 	{
@@ -99,8 +99,7 @@ public static class PluginUtils
 	/// <param name="dllPaths">The dlls to load as plugin assemblies.</param>
 	/// <returns>A dictionary of plugin assemblies.</returns>
 	/// <remarks>All assemblies passed into this method will be loaded.</remarks>
-	public static Dictionary<string, Assembly> LoadPluginAssemblies(
-		this IEnumerable<string> dllPaths)
+	public static Dictionary<string, Assembly> LoadPluginAssemblies(IEnumerable<string> dllPaths)
 	{
 		return dllPaths
 			.Select(x => Assembly.Load(x))

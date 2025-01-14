@@ -12,7 +12,7 @@ public class DirectoryTypeReader_Tests : TypeReader_Tests<DirectoryInfo>
 
 	[TestMethod]
 	public async Task Empty_Test()
-		=> await AssertFailureAsync<ParseFailed>("").ConfigureAwait(false);
+		=> await AssertFailureAsync<ParseFailed>([""]).ConfigureAwait(false);
 
 	[TestMethod]
 	public async Task Valid_Test()
@@ -20,7 +20,7 @@ public class DirectoryTypeReader_Tests : TypeReader_Tests<DirectoryInfo>
 		var path = GetPath("valid");
 		Directory.CreateDirectory(path);
 
-		await AssertSuccessAsync(path).ConfigureAwait(false);
+		await AssertSuccessAsync([path]).ConfigureAwait(false);
 	}
 
 	private string GetPath(string name)

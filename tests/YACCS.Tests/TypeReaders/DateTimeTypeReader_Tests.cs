@@ -13,7 +13,7 @@ public class DateTimeTypeReader_Tests : TypeReader_Tests<DateTime>
 	[TestMethod]
 	public async Task Valid_Test()
 	{
-		var value = await AssertSuccessAsync("01/01/2000 01:01:01.1").ConfigureAwait(false);
+		var value = await AssertSuccessAsync(["01/01/2000 01:01:01.1"]).ConfigureAwait(false);
 		Assert.AreEqual(new DateTime(2000, 1, 1, 1, 1, 1, 100), value);
 	}
 }

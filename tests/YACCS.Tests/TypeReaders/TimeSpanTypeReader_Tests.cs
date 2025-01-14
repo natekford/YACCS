@@ -13,7 +13,7 @@ public class TimeSpanTypeReader_Tests : TypeReader_Tests<TimeSpan>
 	[TestMethod]
 	public async Task Valid_Test()
 	{
-		var value = await AssertSuccessAsync("00:00:01").ConfigureAwait(false);
+		var value = await AssertSuccessAsync(["00:00:01"]).ConfigureAwait(false);
 		Assert.AreEqual(TimeSpan.FromSeconds(1), value);
 	}
 }

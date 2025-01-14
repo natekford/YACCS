@@ -16,7 +16,7 @@ public class EnumTypeReader_Tests : TypeReader_Tests<BindingFlags>
 	public async Task Valid_Test()
 	{
 		const BindingFlags FLAGS = BindingFlags.CreateInstance;
-		var value = await AssertSuccessAsync(FLAGS.ToString()).ConfigureAwait(false);
+		var value = await AssertSuccessAsync([FLAGS.ToString()]).ConfigureAwait(false);
 		Assert.AreEqual(FLAGS, value);
 	}
 }

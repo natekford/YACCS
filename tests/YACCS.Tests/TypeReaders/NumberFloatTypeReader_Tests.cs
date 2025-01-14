@@ -18,7 +18,7 @@ public class NumberFloatTypeReader_Tests : TypeReader_Tests<double>
 	{
 		CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
 
-		await AssertFailureAsync<ParseFailed>("1,234,567").ConfigureAwait(false);
+		await AssertFailureAsync<ParseFailed>(["1,234,567"]).ConfigureAwait(false);
 	}
 
 	[TestMethod]
@@ -27,7 +27,7 @@ public class NumberFloatTypeReader_Tests : TypeReader_Tests<double>
 		CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
 
 		const double VALUE = 1.234;
-		var value = await AssertSuccessAsync(VALUE.ToString()).ConfigureAwait(false);
+		var value = await AssertSuccessAsync([VALUE.ToString()]).ConfigureAwait(false);
 		Assert.AreEqual(VALUE, value);
 	}
 
@@ -37,7 +37,7 @@ public class NumberFloatTypeReader_Tests : TypeReader_Tests<double>
 		CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("de-DE");
 
 		const double VALUE = 1.234;
-		var value = await AssertSuccessAsync(VALUE.ToString()).ConfigureAwait(false);
+		var value = await AssertSuccessAsync([VALUE.ToString()]).ConfigureAwait(false);
 		Assert.AreEqual(VALUE, value);
 	}
 
@@ -45,7 +45,7 @@ public class NumberFloatTypeReader_Tests : TypeReader_Tests<double>
 	public async Task ValidInt_Test()
 	{
 		const int VALUE = 1;
-		var value = await AssertSuccessAsync(VALUE.ToString()).ConfigureAwait(false);
+		var value = await AssertSuccessAsync([VALUE.ToString()]).ConfigureAwait(false);
 		Assert.AreEqual(VALUE, value);
 	}
 }

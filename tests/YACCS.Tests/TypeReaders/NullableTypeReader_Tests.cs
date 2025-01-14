@@ -50,7 +50,7 @@ public class NullableTypeReader_Tests : TypeReader_Tests<int?>
 	public async Task Valid_Test()
 	{
 		const int VALUE = 1;
-		var value = await AssertSuccessAsync(VALUE.ToString()).ConfigureAwait(false);
+		var value = await AssertSuccessAsync([VALUE.ToString()]).ConfigureAwait(false);
 		Assert.AreEqual(VALUE, value);
 	}
 }
