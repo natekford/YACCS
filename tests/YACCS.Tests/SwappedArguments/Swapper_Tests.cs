@@ -32,7 +32,7 @@ public class Swapper_Tests
 	{
 		var swapper = new Swapper([99, 1]);
 
-		Assert.ThrowsException<IndexOutOfRangeException>(() =>
+		Assert.ThrowsExactly<IndexOutOfRangeException>(() =>
 		{
 			_ = swapper.SwapForwards([0, 1]).ToList();
 		});

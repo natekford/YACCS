@@ -60,7 +60,7 @@ public class CommandService_TypeReaders_Tests
 	[TestMethod]
 	public async Task ProcessTypeReaderNotRegistered_Test()
 	{
-		await Assert.ThrowsExceptionAsync<KeyNotFoundException>(async () =>
+		await Assert.ThrowsExactlyAsync<KeyNotFoundException>(async () =>
 		{
 			_ = await RunAsync<DBNull>(1, 0, new[] { "joeba" }).ConfigureAwait(false);
 		}).ConfigureAwait(false);

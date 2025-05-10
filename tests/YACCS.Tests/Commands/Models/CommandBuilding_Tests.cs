@@ -31,7 +31,7 @@ public class CommandBuilding_Tests
 		}
 		Assert.AreEqual(1, concreteType);
 
-		await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
+		await Assert.ThrowsExactlyAsync<ArgumentException>(async () =>
 		{
 			await foreach (var actualCommand in typeof(GroupGeneric<>).GetDirectCommandsAsync(FakeServiceProvider.Instance))
 			{
@@ -42,7 +42,7 @@ public class CommandBuilding_Tests
 	[TestMethod]
 	public void CommandBuildingThrowWhenStructs_Test()
 	{
-		Assert.ThrowsException<ArgumentException>(static () =>
+		Assert.ThrowsExactly<ArgumentException>(static () =>
 		{
 			_ = typeof(GroupStruct).CreateMutableCommands();
 		});
@@ -139,7 +139,7 @@ public class CommandBuilding_Tests
 		{
 		}
 
-		Assert.ThrowsException<ArgumentException>(() =>
+		Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			_ = new DelegateCommand(Delegate, Paths).ToImmutable();
 		});
@@ -154,7 +154,7 @@ public class CommandBuilding_Tests
 		var invalid = commands.ById(RemainderAttributeGroup.INVALID_REMAINDER).SingleOrDefault();
 		Assert.IsNotNull(invalid);
 
-		Assert.ThrowsException<InvalidOperationException>(() =>
+		Assert.ThrowsExactly<InvalidOperationException>(() =>
 		{
 			_ = invalid.ToImmutable();
 		});

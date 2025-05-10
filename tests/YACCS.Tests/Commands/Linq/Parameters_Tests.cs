@@ -58,12 +58,12 @@ public class Parameters_Tests
 	[TestMethod]
 	public void AsParameter_Test()
 	{
-		Assert.ThrowsException<ArgumentNullException>(static () =>
+		Assert.ThrowsExactly<ArgumentNullException>(static () =>
 		{
 			var parameter = default(IQueryableEntity)!.AsParameter();
 		});
 
-		Assert.ThrowsException<ArgumentException>(static () =>
+		Assert.ThrowsExactly<ArgumentException>(static () =>
 		{
 			var command = FakeDelegateCommand.New();
 			var parameter = command.AsParameter();
@@ -84,7 +84,7 @@ public class Parameters_Tests
 		var child_child = child.AsType<Child>();
 		Assert.IsInstanceOfType(child_child, typeof(IParameter<Child>));
 
-		Assert.ThrowsException<ArgumentException>(() =>
+		Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			var parent_child = child.AsType<Base>();
 		});

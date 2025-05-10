@@ -35,7 +35,7 @@ public class ReflectionCommand_Tests
 		var method = typeof(GroupMissingConstructor)
 			.GetMethod(nameof(GroupMissingConstructor.CommandAsync));
 
-		Assert.ThrowsException<ArgumentException>(() =>
+		Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			var command = new ReflectionCommand(method!);
 		});
@@ -47,7 +47,7 @@ public class ReflectionCommand_Tests
 		var method = typeof(GroupMissingInterface)
 			.GetMethod(nameof(GroupMissingInterface.CommandAsync));
 
-		Assert.ThrowsException<ArgumentException>(() =>
+		Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			var command = new ReflectionCommand(method!);
 		});

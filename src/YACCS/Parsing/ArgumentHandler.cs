@@ -49,7 +49,7 @@ public sealed class ArgumentHandler(
 	/// <inheritdoc />
 	public bool TrySplit(ReadOnlySpan<char> input, out ReadOnlyMemory<string> args)
 	{
-		var result = TryParse(input, out var temp);
+		var result = TryParse(input.TrimEnd(), out var temp);
 		args = temp;
 		return result;
 	}

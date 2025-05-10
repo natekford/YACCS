@@ -259,7 +259,7 @@ public class CommandTrie_Tests
 
 		var command = new DelegateCommand(Delegate, [["joe"]], typeof(FakeContext));
 		command.Parameters[0].TypeReader = new TestTypeReader(typeof(OtherContext));
-		Assert.ThrowsException<ArgumentException>(() =>
+		Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			_Trie.Add(command.ToImmutable());
 		});
@@ -275,7 +275,7 @@ public class CommandTrie_Tests
 		var command = FakeDelegateCommand.New()
 			.AddPath(["asdf asdf", "bob"])
 			.ToImmutable();
-		Assert.ThrowsException<ArgumentException>(() =>
+		Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			_Trie.Add(command);
 		});
@@ -286,7 +286,7 @@ public class CommandTrie_Tests
 	{
 		var command = FakeDelegateCommand.New().ToImmutable();
 		Assert.IsFalse(_Trie.Contains(command));
-		Assert.ThrowsException<ArgumentException>(() =>
+		Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			_Trie.Add(command);
 		});

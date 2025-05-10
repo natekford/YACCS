@@ -58,12 +58,12 @@ public class Commands_Tests
 	[TestMethod]
 	public void AsCommand_Test()
 	{
-		Assert.ThrowsException<ArgumentNullException>(static () =>
+		Assert.ThrowsExactly<ArgumentNullException>(static () =>
 		{
 			var command = default(IQueryableEntity)!.AsCommand();
 		});
 
-		Assert.ThrowsException<ArgumentException>(static () =>
+		Assert.ThrowsExactly<ArgumentException>(static () =>
 		{
 			var parameter = new Parameter(typeof(string), "joe", typeof(string));
 			var command = parameter.AsCommand();
@@ -84,7 +84,7 @@ public class Commands_Tests
 		var child_child = child.AsContext<FakeContextChild>();
 		Assert.IsInstanceOfType(child_child, typeof(ICommand<FakeContextChild>));
 
-		Assert.ThrowsException<ArgumentException>(() =>
+		Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			var parent_child = child.AsContext<FakeContext>();
 		});

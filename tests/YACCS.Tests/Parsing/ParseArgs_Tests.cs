@@ -90,4 +90,13 @@ public class ParseArgs_Tests
 		Assert.AreEqual(1, parsed.Length);
 		Assert.AreEqual(INPUT[1..^1], parsed.Span[0]);
 	}
+
+	[TestMethod]
+	public void WhitespaceAtEnd_Test()
+	{
+		const string INPUT = "asdf ";
+		Assert.IsTrue(_Handler.TrySplit(INPUT, out var parsed));
+		Assert.AreEqual(1, parsed.Length);
+		Assert.AreEqual("asdf", parsed.Span[0]);
+	}
 }

@@ -17,7 +17,7 @@ public class ReflectionUtils_Tests
 	[TestMethod]
 	public void CreateDelegateError_Test()
 	{
-		var ex = Assert.ThrowsException<ArgumentException>(() =>
+		var ex = Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			_ = ReflectionUtils.CreateDelegate<Action>(() =>
 			{
@@ -37,7 +37,7 @@ public class ReflectionUtils_Tests
 	[TestMethod]
 	public void CreateInstanceNotInstantiable_Test()
 	{
-		var ex = Assert.ThrowsException<ArgumentException>(() =>
+		var ex = Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			_ = ReflectionUtils.CreateInstance<AbstractClass>(typeof(AbstractClass));
 		});
@@ -47,7 +47,7 @@ public class ReflectionUtils_Tests
 	[TestMethod]
 	public void CreateInstanceWrongType_Test()
 	{
-		var ex = Assert.ThrowsException<ArgumentException>(() =>
+		var ex = Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			_ = ReflectionUtils.CreateInstance<Guid>(typeof(RealClass));
 		});

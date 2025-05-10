@@ -69,7 +69,7 @@ public sealed class Trie_Tests
 
 		await tcs.Task.ConfigureAwait(false);
 
-		await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+		await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () =>
 		{
 			foreach (var _ in collection)
 			{

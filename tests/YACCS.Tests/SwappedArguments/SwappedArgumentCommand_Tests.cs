@@ -63,7 +63,7 @@ public class SwappedArgumentCommand_Tests
 		var commands = typeof(CommandsGroupThrow).GetAllCommandsAsync(FakeServiceProvider.Instance);
 
 		var i = 0;
-		await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+		await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () =>
 		{
 			await foreach (var command in commands)
 			{

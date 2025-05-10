@@ -34,7 +34,7 @@ public class TypeReaderRegistry_Tests
 	[TestMethod]
 	public void InvalidReaderRegistered_Test()
 	{
-		Assert.ThrowsException<ArgumentException>(() =>
+		Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			_Readers.Register(typeof(FakeStruct), new UriTypeReader());
 		});
@@ -46,7 +46,7 @@ public class TypeReaderRegistry_Tests
 		_Readers.Register(typeof(string), new BadStringReader());
 		Assert.IsNotNull(_Readers[typeof(string)]);
 
-		Assert.ThrowsException<ArgumentException>(() =>
+		Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			_Readers.GetTypeReader<string>();
 		});
@@ -55,7 +55,7 @@ public class TypeReaderRegistry_Tests
 	[TestMethod]
 	public void NoReaderRegistered_Test()
 	{
-		Assert.ThrowsException<ArgumentException>(() =>
+		Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			_Readers.GetTypeReader<FakeStruct>();
 		});
@@ -83,7 +83,7 @@ public class TypeReaderRegistry_Tests
 		typed.SetTypeReader(retrieved);
 		Assert.AreEqual(retrieved, typed.TypeReader);
 
-		Assert.ThrowsException<ArgumentException>(() =>
+		Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			_Readers.GetTypeReader<Child>();
 		});

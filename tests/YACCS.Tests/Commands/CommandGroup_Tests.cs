@@ -19,7 +19,7 @@ public sealed class CommandGroup_Tests
 		Group.AfterExecutionAsync(_Command, null!, null!);
 		Group.AfterExecutionAsync(null!, _Context, null!);
 
-		Assert.ThrowsException<ArgumentException>(() =>
+		Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			Group.AfterExecutionAsync(_Command, new OtherContext(), null!);
 		});
@@ -28,17 +28,17 @@ public sealed class CommandGroup_Tests
 	[TestMethod]
 	public async Task BeforeExecution_Test()
 	{
-		Assert.ThrowsException<ArgumentNullException>(() =>
+		Assert.ThrowsExactly<ArgumentNullException>(() =>
 		{
 			Group.BeforeExecutionAsync(_Command, null!);
 		});
 
-		Assert.ThrowsException<ArgumentNullException>(() =>
+		Assert.ThrowsExactly<ArgumentNullException>(() =>
 		{
 			Group.BeforeExecutionAsync(null!, _Context);
 		});
 
-		Assert.ThrowsException<ArgumentException>(() =>
+		Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			Group.BeforeExecutionAsync(_Command, new OtherContext());
 		});
