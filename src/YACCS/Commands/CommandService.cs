@@ -21,6 +21,10 @@ public class CommandService : ICommandService
 	public virtual ITrie<string, IImmutableCommand> Commands { get; }
 	IReadOnlyTrie<string, IImmutableCommand> ICommandService.Commands => Commands;
 	/// <summary>
+	/// The command queue to run commands in.
+	/// </summary>
+	protected virtual ICommandQueue CommandQueue { get; }
+	/// <summary>
 	/// The configuration to use.
 	/// </summary>
 	protected virtual CommandServiceConfig Config { get; }
@@ -53,7 +57,11 @@ public class CommandService : ICommandService
 		Config = config;
 		Readers = readers;
 		Handler = handler;
+
 		Commands = new CommandTrie(readers, config.Separator, config.CommandNameComparer);
+		var commandQueue = new BackgroundCommandQueue();
+		commandQueue.Start(4);
+		CommandQueue = commandQueue;
 	}
 
 	/// <inheritdoc cref="ICommandService.ExecuteAsync(IContext, ReadOnlySpan{char})" />
@@ -79,7 +87,7 @@ public class CommandService : ICommandService
 			// If a command is found and args are parsed, execute command in background
 			if (best.Result.IsSuccess && best.Command is not null && best.Args is not null)
 			{
-				_ = Task.Run(async () =>
+				CommandQueue.Enqueue(async () =>
 				{
 					var e = await this.ExecuteAsync(best.Context, best.Command, best.Args).ConfigureAwait(false);
 					await CommandExecutedAsync(e).ConfigureAwait(false);
