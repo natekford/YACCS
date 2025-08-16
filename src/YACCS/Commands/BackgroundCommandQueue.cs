@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace YACCS.Commands;
@@ -10,10 +10,12 @@ namespace YACCS.Commands;
 /// </summary>
 public class BackgroundCommandQueue : ICommandQueue
 {
+	private readonly Channel<Func<Task>> _Channel = Channel.CreateUnbounded<Func<Task>>(new UnboundedChannelOptions
+	{
+		SingleReader = false,
+		SingleWriter = true,
+	});
 	private readonly List<Exception> _Exceptions = [];
-	// This probably should use a Channel instead, but this is simple enough
-	// to not bother import the nuget package
-	private readonly ConcurrentQueue<Func<Task>> _Queue = [];
 
 	/// <summary>
 	/// Whether or not the queue is currently active.
@@ -21,22 +23,21 @@ public class BackgroundCommandQueue : ICommandQueue
 	public bool IsRunning { get; private set; }
 
 	/// <inheritdoc/>
-	public void Enqueue(Func<Task> command)
+	public ValueTask EnqueueAsync(Func<Task> command)
 	{
 		if (_Exceptions.Count > 0)
 		{
 			throw new AggregateException("A previous enqueued command has had an exception.", _Exceptions);
 		}
 
-		_Queue.Enqueue(command);
+		return _Channel.Writer.WriteAsync(command);
 	}
 
 	/// <summary>
 	/// Starts the queue.
 	/// </summary>
 	/// <param name="parallelCount">The amount of threads to process the queue with.</param>
-	/// <param name="queueCheckDelay">Delay between checking the queue.</param>
-	public void Start(int parallelCount, TimeSpan? queueCheckDelay = null)
+	public void Start(int parallelCount)
 	{
 		if (IsRunning)
 		{
@@ -46,22 +47,17 @@ public class BackgroundCommandQueue : ICommandQueue
 		IsRunning = true;
 		Parallel.For(0, parallelCount, async (_) =>
 		{
-			var delay = queueCheckDelay ?? TimeSpan.FromMilliseconds(25);
 			while (IsRunning)
 			{
-				if (_Queue.TryDequeue(out var func))
+				var func = await _Channel.Reader.ReadAsync().ConfigureAwait(false);
+				try
 				{
-					try
-					{
-						await func.Invoke().ConfigureAwait(false);
-					}
-					catch (Exception e)
-					{
-						_Exceptions.Add(e);
-					}
+					await func.Invoke().ConfigureAwait(false);
 				}
-
-				await Task.Delay(delay).ConfigureAwait(false);
+				catch (Exception e)
+				{
+					_Exceptions.Add(e);
+				}
 			}
 		});
 	}

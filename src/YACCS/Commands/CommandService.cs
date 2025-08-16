@@ -60,7 +60,7 @@ public class CommandService : ICommandService
 
 		Commands = new CommandTrie(readers, config.Separator, config.CommandNameComparer);
 		var commandQueue = new BackgroundCommandQueue();
-		commandQueue.Start(4);
+		commandQueue.Start(parallelCount: 4);
 		CommandQueue = commandQueue;
 	}
 
@@ -85,14 +85,18 @@ public class CommandService : ICommandService
 		{
 			var best = await GetBestMatchAsync(context, args).ConfigureAwait(false);
 			// If a command is found and args are parsed, execute command in background
-			if (best.Result.IsSuccess && best.Command is not null && best.Args is not null)
+			if (!best.Result.IsSuccess || best.Command is null || best.Args is null)
 			{
-				CommandQueue.Enqueue(async () =>
-				{
-					var e = await this.ExecuteAsync(best.Context, best.Command, best.Args).ConfigureAwait(false);
-					await CommandExecutedAsync(e).ConfigureAwait(false);
-				});
+				return best;
 			}
+
+			await CommandQueue.EnqueueAsync(async () =>
+			{
+				// this.ExecuteAsync is covered in try/catches so this should be safe
+				var e = await this.ExecuteAsync(best.Context, best.Command, best.Args).ConfigureAwait(false);
+				// CommandExecuteAsync could throw when disposing the context
+				await CommandExecutedAsync(e).ConfigureAwait(false);
+			}).ConfigureAwait(false);
 			return best;
 		}
 	}
@@ -280,7 +284,7 @@ public class CommandService : ICommandService
 	/// </summary>
 	/// <param name="e">The command executed args.</param>
 	/// <returns></returns>
-	protected virtual Task CommandExecutedAsync(CommandExecutedEventArgs e)
+	protected virtual Task CommandExecutedAsync(CommandExecutedArgs e)
 	{
 		if (e.Context is IAsyncDisposable asyncDisposable)
 		{
@@ -295,16 +299,16 @@ public class CommandService : ICommandService
 
 	/// <summary>
 	/// Executes a command, collects all the exceptions that occurs, and then creates
-	/// <see cref="CommandExecutedEventArgs"/>.
+	/// <see cref="CommandExecutedArgs"/>.
 	/// </summary>
 	/// <param name="context">The context which is executing a command.</param>
 	/// <param name="command">The command being executed.</param>
 	/// <param name="args">The arguments for the command.</param>
 	/// <returns>
-	/// A <see cref="CommandExecutedEventArgs"/> containing the result of this method
+	/// A <see cref="CommandExecutedArgs"/> containing the result of this method
 	/// and any exceptions that occurred.
 	/// </returns>
-	protected virtual async ValueTask<CommandExecutedEventArgs> ExecuteAsync(
+	protected virtual async ValueTask<CommandExecutedArgs> ExecuteAsync(
 		IContext context,
 		IImmutableCommand command,
 		IReadOnlyList<object?> args)

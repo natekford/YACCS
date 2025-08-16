@@ -13,7 +13,7 @@ namespace YACCS.Commands;
 /// For the default implementation of <see cref="CommandService"/>,
 /// these results will only be errors or <see cref="CachedResults.Success"/>.
 /// All command results will get sent to
-/// <see cref="CommandService.CommandExecutedAsync(CommandExecutedEventArgs)"/>.
+/// <see cref="CommandService.CommandExecutedAsync(CommandExecutedArgs)"/>.
 /// </remarks>
 public interface IExecuteResult : INestedResult
 {

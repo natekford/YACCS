@@ -44,7 +44,7 @@ public class CommandService_ExecuteAsync_Tests
 
 		await contextTcs.Task.ConfigureAwait(false);
 		Assert.IsTrue(tcs.Task.IsCompleted);
-		Assert.IsInstanceOfType(tcs.Task.Result, typeof(CommandExecutedEventArgs));
+		Assert.IsInstanceOfType(tcs.Task.Result, typeof(CommandExecutedArgs));
 	}
 
 	[TestMethod]
@@ -153,7 +153,7 @@ public class CommandService_ExecuteAsync_Tests
 		Assert.AreSame(CachedResults.QuoteMismatch, result.InnerResult);
 	}
 
-	private static async ValueTask<(FakeCommandService, FakeContext, TaskCompletionSource<CommandExecutedEventArgs>)> CreateAsync()
+	private static async ValueTask<(FakeCommandService, FakeContext, TaskCompletionSource<CommandExecutedArgs>)> CreateAsync()
 	{
 		var context = new FakeContext
 		{
@@ -167,7 +167,7 @@ public class CommandService_ExecuteAsync_Tests
 		var commands = typeof(CommandsGroup).GetDirectCommandsAsync(context.Services);
 		await commandService.AddRangeAsync(commands).ConfigureAwait(false);
 
-		var tcs = new TaskCompletionSource<CommandExecutedEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
+		var tcs = new TaskCompletionSource<CommandExecutedArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
 		commandService.CommandExecuted = e =>
 		{
 			tcs.SetResult(e);

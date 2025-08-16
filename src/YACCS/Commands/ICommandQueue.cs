@@ -12,5 +12,5 @@ public interface ICommandQueue
 	/// Adds a command to the queue so it can be executed.
 	/// </summary>
 	/// <param name="command">The command to add to the queue.</param>
-	void Enqueue(Func<Task> command);
+	ValueTask EnqueueAsync(Func<Task> command);
 }

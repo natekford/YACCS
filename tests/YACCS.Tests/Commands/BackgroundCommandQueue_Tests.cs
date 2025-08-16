@@ -13,6 +13,19 @@ public sealed class BackgroundCommandQueue_Tests
 	private readonly BackgroundCommandQueue _Queue = new();
 
 	[TestMethod]
+	public async Task Blocking_Test()
+	{
+		_Queue.Start(1);
+
+		await _Queue.EnqueueAsync(() => Task.Delay(-1)).ConfigureAwait(false);
+		var i = 0;
+		await _Queue.EnqueueAsync(() => Task.FromResult(++i)).ConfigureAwait(false);
+		await Task.Delay(100).ConfigureAwait(false);
+
+		Assert.AreEqual(0, i);
+	}
+
+	[TestMethod]
 	public async Task Delay_Test()
 	{
 		_Queue.Start(2);
@@ -22,7 +35,7 @@ public sealed class BackgroundCommandQueue_Tests
 		var sw = Stopwatch.StartNew();
 		var items = new ConcurrentDictionary<int, long>();
 		var tcs1 = new TaskCompletionSource();
-		_Queue.Enqueue(async () =>
+		await _Queue.EnqueueAsync(async () =>
 		{
 			await Task.Delay(DELAY).ConfigureAwait(false);
 			items[1] = sw.ElapsedMilliseconds;
@@ -30,8 +43,8 @@ public sealed class BackgroundCommandQueue_Tests
 			{
 				tcs1.TrySetResult();
 			}
-		});
-		_Queue.Enqueue(async () =>
+		}).ConfigureAwait(false);
+		await _Queue.EnqueueAsync(async () =>
 		{
 			await Task.Delay(DELAY).ConfigureAwait(false);
 			items[2] = sw.ElapsedMilliseconds;
@@ -39,14 +52,14 @@ public sealed class BackgroundCommandQueue_Tests
 			{
 				tcs1.TrySetResult();
 			}
-		});
+		}).ConfigureAwait(false);
 
 		await tcs1.Task.ConfigureAwait(false);
 		Assert.HasCount(2, items);
 
 		var tcs2 = new TaskCompletionSource();
 		var tcs3 = new TaskCompletionSource();
-		_Queue.Enqueue(async () =>
+		await _Queue.EnqueueAsync(async () =>
 		{
 			await Task.Delay(DELAY).ConfigureAwait(false);
 			items[3] = sw.ElapsedMilliseconds;
@@ -54,8 +67,8 @@ public sealed class BackgroundCommandQueue_Tests
 			{
 				tcs2.TrySetResult();
 			}
-		});
-		_Queue.Enqueue(async () =>
+		}).ConfigureAwait(false);
+		await _Queue.EnqueueAsync(async () =>
 		{
 			await Task.Delay(DELAY).ConfigureAwait(false);
 			items[4] = sw.ElapsedMilliseconds;
@@ -63,8 +76,8 @@ public sealed class BackgroundCommandQueue_Tests
 			{
 				tcs2.TrySetResult();
 			}
-		});
-		_Queue.Enqueue(async () =>
+		}).ConfigureAwait(false);
+		await _Queue.EnqueueAsync(async () =>
 		{
 			await Task.Delay(DELAY).ConfigureAwait(false);
 			items[5] = sw.ElapsedMilliseconds;
@@ -76,7 +89,7 @@ public sealed class BackgroundCommandQueue_Tests
 			{
 				tcs3.SetException(new Exception("tcs3 not set"));
 			}
-		});
+		}).ConfigureAwait(false);
 
 		await tcs2.Task.ConfigureAwait(false);
 		Assert.HasCount(4, items);
@@ -95,10 +108,10 @@ public sealed class BackgroundCommandQueue_Tests
 	{
 		_Queue.Start(1);
 
-		_Queue.Enqueue(() => throw new Exception());
-		await Task.Delay(25).ConfigureAwait(false);
+		await _Queue.EnqueueAsync(() => throw new Exception()).ConfigureAwait(false);
+		await Task.Delay(50).ConfigureAwait(false);
 
 		Assert.ThrowsExactly<AggregateException>(
-			() => _Queue.Enqueue(() => Task.CompletedTask));
+			() => _Queue.EnqueueAsync(() => Task.CompletedTask));
 	}
 }

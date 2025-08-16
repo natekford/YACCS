@@ -10,9 +10,9 @@ public sealed class FakeCommandService(
 	IReadOnlyDictionary<Type, ITypeReader> readers
 ) : CommandService(config, handler, readers)
 {
-	public Func<CommandExecutedEventArgs, Task>? CommandExecuted { get; set; }
+	public Func<CommandExecutedArgs, Task>? CommandExecuted { get; set; }
 
-	protected override async Task CommandExecutedAsync(CommandExecutedEventArgs e)
+	protected override async Task CommandExecutedAsync(CommandExecutedArgs e)
 	{
 		if (CommandExecuted != null)
 		{

@@ -24,5 +24,6 @@
 		</PackageReference>
 		<PackageReference Include="MorseCode.ITask" Version="2.0.3" />
 		<PackageReference Include="System.Collections.Immutable" Version="9.0.4" />
+		<PackageReference Include="System.Threading.Channels" Version="9.0.8" />
 	</ItemGroup>
 </Project>
