@@ -24,7 +24,7 @@ public class CommandService_GetBestMatchAsync_Tests
 			1
 		).ConfigureAwait(false);
 
-		Assert.IsFalse(result.Result.IsSuccess);
+		Assert.IsFalse(result.InnerResult.IsSuccess);
 		Assert.AreEqual(CommandStage.FailedTypeReader, result.Stage);
 		Assert.AreEqual(1, result.Index);
 
@@ -43,7 +43,7 @@ public class CommandService_GetBestMatchAsync_Tests
 			0
 		).ConfigureAwait(false);
 
-		Assert.IsFalse(result.Result.IsSuccess);
+		Assert.IsFalse(result.InnerResult.IsSuccess);
 		Assert.AreEqual(CommandStage.FailedParameterPrecondition, result.Stage);
 		Assert.AreEqual(1, result.Index);
 
@@ -62,7 +62,7 @@ public class CommandService_GetBestMatchAsync_Tests
 			0
 		).ConfigureAwait(false);
 
-		Assert.IsFalse(result.Result.IsSuccess);
+		Assert.IsFalse(result.InnerResult.IsSuccess);
 		Assert.AreEqual(CommandStage.FailedPrecondition, result.Stage);
 		Assert.AreEqual(0, result.Index);
 
@@ -81,7 +81,7 @@ public class CommandService_GetBestMatchAsync_Tests
 			0
 		).ConfigureAwait(false);
 
-		Assert.IsFalse(result.Result.IsSuccess);
+		Assert.IsFalse(result.InnerResult.IsSuccess);
 		Assert.AreEqual(CommandStage.FailedTypeReader, result.Stage);
 		Assert.AreEqual(0, result.Index);
 
@@ -99,7 +99,7 @@ public class CommandService_GetBestMatchAsync_Tests
 			new[] { "a" },
 			0
 		).ConfigureAwait(false);
-		Assert.IsFalse(score.Result.IsSuccess);
+		Assert.IsFalse(score.InnerResult.IsSuccess);
 		Assert.AreEqual(CommandStage.BadContext, score.Stage);
 	}
 
@@ -116,9 +116,9 @@ public class CommandService_GetBestMatchAsync_Tests
 				Array.Empty<string>(),
 				0
 			).ConfigureAwait(false);
-			Assert.IsFalse(score.Result.IsSuccess);
+			Assert.IsFalse(score.InnerResult.IsSuccess);
 			Assert.AreEqual(CommandStage.BadArgCount, score.Stage);
-			Assert.AreSame(CachedResults.NotEnoughArgs, score.Result);
+			Assert.AreSame(CachedResults.NotEnoughArgs, score.InnerResult);
 		}
 
 		// Too many
@@ -129,9 +129,9 @@ public class CommandService_GetBestMatchAsync_Tests
 				new[] { "a", "b", "c", "d", "e", "f" },
 				0
 			).ConfigureAwait(false);
-			Assert.IsFalse(score.Result.IsSuccess);
+			Assert.IsFalse(score.InnerResult.IsSuccess);
 			Assert.AreEqual(CommandStage.BadArgCount, score.Stage);
-			Assert.AreSame(CachedResults.TooManyArgs, score.Result);
+			Assert.AreSame(CachedResults.TooManyArgs, score.InnerResult);
 		}
 	}
 
@@ -146,7 +146,7 @@ public class CommandService_GetBestMatchAsync_Tests
 			0
 		).ConfigureAwait(false);
 
-		Assert.IsTrue(result.Result.IsSuccess);
+		Assert.IsTrue(result.InnerResult.IsSuccess);
 		Assert.AreEqual(CommandStage.CanExecute, result.Stage);
 		Assert.AreEqual(1, result.Index);
 

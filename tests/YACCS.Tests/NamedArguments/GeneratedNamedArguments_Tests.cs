@@ -43,8 +43,9 @@ public class GeneratedNamedArguments_Tests
 			$" {CommandsGroup.I}: -1" +
 			$" {CommandsGroup.S}: {STRING}" +
 			$" {CommandsGroup.D}: {DOUBLE}";
-		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+		await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
+		var result = await commandService.CommandNotExecuted.Task.ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
 		Assert.AreSame(CachedResults.InvalidParameter, result.InnerResult);
 	}
@@ -58,8 +59,9 @@ public class GeneratedNamedArguments_Tests
 			$" {CommandsGroup.I}: asdf" +
 			$" {CommandsGroup.S}: {STRING}" +
 			$" {CommandsGroup.D}: {DOUBLE}";
-		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+		await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
+		var result = await commandService.CommandNotExecuted.Task.ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
 		Assert.IsInstanceOfType<ParseFailed>(result.InnerResult);
 	}
@@ -83,8 +85,9 @@ public class GeneratedNamedArguments_Tests
 		var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
 		var input = $"{nameof(CommandsGroup.Test)} {DOUBLE}";
-		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+		await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
+		var result = await commandService.CommandNotExecuted.Task.ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
 		Assert.AreSame(CachedResults.NotEnoughArgs, result.InnerResult);
 	}
@@ -108,8 +111,9 @@ public class GeneratedNamedArguments_Tests
 		var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
 		var input = $"{nameof(CommandsGroup.Test)} {DOUBLE} {INT} {STRING} a b c d";
-		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+		await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
+		var result = await commandService.CommandNotExecuted.Task.ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
 		Assert.AreSame(CachedResults.TooManyArgs, result.InnerResult);
 	}
@@ -124,8 +128,9 @@ public class GeneratedNamedArguments_Tests
 			$" {CommandsGroup.I}: {INT}" +
 			$" {FAKE_NAME}: {STRING}" +
 			$" {CommandsGroup.D}: {DOUBLE}";
-		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+		await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
+		var result = await commandService.CommandNotExecuted.Task.ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
 		Assert.IsInstanceOfType<NamedArgNonExistent>(result.InnerResult);
 		Assert.AreEqual(FAKE_NAME, ((LocalizedResult<string>)result.InnerResult).Value);
@@ -153,8 +158,9 @@ public class GeneratedNamedArguments_Tests
 		var (commandService, setMe, context) = await CreateAsync().ConfigureAwait(false);
 
 		const string INPUT = nameof(CommandsGroup.Test3);
-		var result = await commandService.ExecuteAsync(context, INPUT).ConfigureAwait(false);
+		await commandService.ExecuteAsync(context, INPUT).ConfigureAwait(false);
 
+		var result = await commandService.CommandNotExecuted.Task.ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
 		Assert.IsInstanceOfType<NamedArgMissingValue>(result.InnerResult);
 	}
@@ -167,8 +173,9 @@ public class GeneratedNamedArguments_Tests
 		var input = nameof(CommandsGroup.Test) +
 			$" {CommandsGroup.I}: {INT}" +
 			$" {CommandsGroup.S}: {STRING}";
-		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+		await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
+		var result = await commandService.CommandNotExecuted.Task.ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
 		Assert.IsInstanceOfType<NamedArgMissingValue>(result.InnerResult);
 	}
@@ -208,16 +215,10 @@ public class GeneratedNamedArguments_Tests
 		IContext context,
 		string input)
 	{
-		var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-		commandService.CommandExecuted += (e) =>
-		{
-			tcs.SetResult();
-			return Task.CompletedTask;
-		};
+		await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
-		var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+		var result = await commandService.CommandExecuted.Task.ConfigureAwait(false);
 		Assert.IsTrue(result.InnerResult.IsSuccess);
-		await tcs.Task.ConfigureAwait(false);
 	}
 
 	private class CommandsGroup : CommandGroup<IContext>

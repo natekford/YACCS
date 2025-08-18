@@ -80,16 +80,16 @@ public class Commands_Tests
 		var child = _Commands.ById(CHILD_ID).Single();
 
 		var child_parent = parent.AsContext<FakeContextChild>();
-		Assert.IsInstanceOfType(child_parent, typeof(ICommand<FakeContextChild>));
+		Assert.IsInstanceOfType<ICommand<FakeContextChild>>(child_parent);
 		var child_child = child.AsContext<FakeContextChild>();
-		Assert.IsInstanceOfType(child_child, typeof(ICommand<FakeContextChild>));
+		Assert.IsInstanceOfType<ICommand<FakeContextChild>>(child_child);
 
 		Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			var parent_child = child.AsContext<FakeContext>();
 		});
 		var parent_parent = parent.AsContext<FakeContext>();
-		Assert.IsInstanceOfType(parent_parent, typeof(ICommand<FakeContext>));
+		Assert.IsInstanceOfType<ICommand<FakeContext>>(parent_parent);
 	}
 
 	[TestMethod]

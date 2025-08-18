@@ -25,7 +25,7 @@ public class ReflectionCommand_Tests
 				.BuildServiceProvider(),
 		};
 
-		var result = await command.ExecuteAsync(context, Array.Empty<object?>()).ConfigureAwait(false);
+		var result = await command.ExecuteAsync(context, []).ConfigureAwait(false);
 		Assert.IsTrue(result.IsSuccess);
 	}
 

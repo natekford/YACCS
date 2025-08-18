@@ -13,7 +13,7 @@ public class BackgroundCommandQueue : ICommandQueue
 	private readonly Channel<Func<Task>> _Channel = Channel.CreateUnbounded<Func<Task>>(new UnboundedChannelOptions
 	{
 		SingleReader = false,
-		SingleWriter = true,
+		SingleWriter = false,
 	});
 	private readonly List<Exception> _Exceptions = [];
 

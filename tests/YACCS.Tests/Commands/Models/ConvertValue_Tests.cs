@@ -17,11 +17,11 @@ public class ConvertValue_Tests
 		{
 			++value;
 			return new ValueResult(value);
-		}, Array.Empty<LocalizedPath>()).ToImmutable();
+		}, []).ToImmutable();
 		var results = new[]
 		{
 			await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
-			await command.ExecuteAsync(null!, Array.Empty<object>()).ConfigureAwait(false),
+			await command.ExecuteAsync(null!, []).ConfigureAwait(false),
 		};
 
 		Assert.AreEqual(2, value);
@@ -30,7 +30,7 @@ public class ConvertValue_Tests
 			var result = results[i];
 
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsInstanceOfType(result, typeof(ValueResult));
+			Assert.IsInstanceOfType<ValueResult>(result);
 			Assert.AreEqual(i + 1, ((ValueResult)result).Value);
 		}
 	}
@@ -43,11 +43,11 @@ public class ConvertValue_Tests
 		{
 			++value;
 			return Task.CompletedTask;
-		}, Array.Empty<LocalizedPath>()).ToImmutable();
+		}, []).ToImmutable();
 		var results = new[]
 		{
 			await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
-			await command.ExecuteAsync(null!, Array.Empty<object>()).ConfigureAwait(false),
+			await command.ExecuteAsync(null!, []).ConfigureAwait(false),
 		};
 
 		Assert.AreEqual(2, value);
@@ -66,11 +66,11 @@ public class ConvertValue_Tests
 		{
 			++value;
 			return Task.FromResult(value);
-		}, Array.Empty<LocalizedPath>()).ToImmutable();
+		}, []).ToImmutable();
 		var results = new[]
 		{
 			await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
-			await command.ExecuteAsync(null!, Array.Empty<object>()).ConfigureAwait(false),
+			await command.ExecuteAsync(null!, []).ConfigureAwait(false),
 		};
 
 		Assert.AreEqual(2, value);
@@ -79,7 +79,7 @@ public class ConvertValue_Tests
 			var result = results[i];
 
 			Assert.IsTrue(result.IsSuccess);
-			Assert.IsInstanceOfType(result, typeof(ValueResult));
+			Assert.IsInstanceOfType<ValueResult>(result);
 			Assert.AreEqual(i + 1, ((ValueResult)result).Value);
 		}
 	}
@@ -93,11 +93,11 @@ public class ConvertValue_Tests
 			++value;
 			// This can't be () => ++value otherwise it returns the value instead of
 			// being a void delegate
-		}, Array.Empty<LocalizedPath>()).ToImmutable();
+		}, []).ToImmutable();
 		var results = new[]
 		{
 			await command.ExecuteAsync(null!, null!).ConfigureAwait(false),
-			await command.ExecuteAsync(null!, Array.Empty<object>()).ConfigureAwait(false),
+			await command.ExecuteAsync(null!, []).ConfigureAwait(false),
 		};
 
 		Assert.AreEqual(2, value);

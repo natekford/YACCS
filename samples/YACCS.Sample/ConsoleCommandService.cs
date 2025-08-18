@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 
@@ -6,6 +7,7 @@ using YACCS.Commands;
 using YACCS.Commands.Models;
 using YACCS.Localization;
 using YACCS.Parsing;
+using YACCS.Results;
 using YACCS.Trie;
 using YACCS.TypeReaders;
 
@@ -41,15 +43,21 @@ public sealed class ConsoleCommandService : CommandService
 	public Task InitializeAsync()
 		=> _Initialize.GetCurrent().Value;
 
-	protected override Task CommandExecutedAsync(CommandExecutedArgs e)
+	protected override Task CommandExecutedAsync(CommandExecutedResult e)
 	{
-		_Console.WriteResult(e.Result);
+		_Console.WriteResult(e.InnerResult);
 		var exceptions = string.Join(Environment.NewLine, e.GetAllExceptions());
 		if (!string.IsNullOrWhiteSpace(exceptions))
 		{
 			_Console.WriteLine(exceptions, ConsoleColor.Red);
 		}
 		return base.CommandExecutedAsync(e);
+	}
+
+	protected override Task CommandNotExecutedAsync(CommandScore score)
+	{
+		_Console.WriteResult(score);
+		return base.CommandNotExecutedAsync(score);
 	}
 
 	private async Task AddDelegateCommandsAsync()

@@ -65,44 +65,37 @@ public class CommandService : ICommandService
 	}
 
 	/// <inheritdoc cref="ICommandService.ExecuteAsync(IContext, ReadOnlySpan{char})" />
-	/// <returns>A failure result or <see cref="CachedResults.Success"/>.</returns>
-	/// <inheritdoc cref="IExecuteResult" path="/remarks"/>
-	public virtual ValueTask<IExecuteResult> ExecuteAsync(
-		IContext context,
-		ReadOnlySpan<char> input)
+	public virtual Task ExecuteAsync(IContext context, ReadOnlySpan<char> input)
 	{
 		if (!Handler.TrySplit(input, out var args))
 		{
-			return new(CommandScore.QuoteMismatch);
+			return CommandNotExecutedAsync(CommandScore.QuoteMismatch);
 		}
 		if (args.Length == 0)
 		{
-			return new(CommandScore.CommandNotFound);
+			return CommandNotExecutedAsync(CommandScore.CommandNotFound);
 		}
 		return ExecuteAsync(context, args);
 
-		async ValueTask<IExecuteResult> ExecuteAsync(IContext context, ReadOnlyMemory<string> args)
+		async Task ExecuteAsync(IContext context, ReadOnlyMemory<string> args)
 		{
-			var best = await GetBestMatchAsync(context, args).ConfigureAwait(false);
-			// If a command is found and args are parsed, execute command in background
-			if (!best.Result.IsSuccess || best.Command is null || best.Args is null)
-			{
-				return best;
-			}
-
 			await CommandQueue.EnqueueAsync(async () =>
 			{
+				var best = await GetBestMatchAsync(context, args).ConfigureAwait(false);
+				// If a command is found and args are parsed, execute command in background
+				if (!best.InnerResult.IsSuccess || best.Command is null || best.Args is null)
+				{
+					await CommandNotExecutedAsync(best).ConfigureAwait(false);
+					return;
+				}
+
 				// this.ExecuteAsync is covered in try/catches so this should be safe
 				var e = await this.ExecuteAsync(best.Context, best.Command, best.Args).ConfigureAwait(false);
 				// CommandExecuteAsync could throw when disposing the context
 				await CommandExecutedAsync(e).ConfigureAwait(false);
 			}).ConfigureAwait(false);
-			return best;
 		}
 	}
-
-	Task ICommandService.ExecuteAsync(IContext context, ReadOnlySpan<char> input)
-		=> ExecuteAsync(context, input).AsTask();
 
 	/// <summary>
 	/// Steps through <see cref="Commands"/> and parses each command at every edge it
@@ -132,8 +125,8 @@ public class CommandService : ICommandService
 				// Add 1 to i to account for how we're in a node
 				var score = await GetCommandScoreAsync(context, command, input, i + 1).ConfigureAwait(false);
 				if (Config.MultiMatchHandling == MultiMatchHandling.Error
-					&& best?.Result?.IsSuccess == true
-					&& score.Result.IsSuccess)
+					&& best?.InnerResult?.IsSuccess == true
+					&& score.InnerResult.IsSuccess)
 				{
 					return CommandScore.MultiMatch;
 				}
@@ -282,15 +275,33 @@ public class CommandService : ICommandService
 	/// <summary>
 	/// Called at the very end, handles disposing the context and other cleanup.
 	/// </summary>
-	/// <param name="e">The command executed args.</param>
+	/// <param name="result">The command executed args.</param>
 	/// <returns></returns>
-	protected virtual Task CommandExecutedAsync(CommandExecutedArgs e)
+	protected virtual Task CommandExecutedAsync(CommandExecutedResult result)
 	{
-		if (e.Context is IAsyncDisposable asyncDisposable)
+		if (result.Context is IAsyncDisposable asyncDisposable)
 		{
 			return asyncDisposable.DisposeAsync().AsTask();
 		}
-		else if (e.Context is IDisposable disposable)
+		else if (result.Context is IDisposable disposable)
+		{
+			disposable.Dispose();
+		}
+		return Task.CompletedTask;
+	}
+
+	/// <summary>
+	/// Called when a command is not allowed to execute, handles disposing the context and other cleanup.
+	/// </summary>
+	/// <param name="score"></param>
+	/// <returns></returns>
+	protected virtual Task CommandNotExecutedAsync(CommandScore score)
+	{
+		if (score.Context is IAsyncDisposable asyncDisposable)
+		{
+			return asyncDisposable.DisposeAsync().AsTask();
+		}
+		else if (score.Context is IDisposable disposable)
 		{
 			disposable.Dispose();
 		}
@@ -299,16 +310,16 @@ public class CommandService : ICommandService
 
 	/// <summary>
 	/// Executes a command, collects all the exceptions that occurs, and then creates
-	/// <see cref="CommandExecutedArgs"/>.
+	/// <see cref="CommandExecutedResult"/>.
 	/// </summary>
 	/// <param name="context">The context which is executing a command.</param>
 	/// <param name="command">The command being executed.</param>
 	/// <param name="args">The arguments for the command.</param>
 	/// <returns>
-	/// A <see cref="CommandExecutedArgs"/> containing the result of this method
+	/// A <see cref="CommandExecutedResult"/> containing the result of this method
 	/// and any exceptions that occurred.
 	/// </returns>
-	protected virtual async ValueTask<CommandExecutedArgs> ExecuteAsync(
+	protected virtual async ValueTask<CommandExecutedResult> ExecuteAsync(
 		IContext context,
 		IImmutableCommand command,
 		IReadOnlyList<object?> args)

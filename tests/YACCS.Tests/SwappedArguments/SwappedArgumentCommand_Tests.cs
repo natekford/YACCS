@@ -31,29 +31,21 @@ public class SwappedArgumentCommand_Tests
 			$"\"{TIME}\"",
 		};
 
-		var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-		commandService.CommandExecuted += (e) =>
-		{
-			tcs.SetResult();
-			return Task.CompletedTask;
-		};
-
 		foreach (var swapper in Swapper.CreateSwappers([1, 2, 3]))
 		{
 			var copy = swapper.SwapForwards(args);
 
 			var input = string.Join(' ', copy.Prepend(nameof(CommandsGroup.RemoveMessages)));
-			var result = await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
-			Assert.IsTrue(result.InnerResult.IsSuccess);
+			await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 
-			await tcs.Task.ConfigureAwait(false);
+			await commandService.CommandExecuted.Task.ConfigureAwait(false);
 			Assert.AreEqual(AMOUNT, setMe.Amount);
 			Assert.AreEqual(USER, setMe.User);
 			Assert.AreEqual(CHANNEL, setMe.Channel);
 			Assert.AreEqual(TIME, setMe.Time);
 
 			setMe.Reset();
-			tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+			commandService.CommandExecuted = new(TaskCreationOptions.RunContinuationsAsynchronously);
 		}
 	}
 

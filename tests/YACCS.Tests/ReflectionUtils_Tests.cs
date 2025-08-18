@@ -41,7 +41,7 @@ public class ReflectionUtils_Tests
 		{
 			_ = ReflectionUtils.CreateInstance<AbstractClass>(typeof(AbstractClass));
 		});
-		Assert.IsInstanceOfType(ex.InnerException, typeof(MissingMethodException));
+		Assert.IsInstanceOfType<MissingMethodException>(ex.InnerException);
 	}
 
 	[TestMethod]

@@ -10,14 +10,20 @@ public sealed class FakeCommandService(
 	IReadOnlyDictionary<Type, ITypeReader> readers
 ) : CommandService(config, handler, readers)
 {
-	public Func<CommandExecutedArgs, Task>? CommandExecuted { get; set; }
+	public TaskCompletionSource<CommandExecutedResult> CommandExecuted { get; set; }
+		= new(TaskCreationOptions.RunContinuationsAsynchronously);
+	public TaskCompletionSource<CommandScore> CommandNotExecuted { get; set; }
+		= new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-	protected override async Task CommandExecutedAsync(CommandExecutedArgs e)
+	protected override async Task CommandExecutedAsync(CommandExecutedResult result)
 	{
-		if (CommandExecuted != null)
-		{
-			await CommandExecuted.Invoke(e).ConfigureAwait(false);
-		}
-		await base.CommandExecutedAsync(e).ConfigureAwait(false);
+		CommandExecuted?.SetResult(result);
+		await base.CommandExecutedAsync(result).ConfigureAwait(false);
+	}
+
+	protected override async Task CommandNotExecutedAsync(CommandScore score)
+	{
+		CommandNotExecuted?.SetResult(score);
+		await base.CommandNotExecutedAsync(score).ConfigureAwait(false);
 	}
 }

@@ -37,7 +37,7 @@ public abstract class TypeReader_Tests<T>
 		context ??= Context;
 		var result = await Reader.ReadAsync(context, input).ConfigureAwait(false);
 		Assert.IsTrue(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType(result.Value, typeof(T));
+		Assert.IsInstanceOfType<T>(result.Value);
 		return result.Value!;
 	}
 

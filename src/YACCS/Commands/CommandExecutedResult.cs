@@ -24,19 +24,18 @@ namespace YACCS.Commands;
 /// <param name="DuringException">
 /// The exception which occurred during command execution.
 /// </param>
-/// <param name="Result">
+/// <param name="InnerResult">
 /// <inheritdoc cref="INestedResult.InnerResult" path="/summary" />
 /// </param>
-public record CommandExecutedArgs(
+public record CommandExecutedResult(
 	IImmutableCommand Command,
 	IContext Context,
 	IReadOnlyList<Exception>? BeforeExceptions,
 	IReadOnlyList<Exception>? AfterExceptions,
 	Exception? DuringException,
-	IResult Result
+	IResult InnerResult
 ) : IResult, INestedResult
 {
-	IResult INestedResult.InnerResult => Result;
-	bool IResult.IsSuccess => Result.IsSuccess;
-	string IResult.Response => Result.Response;
+	bool IResult.IsSuccess => InnerResult.IsSuccess;
+	string IResult.Response => InnerResult.Response;
 }

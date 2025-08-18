@@ -64,8 +64,7 @@ public class TypeReaderRegistry_Tests
 	[TestMethod]
 	public async Task RegisterChildTypeReaderToParent_Test()
 	{
-		var reader = new TryParseTypeReader<Child>(
-			(string input, [MaybeNullWhen(false)] out Child output) =>
+		var reader = new TryParseTypeReader<Child>((input, [MaybeNullWhen(false)] out output) =>
 		{
 			output = new Child();
 			return true;
@@ -75,8 +74,8 @@ public class TypeReaderRegistry_Tests
 		var retrieved = _Readers.GetTypeReader<Parent>();
 		var item = await retrieved.ReadAsync(new FakeContext(), new[] { "joe" }).ConfigureAwait(false);
 		Assert.IsNotNull(retrieved);
-		Assert.IsInstanceOfType(item.Value, typeof(Parent));
-		Assert.IsInstanceOfType(item.Value, typeof(Child));
+		Assert.IsInstanceOfType<Parent>(item.Value);
+		Assert.IsInstanceOfType<Child>(item.Value);
 
 		var parameter = new Parameter(typeof(Parent), "joe", null);
 		var typed = parameter.AsType<Parent>();
@@ -92,8 +91,7 @@ public class TypeReaderRegistry_Tests
 	[TestMethod]
 	public void RegisterValueType_Test()
 	{
-		var reader = new TryParseTypeReader<FakeStruct>(
-			(string input, [MaybeNullWhen(false)] out FakeStruct output) =>
+		var reader = new TryParseTypeReader<FakeStruct>((input, [MaybeNullWhen(false)] out output) =>
 		{
 			output = new FakeStruct();
 			return true;
@@ -137,8 +135,7 @@ public class TypeReaderRegistry_Tests
 		{
 			public ITypeReader GenerateTypeReader(Type type)
 			{
-				return new TryParseTypeReader<WillCreateAggregate>(
-					(string input, [MaybeNullWhen(false)] out WillCreateAggregate value) =>
+				return new TryParseTypeReader<WillCreateAggregate>((input, [MaybeNullWhen(false)] out value) =>
 				{
 					var result = double.TryParse(input, out var @double);
 					value = new WillCreateAggregate { DoubleValue = result ? @double : null };
@@ -152,8 +149,7 @@ public class TypeReaderRegistry_Tests
 		{
 			public ITypeReader GenerateTypeReader(Type type)
 			{
-				return new TryParseTypeReader<WillCreateAggregate>(
-					(string input, [MaybeNullWhen(false)] out WillCreateAggregate value) =>
+				return new TryParseTypeReader<WillCreateAggregate>((input, [MaybeNullWhen(false)] out value) =>
 				{
 					var result = int.TryParse(input, out var @int);
 					value = new WillCreateAggregate { IntValue = result ? @int : null };

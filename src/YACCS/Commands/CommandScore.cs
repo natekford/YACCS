@@ -13,7 +13,13 @@ namespace YACCS.Commands;
 /// <inheritdoc cref="CommandGroup{TContext}.Context" path="/summary"/>
 /// </param>
 /// <param name="Command">
-/// <inheritdoc cref="IExecuteResult.Command" path="/summary"/>
+/// <summary>
+/// The command attempting to be executed.
+/// </summary>
+/// <remarks>
+/// This will be <see langword="null"/> if there are string splitting errors
+/// or a command is simply not found.
+/// </remarks>
 /// </param>
 /// <param name="Stage">
 /// Indicates the current stage of command execution.
@@ -21,11 +27,18 @@ namespace YACCS.Commands;
 /// <param name="Index">
 /// Indicates how many segments of the split string have been parsed.
 /// </param>
-/// <param name="Result">
+/// <param name="InnerResult">
 /// <inheritdoc cref="INestedResult.InnerResult" path="/summary"/>
 /// </param>
 /// <param name="Parameter">
-/// <inheritdoc cref="IExecuteResult.Parameter" path="/summary"/>
+/// <summary>
+/// The parameter which had a precondition or type reader fail.
+/// </summary>
+/// <remarks>
+/// This will be <see langword="null"/> if there are no parameter errors.
+/// Otherwise, if a parameter has a parsing error or does not pass each of its
+/// parameter precondition groups, this property will be set.
+/// </remarks>
 /// </param>
 /// <param name="Args">
 /// The arguments for the command.
@@ -37,10 +50,10 @@ public record CommandScore(
 	IImmutableCommand? Command,
 	CommandStage Stage,
 	int Index,
-	IResult Result,
+	IResult InnerResult,
 	IImmutableParameter? Parameter = null,
 	IReadOnlyList<object?>? Args = null
-) : IExecuteResult
+) : IResult, INestedResult
 {
 	/// <summary>
 	/// Indicates that no suitable command was found.
@@ -58,10 +71,11 @@ public record CommandScore(
 	public static CommandScore QuoteMismatch { get; }
 		= new(null!, null, 0, 0, CachedResults.QuoteMismatch);
 
-	private string DebuggerDisplay
-		=> $"Stage = {Stage}, Score = {Index}, Success = {Result.IsSuccess}";
+	bool IResult.IsSuccess => InnerResult.IsSuccess;
+	string IResult.Response => InnerResult.Response;
 
-	IResult INestedResult.InnerResult => Result;
+	private string DebuggerDisplay
+		=> $"Stage = {Stage}, Score = {Index}, Success = {InnerResult.IsSuccess}";
 
 	/// <summary>
 	/// Creates a new <see cref="CommandScore"/> with the stage set to

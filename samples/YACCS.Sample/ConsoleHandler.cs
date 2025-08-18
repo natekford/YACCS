@@ -59,7 +59,7 @@ public sealed class ConsoleHandler
 		Console.ForegroundColor = oldColor;
 	}
 
-	public void WriteResult(IExecuteResult result)
+	public void WriteResult(CommandScore result)
 	{
 		var response = FormatResult(result.InnerResult);
 		if (!string.IsNullOrWhiteSpace(response))

@@ -76,7 +76,7 @@ public static class CommandServiceUtils
 	/// </summary>
 	/// <param name="e">The args to get exceptions from.</param>
 	/// <returns>An enumerable of all the exceptions.</returns>
-	public static IEnumerable<Exception> GetAllExceptions(this CommandExecutedArgs e)
+	public static IEnumerable<Exception> GetAllExceptions(this CommandExecutedResult e)
 	{
 		var enumerable = Enumerable.Empty<Exception>();
 		if (e.BeforeExceptions is not null)

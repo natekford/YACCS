@@ -56,15 +56,15 @@ public class CommandBuilding_Tests
 		Assert.AreEqual(Paths[0], command.Paths[0]);
 		Assert.AreEqual(1, command.Parameters.Count);
 		Assert.AreEqual(1, command.Attributes.Count);
-		Assert.IsInstanceOfType(command.Attributes[0], typeof(Delegate));
+		Assert.IsInstanceOfType<Delegate>(command.Attributes[0]);
 
 		var immutable = command.ToImmutable();
 		var args = new object[] { new FakeContext() };
 		var result = await immutable.ExecuteAsync(null!, args).ConfigureAwait(false);
 		Assert.IsTrue(result.IsSuccess);
-		Assert.IsInstanceOfType(result, typeof(ValueResult));
+		Assert.IsInstanceOfType<ValueResult>(result);
 		Assert.IsTrue(result.TryGetValue(out bool value));
-		Assert.AreEqual(true, value);
+		Assert.IsTrue(value);
 	}
 
 	[TestMethod]
@@ -129,7 +129,7 @@ public class CommandBuilding_Tests
 
 		var immutable = new DelegateCommand(Delegate, Paths).ToImmutable();
 		Assert.AreEqual(1, immutable.Parameters.Count);
-		Assert.IsInstanceOfType(immutable.Parameters[0].TypeReader, typeof(FakeTypeReader));
+		Assert.IsInstanceOfType<FakeTypeReader>(immutable.Parameters[0].TypeReader);
 	}
 
 	[TestMethod]
@@ -196,16 +196,16 @@ public class CommandBuilding_Tests
 		Assert.AreEqual(Paths[0], command.Paths[0]);
 		Assert.AreEqual(1, command.Parameters.Count);
 		Assert.AreEqual(2, command.Attributes.Count);
-		Assert.IsInstanceOfType(command.Attributes[0], typeof(CompilerGeneratedAttribute));
-		Assert.IsInstanceOfType(command.Attributes[1], typeof(Delegate));
+		Assert.IsInstanceOfType<CompilerGeneratedAttribute>(command.Attributes[0]);
+		Assert.IsInstanceOfType<Delegate>(command.Attributes[1]);
 
 		var immutable = command.ToImmutable();
 		var args = new object[] { new FakeContext() };
 		var result = await immutable.ExecuteAsync(null!, args).ConfigureAwait(false);
 		Assert.IsTrue(result.IsSuccess);
-		Assert.IsInstanceOfType(result, typeof(ValueResult));
+		Assert.IsInstanceOfType<ValueResult>(result);
 		Assert.IsTrue(result.TryGetValue(out bool value));
-		Assert.AreEqual(true, value);
+		Assert.IsTrue(value);
 	}
 
 	private struct GroupStruct : ICommandGroup

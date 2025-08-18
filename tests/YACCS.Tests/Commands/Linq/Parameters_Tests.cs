@@ -80,18 +80,18 @@ public class Parameters_Tests
 		var child = _Parameters.ById(CHILD_ID).Single();
 
 		var child_parent = parent.AsType<Child>();
-		Assert.IsInstanceOfType(child_parent, typeof(IParameter<Child>));
+		Assert.IsInstanceOfType<IParameter<Child>>(child_parent);
 		var child_child = child.AsType<Child>();
-		Assert.IsInstanceOfType(child_child, typeof(IParameter<Child>));
+		Assert.IsInstanceOfType<IParameter<Child>>(child_child);
 
 		Assert.ThrowsExactly<ArgumentException>(() =>
 		{
 			var parent_child = child.AsType<Base>();
 		});
 		var parent_parent = parent.AsType<Base>();
-		Assert.IsInstanceOfType(parent_parent, typeof(IParameter<Base>));
+		Assert.IsInstanceOfType<IParameter<Base>>(parent_parent);
 		var parent_child = (IParameter<Child>)parent_parent;
-		Assert.IsInstanceOfType(parent_child, typeof(IParameter<Base>));
+		Assert.IsInstanceOfType<IParameter<Base>>(parent_child);
 	}
 
 	[TestMethod]

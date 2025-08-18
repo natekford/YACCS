@@ -60,8 +60,8 @@ public sealed class Program
 		{
 			var console = _Services.GetRequiredService<ConsoleHandler>();
 			// This has to be inside the while loop to handle creating localized commands
-			var commands = _Services.GetRequiredService<ConsoleCommandService>();
-			await commands.InitializeAsync().ConfigureAwait(false);
+			var commandService = _Services.GetRequiredService<ConsoleCommandService>();
+			await commandService.InitializeAsync().ConfigureAwait(false);
 
 			// Wait until the locks are released so we don't print out the
 			// prompt before the output from the command is printed
@@ -78,13 +78,7 @@ public sealed class Program
 			// Locks get released when context is disposed by CommandFinishedAsync
 			await console.WaitForIOLockAsync().ConfigureAwait(false);
 			var context = new ConsoleContext(_Services.CreateScope(), input);
-			var result = await commands.ExecuteAsync(context, input).ConfigureAwait(false);
-			// If a command cannot be executed, context must be disposed here
-			if (!result.InnerResult.IsSuccess)
-			{
-				context.Dispose();
-			}
-			console.WriteResult(result);
+			await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
 		}
 	}
 }

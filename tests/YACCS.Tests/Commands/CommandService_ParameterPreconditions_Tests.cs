@@ -62,7 +62,7 @@ public class CommandService_ParameterPreconditions_Tests
 		{
 		}
 
-		var commandBuilder = new DelegateCommand(Delegate, Array.Empty<LocalizedPath>());
+		var commandBuilder = new DelegateCommand(Delegate, []);
 		commandBuilder.Parameters[0]
 			.AsType<int>()
 			.AddParameterPrecondition(new FakeParameterPreconditionAttribute(disallowedValue))
