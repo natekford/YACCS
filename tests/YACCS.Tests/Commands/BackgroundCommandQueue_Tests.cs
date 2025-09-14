@@ -97,10 +97,10 @@ public sealed class BackgroundCommandQueue_Tests
 		await tcs3.Task.ConfigureAwait(false);
 		Assert.HasCount(5, items);
 
-		Assert.AreEqual(items[1], items[2], DELAY / 2);
-		Assert.AreNotEqual(items[2], items[3], DELAY);
-		Assert.AreEqual(items[3], items[4], DELAY / 2);
-		Assert.AreNotEqual(items[4], items[5], DELAY);
+		Assert.AreEqual(items[1], items[2], DELAY / 2 * 1.1);
+		Assert.AreNotEqual(items[2], items[3], DELAY * 0.9);
+		Assert.AreEqual(items[3], items[4], DELAY / 2 * 1.1);
+		Assert.AreNotEqual(items[4], items[5], DELAY * 0.9);
 	}
 
 	[TestMethod]
