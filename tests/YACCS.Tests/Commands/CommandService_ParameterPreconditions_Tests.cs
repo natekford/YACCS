@@ -3,7 +3,6 @@
 using YACCS.Commands;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
-using YACCS.Localization;
 
 namespace YACCS.Tests.Commands;
 

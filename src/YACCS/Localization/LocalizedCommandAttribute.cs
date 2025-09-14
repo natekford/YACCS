@@ -28,7 +28,7 @@ public class LocalizedCommandAttribute(IReadOnlyList<string> keys)
 	/// The localized names.
 	/// </summary>
 	protected virtual Localized<IReadOnlyList<string>> Localized { get; }
-		= new(_ => keys.Select(x => Localize.This(x)).ToImmutableArray());
+		= new(_ => [.. keys.Select(x => Localize.This(x))]);
 
 	/// <inheritdoc cref="LocalizedCommandAttribute(IReadOnlyList{string})"/>
 	public LocalizedCommandAttribute(params string[] keys) : this(keys.ToImmutableArray())

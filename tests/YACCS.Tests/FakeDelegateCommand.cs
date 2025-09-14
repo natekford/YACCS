@@ -1,5 +1,4 @@
 ﻿using YACCS.Commands.Models;
-using YACCS.Localization;
 
 namespace YACCS.Tests;
 

@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using YACCS.Commands.Models;
-using YACCS.Localization;
 using YACCS.Results;
 
 namespace YACCS.Tests.Commands.Models;
