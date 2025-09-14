@@ -114,4 +114,24 @@ public sealed class BackgroundCommandQueue_Tests
 		Assert.ThrowsExactly<AggregateException>(
 			() => _Queue.EnqueueAsync(() => Task.CompletedTask));
 	}
+
+	[TestMethod]
+	public async Task Stop_Test()
+	{
+		_Queue.Start(1);
+		_Queue.Stop();
+
+		var a = 0;
+		await _Queue.EnqueueAsync(() =>
+		{
+			a = 1;
+			return Task.CompletedTask;
+		}).ConfigureAwait(false);
+		await Task.Delay(50).ConfigureAwait(false);
+		Assert.AreEqual(0, a);
+
+		_Queue.Start(1);
+		await Task.Delay(50).ConfigureAwait(false);
+		Assert.AreEqual(1, a);
+	}
 }

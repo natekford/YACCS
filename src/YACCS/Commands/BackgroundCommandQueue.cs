@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
@@ -16,11 +17,12 @@ public class BackgroundCommandQueue : ICommandQueue
 		SingleWriter = false,
 	});
 	private readonly List<Exception> _Exceptions = [];
+	private CancellationTokenSource? _Cts;
 
 	/// <summary>
 	/// Whether or not the queue is currently active.
 	/// </summary>
-	public bool IsRunning { get; private set; }
+	public bool IsRunning => !_Cts?.IsCancellationRequested ?? false;
 
 	/// <inheritdoc/>
 	public ValueTask EnqueueAsync(Func<Task> command)
@@ -44,12 +46,22 @@ public class BackgroundCommandQueue : ICommandQueue
 			return;
 		}
 
-		IsRunning = true;
-		Parallel.For(0, parallelCount, async (_) =>
+		_Cts?.Cancel();
+		var cts = _Cts = new();
+		Parallel.For(0, parallelCount, async _ =>
 		{
-			while (IsRunning)
+			while (!cts.IsCancellationRequested)
 			{
-				var func = await _Channel.Reader.ReadAsync().ConfigureAwait(false);
+				Func<Task> func;
+				try
+				{
+					func = await _Channel.Reader.ReadAsync(cts.Token).ConfigureAwait(false);
+				}
+				catch (OperationCanceledException)
+				{
+					break;
+				}
+
 				try
 				{
 					await func.Invoke().ConfigureAwait(false);
@@ -66,5 +78,5 @@ public class BackgroundCommandQueue : ICommandQueue
 	/// Stops the queue.
 	/// </summary>
 	public void Stop()
-		=> IsRunning = false;
+		=> _Cts?.Cancel();
 }
