@@ -43,7 +43,7 @@ public abstract class Command : Entity, IMutableCommand
 	protected Command(MethodInfo method, Type contextType) : base(method)
 	{
 		ContextType = contextType;
-		Parameters = method.GetParameters().Select(x => new Parameter(x)).ToList<IMutableParameter>();
+		Parameters = [.. method.GetParameters().Select(x => new Parameter(x))];
 	}
 
 	/// <inheritdoc />
@@ -82,6 +82,8 @@ public abstract class Command : Entity, IMutableCommand
 
 		/// <inheritdoc />
 		public IReadOnlyList<object> Attributes { get; }
+		/// <inheritdoc />
+		public IReadOnlyCollection<string> Categories { get; }
 		/// <inheritdoc />
 		public Type ContextType { get; }
 		/// <inheritdoc />
@@ -152,6 +154,7 @@ public abstract class Command : Entity, IMutableCommand
 			Parameters = parameters.MoveToImmutable();
 
 			var attributes = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);
+			var categories = new HashSet<string>();
 			// Use ConcurrentDictionary because it has GetOrAdd by default, not threading reasons
 			var preconditions = new ConcurrentDictionary<string, List<IPrecondition>>();
 			var p = 0;
@@ -175,8 +178,13 @@ public abstract class Command : Entity, IMutableCommand
 				{
 					IsHidden = true;
 				}
+				if (attribute is ICategoryAttribute category)
+				{
+					categories.Add(category.Category);
+				}
 			}
 			Attributes = attributes.MoveToImmutable();
+			Categories = categories.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 			Preconditions = preconditions.ToImmutablePreconditions();
 
 			PrimaryId ??= Guid.NewGuid().ToString();

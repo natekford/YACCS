@@ -4,7 +4,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 
 using YACCS.Commands;
-using YACCS.Parsing;
 using YACCS.Results;
 
 namespace YACCS.TypeReaders;
@@ -38,16 +37,10 @@ public class TryParseTypeReader<TValue>(TryParseDelegate<TValue> @delegate)
 		IContext context,
 		ReadOnlyMemory<string> input)
 	{
-		var handler = GetHandler(context.Services);
-
-		if (!_Delegate(handler.Join(input), out var result))
+		if (!_Delegate(Join(context, input), out var result))
 		{
 			return CachedResults<TValue>.ParseFailed.Task;
 		}
 		return Success(result).AsITask();
 	}
-
-	[GetServiceMethod]
-	private static IArgumentHandler GetHandler(IServiceProvider services)
-		=> services.GetRequiredService<IArgumentHandler>();
 }

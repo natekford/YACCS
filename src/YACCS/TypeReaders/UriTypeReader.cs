@@ -24,8 +24,7 @@ public class UriTypeReader() : TryParseTypeReader<Uri>(TryParse)
 				s = s[1..^1];
 			}
 
-			result = new(s);
-			return true;
+			return Uri.TryCreate(s, UriKind.Absolute, out result);
 		}
 		catch
 		{

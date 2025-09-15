@@ -57,9 +57,23 @@ public static class UncachedResults
 	public static NamedArgNonExistent NamedArgNonExistent(string name) => new(name);
 
 	/// <summary>
-	/// Failed to parse an item of type <see cref="Type"/>.
+	/// Successfully parsed but failed to find an item of type <paramref name="type"/>.
+	/// </summary>
+	/// <param name="type">The type that was failed to be found.</param>
+	/// <returns></returns>
+	public static NotFound NotFound(Type type) => new(type);
+
+	/// <summary>
+	/// Failed to parse an item of type <paramref name="type"/>.
 	/// </summary>
 	/// <param name="type">The type that was failed to be parsed.</param>
 	/// <returns></returns>
 	public static ParseFailed ParseFailed(Type type) => new(type);
+
+	/// <summary>
+	/// Successfully parsed but found too many items of type <paramref name="type"/>.
+	/// </summary>
+	/// <param name="type">The type that had too many items found.</param>
+	/// <returns></returns>
+	public static TooManyMatches TooManyMatches(Type type) => new(type);
 }

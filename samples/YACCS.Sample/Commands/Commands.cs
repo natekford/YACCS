@@ -7,6 +7,7 @@ using YACCS.Sample.Preconditions;
 
 namespace YACCS.Sample.Commands;
 
+[Category(nameof(Commands))]
 public class Commands : ConsoleCommands
 {
 	public override string Abstract() => "What's 9 + 10?";

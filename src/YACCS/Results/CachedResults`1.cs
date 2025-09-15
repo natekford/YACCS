@@ -22,12 +22,18 @@ public static class CachedResults<T>
 	/// <inheritdoc cref="CachedResults.NamedArgBadCount"/>
 	public static CachedTypeReaderResult NamedArgBadCount { get; }
 		= new(CachedResults.NamedArgBadCount);
+	/// <inheritdoc cref="UncachedResults.NotFound" />
+	public static CachedTypeReaderResult NotFound { get; }
+		= new(UncachedResults.NotFound(typeof(T)));
 	/// <inheritdoc cref="UncachedResults.ParseFailed"/>
 	public static CachedTypeReaderResult ParseFailed { get; }
 		= new(UncachedResults.ParseFailed(typeof(T)));
 	/// <inheritdoc cref="CachedResults.TimedOut"/>
 	public static CachedTypeReaderResult TimedOut { get; }
 		= new(CachedResults.TimedOut);
+	/// <inheritdoc cref="UncachedResults.TooManyMatches" />
+	public static CachedTypeReaderResult TooManyMatches { get; }
+		= new(UncachedResults.TooManyMatches(typeof(T)));
 
 	/// <summary>
 	/// Holds a result and a task returning that result.

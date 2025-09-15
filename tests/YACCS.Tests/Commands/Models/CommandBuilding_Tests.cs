@@ -19,6 +19,32 @@ public class CommandBuilding_Tests
 	private static string[][] Paths { get; } = [["Joe"]];
 
 	[TestMethod]
+	public async Task CategoryInheritance_Test()
+	{
+		var commands = new List<IImmutableCommand>();
+		await foreach (var (_, command) in typeof(GroupCategoryChild).GetAllCommandsAsync(FakeServiceProvider.Instance))
+		{
+			commands.Add(command);
+		}
+		Assert.AreEqual(1, commands.Count);
+
+		Assert.AreEqual(1, commands.Single().Categories.Count);
+	}
+
+	[TestMethod]
+	public async Task CategorySubclass_Test()
+	{
+		var commands = new List<IImmutableCommand>();
+		await foreach (var (_, command) in typeof(GroupCategoryParent).GetAllCommandsAsync(FakeServiceProvider.Instance))
+		{
+			commands.Add(command);
+		}
+		Assert.AreEqual(1, commands.Count);
+
+		Assert.AreEqual(2, commands.Single().Categories.Count);
+	}
+
+	[TestMethod]
 	public async Task CommandBuildingThrowWhenGenericTypeDefinitions_Test()
 	{
 		var declaredCommands = typeof(GroupGeneric<object>).CreateMutableCommands();
@@ -249,6 +275,23 @@ public class CommandBuilding_Tests
 		[Command(nameof(InheritanceDisallowed), AllowInheritance = false)]
 		[Id(INHERITANCE_DISALLOWED)]
 		public Result InheritanceDisallowed() => CachedResults.Success;
+	}
+
+	private class GroupCategoryChild : GroupCategoryParent
+	{
+		[Command(nameof(Foo))]
+		public Result Foo() => CachedResults.Success;
+	}
+
+	[Category(nameof(GroupCategoryParent))]
+	private class GroupCategoryParent : CommandGroup<FakeContext>
+	{
+		[Category(nameof(GroupCategorySubclass))]
+		public class GroupCategorySubclass : CommandGroup<FakeContext>
+		{
+			[Command(nameof(Bar))]
+			public Result Bar() => CachedResults.Success;
+		}
 	}
 
 	private class GroupChild : GroupBase;

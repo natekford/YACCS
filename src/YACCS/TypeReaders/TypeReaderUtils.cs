@@ -177,22 +177,27 @@ public static class TypeReaderUtils
 			| BindingFlags.NonPublic;
 
 		var args = new[] { services };
-		foreach (var method in reader.GetType().GetMethods(FLAGS))
+		var type = reader.GetType();
+		while (type != null)
 		{
-			if (method.GetCustomAttribute<GetServiceMethodAttribute>() is null)
+			foreach (var method in type.GetMethods(FLAGS))
 			{
-				continue;
-			}
+				if (method.GetCustomAttribute<GetServiceMethodAttribute>() is null)
+				{
+					continue;
+				}
 
-			try
-			{
-				_ = method.Invoke(null, args);
+				try
+				{
+					_ = method.Invoke(null, args);
+				}
+				catch (Exception e)
+				{
+					throw new InvalidOperationException("Unable to get a service for " +
+						$"{method} declared in {method.DeclaringType}.", e);
+				}
 			}
-			catch (Exception e)
-			{
-				throw new InvalidOperationException("Unable to get a service for " +
-					$"{method} declared in {method.DeclaringType}.", e);
-			}
+			type = type.BaseType;
 		}
 	}
 

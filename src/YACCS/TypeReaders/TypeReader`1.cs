@@ -3,6 +3,7 @@
 using System;
 
 using YACCS.Commands;
+using YACCS.Parsing;
 using YACCS.Results;
 
 namespace YACCS.TypeReaders;
@@ -35,4 +36,19 @@ public abstract class TypeReader<TValue> : Attribute, ITypeReader<TValue>
 	/// <inheritdoc cref="TypeReaderResult{T}.FromSuccess(T, int?)"/>
 	protected static ITypeReaderResult<TValue> Success(TValue value, int? successfullyParsedCount = null)
 		=> TypeReaderResult<TValue>.FromSuccess(value, successfullyParsedCount);
+
+	/// <summary>
+	/// Joins the strings in <paramref name="input"/>.
+	/// </summary>
+	/// <param name="context"></param>
+	/// <param name="input"></param>
+	/// <returns></returns>
+	protected virtual string Join(
+		IContext context,
+		ReadOnlyMemory<string> input)
+		=> GetHandler(context.Services).Join(input);
+
+	[GetServiceMethod]
+	private static IArgumentHandler GetHandler(IServiceProvider services)
+		=> services.GetRequiredService<IArgumentHandler>();
 }

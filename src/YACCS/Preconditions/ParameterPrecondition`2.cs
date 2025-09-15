@@ -52,7 +52,7 @@ public abstract class ParameterPrecondition<TContext, TValue>
 		// If the value passed in is null, let CheckAsync deal with it
 		if (value is null)
 		{
-			return CheckAsync(meta, tContext, default!);
+			return CheckNullAsync(meta, tContext);
 		}
 		// Not sure if this is the best way of dealing with IEnumerables
 		//
@@ -74,7 +74,20 @@ public abstract class ParameterPrecondition<TContext, TValue>
 		return new(CachedResults.InvalidParameter);
 	}
 
-	private async ValueTask<IResult> CheckTypedEnumerableAsync(
+	/// <summary>
+	/// Handles a null value.
+	/// </summary>
+	/// <inheritdoc cref="CheckAsync(CommandMeta, TContext, TValue?)"/>
+	protected virtual ValueTask<IResult> CheckNullAsync(
+		CommandMeta meta,
+		TContext context)
+		=> CheckAsync(meta, context, default!);
+
+	/// <summary>
+	/// Checks each value in the enumerable.
+	/// </summary>
+	/// <inheritdoc cref="CheckAsync(CommandMeta, TContext, TValue?)"/>
+	protected virtual async ValueTask<IResult> CheckTypedEnumerableAsync(
 		CommandMeta meta,
 		TContext context,
 		IEnumerable<TValue> values)
@@ -90,7 +103,11 @@ public abstract class ParameterPrecondition<TContext, TValue>
 		return CachedResults.Success;
 	}
 
-	private async ValueTask<IResult> CheckUntypedEnumerableAsync(
+	/// <summary>
+	/// Checks each value in the enumerable.
+	/// </summary>
+	/// <inheritdoc cref="CheckAsync(CommandMeta, TContext, TValue?)"/>
+	protected virtual async ValueTask<IResult> CheckUntypedEnumerableAsync(
 		CommandMeta meta,
 		TContext context,
 		IEnumerable values)

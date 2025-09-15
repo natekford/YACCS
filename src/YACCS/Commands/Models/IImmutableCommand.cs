@@ -13,6 +13,10 @@ namespace YACCS.Commands.Models;
 public interface IImmutableCommand : IImmutableEntity, IQueryableCommand
 {
 	/// <summary>
+	/// The categories this command belongs to.
+	/// </summary>
+	IReadOnlyCollection<string> Categories { get; }
+	/// <summary>
 	/// Whether or not this command should show up for help commands.
 	/// </summary>
 	bool IsHidden { get; }

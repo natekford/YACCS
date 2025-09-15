@@ -44,6 +44,8 @@ public class NamedArgNonExistent(string name) : LocalizedResult<string>(false, K
 
 public class NotEnoughArgs() : LocalizedResult(false, Keys.NotEnoughArgsResult);
 
+public class NotFound(Type type) : LocalizedResult<Type>(false, Keys.NotFoundResult, type);
+
 public class NullParameter() : LocalizedResult(false, Keys.NullParameterResult);
 
 public class ParseFailed(Type type) : LocalizedResult<Type>(false, Keys.ParseFailedResult, type);
@@ -55,3 +57,5 @@ public class Success() : Result(true, string.Empty);
 public class TimedOut() : LocalizedResult(false, Keys.TimedOutResult);
 
 public class TooManyArgs() : LocalizedResult(false, Keys.TooManyArgsResult);
+
+public class TooManyMatches(Type type) : LocalizedResult<Type>(false, Keys.TooManyMatchesResult, type);

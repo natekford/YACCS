@@ -108,9 +108,11 @@ public static class Keys
 	public static NeedsLocalization NamedArgMissingValueResult { get; }
 		= Create("Missing a value for argument {0}.");
 	public static NeedsLocalization NamedArgNonExistentResult { get; }
-			= Create("Nonexistent named argument {0}.");
+		= Create("Nonexistent named argument {0}.");
 	public static NeedsLocalization NotEnoughArgsResult { get; }
 		= Create("Not enough arguments provided.");
+	public static NeedsLocalization NotFoundResult { get; }
+		= Create("Failed to find a matching {0}.");
 	public static NeedsLocalization NullParameterResult { get; }
 		= Create("Parameter is null.");
 	public static NeedsLocalization ParseFailedResult { get; }
@@ -121,6 +123,8 @@ public static class Keys
 		= Create("An operation timed out.");
 	public static NeedsLocalization TooManyArgsResult { get; }
 		= Create("Too many arguments provided.");
+	public static NeedsLocalization TooManyMatchesResult { get; }
+		= Create("Found too many {0}.");
 	#endregion Results
 
 	#region Formats

@@ -22,6 +22,8 @@ public abstract class GeneratedCommand(IImmutableCommand source, int priorityDif
 	/// <inheritdoc />
 	public virtual IReadOnlyList<object> Attributes => Source.Attributes;
 	/// <inheritdoc />
+	public virtual IReadOnlyCollection<string> Categories => Source.Categories;
+	/// <inheritdoc />
 	public virtual Type ContextType => Source.ContextType;
 	/// <inheritdoc />
 	public virtual bool IsHidden => Source.IsHidden;
