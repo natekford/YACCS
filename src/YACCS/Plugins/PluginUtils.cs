@@ -108,7 +108,7 @@ public static class PluginUtils
 			{
 				try
 				{
-					return Assembly.Load(x);
+					return Assembly.LoadFrom(x);
 				}
 				catch (BadImageFormatException)
 				{

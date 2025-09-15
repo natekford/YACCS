@@ -13,6 +13,7 @@ public abstract class PluginAttribute<TServiceCollection> : PluginAttribute
 	{
 		if (services is TServiceCollection tServices)
 		{
+			return AddServicesAsync(tServices);
 		}
 		throw new InvalidOperationException("Invalid service collection type provided to a plugin instantiator.");
 	}
