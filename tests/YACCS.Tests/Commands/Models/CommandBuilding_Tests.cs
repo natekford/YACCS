@@ -149,7 +149,7 @@ public class CommandBuilding_Tests
 	[TestMethod]
 	public void OverriddenTypeReader_Test()
 	{
-		static void Delegate([FakeTypeReader] string value)
+		static void Delegate([OverrideTypeReader<FakeTypeReader>] string value)
 		{
 		}
 
@@ -161,7 +161,7 @@ public class CommandBuilding_Tests
 	[TestMethod]
 	public void OverriddenTypeReaderInvalidType_Test()
 	{
-		static void Delegate([FakeTypeReader] int value)
+		static void Delegate([OverrideTypeReader<FakeTypeReader>] int value)
 		{
 		}
 

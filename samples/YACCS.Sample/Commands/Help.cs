@@ -25,7 +25,7 @@ public class Help : ConsoleCommands
 
 	[Command(nameof(Category))]
 	public Task<IResult> Category(
-		[CommandsCategoryTypeReader]
+		[OverrideTypeReader<CommandsCategoryTypeReader>]
 		[Remainder]
 		IReadOnlyCollection<IImmutableCommand> commands)
 		=> HelpCommand(commands);
@@ -36,7 +36,7 @@ public class Help : ConsoleCommands
 
 	[Command]
 	public async Task<IResult> HelpCommand(
-		[CommandsNameTypeReader]
+		[OverrideTypeReader<CommandsNameTypeReader>]
 		[Remainder]
 		IReadOnlyCollection<IImmutableCommand> commands)
 	{

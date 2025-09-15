@@ -16,7 +16,7 @@ public class TypeReaderTargetTypesAttribute(params Type[] types) : Attribute
 	/// <summary>
 	/// Whether or not to override any existing type readers.
 	/// </summary>
-	public bool OverrideExistingTypeReaders { get; }
+	public bool OverrideExistingTypeReaders { get; set; }
 	/// <summary>
 	/// The types to target with this type reader.
 	/// </summary>

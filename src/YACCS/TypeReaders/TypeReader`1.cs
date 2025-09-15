@@ -12,7 +12,7 @@ namespace YACCS.TypeReaders;
 /// Parses a <typeparamref name="TValue"/>.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
-public abstract class TypeReader<TValue> : Attribute, ITypeReader<TValue>
+public abstract class TypeReader<TValue> : ITypeReader<TValue>
 {
 	/// <inheritdoc />
 	public virtual Type ContextType { get; } = typeof(IContext);
