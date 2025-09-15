@@ -33,6 +33,38 @@ public class TypeReaderRegistry_Tests
 	}
 
 	[TestMethod]
+	public async Task EnumArray_Test()
+	{
+		var result = _Readers.TryGetValue(typeof(BindingFlags[]), out var reader);
+		Assert.IsTrue(result);
+		Assert.IsNotNull(reader);
+
+		var enumArrayResult = await reader.ReadAsync(new FakeContext(), new[] { "1", "2" }).ConfigureAwait(false);
+		Assert.IsTrue(enumArrayResult.InnerResult.IsSuccess);
+		var value = (BindingFlags[])enumArrayResult.Value!;
+		Assert.HasCount(2, value);
+		Assert.AreEqual(BindingFlags.IgnoreCase, value[0]);
+		Assert.AreEqual(BindingFlags.DeclaredOnly, value[1]);
+	}
+
+	[TestMethod]
+	public async Task EnumMatrix_Test()
+	{
+		var result = _Readers.TryGetValue(typeof(BindingFlags[][]), out var reader);
+		Assert.IsTrue(result);
+		Assert.IsNotNull(reader);
+
+		var enumArrayResult = await reader.ReadAsync(new FakeContext(), new[] { "1 2", "4 8" }).ConfigureAwait(false);
+		Assert.IsTrue(enumArrayResult.InnerResult.IsSuccess);
+		var value = (BindingFlags[][])enumArrayResult.Value!;
+		Assert.HasCount(2, value);
+		Assert.AreEqual(BindingFlags.IgnoreCase, value[0][0]);
+		Assert.AreEqual(BindingFlags.DeclaredOnly, value[0][1]);
+		Assert.AreEqual(BindingFlags.Instance, value[1][0]);
+		Assert.AreEqual(BindingFlags.Static, value[1][1]);
+	}
+
+	[TestMethod]
 	public void InvalidReaderRegistered_Test()
 	{
 		Assert.ThrowsExactly<ArgumentException>(() =>

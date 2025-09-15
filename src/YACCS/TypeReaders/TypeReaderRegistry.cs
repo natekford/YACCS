@@ -191,12 +191,12 @@ public class TypeReaderRegistry : TypeRegistry<ITypeReader>
 		{
 			readerType = typeof(ContextTypeReader<>).MakeGenericType(type);
 		}
-		else if (type.TryGetCollectionType(out var cType) && Items.ContainsKey(cType))
+		else if (type.TryGetCollectionType(out var cType) && TryGetValue(cType, out var cReader))
 		{
 			var typeDef = type.IsArray ? typeof(ArrayTypeReader<>) : typeof(ListTypeReader<>);
 			readerType = typeDef.MakeGenericType(cType);
 		}
-		else if (type.TryGetHashSetType(out var sType) && Items.ContainsKey(sType))
+		else if (type.TryGetHashSetType(out var sType) && TryGetValue(sType, out var sReader))
 		{
 			readerType = typeof(HashSetTypeReader<>).MakeGenericType(sType);
 		}
