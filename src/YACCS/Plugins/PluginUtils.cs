@@ -71,7 +71,7 @@ public static class PluginUtils
 	/// Creates a <see cref="IServiceProvider"/> from <paramref name="serviceCollection"/>.
 	/// </param>
 	/// <returns></returns>
-	public static async Task InstantiatePlugins<TServiceCollection>(
+	public static async Task<IServiceProvider> InstantiatePlugins<TServiceCollection>(
 		this TServiceCollection serviceCollection,
 		IEnumerable<Assembly> pluginAssemblies,
 		Func<TServiceCollection, IServiceProvider> createServiceProvider)
@@ -91,6 +91,8 @@ public static class PluginUtils
 		{
 			await plugin.ConfigureServicesAsync(serviceProvider).ConfigureAwait(false);
 		}
+
+		return serviceProvider;
 	}
 
 	/// <summary>
@@ -102,8 +104,18 @@ public static class PluginUtils
 	public static Dictionary<string, Assembly> LoadPluginAssemblies(IEnumerable<string> dllPaths)
 	{
 		return dllPaths
-			.Select(x => Assembly.Load(x))
-			.Where(x => x.GetCustomAttribute<PluginAttribute>() is not null)
-			.ToDictionary(x => x.FullName, x => x);
+			.Select(x =>
+			{
+				try
+				{
+					return Assembly.Load(x);
+				}
+				catch (BadImageFormatException)
+				{
+					return null;
+				}
+			})
+			.Where(x => x?.GetCustomAttribute<PluginAttribute>() is not null)
+			.ToDictionary(x => x!.FullName, x => x!);
 	}
 }
