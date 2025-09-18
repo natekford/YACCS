@@ -20,10 +20,17 @@ public abstract class ParameterPrecondition<TContext, TValue>
 	where TContext : IContext
 {
 	/// <inheritdoc />
-	public abstract ValueTask<IResult> CheckAsync(
+	public virtual ValueTask<IResult> CheckAsync(
 		CommandMeta meta,
 		TContext context,
-		TValue? value);
+		TValue? value)
+	{
+		if (value is null)
+		{
+			return CheckNullAsync(meta, context);
+		}
+		return CheckNotNullAsync(meta, context, value);
+	}
 
 	ValueTask<IResult> IParameterPrecondition.CheckAsync(
 		CommandMeta meta,
@@ -43,13 +50,12 @@ public abstract class ParameterPrecondition<TContext, TValue>
 	{
 		if (context is not TContext tContext)
 		{
-			return new(CachedResults.InvalidContext);
+			return new(Result.InvalidContext);
 		}
 		if (value is TValue tValue)
 		{
 			return CheckAsync(meta, tContext, tValue);
 		}
-		// If the value passed in is null, let CheckAsync deal with it
 		if (value is null)
 		{
 			return CheckNullAsync(meta, tContext);
@@ -71,8 +77,21 @@ public abstract class ParameterPrecondition<TContext, TValue>
 		{
 			return CheckUntypedEnumerableAsync(meta, tContext, tUntypedValues);
 		}
-		return new(CachedResults.InvalidParameter);
+		return new(Result.InvalidParameter);
 	}
+
+	/// <summary>
+	/// Checks the validity of <paramref name="value"/> after making sure it's not null.
+	/// </summary>
+	/// <remarks>
+	/// If <see langword="null"/> is a valid value,
+	/// override <see cref="CheckNullAsync(CommandMeta, TContext)"/> in addition to this.
+	/// </remarks>
+	/// <inheritdoc cref="CheckAsync(CommandMeta, TContext, TValue?)"/>
+	protected abstract ValueTask<IResult> CheckNotNullAsync(
+		CommandMeta meta,
+		TContext context,
+		TValue value);
 
 	/// <summary>
 	/// Handles a null value.
@@ -81,7 +100,7 @@ public abstract class ParameterPrecondition<TContext, TValue>
 	protected virtual ValueTask<IResult> CheckNullAsync(
 		CommandMeta meta,
 		TContext context)
-		=> CheckAsync(meta, context, default!);
+		=> new(Result.NullParameter);
 
 	/// <summary>
 	/// Checks each value in the enumerable.
@@ -100,7 +119,7 @@ public abstract class ParameterPrecondition<TContext, TValue>
 				return result;
 			}
 		}
-		return CachedResults.Success;
+		return Result.EmptySuccess;
 	}
 
 	/// <summary>
@@ -117,7 +136,7 @@ public abstract class ParameterPrecondition<TContext, TValue>
 			var tValue = value is TValue temp ? temp : default;
 			if (value is not null && tValue is null)
 			{
-				return CachedResults.InvalidParameter;
+				return Result.InvalidParameter;
 			}
 
 			var result = await CheckAsync(meta, context, tValue).ConfigureAwait(false);
@@ -126,6 +145,6 @@ public abstract class ParameterPrecondition<TContext, TValue>
 				return result;
 			}
 		}
-		return CachedResults.Success;
+		return Result.EmptySuccess;
 	}
 }

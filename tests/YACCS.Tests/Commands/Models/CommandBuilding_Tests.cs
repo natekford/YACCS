@@ -270,17 +270,17 @@ public class CommandBuilding_Tests
 
 		[Command(nameof(InheritanceAllowed), AllowInheritance = true)]
 		[Id(INHERITANCE_ALLOWED)]
-		public Result InheritanceAllowed() => CachedResults.Success;
+		public Result InheritanceAllowed() => Result.EmptySuccess;
 
 		[Command(nameof(InheritanceDisallowed), AllowInheritance = false)]
 		[Id(INHERITANCE_DISALLOWED)]
-		public Result InheritanceDisallowed() => CachedResults.Success;
+		public Result InheritanceDisallowed() => Result.EmptySuccess;
 	}
 
 	private class GroupCategoryChild : GroupCategoryParent
 	{
 		[Command(nameof(Foo))]
-		public Result Foo() => CachedResults.Success;
+		public Result Foo() => Result.EmptySuccess;
 	}
 
 	[Category(nameof(GroupCategoryParent))]
@@ -290,7 +290,7 @@ public class CommandBuilding_Tests
 		public class GroupCategorySubclass : CommandGroup<FakeContext>
 		{
 			[Command(nameof(Bar))]
-			public Result Bar() => CachedResults.Success;
+			public Result Bar() => Result.EmptySuccess;
 		}
 	}
 
@@ -306,11 +306,11 @@ public class CommandBuilding_Tests
 		[Command(nameof(Hidden))]
 		[Id(HIDDEN)]
 		[Hidden]
-		public Result Hidden() => CachedResults.Success;
+		public Result Hidden() => Result.EmptySuccess;
 
 		[Command(nameof(Visible))]
 		[Id(VISIBLE)]
-		public Result Visible() => CachedResults.Success;
+		public Result Visible() => Result.EmptySuccess;
 	}
 
 	private class RemainderAttributeGroup : CommandGroup<FakeContext>
@@ -321,14 +321,14 @@ public class CommandBuilding_Tests
 
 		[Command(nameof(InvalidRemainder))]
 		[Id(INVALID_REMAINDER)]
-		public Result InvalidRemainder([Remainder] string[] input, int a) => CachedResults.Success;
+		public Result InvalidRemainder([Remainder] string[] input, int a) => Result.EmptySuccess;
 
 		[Command(nameof(Params))]
 		[Id(PARAMS)]
-		public Result Params(params string[] input) => CachedResults.Success;
+		public Result Params(params string[] input) => Result.EmptySuccess;
 
 		[Command(nameof(ValidRemainder))]
 		[Id(VALID_REMAINDER)]
-		public Result ValidRemainder([Remainder] string[] input) => CachedResults.Success;
+		public Result ValidRemainder([Remainder] string[] input) => Result.EmptySuccess;
 	}
 }

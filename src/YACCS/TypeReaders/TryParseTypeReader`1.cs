@@ -4,7 +4,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 
 using YACCS.Commands;
-using YACCS.Results;
 
 namespace YACCS.TypeReaders;
 
@@ -39,7 +38,7 @@ public class TryParseTypeReader<TValue>(TryParseDelegate<TValue> @delegate)
 	{
 		if (!_Delegate(Join(context, input), out var result))
 		{
-			return CachedResults<TValue>.ParseFailed.Task;
+			return TypeReaderResult<TValue>.ParseFailed.Task;
 		}
 		return Success(result).AsITask();
 	}

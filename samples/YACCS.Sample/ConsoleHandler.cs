@@ -48,10 +48,7 @@ public sealed class ConsoleHandler
 	public async Task WaitForIOLockAsync(CancellationToken token = default)
 		=> await _IOLock.WaitAsync(token).ConfigureAwait(false);
 
-#pragma warning disable CA1822 // Mark members as static
-
 	public void WriteLine(string input = "", ConsoleColor? color = null)
-#pragma warning restore CA1822 // Mark members as static
 	{
 		var oldColor = Console.ForegroundColor;
 		Console.ForegroundColor = color ?? Console.ForegroundColor;

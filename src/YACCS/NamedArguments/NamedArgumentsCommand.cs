@@ -53,7 +53,7 @@ public sealed class NamedArgumentsCommand : GeneratedCommand
 	{
 		if (args.Count != 1 || args[0] is not Dict dict)
 		{
-			return new(CachedResults.NamedArgInvalidDictionary);
+			return new(Result.NamedArgInvalidDictionary);
 		}
 
 		var values = new object?[Source.Parameters.Count];

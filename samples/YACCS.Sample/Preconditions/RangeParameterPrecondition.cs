@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-using YACCS.Commands;
+﻿using YACCS.Commands;
 using YACCS.Preconditions;
 using YACCS.Results;
 
@@ -16,15 +14,15 @@ public class RangeParameterPrecondition : ParameterPrecondition<IContext, int>
 	public RangeParameterPrecondition(int min, int max)
 	{
 		_Max = max;
-		_TooHigh = UncachedResults.MustBeLessThan(_Max);
+		_TooHigh = Result.MustBeLessThan(_Max);
 		_Min = min;
-		_TooLow = UncachedResults.MustBeGreaterThan(_Min);
+		_TooLow = Result.MustBeGreaterThan(_Min);
 	}
 
-	public override ValueTask<IResult> CheckAsync(
+	protected override ValueTask<IResult> CheckNotNullAsync(
 		CommandMeta meta,
 		IContext context,
-		[MaybeNull] int value)
+		int value)
 	{
 		if (value < _Min)
 		{
@@ -34,6 +32,6 @@ public class RangeParameterPrecondition : ParameterPrecondition<IContext, int>
 		{
 			return new(_TooHigh);
 		}
-		return new(CachedResults.Success);
+		return new(Result.EmptySuccess);
 	}
 }

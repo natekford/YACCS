@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-using YACCS.Commands;
+﻿using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 using YACCS.Preconditions;
@@ -110,7 +108,7 @@ public class CommandsGroup : CommandGroup<FakeContext>
 		public override ValueTask<IResult> CheckAsync(
 			IImmutableCommand command,
 			FakeContext context)
-			=> new(CachedResults.Success);
+			=> new(Result.EmptySuccess);
 	}
 
 	private class FakePreconditionWhichThrowsBefore : Precondition<FakeContext>
@@ -123,7 +121,7 @@ public class CommandsGroup : CommandGroup<FakeContext>
 		public override ValueTask<IResult> CheckAsync(
 			IImmutableCommand command,
 			FakeContext context)
-			=> new(CachedResults.Success);
+			=> new(Result.EmptySuccess);
 	}
 }
 
@@ -132,11 +130,11 @@ public class FakeParameterPreconditionAttribute(int value)
 {
 	public int DisallowedValue { get; } = value;
 
-	public override ValueTask<IResult> CheckAsync(
+	protected override ValueTask<IResult> CheckNotNullAsync(
 		CommandMeta meta,
 		FakeContext context,
-		[MaybeNull] int value)
-		=> new(value == DisallowedValue ? Result.Failure("lol") : CachedResults.Success);
+		int value)
+		=> new(value == DisallowedValue ? Result.Failure("lol") : Result.EmptySuccess);
 }
 
 public class FakePrecondition(bool success) : Precondition<FakeContext>
@@ -144,20 +142,20 @@ public class FakePrecondition(bool success) : Precondition<FakeContext>
 	public override ValueTask<IResult> CheckAsync(
 		IImmutableCommand command,
 		FakeContext context)
-		=> new(success ? CachedResults.Success : CachedResults.Failure);
+		=> new(success ? Result.EmptySuccess : Result.EmptyFailure);
 }
 
 public class WasIReachedParameterPreconditionAttribute : ParameterPrecondition<FakeContext, int>
 {
 	public bool IWasReached { get; private set; }
 
-	public override ValueTask<IResult> CheckAsync(
+	protected override ValueTask<IResult> CheckNotNullAsync(
 		CommandMeta meta,
 		FakeContext context,
-		[MaybeNull] int value)
+		int value)
 	{
 		IWasReached = true;
-		return new(CachedResults.Success);
+		return new(Result.EmptySuccess);
 	}
 }
 

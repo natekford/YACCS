@@ -65,7 +65,10 @@ public abstract class NamedArgumentsTypeReaderBase<T>
 		// we know something is missing
 		if (input.Length % 2 != 0)
 		{
-			return new(new DictResult(CachedResults<T>.NamedArgBadCount.Result, []));
+			return new(new DictResult(
+				Result: TypeReaderResult<T>.NamedArgBadCount.Result,
+				Dictionary: []
+			));
 		}
 
 		var dict = new Dictionary<string, string>();
@@ -74,17 +77,20 @@ public abstract class NamedArgumentsTypeReaderBase<T>
 			var name = input.Span[i].TrimStart(_TrimStart).TrimEnd(_TrimEnd);
 			if (!Parameters.TryGetValue(name, out var parameter))
 			{
-				return new(new DictResult(Error(UncachedResults.NamedArgNonExistent(name)), dict));
+				return new(new DictResult(Error(Result.NamedArgNonExistent(name)), dict));
 			}
 
 			var property = parameter.ParameterName;
 			if (dict.ContainsKey(property))
 			{
-				return new(new DictResult(Error(UncachedResults.NamedArgDuplicate(name)), dict));
+				return new(new DictResult(Error(Result.NamedArgDuplicate(name)), dict));
 			}
 			dict.Add(property, input.Span[i + 1]);
 		}
-		return new(new DictResult(CachedResults<T>.DefaultSuccess.Result, dict));
+		return new(new DictResult(
+			Result: TypeReaderResult<T>.DefaultSuccess.Result,
+			Dictionary: dict
+		));
 	}
 
 	[GetServiceMethod]

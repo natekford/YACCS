@@ -53,7 +53,7 @@ public class ConvertValue_Tests
 		foreach (var result in results)
 		{
 			Assert.IsTrue(result.IsSuccess);
-			Assert.AreSame(CachedResults.Success, result);
+			Assert.AreSame(Result.EmptySuccess, result);
 		}
 	}
 
@@ -103,7 +103,7 @@ public class ConvertValue_Tests
 		foreach (var result in results)
 		{
 			Assert.IsTrue(result.IsSuccess);
-			Assert.AreSame(CachedResults.Success, result);
+			Assert.AreSame(Result.EmptySuccess, result);
 		}
 	}
 }

@@ -7,7 +7,6 @@ using System.Linq;
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
-using YACCS.Results;
 
 namespace YACCS.TypeReaders;
 
@@ -27,7 +26,7 @@ public class CommandsCategoryTypeReader
 	{
 		if (input.Length == 0)
 		{
-			return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailed.Task;
+			return TypeReaderResult<IReadOnlyCollection<IImmutableCommand>>.ParseFailed.Task;
 		}
 
 		var commands = GetCommands(context.Services);
@@ -63,7 +62,7 @@ public class CommandsCategoryTypeReader
 
 		if (found.Count == 0)
 		{
-			return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailed.Task;
+			return TypeReaderResult<IReadOnlyCollection<IImmutableCommand>>.ParseFailed.Task;
 		}
 		return Success(found).AsITask();
 	}

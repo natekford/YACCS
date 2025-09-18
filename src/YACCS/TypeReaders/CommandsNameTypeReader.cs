@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
-using YACCS.Results;
 using YACCS.Trie;
 
 namespace YACCS.TypeReaders;
@@ -33,7 +32,7 @@ public class CommandsNameTypeReader
 		var found = node?.GetAllDistinctItems(x => x.Source is null);
 		if (found is null || found.Count == 0)
 		{
-			return CachedResults<IReadOnlyCollection<IImmutableCommand>>.ParseFailed.Task;
+			return TypeReaderResult<IReadOnlyCollection<IImmutableCommand>>.ParseFailed.Task;
 		}
 		return Success(found).AsITask();
 	}

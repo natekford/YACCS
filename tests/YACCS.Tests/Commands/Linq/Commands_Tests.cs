@@ -135,7 +135,7 @@ public class Commands_Tests
 		{
 			if (DateTime.UtcNow.Hour != 19)
 			{
-				return new(CachedResults.Success);
+				return new(Result.EmptySuccess);
 			}
 			return new(Result.Failure("It's seven PM."));
 		}

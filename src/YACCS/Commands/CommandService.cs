@@ -195,7 +195,7 @@ public class CommandService : ICommandService
 
 			var value = parameter.DefaultValue;
 			// We still have more args to parse so let's look through those
-			if (currentIndex < input.Length || parameter.Length is null)
+			if (currentIndex < input.Length || parameter.Length == 0)
 			{
 				var trResult = await ProcessTypeReadersAsync(
 					context,
@@ -353,7 +353,7 @@ public class CommandService : ICommandService
 		}
 		catch (Exception ex)
 		{
-			result = CachedResults.ExceptionDuringCommand;
+			result = Result.ExceptionDuringCommand;
 			duringException = ex;
 		}
 

@@ -3,7 +3,6 @@
 using System;
 
 using YACCS.Commands;
-using YACCS.Results;
 
 namespace YACCS.TypeReaders;
 
@@ -22,7 +21,7 @@ public class ContextTypeReader<TContext> : TypeReader<TContext, TContext>
 	{
 		if (context is null)
 		{
-			return CachedResults<TContext>.InvalidContext.Task;
+			return TypeReaderResult<TContext>.InvalidContext.Task;
 		}
 		return Success(context).AsITask();
 	}

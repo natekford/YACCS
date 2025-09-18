@@ -47,7 +47,7 @@ public class GeneratedNamedArguments_Tests
 
 		var result = await commandService.CommandNotExecuted.Task.ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.AreSame(CachedResults.InvalidParameter, result.InnerResult);
+		Assert.AreSame(Result.InvalidParameter, result.InnerResult);
 	}
 
 	[TestMethod]
@@ -89,7 +89,7 @@ public class GeneratedNamedArguments_Tests
 
 		var result = await commandService.CommandNotExecuted.Task.ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.AreSame(CachedResults.NotEnoughArgs, result.InnerResult);
+		Assert.AreSame(Result.NotEnoughArgs, result.InnerResult);
 	}
 
 	[TestMethod]
@@ -115,7 +115,7 @@ public class GeneratedNamedArguments_Tests
 
 		var result = await commandService.CommandNotExecuted.Task.ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.AreSame(CachedResults.TooManyArgs, result.InnerResult);
+		Assert.AreSame(Result.TooManyArgs, result.InnerResult);
 	}
 
 	[TestMethod]
@@ -162,7 +162,7 @@ public class GeneratedNamedArguments_Tests
 
 		var result = await commandService.CommandNotExecuted.Task.ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.IsInstanceOfType<NamedArgMissingValue>(result.InnerResult);
+		Assert.IsInstanceOfType<NotEnoughArgs>(result.InnerResult);
 	}
 
 	[TestMethod]
@@ -247,7 +247,7 @@ public class GeneratedNamedArguments_Tests
 			SetMe.IntValue = i;
 			SetMe.StringValue = s;
 
-			return CachedResults.Success;
+			return Result.EmptySuccess;
 		}
 
 		[Command(nameof(Test2))]
@@ -278,16 +278,16 @@ public class GeneratedNamedArguments_Tests
 
 	private class NotNegative : ParameterPrecondition<IContext, int>
 	{
-		public override ValueTask<IResult> CheckAsync(
+		protected override ValueTask<IResult> CheckNotNullAsync(
 			CommandMeta meta,
 			IContext context,
 			int value)
 		{
 			if (value > -1)
 			{
-				return new(CachedResults.Success);
+				return new(Result.EmptySuccess);
 			}
-			return new(CachedResults.InvalidParameter);
+			return new(Result.InvalidParameter);
 		}
 	}
 

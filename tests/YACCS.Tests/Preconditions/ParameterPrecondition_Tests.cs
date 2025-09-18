@@ -1,7 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using System.Diagnostics.CodeAnalysis;
-
 using YACCS.Preconditions;
 using YACCS.Results;
 
@@ -18,7 +16,7 @@ public class ParameterPrecondition_Tests
 		var result = await _Precondition.CheckAsync(default, new OtherContext(), 1).ConfigureAwait(false);
 
 		Assert.IsFalse(result.IsSuccess);
-		Assert.AreSame(CachedResults.InvalidContext, result);
+		Assert.AreSame(Result.InvalidContext, result);
 	}
 
 	[TestMethod]
@@ -27,7 +25,7 @@ public class ParameterPrecondition_Tests
 		var result = await _Precondition.CheckAsync(default, new FakeContext(), new object()).ConfigureAwait(false);
 
 		Assert.IsFalse(result.IsSuccess);
-		Assert.AreSame(CachedResults.InvalidParameter, result);
+		Assert.AreSame(Result.InvalidParameter, result);
 	}
 
 	[TestMethod]
@@ -101,20 +99,21 @@ public class ParameterPrecondition_Tests
 
 	private class IsNullOrNotNegative : ParameterPrecondition<FakeContext, int?>
 	{
-		public override ValueTask<IResult> CheckAsync(
+		protected override ValueTask<IResult> CheckNotNullAsync(
 			CommandMeta meta,
 			FakeContext context,
-			[MaybeNull] int? value)
+			int? value)
 		{
-			if (value is null)
-			{
-				return new(CachedResults.Success);
-			}
 			if (value > -1)
 			{
-				return new(CachedResults.Success);
+				return new(Result.EmptySuccess);
 			}
 			return new(Result.Failure("joe"));
 		}
+
+		protected override ValueTask<IResult> CheckNullAsync(
+			CommandMeta meta,
+			FakeContext context)
+			=> new(Result.EmptySuccess);
 	}
 }

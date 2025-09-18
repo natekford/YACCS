@@ -63,7 +63,7 @@ public abstract class Precondition<TContext>
 	{
 		if (context is not TContext tContext)
 		{
-			return Task.FromResult(CachedResults.InvalidContext);
+			return Task.FromResult(Result.InvalidContext);
 		}
 		return AfterExecutionAsync(command, tContext, exception);
 	}
@@ -79,7 +79,7 @@ public abstract class Precondition<TContext>
 	{
 		if (context is not TContext tContext)
 		{
-			return Task.FromResult(CachedResults.InvalidContext);
+			return Task.FromResult(Result.InvalidContext);
 		}
 		return BeforeExecutionAsync(command, tContext);
 	}
@@ -95,7 +95,7 @@ public abstract class Precondition<TContext>
 	{
 		if (context is not TContext tContext)
 		{
-			return new(CachedResults.InvalidContext);
+			return new(Result.InvalidContext);
 		}
 		return CheckAsync(command, tContext);
 	}

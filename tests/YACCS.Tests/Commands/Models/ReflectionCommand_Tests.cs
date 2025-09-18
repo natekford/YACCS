@@ -56,7 +56,7 @@ public class ReflectionCommand_Tests
 	private class GroupBase : CommandGroup<FakeContext>
 	{
 		[Command("joeba")]
-		public Result CommandAsync() => CachedResults.Success;
+		public Result CommandAsync() => Result.EmptySuccess;
 	}
 
 	private class GroupInjection : GroupBase
@@ -91,6 +91,6 @@ public class ReflectionCommand_Tests
 		public string Value { get; } = "";
 
 		[Command("joeba")]
-		public Result CommandAsync() => CachedResults.Success;
+		public Result CommandAsync() => Result.EmptySuccess;
 	}
 }

@@ -15,7 +15,7 @@ public class NullableTypeReader<TValue> : TypeReader<TValue?> where TValue : str
 {
 	private static readonly NullValidator _Null = new();
 	private static readonly ITask<ITypeReaderResult<TValue?>> _NullResult
-		= TypeReaderResult<TValue?>.FromSuccess(default).AsITask();
+		= TypeReaderResult<TValue?>.Success(default).AsITask();
 
 	/// <inheritdoc />
 	public override ITask<ITypeReaderResult<TValue?>> ReadAsync(

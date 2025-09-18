@@ -53,26 +53,23 @@ public record CommandScore(
 	IResult InnerResult,
 	IImmutableParameter? Parameter = null,
 	IReadOnlyList<object?>? Args = null
-) : IResult, INestedResult
+) : INestedResult
 {
 	/// <summary>
 	/// Indicates that no suitable command was found.
 	/// </summary>
 	public static CommandScore CommandNotFound { get; }
-		= new(null!, null, 0, 0, CachedResults.CommandNotFound);
+		= new(null!, null, 0, 0, Result.CommandNotFound);
 	/// <summary>
 	/// Indicates that there are too many suitable commands.
 	/// </summary>
 	public static CommandScore MultiMatch { get; }
-		= new(null!, null, 0, 0, CachedResults.MultiMatchHandlingError);
+		= new(null!, null, 0, 0, Result.MultiMatchHandlingError);
 	/// <summary>
 	/// Indicates that there is an error parsing quotes.
 	/// </summary>
 	public static CommandScore QuoteMismatch { get; }
-		= new(null!, null, 0, 0, CachedResults.QuoteMismatch);
-
-	bool IResult.IsSuccess => InnerResult.IsSuccess;
-	string IResult.Response => InnerResult.Response;
+		= new(null!, null, 0, 0, Result.QuoteMismatch);
 
 	private string DebuggerDisplay
 		=> $"Stage = {Stage}, Score = {Index}, Success = {InnerResult.IsSuccess}";
@@ -88,7 +85,7 @@ public record CommandScore(
 		int index,
 		IReadOnlyList<object?>? args)
 	{
-		var result = CachedResults.Success;
+		var result = Result.EmptySuccess;
 		const CommandStage STAGE = CommandStage.CanExecute;
 		// Subtract start index from int.MaxValue because the more args the less
 		// command name parts used, so the less specific the command is
@@ -155,7 +152,7 @@ public record CommandScore(
 		IImmutableCommand command,
 		int index)
 	{
-		var result = CachedResults.InvalidContext;
+		var result = Result.InvalidContext;
 		const CommandStage STAGE = CommandStage.BadContext;
 		return new(context, command, STAGE, index, result);
 	}
@@ -171,7 +168,7 @@ public record CommandScore(
 		int index,
 		IImmutableParameter parameter)
 	{
-		var result = CachedResults.NotEnoughArgs;
+		var result = Result.NotEnoughArgs;
 		const CommandStage STAGE = CommandStage.FailedTypeReader;
 		return new(context, command, STAGE, index, result, Parameter: parameter);
 	}
@@ -186,7 +183,7 @@ public record CommandScore(
 		IImmutableCommand command,
 		int index)
 	{
-		var result = CachedResults.NotEnoughArgs;
+		var result = Result.NotEnoughArgs;
 		const CommandStage STAGE = CommandStage.BadArgCount;
 		return new(context, command, STAGE, index, result);
 	}
@@ -201,7 +198,7 @@ public record CommandScore(
 		IImmutableCommand command,
 		int index)
 	{
-		var result = CachedResults.TooManyArgs;
+		var result = Result.TooManyArgs;
 		const CommandStage STAGE = CommandStage.BadArgCount;
 		return new(context, command, STAGE, index, result);
 	}

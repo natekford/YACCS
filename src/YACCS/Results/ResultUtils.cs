@@ -8,21 +8,6 @@ namespace YACCS.Results;
 public static class ResultUtils
 {
 	/// <summary>
-	/// Recursively searches for the most nested <see cref="INestedResult.InnerResult"/>.
-	/// </summary>
-	/// <param name="result">The result to get the inner result from.</param>
-	/// <returns>The inner most result.</returns>
-	public static IResult GetMostNestedResult(this INestedResult result)
-	{
-		var actual = result.InnerResult;
-		while (actual is INestedResult nested)
-		{
-			actual = nested.InnerResult;
-		}
-		return actual;
-	}
-
-	/// <summary>
 	/// Recursively searches for a <see cref="ValueResult"/> from <paramref name="result"/>.
 	/// </summary>
 	/// <typeparam name="T"></typeparam>

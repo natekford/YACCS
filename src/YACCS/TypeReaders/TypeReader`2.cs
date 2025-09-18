@@ -3,7 +3,6 @@
 using System;
 
 using YACCS.Commands;
-using YACCS.Results;
 
 namespace YACCS.TypeReaders;
 
@@ -26,7 +25,7 @@ public abstract class TypeReader<TContext, TValue> : TypeReader<TValue>
 	{
 		if (context is not TContext tContext)
 		{
-			return CachedResults<TValue>.InvalidContext.Task;
+			return TypeReaderResult<TValue>.InvalidContext.Task;
 		}
 		return ReadAsync(tContext, input);
 	}

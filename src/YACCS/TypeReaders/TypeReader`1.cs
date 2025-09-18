@@ -29,13 +29,13 @@ public abstract class TypeReader<TValue> : ITypeReader<TValue>
 		ReadOnlyMemory<string> input)
 		=> ReadAsync(context, input);
 
-	/// <inheritdoc cref="TypeReaderResult{T}.FromError(IResult)"/>
+	/// <inheritdoc cref="TypeReaderResult{T}.Error(IResult)"/>
 	protected static ITypeReaderResult<TValue> Error(IResult result)
-		=> TypeReaderResult<TValue>.FromError(result);
+		=> TypeReaderResult<TValue>.Error(result);
 
-	/// <inheritdoc cref="TypeReaderResult{T}.FromSuccess(T, int?)"/>
+	/// <inheritdoc cref="TypeReaderResult{T}.Success(T, int?)"/>
 	protected static ITypeReaderResult<TValue> Success(TValue value, int? successfullyParsedCount = null)
-		=> TypeReaderResult<TValue>.FromSuccess(value, successfullyParsedCount);
+		=> TypeReaderResult<TValue>.Success(value, successfullyParsedCount);
 
 	/// <summary>
 	/// Joins the strings in <paramref name="input"/>.

@@ -18,7 +18,7 @@ public class Precondition_Tests
 
 		var result = await precondition.CheckAsync(command, context).ConfigureAwait(false);
 		Assert.IsFalse(result.IsSuccess);
-		Assert.AreSame(CachedResults.InvalidContext, result);
+		Assert.AreSame(Result.InvalidContext, result);
 
 		var before = precondition.BeforeExecutionAsync(command, context);
 		Assert.IsInstanceOfType<Task<InvalidContext>>(before);
@@ -47,6 +47,6 @@ public class Precondition_Tests
 	private class FakePrecondition : Precondition<FakeContext>
 	{
 		public override ValueTask<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
-			=> new(CachedResults.Success);
+			=> new(Result.EmptySuccess);
 	}
 }

@@ -204,16 +204,16 @@ Parameters:{TRAILING}
 	{
 		public const string SUMMARY = "The passed in value is less than or equal to 100.";
 
-		public override ValueTask<IResult> CheckAsync(
+		protected override ValueTask<IResult> CheckNotNullAsync(
 			CommandMeta meta,
 			IContext context,
 			int value)
 		{
 			if (value > 100)
 			{
-				return new(CachedResults.InvalidParameter);
+				return new(Result.InvalidParameter);
 			}
-			return new(CachedResults.Success);
+			return new(Result.EmptySuccess);
 		}
 	}
 }

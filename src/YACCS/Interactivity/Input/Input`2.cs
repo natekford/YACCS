@@ -77,7 +77,7 @@ public abstract class Input<TContext, TInput>(IReadOnlyDictionary<Type, ITypeRea
 			}
 
 			eventTrigger.SetResult(trResult.Value!);
-			return CachedResults.Success;
+			return Result.EmptySuccess;
 		});
 	}
 

@@ -80,15 +80,15 @@ public abstract class Interactivity<TContext, TInput> where TContext : IContext
 
 		if (task == delay)
 		{
-			return CachedResults<TValue>.TimedOut.Result;
+			return TypeReaderResult<TValue>.TimedOut.Result;
 		}
 		if (task == cancel)
 		{
-			return CachedResults<TValue>.Canceled.Result;
+			return TypeReaderResult<TValue>.Canceled.Result;
 		}
 
 		var value = await @event.ConfigureAwait(false);
-		return TypeReaderResult<TValue>.FromSuccess(value);
+		return TypeReaders.TypeReaderResult<TValue>.Success(value);
 	}
 
 	/// <summary>

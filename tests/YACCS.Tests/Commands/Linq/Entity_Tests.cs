@@ -60,21 +60,21 @@ public class Entity_Tests
 		{
 			[Command]
 			public Result CommandFour(IReadOnlyList<string> list)
-				=> CachedResults.Success;
+				=> Result.EmptySuccess;
 
 			[Command(_7, _8, _9)]
 			[Id(_CommandOneId)]
 			public Result CommandOne()
-				=> CachedResults.Success;
+				=> Result.EmptySuccess;
 
 			[Command]
 			public Result CommandThree([Id(_PositionId)] int position, string arg)
-				=> CachedResults.Success;
+				=> Result.EmptySuccess;
 
 			[Command]
 			[Id(_CommandTwoId)]
 			public Result CommandTwo(string arg)
-				=> CachedResults.Success;
+				=> Result.EmptySuccess;
 
 			public override Task ModifyCommandsAsync(IServiceProvider services, List<ReflectionCommand> commands)
 			{

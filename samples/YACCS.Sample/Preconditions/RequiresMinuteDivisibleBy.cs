@@ -21,7 +21,7 @@ public class RequiresMinuteDivisibleBy(int divisor)
 		{
 			return new(Result.Failure(GetErrorMessage()));
 		}
-		return new(CachedResults.Success);
+		return new(Result.EmptySuccess);
 	}
 
 	public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)

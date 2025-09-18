@@ -32,7 +32,7 @@ public class CommandService_ExecuteAsync_Tests
 
 		var result = await commandService.CommandNotExecuted.Task.ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.AreSame(CachedResults.CommandNotFound, result.InnerResult);
+		Assert.AreSame(Result.CommandNotFound, result.InnerResult);
 	}
 
 	[TestMethod]
@@ -87,7 +87,7 @@ public class CommandService_ExecuteAsync_Tests
 
 		var result = await commandService.CommandExecuted.Task.ConfigureAwait(false);
 		Assert.IsTrue(result.InnerResult.IsSuccess);
-		Assert.AreSame(CachedResults.Success, result.InnerResult);
+		Assert.AreSame(Result.EmptySuccess, result.InnerResult);
 		Assert.IsNull(result.DuringException);
 		Assert.IsNull(result.BeforeExceptions);
 		Assert.AreEqual(1, result.AfterExceptions!.Count);
@@ -105,7 +105,7 @@ public class CommandService_ExecuteAsync_Tests
 
 		var result = await commandService.CommandExecuted.Task.ConfigureAwait(false);
 		Assert.IsTrue(result.InnerResult.IsSuccess);
-		Assert.AreSame(CachedResults.Success, result.InnerResult);
+		Assert.AreSame(Result.EmptySuccess, result.InnerResult);
 		Assert.IsNull(result.DuringException);
 		Assert.IsNull(result.AfterExceptions);
 		Assert.AreEqual(1, result.BeforeExceptions!.Count);
@@ -123,7 +123,7 @@ public class CommandService_ExecuteAsync_Tests
 
 		var result = await commandService.CommandExecuted.Task.ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.AreSame(CachedResults.ExceptionDuringCommand, result.InnerResult);
+		Assert.AreSame(Result.ExceptionDuringCommand, result.InnerResult);
 		Assert.IsInstanceOfType<InvalidOperationException>(result.DuringException);
 		Assert.IsNull(result.BeforeExceptions);
 		Assert.IsNull(result.AfterExceptions);
@@ -137,7 +137,7 @@ public class CommandService_ExecuteAsync_Tests
 
 		var result = await commandService.CommandNotExecuted.Task.ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.AreSame(CachedResults.MultiMatchHandlingError, result.InnerResult);
+		Assert.AreSame(Result.MultiMatchHandlingError, result.InnerResult);
 	}
 
 	[TestMethod]
@@ -148,7 +148,7 @@ public class CommandService_ExecuteAsync_Tests
 
 		var result = await commandService.CommandNotExecuted.Task.ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.AreSame(CachedResults.CommandNotFound, result.InnerResult);
+		Assert.AreSame(Result.CommandNotFound, result.InnerResult);
 	}
 
 	[TestMethod]
@@ -159,7 +159,7 @@ public class CommandService_ExecuteAsync_Tests
 
 		var result = await commandService.CommandNotExecuted.Task.ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
-		Assert.AreSame(CachedResults.QuoteMismatch, result.InnerResult);
+		Assert.AreSame(Result.QuoteMismatch, result.InnerResult);
 	}
 
 	private static async ValueTask<(FakeCommandService, FakeContext)> CreateAsync()

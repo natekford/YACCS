@@ -24,21 +24,16 @@ public abstract class NamedArgumentsParameterPreconditionBase<T>
 	protected abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
 	/// <inheritdoc />
-	public override async ValueTask<IResult> CheckAsync(
+	protected override async ValueTask<IResult> CheckNotNullAsync(
 		CommandMeta meta,
 		IContext context,
-		T? value)
+		T value)
 	{
-		if (value is null)
-		{
-			return CachedResults.NullParameter;
-		}
-
 		foreach (var (property, parameter) in Parameters)
 		{
 			if (!TryGetProperty(value, property, out var propertyValue))
 			{
-				return UncachedResults.NamedArgMissingValue(property);
+				return Result.NamedArgMissingValue(property);
 			}
 
 			var result = await meta.Command.CanExecuteAsync(parameter, context, propertyValue).ConfigureAwait(false);
@@ -47,7 +42,7 @@ public abstract class NamedArgumentsParameterPreconditionBase<T>
 				return result;
 			}
 		}
-		return CachedResults.Success;
+		return Result.EmptySuccess;
 	}
 
 	/// <summary>

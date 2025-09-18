@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 
 using YACCS.Commands;
-using YACCS.Results;
 
 namespace YACCS.TypeReaders;
 
@@ -18,7 +17,7 @@ public sealed class AggregateTypeReader<T>(IEnumerable<ITypeReader<T>> readers)
 	: TypeReader<T>
 {
 	private readonly ImmutableArray<ITypeReader<T>> _Readers
-		= readers.ToImmutableArray();
+		= [.. readers];
 
 	/// <inheritdoc />
 	public override async ITask<ITypeReaderResult<T>> ReadAsync(
@@ -33,6 +32,6 @@ public sealed class AggregateTypeReader<T>(IEnumerable<ITypeReader<T>> readers)
 				return result;
 			}
 		}
-		return CachedResults<T>.ParseFailed.Result;
+		return TypeReaderResult<T>.ParseFailed.Result;
 	}
 }

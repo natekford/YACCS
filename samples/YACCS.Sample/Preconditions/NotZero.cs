@@ -10,8 +10,11 @@ public class NotZero : ParameterPrecondition<IContext, int>, IRuntimeFormattable
 {
 	public virtual string FallbackErrorMessage { get; set; } = "Cannot be zero.";
 
-	public override ValueTask<IResult> CheckAsync(
-		CommandMeta meta,
+	public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
+		=> new(GetErrorMessage());
+
+	protected override ValueTask<IResult> CheckNotNullAsync(
+			CommandMeta meta,
 		IContext context,
 		int value)
 	{
@@ -19,11 +22,8 @@ public class NotZero : ParameterPrecondition<IContext, int>, IRuntimeFormattable
 		{
 			return new(Result.Failure(GetErrorMessage()));
 		}
-		return new(CachedResults.Success);
+		return new(Result.EmptySuccess);
 	}
-
-	public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
-		=> new(GetErrorMessage());
 
 	private string GetErrorMessage()
 		=> Localize.This(nameof(NotZero), FallbackErrorMessage);
