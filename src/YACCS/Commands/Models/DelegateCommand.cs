@@ -39,7 +39,7 @@ public sealed class DelegateCommand : Command
 	{
 		Delegate = @delegate;
 		Paths = [.. names];
-		Attributes.Add(Delegate);
+		Attributes.Add(new(Delegate.Method, AttributeInfo.DIRECT, Delegate));
 	}
 
 	/// <inheritdoc />

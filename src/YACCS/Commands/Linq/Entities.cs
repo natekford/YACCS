@@ -21,7 +21,7 @@ public static class Entities
 	public static TEntity AddAttribute<TEntity>(this TEntity entity, object attribute)
 		where TEntity : IMutableEntity
 	{
-		entity.Attributes.Add(attribute);
+		entity.Attributes.Add(new(attribute));
 		return entity;
 	}
 
@@ -46,7 +46,7 @@ public static class Entities
 		{
 			foreach (var attribute in entity.Attributes)
 			{
-				if (attribute is TAttribute t && predicate(t))
+				if (attribute.Value is TAttribute t && predicate(t))
 				{
 					yield return entity;
 					// Break after returning once to only return one match for each command
@@ -77,7 +77,7 @@ public static class Entities
 	{
 		foreach (var attribute in entity.Attributes)
 		{
-			if (attribute is T t)
+			if (attribute.Value is T t)
 			{
 				yield return t;
 			}

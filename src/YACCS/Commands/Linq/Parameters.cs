@@ -33,7 +33,7 @@ public static class Parameters
 		where TContext : IContext
 		where TParameter : IMutableParameter, IParameter<TValue>
 	{
-		parameter.Attributes.Add(precondition);
+		parameter.Attributes.Add(new(precondition));
 		return parameter;
 	}
 
@@ -129,7 +129,7 @@ public static class Parameters
 	{
 		if (!parameter.GetAttributes<ILengthAttribute>().Any())
 		{
-			parameter.Attributes.Add(new RemainderAttribute());
+			parameter.Attributes.Add(new(new RemainderAttribute()));
 		}
 		return parameter;
 	}
@@ -197,12 +197,12 @@ public static class Parameters
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	private sealed class Parameter<TValue>(IMutableParameter actual) : IParameter<TValue>
 	{
-		IList<object> IMutableEntity.Attributes
+		IList<AttributeInfo> IMutableEntity.Attributes
 		{
 			get => actual.Attributes;
 			set => actual.Attributes = value;
 		}
-		IEnumerable<object> IQueryableEntity.Attributes => actual.Attributes;
+		IEnumerable<AttributeInfo> IQueryableEntity.Attributes => actual.Attributes;
 		object? IMutableParameter.DefaultValue
 		{
 			get => actual.DefaultValue;

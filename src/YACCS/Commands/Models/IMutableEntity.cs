@@ -8,5 +8,5 @@ namespace YACCS.Commands.Models;
 public interface IMutableEntity : IQueryableEntity
 {
 	/// <inheritdoc cref="IQueryableEntity.Attributes" />
-	new IList<object> Attributes { get; set; }
+	new IList<AttributeInfo> Attributes { get; set; }
 }

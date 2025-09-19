@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -75,6 +76,7 @@ public static class PluginUtils
 		this TServiceCollection serviceCollection,
 		IEnumerable<Assembly> pluginAssemblies,
 		Func<TServiceCollection, IServiceProvider> createServiceProvider)
+		where TServiceCollection : IEnumerable
 	{
 		var plugins = pluginAssemblies
 			.Select(x => x.GetCustomAttribute<PluginAttribute>())

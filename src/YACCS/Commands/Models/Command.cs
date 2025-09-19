@@ -81,7 +81,7 @@ public abstract class Command : Entity, IMutableCommand
 		private readonly ConcurrentDictionary<Type, bool> _ValidContexts = new();
 
 		/// <inheritdoc />
-		public IReadOnlyList<object> Attributes { get; }
+		public IReadOnlyList<AttributeInfo> Attributes { get; }
 		/// <inheritdoc />
 		public IReadOnlyCollection<string> Categories { get; }
 		/// <inheritdoc />
@@ -104,7 +104,7 @@ public abstract class Command : Entity, IMutableCommand
 		public int Priority { get; }
 		/// <inheritdoc />
 		public IImmutableCommand? Source { get; }
-		IEnumerable<object> IQueryableEntity.Attributes => Attributes;
+		IEnumerable<AttributeInfo> IQueryableEntity.Attributes => Attributes;
 		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
 		/// <summary>
 		/// The return type for this command.
@@ -153,7 +153,7 @@ public abstract class Command : Entity, IMutableCommand
 			}
 			Parameters = parameters.MoveToImmutable();
 
-			var attributes = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);
+			var attributes = ImmutableArray.CreateBuilder<AttributeInfo>(mutable.Attributes.Count);
 			var categories = new HashSet<string>();
 			// Use ConcurrentDictionary because it has GetOrAdd by default, not threading reasons
 			var preconditions = new ConcurrentDictionary<string, List<IPrecondition>>();
@@ -162,23 +162,23 @@ public abstract class Command : Entity, IMutableCommand
 			{
 				attributes.Add(attribute);
 				// No if/else in case some madman decides to implement multiple
-				if (attribute is IPrecondition precondition)
+				if (attribute.Value is IPrecondition precondition)
 				{
 					preconditions.AddPrecondition(precondition);
 				}
-				if (attribute is IPriorityAttribute priority)
+				if (attribute.Value is IPriorityAttribute priority)
 				{
 					Priority = priority.ThrowIfDuplicate(x => x.Priority, ref p);
 				}
-				if (attribute is IIdAttribute id)
+				if (attribute.Value is IIdAttribute id)
 				{
 					PrimaryId ??= id.Id;
 				}
-				if (attribute is IHiddenAttribute)
+				if (attribute.Value is IHiddenAttribute)
 				{
 					IsHidden = true;
 				}
-				if (attribute is ICategoryAttribute category)
+				if (attribute.Value is ICategoryAttribute category)
 				{
 					categories.Add(category.Category);
 				}

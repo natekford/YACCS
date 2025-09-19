@@ -63,7 +63,7 @@ public abstract class CommandGroup<TContext> : ICommandGroup<TContext>, IOnComma
 		{
 			foreach (var command in commands)
 			{
-				command.Attributes.Add(new ContextMustImplementAttribute(constraints));
+				command.Attributes.Add(new(new ContextMustImplementAttribute(constraints)));
 			}
 		}
 

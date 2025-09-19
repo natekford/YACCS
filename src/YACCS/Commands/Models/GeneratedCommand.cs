@@ -20,7 +20,7 @@ public abstract class GeneratedCommand(IImmutableCommand source, int priorityDif
 	: IImmutableCommand
 {
 	/// <inheritdoc />
-	public virtual IReadOnlyList<object> Attributes => Source.Attributes;
+	public virtual IReadOnlyList<AttributeInfo> Attributes => Source.Attributes;
 	/// <inheritdoc />
 	public virtual IReadOnlyCollection<string> Categories => Source.Categories;
 	/// <inheritdoc />
@@ -47,7 +47,7 @@ public abstract class GeneratedCommand(IImmutableCommand source, int priorityDif
 	public virtual int PriorityDifference { get; set; } = priorityDifference;
 	/// <inheritdoc />
 	public IImmutableCommand Source { get; } = source;
-	IEnumerable<object> IQueryableEntity.Attributes => Attributes;
+	IEnumerable<AttributeInfo> IQueryableEntity.Attributes => Attributes;
 	IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
 	private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 

@@ -10,10 +10,9 @@ namespace YACCS.Localization;
 public static class Keys
 {
 	public static ImmutableArray<NeedsLocalization> AllKeys { get; }
-		= typeof(Keys).GetProperties(BindingFlags.Public | BindingFlags.Static)
+		= [.. typeof(Keys).GetProperties(BindingFlags.Public | BindingFlags.Static)
 		.Where(x => x.PropertyType == typeof(NeedsLocalization))
-		.Select(x => (NeedsLocalization)x.GetValue(null))
-		.ToImmutableArray();
+		.Select(x => (NeedsLocalization)x.GetValue(null))];
 
 	#region Words
 	public static NeedsLocalization And { get; } = Create();

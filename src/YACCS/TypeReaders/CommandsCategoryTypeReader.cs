@@ -2,10 +2,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
+using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 
 namespace YACCS.TypeReaders;
@@ -42,7 +42,7 @@ public class CommandsCategoryTypeReader
 		var matchedCategories = new HashSet<string>(categories.Count, categories.Comparer);
 		foreach (var command in commands.Commands)
 		{
-			foreach (var category in command.Attributes.OfType<ICategoryAttribute>())
+			foreach (var category in command.GetAttributes<ICategoryAttribute>())
 			{
 				if (categories.Contains(category.Category))
 				{

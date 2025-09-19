@@ -16,7 +16,7 @@ namespace YACCS.Help.Models;
 /// <param name="item">The command to present information about.</param>
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 public class HelpCommand(IImmutableCommand item)
-	: HelpItem<IImmutableCommand>(item, item.Attributes, x => x is not IPrecondition)
+	: HelpItem<IImmutableCommand>(item, item.Attributes.Select(x => x.Value), x => x is not IPrecondition)
 {
 	/// <summary>
 	/// The context type of this command.

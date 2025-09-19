@@ -100,7 +100,7 @@ public sealed class Trie_Tests
 		}
 
 		protected override IEnumerable<IReadOnlyList<int>> GetPaths(int item)
-			=> [new[] { item }];
+			=> [[item]];
 	}
 
 	private sealed class IntTrieWrapper(ICollection<int> collection)

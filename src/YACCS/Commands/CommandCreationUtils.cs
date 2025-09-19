@@ -64,9 +64,11 @@ public static class CommandCreationUtils
 		this Assembly assembly,
 		IServiceProvider services)
 	{
+		// GetExportedTypes will return nested types so we don't need to call
+		// type.GetAllCommands, type.GetDirectCommands it good enough.
 		foreach (var type in assembly.GetExportedTypes())
 		{
-			await foreach (var command in type.GetAllCommandsAsync(services))
+			await foreach (var command in type.GetDirectCommandsAsync(services))
 			{
 				yield return command;
 			}

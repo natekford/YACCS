@@ -35,14 +35,14 @@ public class HelpItem<T> where T : notnull
 	private string DebuggerDisplay
 		=> $"Type = {Item.GetType()}, Attribute Count = {Attributes.Count}";
 
-	/// <inheritdoc cref="HelpItem(T, IReadOnlyList{object}, Func{object, bool})"/>
+	/// <inheritdoc cref="HelpItem(T, IEnumerable{object}, Func{object, bool})"/>
 	public HelpItem(T item)
 		: this(item, item.GetType().GetCustomAttributes(true))
 	{
 	}
 
-	/// <inheritdoc cref="HelpItem(T, IReadOnlyList{object}, Func{object, bool})"/>
-	public HelpItem(T item, IReadOnlyList<object> attributes)
+	/// <inheritdoc cref="HelpItem(T, IEnumerable{object}, Func{object, bool})"/>
+	public HelpItem(T item, IEnumerable<object> attributes)
 		: this(item, attributes, _ => true)
 	{
 	}
@@ -53,7 +53,7 @@ public class HelpItem<T> where T : notnull
 	/// <param name="item">The item to present information about.</param>
 	/// <param name="attributes">The attributes for this item.</param>
 	/// <param name="allowedAttributes">The filter to use for these attributes.</param>
-	public HelpItem(T item, IReadOnlyList<object> attributes, Func<object, bool> allowedAttributes)
+	public HelpItem(T item, IEnumerable<object> attributes, Func<object, bool> allowedAttributes)
 	{
 		Item = item;
 

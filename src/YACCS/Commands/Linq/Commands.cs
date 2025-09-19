@@ -47,7 +47,7 @@ public static class Commands
 		where TContext : IContext
 		where TCommand : IMutableCommand, ICommand<TContext>
 	{
-		command.Attributes.Add(precondition);
+		command.Attributes.Add(new(precondition));
 		return command;
 	}
 
@@ -119,12 +119,12 @@ public static class Commands
 	private sealed class Command<TContext>(IMutableCommand actual)
 		: ICommand<TContext> where TContext : IContext
 	{
-		IList<object> IMutableEntity.Attributes
+		IList<AttributeInfo> IMutableEntity.Attributes
 		{
 			get => actual.Attributes;
 			set => actual.Attributes = value;
 		}
-		IEnumerable<object> IQueryableEntity.Attributes => actual.Attributes;
+		IEnumerable<AttributeInfo> IQueryableEntity.Attributes => actual.Attributes;
 		Type IQueryableCommand.ContextType => actual.ContextType;
 		IReadOnlyList<IMutableParameter> IMutableCommand.Parameters => actual.Parameters;
 		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => actual.Parameters;

@@ -91,7 +91,7 @@ public abstract class Input<TContext, TInput>(IReadOnlyDictionary<Type, ITypeRea
 	/// <inheritdoc cref="IImmutableParameter"/>
 	protected sealed class EmptyParameter<T> : IImmutableParameter
 	{
-		private static readonly object[] _Attributes = [];
+		private static readonly AttributeInfo[] _Attributes = [];
 		private static readonly string _Name = $"Input_{typeof(T).FullName}";
 
 		/// <summary>
@@ -99,8 +99,8 @@ public abstract class Input<TContext, TInput>(IReadOnlyDictionary<Type, ITypeRea
 		/// </summary>
 		public static EmptyParameter<T> Instance { get; } = new();
 
-		IReadOnlyList<object> IImmutableEntity.Attributes => _Attributes;
-		IEnumerable<object> IQueryableEntity.Attributes => _Attributes;
+		IReadOnlyList<AttributeInfo> IImmutableEntity.Attributes => _Attributes;
+		IEnumerable<AttributeInfo> IQueryableEntity.Attributes => _Attributes;
 		object? IImmutableParameter.DefaultValue => null;
 		bool IImmutableParameter.HasDefaultValue => false;
 		int? IImmutableParameter.Length => int.MaxValue;

@@ -8,6 +8,7 @@ using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
+using YACCS.Help.Attributes;
 using YACCS.Results;
 using YACCS.TypeReaders;
 
@@ -82,7 +83,7 @@ public class CommandBuilding_Tests
 		Assert.AreEqual(Paths[0], command.Paths[0]);
 		Assert.AreEqual(1, command.Parameters.Count);
 		Assert.AreEqual(1, command.Attributes.Count);
-		Assert.IsInstanceOfType<Delegate>(command.Attributes[0]);
+		Assert.IsInstanceOfType<Delegate>(command.Attributes[0].Value);
 
 		var immutable = command.ToImmutable();
 		var args = new object[] { new FakeContext() };
@@ -125,6 +126,19 @@ public class CommandBuilding_Tests
 
 		var command2 = commands.ById(GroupBase.INHERITANCE_DISALLOWED).SingleOrDefault();
 		Assert.IsNull(command2);
+	}
+
+	[TestMethod]
+	public async Task CommandNested_Test()
+	{
+		var commands = new List<IImmutableCommand>();
+		await foreach (var (_, command) in typeof(NestedCommandParent).GetAllCommandsAsync(FakeServiceProvider.Instance))
+		{
+			commands.Add(command);
+		}
+		Assert.AreEqual(1, commands.Count);
+
+		//Assert.AreEqual(2, commands.Single().Categories.Count);
 	}
 
 	[TestMethod]
@@ -222,8 +236,8 @@ public class CommandBuilding_Tests
 		Assert.AreEqual(Paths[0], command.Paths[0]);
 		Assert.AreEqual(1, command.Parameters.Count);
 		Assert.AreEqual(2, command.Attributes.Count);
-		Assert.IsInstanceOfType<CompilerGeneratedAttribute>(command.Attributes[0]);
-		Assert.IsInstanceOfType<Delegate>(command.Attributes[1]);
+		Assert.IsInstanceOfType<CompilerGeneratedAttribute>(command.Attributes[0].Value);
+		Assert.IsInstanceOfType<Delegate>(command.Attributes[1].Value);
 
 		var immutable = command.ToImmutable();
 		var args = new object[] { new FakeContext() };
@@ -311,6 +325,20 @@ public class CommandBuilding_Tests
 		[Command(nameof(Visible))]
 		[Id(VISIBLE)]
 		public Result Visible() => Result.EmptySuccess;
+	}
+
+	[Command(nameof(NestedCommandParent), "ncp")]
+	[Summary(nameof(NestedCommandParent))]
+	private class NestedCommandParent : CommandGroup<FakeContext>
+	{
+		[Command(nameof(NestedCommandSubclass), "ncs")]
+		[Summary(nameof(NestedCommandSubclass))]
+		public class NestedCommandSubclass : CommandGroup<FakeContext>
+		{
+			[Command(nameof(Foo), "f")]
+			[Summary(nameof(Foo))]
+			public string Foo() => "bar";
+		}
 	}
 
 	private class RemainderAttributeGroup : CommandGroup<FakeContext>

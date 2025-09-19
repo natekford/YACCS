@@ -16,7 +16,7 @@ namespace YACCS.Help.Models;
 /// <param name="item">The parameter to present information about.</param>
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 public class HelpParameter(IImmutableParameter item)
-	: HelpItem<IImmutableParameter>(item, item.Attributes, x => x is not IParameterPrecondition)
+	: HelpItem<IImmutableParameter>(item, item.Attributes.Select(x => x.Value), x => x is not IParameterPrecondition)
 {
 	/// <summary>
 	/// Whether or not this parameter is a remainder.

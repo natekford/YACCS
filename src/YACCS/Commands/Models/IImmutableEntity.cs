@@ -8,7 +8,7 @@ namespace YACCS.Commands.Models;
 public interface IImmutableEntity : IQueryableEntity
 {
 	/// <inheritdoc cref="IQueryableEntity.Attributes" />
-	new IReadOnlyList<object> Attributes { get; }
+	new IReadOnlyList<AttributeInfo> Attributes { get; }
 	/// <summary>
 	/// The primary id of this entity.
 	/// </summary>

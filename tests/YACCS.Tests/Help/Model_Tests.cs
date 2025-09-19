@@ -25,9 +25,9 @@ public class Model_Tests
 	{
 		var command = FakeDelegateCommand.New();
 		var summary = new SummaryAttribute("idk lol summary");
-		command.Attributes.Add(summary);
+		command.Attributes.Add(new(summary));
 		var name = new NameAttribute("idk lol name");
-		command.Attributes.Add(name);
+		command.Attributes.Add(new(name));
 		var helpCommand = new HelpCommand(command.ToImmutable());
 
 		Assert.AreSame(summary, helpCommand.Summary);

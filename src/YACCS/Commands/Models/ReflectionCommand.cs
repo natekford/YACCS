@@ -40,18 +40,27 @@ public sealed class ReflectionCommand : Command
 		GroupType = groupType;
 		Method = method;
 
-		Attributes.Add(Method);
-		Paths = GetFullPaths(groupType, method).ToList();
+		Attributes.Add(new(method, AttributeInfo.DIRECT, method));
+		Paths = [.. GetFullPaths(groupType, method)];
 
 		// Add in all attributes
 		var type = groupType;
+		var distance = AttributeInfo.INHERITED;
 		while (type is not null)
 		{
-			foreach (var attribute in type.GetCustomAttributes(true))
+			var (direct, indirect) = GetAttributes(type);
+			foreach (var attribute in direct)
 			{
-				Attributes.Add(attribute);
+				Attributes.Add(new(type, distance, attribute));
 			}
-			type = type.DeclaringType;
+			++distance;
+			foreach (var attribute in indirect)
+			{
+				Attributes.Add(new(type, distance, attribute));
+			}
+			++distance;
+
+			type = type!.DeclaringType;
 		}
 	}
 

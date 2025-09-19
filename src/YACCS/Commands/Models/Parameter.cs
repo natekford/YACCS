@@ -73,7 +73,9 @@ public sealed class Parameter : Entity, IMutableParameter
 		// like the named arguments attribute on the parameter's type will add
 		// the named arguments parameter precondition which verifies that every
 		// property has been set or has a default value
-		foreach (var attribute in type.GetCustomAttributes(true).Concat(BaseAttributes))
+		var parameterTypeAttributes = type.GetCustomAttributes(true);
+		var parameterAttributes = Attributes.Select(x => x.Value);
+		foreach (var attribute in parameterAttributes.Concat(parameterTypeAttributes))
 		{
 			if (attribute is IParameterModifierAttribute modifier)
 			{
@@ -131,7 +133,7 @@ public sealed class Parameter : Entity, IMutableParameter
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	private sealed class ImmutableParameter : IImmutableParameter
 	{
-		public IReadOnlyList<object> Attributes { get; }
+		public IReadOnlyList<AttributeInfo> Attributes { get; }
 		public object? DefaultValue { get; }
 		public bool HasDefaultValue { get; }
 		public int? Length { get; } = 1;
@@ -141,7 +143,7 @@ public sealed class Parameter : Entity, IMutableParameter
 		public IReadOnlyDictionary<string, IReadOnlyList<IParameterPrecondition>> Preconditions { get; }
 		public string PrimaryId { get; }
 		public ITypeReader? TypeReader { get; }
-		IEnumerable<object> IQueryableEntity.Attributes => Attributes;
+		IEnumerable<AttributeInfo> IQueryableEntity.Attributes => Attributes;
 		private string DebuggerDisplay => this.FormatForDebuggerDisplay();
 
 		public ImmutableParameter(Parameter mutable)
@@ -151,7 +153,7 @@ public sealed class Parameter : Entity, IMutableParameter
 			OriginalParameterName = mutable.OriginalParameterName;
 			ParameterType = mutable.ParameterType;
 
-			var attributes = ImmutableArray.CreateBuilder<object>(mutable.Attributes.Count);
+			var attributes = ImmutableArray.CreateBuilder<AttributeInfo>(mutable.Attributes.Count);
 			// Use ConcurrentDictionary because it has GetOrAdd by default, not threading reasons
 			var preconditions = new ConcurrentDictionary<string, List<IParameterPrecondition>>();
 			int l = 0, n = 0, t = 0;
@@ -159,24 +161,24 @@ public sealed class Parameter : Entity, IMutableParameter
 			{
 				attributes.Add(attribute);
 				// No if/else in case some madman decides to implement multiple
-				if (attribute is IParameterPrecondition precondition)
+				if (attribute.Value is IParameterPrecondition precondition)
 				{
 					preconditions.AddPrecondition(precondition);
 				}
-				if (attribute is ILengthAttribute length)
+				if (attribute.Value is ILengthAttribute length)
 				{
 					Length = length.ThrowIfDuplicate(x => x.Length, ref l);
 				}
-				if (attribute is INameAttribute name)
+				if (attribute.Value is INameAttribute name)
 				{
 					ParameterName = name.ThrowIfDuplicate(x => x.Name, ref n);
 				}
-				if (attribute is IOverrideTypeReaderAttribute typeReader)
+				if (attribute.Value is IOverrideTypeReaderAttribute typeReader)
 				{
 					typeReader.Reader.ThrowIfInvalidTypeReader(ParameterType);
 					TypeReader = typeReader.ThrowIfDuplicate(x => x.Reader, ref t);
 				}
-				if (attribute is IIdAttribute id)
+				if (attribute.Value is IIdAttribute id)
 				{
 					PrimaryId ??= id.Id;
 				}

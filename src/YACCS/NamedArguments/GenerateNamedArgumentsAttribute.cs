@@ -43,7 +43,7 @@ public sealed class GenerateNamedArgumentsAttribute : Attribute,
 	{
 		var pType = parameter.ParameterType;
 		var ppType = typeof(NamedArgumentsParameterPrecondition<>).MakeGenericType(pType);
-		parameter.Attributes.Add(Activator.CreateInstance(ppType));
+		parameter.Attributes.Add(new(Activator.CreateInstance(ppType)));
 		parameter.MarkAsRemainder();
 	}
 }

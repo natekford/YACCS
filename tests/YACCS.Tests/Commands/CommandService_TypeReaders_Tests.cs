@@ -132,7 +132,7 @@ public class CommandService_TypeReaders_Tests
 	{
 		var parameter = new Parameter(typeof(T), "", null)
 		{
-			Attributes = [new LengthAttribute(length),],
+			Attributes = [new(new LengthAttribute(length))],
 			TypeReader = reader,
 		}.ToImmutable();
 		var context = new FakeContext();

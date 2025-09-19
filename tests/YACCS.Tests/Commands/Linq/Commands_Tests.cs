@@ -23,17 +23,11 @@ public class Commands_Tests
 		FakeDelegateCommand.New().AddAttribute(new IdAttribute(NORM_ID)),
 		new ReflectionCommand(typeof(GroupBase).GetMethod(nameof(GroupBase.CommandParent))!)
 		{
-			Attributes =
-				[
-					new IdAttribute(PARENT_ID),
-				],
+			Attributes = [new(new IdAttribute(PARENT_ID))],
 		},
 		new ReflectionCommand(typeof(GroupChild).GetMethod(nameof(GroupChild.CommandChild))!)
 		{
-			Attributes =
-				[
-					new IdAttribute(CHILD_ID),
-				],
+			Attributes = [new(new IdAttribute(CHILD_ID))],
 		},
 	];
 
