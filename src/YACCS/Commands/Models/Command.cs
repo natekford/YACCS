@@ -43,7 +43,7 @@ public abstract class Command : Entity, IMutableCommand
 	protected Command(MethodInfo method, Type contextType) : base(method)
 	{
 		ContextType = contextType;
-		Parameters = [.. method.GetParameters().Select(x => new Parameter(x))];
+		Parameters = method.GetParameters().Select(x => new Parameter(x)).ToImmutableArray();
 	}
 
 	/// <inheritdoc />
@@ -83,7 +83,7 @@ public abstract class Command : Entity, IMutableCommand
 		/// <inheritdoc />
 		public IReadOnlyList<AttributeInfo> Attributes { get; }
 		/// <inheritdoc />
-		public IReadOnlyCollection<string> Categories { get; }
+		public IReadOnlyList<string> Categories { get; }
 		/// <inheritdoc />
 		public Type ContextType { get; }
 		/// <inheritdoc />
@@ -184,7 +184,7 @@ public abstract class Command : Entity, IMutableCommand
 				}
 			}
 			Attributes = attributes.MoveToImmutable();
-			Categories = categories.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
+			Categories = categories.ToImmutableArray();
 			Preconditions = preconditions.ToImmutablePreconditions();
 
 			PrimaryId ??= Guid.NewGuid().ToString();
@@ -276,7 +276,9 @@ public abstract class Command : Entity, IMutableCommand
 			var instance = Expression.Parameter(typeof(Task), "Task");
 
 			var instanceCast = Expression.Convert(instance, ReturnType);
+#pragma warning disable IDE0340 // Use unbound generic type
 			var property = Expression.Property(instanceCast, nameof(Task<object>.Result));
+#pragma warning restore IDE0340 // Use unbound generic type
 			var propertyCast = Expression.Convert(property, typeof(object));
 
 			var lambda = Expression.Lambda<Func<Task, object>>(

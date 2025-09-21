@@ -16,18 +16,13 @@ namespace YACCS.NamedArguments;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public abstract class NamedArgumentsTypeReaderBase<T>
-	: TypeReader<T> where T : new()
+	: TypeReader<T>, INamedArgumentParameters where T : new()
 {
 	private static readonly char[] _TrimEnd = [':'];
 	private static readonly char[] _TrimStart = ['/', '-'];
 
-	/// <summary>
-	/// The parameters this type reader expects.
-	/// </summary>
-	/// <remarks>
-	/// The keys are the current localized parameter name, NOT the original parameter name.
-	/// </remarks>
-	protected abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
+	/// <inheritdoc />
+	public abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 
 	/// <inheritdoc />
 	public override async ITask<ITypeReaderResult<T>> ReadAsync(

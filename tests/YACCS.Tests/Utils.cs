@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 using YACCS.Commands;
+using YACCS.Help;
 using YACCS.Parsing;
 using YACCS.TypeReaders;
 
@@ -31,12 +32,21 @@ public static class Utils
 		);
 		var readers = new TypeReaderRegistry();
 		var commandService = new FakeCommandService(config, handler, readers);
+		var names = new TypeNameRegistry();
+		var formatter = new TagFormatter();
+		var helpFormatter = new HelpFormatter(names, formatter);
 
 		return new ServiceCollection()
 			.AddSingleton<IArgumentHandler>(handler)
 			.AddSingleton(config)
 			.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>>(readers)
 			.AddSingleton(readers)
+			.AddSingleton<IReadOnlyDictionary<Type, string>>(names)
+			.AddSingleton(names)
+			.AddSingleton<IFormatProvider>(formatter)
+			.AddSingleton(formatter)
+			.AddSingleton<IHelpFormatter>(helpFormatter)
+			.AddSingleton(helpFormatter)
 			.AddSingleton<ICommandService>(commandService)
 			.AddSingleton(commandService);
 	}

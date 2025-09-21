@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
@@ -13,15 +14,14 @@ namespace YACCS.NamedArguments;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public abstract class NamedArgumentsParameterPreconditionBase<T>
-	: ParameterPrecondition<IContext, T>
+	: ParameterPrecondition<IContext, T>, INamedArgumentParameters
 {
-	/// <summary>
-	/// The parameters this precondition expects.
-	/// </summary>
-	/// <remarks>
-	/// The keys are the original parameter name, NOT the current localized parameter name.
-	/// </remarks>
-	protected abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
+	/// <inheritdoc />
+	public abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
+
+	/// <inheritdoc />
+	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+		=> this.CombineSummariesAsync(context);
 
 	/// <inheritdoc />
 	protected override async ValueTask<IResult> CheckNotNullAsync(

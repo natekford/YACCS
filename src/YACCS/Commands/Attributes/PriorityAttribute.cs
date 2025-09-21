@@ -16,12 +16,12 @@ namespace YACCS.Commands.Attributes;
 /// </param>
 [AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
 public class PriorityAttribute(int priority)
-	: Attribute, IPriorityAttribute, IRuntimeFormattableAttribute
+	: Attribute, IPriorityAttribute, ISummarizableAttribute
 {
 	/// <inheritdoc />
 	public int Priority { get; } = priority;
 
 	/// <inheritdoc />
-	public virtual ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
+	public virtual ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
 		=> new(formatProvider.Format($"{Keys.Priority:key} {Priority:value}"));
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
@@ -155,6 +156,9 @@ public class Parameters_Tests
 	{
 		private const string _Message = "Is negative.";
 		private static readonly Result _Failure = Result.Failure(_Message);
+
+		public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+			=> throw new NotImplementedException();
 
 		protected override ValueTask<IResult> CheckNotNullAsync(
 			CommandMeta meta,

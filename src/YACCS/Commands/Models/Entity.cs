@@ -34,11 +34,11 @@ public abstract class Entity : IMutableEntity
 		var (direct, inherited) = GetAttributes(provider);
 		foreach (var attribute in direct)
 		{
-			Attributes.Add(new(provider, AttributeInfo.DIRECT, attribute));
+			Attributes.Add(new(provider, AttributeInfo.ON_METHOD, attribute));
 		}
 		foreach (var attribute in inherited)
 		{
-			Attributes.Add(new(provider, AttributeInfo.DIRECTLY_INHERITED, attribute));
+			Attributes.Add(new(provider, AttributeInfo.ON_METHOD_INHERITED, attribute));
 		}
 	}
 

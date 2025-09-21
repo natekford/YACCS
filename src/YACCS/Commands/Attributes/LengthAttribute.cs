@@ -9,7 +9,7 @@ namespace YACCS.Commands.Attributes;
 
 /// <inheritdoc cref="ILengthAttribute" />
 [AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
-public class LengthAttribute : Attribute, ILengthAttribute, IRuntimeFormattableAttribute
+public class LengthAttribute : Attribute, ILengthAttribute, ISummarizableAttribute
 {
 	/// <inheritdoc />
 	public int? Length { get; }
@@ -45,7 +45,7 @@ public class LengthAttribute : Attribute, ILengthAttribute, IRuntimeFormattableA
 	}
 
 	/// <inheritdoc />
-	public virtual ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
+	public virtual ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
 	{
 		var value = Length ?? (object?)Keys.Remainder;
 		return new(formatProvider.Format($"{Keys.Length:key} {value:value}"));

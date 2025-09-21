@@ -19,6 +19,9 @@ public class RangeParameterPrecondition : ParameterPrecondition<IContext, int>
 		_TooLow = Result.MustBeGreaterThan(_Min);
 	}
 
+	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+		=> new($"Between {_Min} and {_Max}.");
+
 	protected override ValueTask<IResult> CheckNotNullAsync(
 		CommandMeta meta,
 		IContext context,

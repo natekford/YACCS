@@ -10,5 +10,5 @@ public interface ISummaryAttribute
 	/// <summary>
 	/// The summary of an item.
 	/// </summary>
-	string Summary { get; }
+	public string Summary { get; }
 }

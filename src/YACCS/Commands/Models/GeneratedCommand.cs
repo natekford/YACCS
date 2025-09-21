@@ -22,7 +22,7 @@ public abstract class GeneratedCommand(IImmutableCommand source, int priorityDif
 	/// <inheritdoc />
 	public virtual IReadOnlyList<AttributeInfo> Attributes => Source.Attributes;
 	/// <inheritdoc />
-	public virtual IReadOnlyCollection<string> Categories => Source.Categories;
+	public virtual IReadOnlyList<string> Categories => Source.Categories;
 	/// <inheritdoc />
 	public virtual Type ContextType => Source.ContextType;
 	/// <inheritdoc />

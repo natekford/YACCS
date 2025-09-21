@@ -47,12 +47,8 @@ public class HelpFormatter(
 		return builder.ToString();
 	}
 
-	/// <summary>
-	/// Creates a new <see cref="HelpBuilder"/>.
-	/// </summary>
-	/// <param name="context">The context invoking this help command.</param>
-	/// <returns>A new help builder.</returns>
-	protected virtual HelpBuilder GetBuilder(IContext context)
+	/// <inheritdoc />
+	public virtual HelpBuilder GetBuilder(IContext context)
 		=> new(context, TypeNames, FormatProvider);
 
 	/// <summary>

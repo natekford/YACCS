@@ -2,14 +2,9 @@
 
 namespace YACCS.Help.Attributes;
 
-/// <inheritdoc cref="ISummaryAttribute" />
-/// <summary>
-/// Creates a new <see cref="Summary"/>.
-/// </summary>
-/// <param name="summary">
-/// <inheritdoc cref="Summary" path="/summary"/>
-/// </param>
-[AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
+/// <inheritdoc cref="ISummarizableAttribute" />
+/// <param name="summary">The summary of an item.</param>
+[AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = false)]
 public class SummaryAttribute(string summary)
 	: Attribute, ISummaryAttribute
 {

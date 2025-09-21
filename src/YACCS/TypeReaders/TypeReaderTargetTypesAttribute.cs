@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace YACCS.TypeReaders;
 
@@ -20,5 +19,5 @@ public class TypeReaderTargetTypesAttribute(params Type[] types) : Attribute
 	/// <summary>
 	/// The types to target with this type reader.
 	/// </summary>
-	public IReadOnlyList<Type> TargetTypes { get; } = types.ToImmutableArray();
+	public IReadOnlyList<Type> TargetTypes { get; } = types;
 }

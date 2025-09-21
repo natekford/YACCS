@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 
 using YACCS.Commands;
-using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 using YACCS.Trie;
 
@@ -15,10 +14,8 @@ namespace YACCS.TypeReaders;
 /// </summary>
 /// <remarks>Order is NOT guaranteed</remarks>
 public class CommandsNameTypeReader
-	: TypeReader<IReadOnlyCollection<IImmutableCommand>>, IOverrideTypeReaderAttribute
+	: TypeReader<IReadOnlyCollection<IImmutableCommand>>
 {
-	ITypeReader IOverrideTypeReaderAttribute.Reader => this;
-
 	/// <inheritdoc />
 	public override ITask<ITypeReaderResult<IReadOnlyCollection<IImmutableCommand>>> ReadAsync(
 		IContext context,

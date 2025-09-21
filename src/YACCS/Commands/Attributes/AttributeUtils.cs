@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 using YACCS.Preconditions;
@@ -60,7 +61,7 @@ public static class AttributeUtils
 	{
 		return dict.ToFrozenDictionary(
 			x => x.Key,
-			x => (IReadOnlyList<TPrecondition>)[.. x.Value]
+			x => (IReadOnlyList<TPrecondition>)x.Value.ToImmutableArray()
 		);
 	}
 }

@@ -278,6 +278,9 @@ public class GeneratedNamedArguments_Tests
 
 	private class NotNegative : ParameterPrecondition<IContext, int>
 	{
+		public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+			=> throw new NotImplementedException();
+
 		protected override ValueTask<IResult> CheckNotNullAsync(
 			CommandMeta meta,
 			IContext context,

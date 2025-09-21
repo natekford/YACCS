@@ -226,9 +226,9 @@ public class HelpBuilder(
 		foreach (var item in items)
 		{
 			var text = default(string?);
-			if (item.Item is IRuntimeFormattableAttribute f)
+			if (item.Item is ISummarizableAttribute summarizable)
 			{
-				text = await f.FormatAsync(Context, FormatProvider).ConfigureAwait(false);
+				text = await summarizable.GetSummaryAsync(Context, FormatProvider).ConfigureAwait(false);
 			}
 			else if (item.Summary?.Summary is string summary)
 			{

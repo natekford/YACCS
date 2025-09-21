@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 
 using YACCS.Commands;
@@ -78,6 +77,6 @@ public class HelpItem<T> where T : notnull
 					break;
 			}
 		}
-		Attributes = items.ToImmutableArray();
+		Attributes = items;
 	}
 }

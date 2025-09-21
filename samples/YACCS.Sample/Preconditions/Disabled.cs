@@ -11,4 +11,7 @@ public class Disabled : Precondition<IContext>
 		IImmutableCommand command,
 		IContext context)
 		=> new(Result.Failure("Command is disabled."));
+
+	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+		=> new("Command is disabled.");
 }

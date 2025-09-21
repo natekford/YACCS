@@ -69,7 +69,7 @@ public sealed class NamedArgumentsCommand : GeneratedCommand
 	private sealed class GeneratedNamedArgumentsParameterPrecondition(IImmutableCommand command)
 		: NamedArgumentsParameterPreconditionBase<Dict>
 	{
-		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
+		public override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 			= command.Parameters.ToParamDict(x => x.OriginalParameterName);
 
 		protected override bool TryGetProperty(Dict instance, string property, out object? value)
@@ -93,7 +93,7 @@ public sealed class NamedArgumentsCommand : GeneratedCommand
 	private sealed class GeneratedNamedArgumentsTypeReader(IImmutableCommand command)
 		: NamedArgumentsTypeReaderBase<Dict>
 	{
-		protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
+		public override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 			= command.Parameters.ToParamDict(x => x.ParameterName);
 
 		protected override void SetProperty(Dict instance, string property, object? value)

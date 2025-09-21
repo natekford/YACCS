@@ -10,10 +10,9 @@ namespace YACCS.Sample.Preconditions;
 
 [AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = true, Inherited = true)]
 public class RequiresMinuteDivisibleBy(int divisor)
-	: Precondition<IContext>, IRuntimeFormattableAttribute
+	: Precondition<IContext>, ISummarizableAttribute
 {
 	public int Divisor { get; } = divisor;
-	public virtual string FallbackErrorMessage { get; set; } = "Current minute must be divisible by {0}.";
 
 	public override ValueTask<IResult> CheckAsync(IImmutableCommand command, IContext context)
 	{
@@ -24,12 +23,14 @@ public class RequiresMinuteDivisibleBy(int divisor)
 		return new(Result.EmptySuccess);
 	}
 
-	public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
+	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
 		=> new(GetErrorMessage());
 
 	private string GetErrorMessage()
 	{
-		var format = Localize.This(nameof(RequiresMinuteDivisibleBy), FallbackErrorMessage);
-		return string.Format(format, Divisor);
+		return string.Format(Localize.This(
+			key: nameof(RequiresMinuteDivisibleBy),
+			fallback: "Current minute must be divisible by {0}."
+		), Divisor);
 	}
 }

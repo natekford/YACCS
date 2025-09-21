@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -40,12 +41,12 @@ public sealed class ReflectionCommand : Command
 		GroupType = groupType;
 		Method = method;
 
-		Attributes.Add(new(method, AttributeInfo.DIRECT, method));
-		Paths = [.. GetFullPaths(groupType, method)];
+		Attributes.Add(new(method, AttributeInfo.ON_METHOD, method));
+		Paths = GetFullPaths(groupType, method).ToImmutableArray();
 
 		// Add in all attributes
 		var type = groupType;
-		var distance = AttributeInfo.INHERITED;
+		var distance = AttributeInfo.ON_CLASS;
 		while (type is not null)
 		{
 			var (direct, indirect) = GetAttributes(type);

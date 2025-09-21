@@ -133,5 +133,8 @@ public class Commands_Tests
 			}
 			return new(Result.Failure("It's seven PM."));
 		}
+
+		public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+			=> throw new NotImplementedException();
 	}
 }

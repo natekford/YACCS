@@ -95,6 +95,9 @@ public class CommandsGroup : CommandGroup<FakeContext>
 			IImmutableCommand command,
 			FakeContext context)
 			=> new(_Failure);
+
+		public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+			=> throw new NotImplementedException();
 	}
 
 	private class FakePreconditionWhichThrowsAfter : Precondition<FakeContext>
@@ -109,6 +112,9 @@ public class CommandsGroup : CommandGroup<FakeContext>
 			IImmutableCommand command,
 			FakeContext context)
 			=> new(Result.EmptySuccess);
+
+		public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+			=> throw new NotImplementedException();
 	}
 
 	private class FakePreconditionWhichThrowsBefore : Precondition<FakeContext>
@@ -122,6 +128,9 @@ public class CommandsGroup : CommandGroup<FakeContext>
 			IImmutableCommand command,
 			FakeContext context)
 			=> new(Result.EmptySuccess);
+
+		public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+			=> throw new NotImplementedException();
 	}
 }
 
@@ -129,6 +138,9 @@ public class FakeParameterPreconditionAttribute(int value)
 	: ParameterPrecondition<FakeContext, int>
 {
 	public int DisallowedValue { get; } = value;
+
+	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+		=> throw new NotImplementedException();
 
 	protected override ValueTask<IResult> CheckNotNullAsync(
 		CommandMeta meta,
@@ -143,11 +155,17 @@ public class FakePrecondition(bool success) : Precondition<FakeContext>
 		IImmutableCommand command,
 		FakeContext context)
 		=> new(success ? Result.EmptySuccess : Result.EmptyFailure);
+
+	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+		=> throw new NotImplementedException();
 }
 
 public class WasIReachedParameterPreconditionAttribute : ParameterPrecondition<FakeContext, int>
 {
 	public bool IWasReached { get; private set; }
+
+	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+		=> throw new NotImplementedException();
 
 	protected override ValueTask<IResult> CheckNotNullAsync(
 		CommandMeta meta,
@@ -170,4 +188,7 @@ public class WasIReachedPrecondition : Precondition<FakeContext>
 		IWasReached = true;
 		return new(default(IResult)!);
 	}
+
+	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+		=> throw new NotImplementedException();
 }

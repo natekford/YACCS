@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
+using YACCS.Commands;
 using YACCS.Commands.Models;
 
 namespace YACCS.NamedArguments;
@@ -18,8 +20,12 @@ public sealed class NamedArgumentsParameterPrecondition<T>
 	private readonly Func<T, string, object> _Getter = ReflectionUtils.CreateDelegate(Getter);
 
 	/// <inheritdoc />
-	protected override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
+	public override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
 		= typeof(T).CreateParamDict(x => x.OriginalParameterName);
+
+	/// <inheritdoc />
+	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+		=> this.CombineSummariesAsync(context);
 
 	/// <inheritdoc />
 	protected override bool TryGetProperty(T instance, string property, out object? value)

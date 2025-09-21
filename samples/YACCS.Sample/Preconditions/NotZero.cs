@@ -6,15 +6,13 @@ using YACCS.Results;
 
 namespace YACCS.Sample.Preconditions;
 
-public class NotZero : ParameterPrecondition<IContext, int>, IRuntimeFormattableAttribute
+public class NotZero : ParameterPrecondition<IContext, int>, ISummarizableAttribute
 {
-	public virtual string FallbackErrorMessage { get; set; } = "Cannot be zero.";
-
-	public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
+	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
 		=> new(GetErrorMessage());
 
 	protected override ValueTask<IResult> CheckNotNullAsync(
-			CommandMeta meta,
+		CommandMeta meta,
 		IContext context,
 		int value)
 	{
@@ -26,5 +24,5 @@ public class NotZero : ParameterPrecondition<IContext, int>, IRuntimeFormattable
 	}
 
 	private string GetErrorMessage()
-		=> Localize.This(nameof(NotZero), FallbackErrorMessage);
+		=> Localize.This(nameof(NotZero), "Cannot be zero.");
 }

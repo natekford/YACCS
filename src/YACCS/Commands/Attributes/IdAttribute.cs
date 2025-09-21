@@ -16,12 +16,12 @@ namespace YACCS.Commands.Attributes;
 /// </param>
 [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
 public class IdAttribute(string id)
-	: Attribute, IIdAttribute, IRuntimeFormattableAttribute
+	: Attribute, IIdAttribute, ISummarizableAttribute
 {
 	/// <inheritdoc />
 	public virtual string Id { get; } = id;
 
 	/// <inheritdoc />
-	public virtual ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
+	public virtual ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
 		=> new(formatProvider.Format($"{Keys.Id:key} {Id:value}"));
 }

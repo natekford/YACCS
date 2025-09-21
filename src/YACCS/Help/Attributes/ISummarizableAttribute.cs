@@ -6,10 +6,9 @@ using YACCS.Commands;
 namespace YACCS.Help.Attributes;
 
 /// <summary>
-/// An attribute which can be formatted at runtime instead of
-/// using <see cref="object.ToString"/>.
+/// An attribute which can show a summary about itself.
 /// </summary>
-public interface IRuntimeFormattableAttribute
+public interface ISummarizableAttribute
 {
 	/// <summary>
 	/// Formats this attribute for being displayed to the end user.
@@ -22,5 +21,5 @@ public interface IRuntimeFormattableAttribute
 	/// with.
 	/// </param>
 	/// <returns>A <see cref="string"/> representing this attribute.</returns>
-	ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null);
+	ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null);
 }

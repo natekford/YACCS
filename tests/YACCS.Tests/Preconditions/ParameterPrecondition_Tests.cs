@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using YACCS.Commands;
 using YACCS.Preconditions;
 using YACCS.Results;
 
@@ -99,6 +100,9 @@ public class ParameterPrecondition_Tests
 
 	private class IsNullOrNotNegative : ParameterPrecondition<FakeContext, int?>
 	{
+		public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+			=> throw new NotImplementedException();
+
 		protected override ValueTask<IResult> CheckNotNullAsync(
 			CommandMeta meta,
 			FakeContext context,

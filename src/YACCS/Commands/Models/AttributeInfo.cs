@@ -24,27 +24,27 @@ public record class AttributeInfo(
 	/// <summary>
 	/// The source of this attribute is the implementation of the method the command invokes.
 	/// </summary>
-	public const int DIRECT = 0;
+	public const int ON_METHOD = 0;
 	/// <summary>
 	/// The source of this attribute is the definition of the method the command invokes.
 	/// </summary>
-	public const int DIRECTLY_INHERITED = 1;
+	public const int ON_METHOD_INHERITED = 1;
 	/// <summary>
 	/// The source of this attribute is a class which directly or indirectly
 	/// defines the method the command invokes.
 	/// </summary>
-	public const int INHERITED = 1000;
+	public const int ON_CLASS = 1000;
 	/// <summary>
 	/// This attribute is generated at runtime.
 	/// </summary>
 	public const int GENERATED = 10000;
 
-	/// <inheritdoc cref="DIRECT" />
-	public bool IsDirect => Distance == DIRECT;
-	/// <inheritdoc cref="DIRECTLY_INHERITED" />
-	public bool IsDirectlyInherited => Distance == DIRECTLY_INHERITED;
-	/// <inheritdoc cref="INHERITED" />
-	public bool IsInherited => Distance is >= INHERITED and < GENERATED;
+	/// <inheritdoc cref="ON_METHOD" />
+	public bool IsOnMethod => Distance == ON_METHOD;
+	/// <inheritdoc cref="ON_METHOD_INHERITED" />
+	public bool IsOnMethodInherited => Distance == ON_METHOD_INHERITED;
+	/// <inheritdoc cref="ON_CLASS" />
+	public bool IsOnClass => Distance is >= ON_CLASS and < GENERATED;
 	/// <inheritdoc cref="GENERATED" />
 	public bool IsGenerated => Distance >= GENERATED;
 

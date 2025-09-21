@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -38,8 +39,8 @@ public sealed class DelegateCommand : Command
 		: base(@delegate.Method, contextType)
 	{
 		Delegate = @delegate;
-		Paths = [.. names];
-		Attributes.Add(new(Delegate.Method, AttributeInfo.DIRECT, Delegate));
+		Paths = names.ToList();
+		Attributes.Add(new(Delegate.Method, AttributeInfo.ON_METHOD, Delegate));
 	}
 
 	/// <inheritdoc />

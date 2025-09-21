@@ -15,10 +15,8 @@ namespace YACCS.TypeReaders;
 /// </summary>
 /// <remarks>Order is NOT guaranteed</remarks>
 public class CommandsCategoryTypeReader
-	: TypeReader<IReadOnlyCollection<IImmutableCommand>>, IOverrideTypeReaderAttribute
+	: TypeReader<IReadOnlyCollection<IImmutableCommand>>
 {
-	ITypeReader IOverrideTypeReaderAttribute.Reader => this;
-
 	/// <inheritdoc />
 	public override ITask<ITypeReaderResult<IReadOnlyCollection<IImmutableCommand>>> ReadAsync(
 		IContext context,

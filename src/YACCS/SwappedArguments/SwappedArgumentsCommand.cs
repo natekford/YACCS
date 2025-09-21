@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
@@ -25,7 +26,7 @@ public class SwappedArgumentsCommand : GeneratedCommand
 		: base(source, priorityDifference)
 	{
 		_Swapper = swapper;
-		Parameters = [.. _Swapper.SwapForwards(source.Parameters)];
+		Parameters = _Swapper.SwapForwards(source.Parameters).ToImmutableArray();
 	}
 
 	/// <inheritdoc />

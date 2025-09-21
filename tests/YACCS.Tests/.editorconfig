@@ -1,39 +1,36 @@
 ﻿[*.cs]
-
-# RCS1021: Simplify lambda expression.
-dotnet_diagnostic.RCS1021.severity = none
-
-# RCS1163: Unused parameter.
-dotnet_diagnostic.RCS1163.severity = none
-
-# IDE0060: Remove unused parameter
-dotnet_code_quality_unused_parameters = all:none
-
-# CS0649: Field 'ReflectionCommand_Tests.GroupInjection.InjectMeField' is never assigned to, and will always have its default value null
-dotnet_diagnostic.CS0649.severity = none
-
-# RCS1079: Throwing of new NotImplementedException.
-dotnet_diagnostic.RCS1079.severity = none
-
-# RCS1047: Non-asynchronous method name should not end with 'Async'.
-dotnet_diagnostic.RCS1047.severity = none
-
-# CA2012: Use ValueTasks correctly
-dotnet_diagnostic.CA2012.severity = none
+# CA1816: Dispose methods should call SuppressFinalize
+dotnet_diagnostic.CA1816.severity = none
 
 # CA1822: Mark members as static
 dotnet_diagnostic.CA1822.severity = none
 
-# CA1816: Dispose methods should call SuppressFinalize
-dotnet_diagnostic.CA1816.severity = none
-
-# CS8032: An instance of analyzer System.Text.Json.SourceGeneration.JsonSourceGenerator cannot be created from C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\6.0.0-rc.1.21451.13\analyzers\dotnet\cs\System.Text.Json.SourceGeneration.dll : Could not load file or assembly 'Microsoft.CodeAnalysis, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35' or one of its dependencies. The system cannot find the file specified..
-dotnet_diagnostic.CS8032.severity = none
-
-csharp_style_namespace_declarations=file_scoped:suggestion
+# CA1859: Use concrete types when possible for improved performance
+dotnet_diagnostic.CA1859.severity = none
 
 # CA1861: Avoid constant arrays as arguments
 dotnet_diagnostic.CA1861.severity = none
 
-# CA1859: Use concrete types when possible for improved performance
-dotnet_diagnostic.CA1859.severity = none
+# CA2012: Use ValueTasks correctly
+dotnet_diagnostic.CA2012.severity = none
+
+# CS0649: Field is never assigned to, and will always have its default value null
+dotnet_diagnostic.CS0649.severity = none
+
+# IDE0060: Remove unused parameter
+dotnet_code_quality_unused_parameters = all:none
+
+# MSTEST0025: Use 'Assert.Fail' instead of an always-failing assert
+dotnet_diagnostic.MSTEST0025.severity = none
+
+# MSTEST0032: Assertion condition is always true
+dotnet_diagnostic.MSTEST0032.severity = none
+
+# RCS1079: Throwing of new NotImplementedException.
+dotnet_diagnostic.RCS1079.severity = none
+
+# RCS1163: Unused parameter.
+dotnet_diagnostic.RCS1163.severity = none
+
+csharp_style_namespace_declarations = file_scoped:suggestion
+csharp_style_prefer_implicitly_typed_lambda_expression = false

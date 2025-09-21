@@ -10,10 +10,9 @@ namespace YACCS.Sample.Preconditions;
 
 [AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = true, Inherited = true)]
 public class RequiresDay(DayOfWeek day)
-	: Precondition<IContext>, IRuntimeFormattableAttribute
+	: Precondition<IContext>, ISummarizableAttribute
 {
 	public DayOfWeek Day { get; } = day;
-	public virtual string FallbackErrorMessage { get; set; } = "Must be {0}.";
 
 	public override ValueTask<IResult> CheckAsync(IImmutableCommand command, IContext context)
 	{
@@ -25,9 +24,9 @@ public class RequiresDay(DayOfWeek day)
 		return new(Result.EmptySuccess);
 	}
 
-	public ValueTask<string> FormatAsync(IContext context, IFormatProvider? formatProvider = null)
+	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
 		=> new(GetErrorMessage());
 
 	private string GetErrorMessage()
-		=> string.Format(Localize.This(nameof(RequiresDay), FallbackErrorMessage), Day);
+		=> string.Format(Localize.This(nameof(RequiresDay), "Must be {0}."), Day);
 }

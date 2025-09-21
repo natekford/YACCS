@@ -17,4 +17,11 @@ public interface IHelpFormatter
 	/// <param name="command">The command to format.</param>
 	/// <returns>A string representing <paramref name="command"/>.</returns>
 	ValueTask<string> FormatAsync(IContext context, IImmutableCommand command);
+
+	/// <summary>
+	/// Creates a new <see cref="HelpBuilder"/>.
+	/// </summary>
+	/// <param name="context">The context invoking this help command.</param>
+	/// <returns>A new help builder.</returns>
+	HelpBuilder GetBuilder(IContext context);
 }
