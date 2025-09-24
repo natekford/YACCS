@@ -31,6 +31,8 @@ public class LocalizedAttributes_Tests
 	[TestMethod]
 	public void LocalizedCategory_Test()
 	{
+		CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
+
 		var attr = new LocalizedCategoryAttribute(KEY1);
 
 		Assert.AreEqual(KEY1, attr.Key);
@@ -60,6 +62,8 @@ public class LocalizedAttributes_Tests
 	[TestMethod]
 	public void LocalizedCommandSearchById_Test()
 	{
+		CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
+
 		var command = CommandService.Commands.ById(LocalizedGroup.ID).Single();
 		Assert.IsNotNull(command);
 		Assert.IsEmpty(NotFoundList);
@@ -68,6 +72,8 @@ public class LocalizedAttributes_Tests
 	[TestMethod]
 	public void LocalizedCommandSearchByLocalizedPath_Test()
 	{
+		CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
+
 		var command = CommandService.Commands.Root.FollowPath([COMMAND]);
 		Assert.IsNotNull(command);
 		Assert.IsEmpty(NotFoundList);
@@ -76,6 +82,8 @@ public class LocalizedAttributes_Tests
 	[TestMethod]
 	public void LocalizedCommandSearchByUnlocalizedPath_Test()
 	{
+		CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
+
 		var command = CommandService.Commands.Root.FollowPath([nameof(COMMAND)]);
 		Assert.IsNull(command);
 		Assert.IsEmpty(NotFoundList);
@@ -84,6 +92,8 @@ public class LocalizedAttributes_Tests
 	[TestMethod]
 	public void LocalizedName_Test()
 	{
+		CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
+
 		var attr = new LocalizedNameAttribute(KEY1);
 
 		Assert.AreEqual(KEY1, attr.Key);
@@ -96,6 +106,8 @@ public class LocalizedAttributes_Tests
 	[TestMethod]
 	public async Task LocalizedTypeReader_Test()
 	{
+		CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
+
 		const int EXPECTED = 73;
 		var output = await Reader.ReadAsync(Context, new[] { PARAMETER, EXPECTED.ToString() }).ConfigureAwait(false);
 		Assert.IsNotNull(output.Value);
