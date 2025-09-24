@@ -11,21 +11,22 @@ using YACCS.Help.Attributes;
 using YACCS.NamedArguments;
 using YACCS.Preconditions;
 using YACCS.Results;
+using YACCS.Tests.NamedArguments;
 
 namespace YACCS.Tests.Help;
 
 [TestClass]
-public class HelpFormatter_Tests
+public class HelpFactory_Tests
 {
 	const char TRAILING = ' ';
 
 	[TestMethod]
 	public async Task Format_Test()
 	{
-		var (commandService, formatter, context) = await CreateAsync().ConfigureAwait(false);
+		var (commandService, factory, context) = await CreateAsync().ConfigureAwait(false);
 
 		var command = commandService.Commands.ById(CommandGroup.ID).Single();
-		var output = await formatter.FormatAsync(context, command).ConfigureAwait(false);
+		var output = await factory.CreateHelpAsync(context, command).ConfigureAwait(false);
 
 		var expected =
 @$"Names: {nameof(CommandGroup.Throws)}
@@ -50,6 +51,7 @@ Parameters:{TRAILING}
 		{LessThanOrEqualTo100.SUMMARY}
 
 ";
+
 		var length = Math.Max(expected.Length, output.Length);
 		var sb = new StringBuilder(length);
 		for (var i = 0; i < length; ++i)
@@ -64,27 +66,31 @@ Parameters:{TRAILING}
 	[TestMethod]
 	public async Task FormatNamedArgs_Test()
 	{
-		var (commandService, formatter, context) = await CreateAsync().ConfigureAwait(false);
+		var (commandService, factory, context) = await CreateAsync().ConfigureAwait(false);
 
 		var command = commandService.Commands.ById(CommandNamedArgs.ID).Single();
-		var parameter = command.Parameters.Single().Attributes
-			.Select(x => x.Value)
-			.OfType<INamedArgumentParameters>()
-			.OfType<ISummarizableAttribute>()
-			.Single();
-
-		var output = await parameter.GetSummaryAsync(context).ConfigureAwait(false);
+		var output = await factory.CreateHelpAsync(context, command).ConfigureAwait(false);
 
 		var expected =
-@$"Parameters:{TRAILING}
-	Value1: integer (-2147483648 to 2147483647)
-	Preconditions:{TRAILING}
-		And
-		The passed in value is less than or equal to 100.
+@$"Names: DoThing
+Attributes:{TRAILING}
+Id = named_args_id
 
-	Value2: integer (-2147483648 to 2147483647)
-	Value3: integer (-2147483648 to 2147483647)
+Parameters:{TRAILING}
+	args: NamedArgs
+	Attributes:{TRAILING}
+	Length = Remainder
+
+	Parameters:{TRAILING}
+		Value1: integer (-2147483648 to 2147483647)
+		Preconditions:{TRAILING}
+			And
+			The passed in value is less than or equal to 100.
+
+		Value2: integer (-2147483648 to 2147483647)
+		Value3: integer (-2147483648 to 2147483647)
 ";
+
 		var length = Math.Max(expected.Length, output.Length);
 		var sb = new StringBuilder(length);
 		for (var i = 0; i < length; ++i)
@@ -141,12 +147,12 @@ Parameters:{TRAILING}
 	public void TagFormatterValue_Test()
 		=> Assert.AreEqual("joe", Format<TagFormatter>($"{"joe":value}"));
 
-	private static async ValueTask<(FakeCommandService, HelpFormatter, FakeContext)> CreateAsync()
+	private static async ValueTask<(FakeCommandService, StringHelpFactory, FakeContext)> CreateAsync()
 	{
 		var context = new FakeContext();
-		var formatter = context.Get<HelpFormatter>();
+		var formatter = context.Get<StringHelpFactory>();
 		var commandService = context.Get<FakeCommandService>();
-		foreach (var type in new[] { typeof(CommandGroup), typeof(CommandNamedArgs) })
+		foreach (var type in new[] { typeof(CommandGroup), typeof(CommandNamedArgs), typeof(CommandGeneratedNamedArgs) })
 		{
 			var commands = type.GetDirectCommandsAsync(context.Services);
 			await commandService.AddRangeAsync(commands).ConfigureAwait(false);
@@ -159,6 +165,21 @@ Parameters:{TRAILING}
 	{
 		var formatter = new T();
 		return formattable.ToString(formatter);
+	}
+
+	private class CommandGeneratedNamedArgs : CommandGroup<IContext>
+	{
+		public const string ID = "generated_named_args_id";
+
+		[Command(nameof(DoThing))]
+		[Id(ID)]
+		[GenerateNamedArguments]
+		public void DoThing(
+			[LessThanOrEqualTo100]
+			int value1,
+			int value2,
+			int value3
+		) => throw new NotImplementedException();
 	}
 
 	private class CommandGroup : CommandGroup<IContext>
@@ -208,7 +229,7 @@ Parameters:{TRAILING}
 	}
 
 	[AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = false, Inherited = true)]
-	private class CooldownAttribute : Precondition<FakeContext>, ISummarizableAttribute
+	private class CooldownAttribute : SummarizablePrecondition<FakeContext>
 	{
 		public const string OUTPUT = "ur on cooldown buddy";
 
@@ -221,7 +242,7 @@ Parameters:{TRAILING}
 		}
 
 		public override async ValueTask<string> GetSummaryAsync(
-			IContext context,
+			FakeContext context,
 			IFormatProvider? formatProvider = null)
 		{
 			await Task.Delay(250).ConfigureAwait(false);
@@ -259,7 +280,7 @@ Parameters:{TRAILING}
 
 	[AttributeUsage(AttributeUtils.PARAMETERS, AllowMultiple = false, Inherited = true)]
 	[Summary(SUMMARY)]
-	private class LessThanOrEqualTo100 : ParameterPrecondition<IContext, int>
+	private class LessThanOrEqualTo100 : SummarizableParameterPrecondition<IContext, int>
 	{
 		public const string SUMMARY = "The passed in value is less than or equal to 100.";
 

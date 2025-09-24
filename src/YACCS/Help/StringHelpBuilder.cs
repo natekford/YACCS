@@ -14,7 +14,7 @@ using YACCS.Preconditions;
 namespace YACCS.Help;
 
 /// <summary>
-/// Builds a string that represents a command.
+/// Creates a string for information about a command.
 /// </summary>
 /// <param name="context">
 /// <inheritdoc cref="Context" path="/summary"/>
@@ -25,10 +25,11 @@ namespace YACCS.Help;
 /// <param name="formatProvider">
 /// <inheritdoc cref="FormatProvider" path="/summary"/>
 /// </param>
-public class HelpBuilder(
+public class StringHelpBuilder(
 	IContext context,
 	IReadOnlyDictionary<Type, string> typeNames,
-	IFormatProvider? formatProvider)
+	IFormatProvider? formatProvider
+)
 {
 	/// <summary>
 	/// The context invoking this help command.
@@ -38,7 +39,7 @@ public class HelpBuilder(
 	/// The current amount of tabs to append after each new line.
 	/// </summary>
 	protected int CurrentDepth { get; set; }
-	/// <inheritdoc cref="HelpFormatter.FormatProvider"/>
+	/// <inheritdoc cref="StringHelpFactory.FormatProvider"/>
 	protected IFormatProvider? FormatProvider { get; } = formatProvider;
 	/// <summary>
 	/// The header for the attributes section.
@@ -64,22 +65,15 @@ public class HelpBuilder(
 	/// The string builder creating the text representing this help command.
 	/// </summary>
 	protected StringBuilder StringBuilder { get; } = new();
-	/// <inheritdoc cref="HelpFormatter.TypeNames"/>
+	/// <inheritdoc cref="StringHelpFactory.TypeNames"/>
 	protected IReadOnlyDictionary<Type, string> TypeNames { get; } = typeNames;
 
-	/// <summary>
-	/// Appends attributes from <paramref name="attributes"/> to this instance.
-	/// </summary>
-	/// <param name="attributes">The attributes to append.</param>
-	/// <returns></returns>
-	public virtual Task AppendAttributesAsync(IReadOnlyList<HelpItem<object>> attributes)
-		=> AppendItemsAsync(HeaderAttributes, attributes);
+	/// <inheritdoc />
+	public virtual Task AddAttributesAsync(IReadOnlyList<HelpItem<object>> attributes)
+		=> AddItemsAsync(HeaderAttributes, attributes);
 
-	/// <summary>
-	/// Appends each name in <paramref name="paths"/> to this instance.
-	/// </summary>
-	/// <param name="paths">The paths to format and append.</param>
-	public virtual void AppendNames(IReadOnlyList<IReadOnlyList<string>> paths)
+	/// <inheritdoc />
+	public virtual void AddNames(IReadOnlyList<IReadOnlyList<string>> paths)
 	{
 		if (paths.Count == 0)
 		{
@@ -92,19 +86,15 @@ public class HelpBuilder(
 		AppendLine();
 	}
 
-	/// <summary>
-	/// Appends each parameter in <paramref name="parameters"/> to this instance.
-	/// </summary>
-	/// <param name="parameters">The parameters to format and append.</param>
-	/// <returns></returns>
-	public virtual async Task AppendParametersAsync(IReadOnlyList<HelpParameter> parameters)
+	/// <inheritdoc />
+	public virtual async Task AddParametersAsync(IReadOnlyList<HelpParameter> parameters)
 	{
 		if (parameters.Count == 0)
 		{
 			return;
 		}
 
-		AppendLine(HeaderParameters);
+		using var _ = AppendHeader(HeaderParameters);
 		++CurrentDepth;
 		foreach (var parameter in parameters)
 		{
@@ -114,20 +104,20 @@ public class HelpBuilder(
 			StringBuilder.Append(": ");
 			AppendLine(typeName);
 
-			AppendSummary(parameter.Summary);
-			await AppendAttributesAsync(parameter.Attributes).ConfigureAwait(false);
-			await AppendPreconditionsAsync(parameter.Preconditions).ConfigureAwait(false);
+			AddSummary(parameter.Summary);
+			await AddAttributesAsync(parameter.Attributes).ConfigureAwait(false);
+			await AddPreconditionsAsync(parameter.Preconditions).ConfigureAwait(false);
+
+			if (parameter.NamedArguments is not null)
+			{
+				await AddParametersAsync(parameter.NamedArguments).ConfigureAwait(false);
+			}
 		}
 		--CurrentDepth;
 	}
 
-	/// <summary>
-	/// Appends each group in <paramref name="preconditions"/> to this instance.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="preconditions">The preconditions to format and append.</param>
-	/// <returns></returns>
-	public virtual async Task AppendPreconditionsAsync<T>(
+	/// <inheritdoc />
+	public virtual async Task AddPreconditionsAsync<T>(
 		IReadOnlyDictionary<string, ILookup<Op, HelpItem<T>>> preconditions)
 		where T : notnull
 	{
@@ -136,7 +126,7 @@ public class HelpBuilder(
 			return;
 		}
 
-		AppendLine(HeaderPreconditions);
+		using var _ = AppendHeader(HeaderPreconditions);
 		++CurrentDepth;
 		foreach (var (group, lookup) in preconditions)
 		{
@@ -149,31 +139,71 @@ public class HelpBuilder(
 			foreach (var items in lookup)
 			{
 				var opHeader = items.Key.ToString();
-				await AppendItemsAsync(opHeader, items).ConfigureAwait(false);
+				await AddItemsAsync(opHeader, items).ConfigureAwait(false);
 			}
 		}
 		--CurrentDepth;
 	}
 
-	/// <summary>
-	/// Appends <paramref name="summary"/> to this instance.
-	/// </summary>
-	/// <param name="summary">The summary to format and append.</param>
-	public virtual void AppendSummary(ISummaryAttribute? summary)
+	/// <inheritdoc />
+	public virtual void AddSummary(ISummaryAttribute? summary)
 	{
-		if (summary is null)
+		if (summary?.Summary is not string summaryString
+			|| string.IsNullOrWhiteSpace(summaryString))
 		{
 			return;
 		}
 
 		Append(HeaderSummary);
-		AppendLine(summary.Summary);
+		AppendLine(summaryString);
 		AppendLine();
 	}
 
 	/// <inheritdoc />
 	public override string ToString()
 		=> StringBuilder.ToString();
+
+	/// <summary>
+	/// Appends <paramref name="header"/> and then appends each item in
+	/// <paramref name="items"/> to this instance.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="header">The header to append.</param>
+	/// <param name="items">The items to format and append.</param>
+	/// <returns></returns>
+	/// <remarks>
+	/// <paramref name="header"/> will not get appended if none of the items
+	/// in <paramref name="items"/> can be formatted as a string.
+	/// </remarks>
+	protected virtual async Task AddItemsAsync<T>(
+		string header,
+		IEnumerable<HelpItem<T>> items)
+		where T : notnull
+	{
+		using var disposableHeader = AppendHeader(header);
+		foreach (var item in items)
+		{
+			var text = default(string?);
+			if (item.Item is ISummarizableAttribute summarizable)
+			{
+				text = await summarizable.GetSummaryAsync(Context, FormatProvider).ConfigureAwait(false);
+			}
+			if (string.IsNullOrWhiteSpace(text) && item.Summary?.Summary is string summary)
+			{
+				text = summary;
+			}
+			if (string.IsNullOrWhiteSpace(text))
+			{
+				continue;
+			}
+
+			AppendLine(text);
+		}
+		if (!disposableHeader.IsValueEmpty)
+		{
+			AppendLine();
+		}
+	}
 
 	/// <summary>
 	/// Appends <paramref name="value"/> to this instance.
@@ -199,61 +229,23 @@ public class HelpBuilder(
 	/// </remarks>
 	protected virtual void AppendDepth(string? value)
 	{
-		if (value is not null && (StringBuilder.Length == 0 || StringBuilder[^1] == '\n'))
+		if (!string.IsNullOrWhiteSpace(value) && (StringBuilder.Length == 0 || StringBuilder[^1] == '\n'))
 		{
 			StringBuilder.Append('\t', CurrentDepth);
 		}
 	}
 
 	/// <summary>
-	/// Appends <paramref name="header"/> and then appends each item in
-	/// <paramref name="items"/> to this instance.
+	/// Appends a header then removes it if no value was provided.
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="header">The header to append.</param>
-	/// <param name="items">The items to format and append.</param>
+	/// <param name="header"></param>
 	/// <returns></returns>
-	/// <remarks>
-	/// <paramref name="header"/> will not get appended if none of the items
-	/// in <paramref name="items"/> can be formatted as a string.
-	/// </remarks>
-	protected virtual async Task AppendItemsAsync<T>(
-		string header,
-		IEnumerable<HelpItem<T>> items)
-		where T : notnull
+	protected virtual DisposableHeader AppendHeader(string header)
 	{
-		var shouldAppendHeader = false;
-		foreach (var item in items)
-		{
-			var text = default(string?);
-			if (item.Item is ISummarizableAttribute summarizable)
-			{
-				text = await summarizable.GetSummaryAsync(Context, FormatProvider).ConfigureAwait(false);
-			}
-			else if (item.Summary?.Summary is string summary)
-			{
-				text = summary;
-			}
-			else
-			{
-				continue;
-			}
-
-			if (!shouldAppendHeader)
-			{
-				if (!string.IsNullOrWhiteSpace(header))
-				{
-					AppendLine(header);
-				}
-				shouldAppendHeader = true;
-			}
-
-			AppendLine(text);
-		}
-		if (shouldAppendHeader)
-		{
-			AppendLine();
-		}
+		var beforeHeader = StringBuilder.Length;
+		AppendLine(header);
+		var afterHeader = StringBuilder.Length;
+		return new DisposableHeader(StringBuilder, beforeHeader, afterHeader);
 	}
 
 	/// <summary>
@@ -272,4 +264,31 @@ public class HelpBuilder(
 
 	private string ToHeader(NeedsLocalization key)
 		=> ToHeader(key.Localized);
+
+	/// <summary>
+	/// Append a header then remove it if no value was supplied.
+	/// </summary>
+	/// <param name="StringBuilder">The output.</param>
+	/// <param name="BeforeHeader">The output's length before the header.</param>
+	/// <param name="AfterHeader">The output's length after the header.</param>
+	protected sealed class DisposableHeader(
+		StringBuilder StringBuilder,
+		int BeforeHeader,
+		int AfterHeader
+	) : IDisposable
+	{
+		/// <summary>
+		/// Whether or not a value was appended after this header.
+		/// </summary>
+		public bool IsValueEmpty => StringBuilder.Length == AfterHeader;
+
+		/// <inheritdoc />
+		public void Dispose()
+		{
+			if (IsValueEmpty)
+			{
+				StringBuilder.Length = BeforeHeader;
+			}
+		}
+	}
 }

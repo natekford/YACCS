@@ -1,12 +1,12 @@
 ﻿using YACCS.Commands;
-using YACCS.Help.Attributes;
 using YACCS.Localization;
 using YACCS.Preconditions;
 using YACCS.Results;
 
 namespace YACCS.Sample.Preconditions;
 
-public class NotZero : ParameterPrecondition<IContext, int>, ISummarizableAttribute
+public class NotZero
+	: SummarizableParameterPrecondition<IContext, int>
 {
 	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
 		=> new(GetErrorMessage());

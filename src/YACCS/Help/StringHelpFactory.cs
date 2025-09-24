@@ -10,7 +10,7 @@ using YACCS.Help.Models;
 namespace YACCS.Help;
 
 /// <summary>
-/// Formats a command to a string.
+/// Converts a command to a readable
 /// </summary>
 /// <param name="typeNames">
 /// <inheritdoc cref="TypeNames" path="/summary"/>
@@ -18,12 +18,15 @@ namespace YACCS.Help;
 /// <param name="formatProvider">
 /// <inheritdoc cref="FormatProvider" path="/summary"/>
 /// </param>
-public class HelpFormatter(
+public class StringHelpFactory(
 	IReadOnlyDictionary<Type, string> typeNames,
-	IFormatProvider? formatProvider = null)
-	: IHelpFormatter
+	IFormatProvider? formatProvider = null
+) : IHelpFactory<IContext, string>
 {
-	private readonly ConcurrentDictionary<IImmutableCommand, HelpCommand> _Commands = [];
+	/// <summary>
+	/// The commands in this program.
+	/// </summary>
+	protected ConcurrentDictionary<IImmutableCommand, HelpCommand> Commands = [];
 	/// <summary>
 	/// The format provider to use when formatting strings.
 	/// </summary>
@@ -34,21 +37,25 @@ public class HelpFormatter(
 	protected IReadOnlyDictionary<Type, string> TypeNames { get; } = typeNames;
 
 	/// <inheritdoc />
-	public async ValueTask<string> FormatAsync(IContext context, IImmutableCommand command)
+	public async ValueTask<string> CreateHelpAsync(IContext context, IImmutableCommand command)
 	{
 		var help = GetHelpCommand(command);
 		var builder = GetBuilder(context);
 
-		builder.AppendNames(help.Item.Paths);
-		builder.AppendSummary(help.Summary);
-		await builder.AppendAttributesAsync(help.Attributes).ConfigureAwait(false);
-		await builder.AppendPreconditionsAsync(help.Preconditions).ConfigureAwait(false);
-		await builder.AppendParametersAsync(help.Parameters).ConfigureAwait(false);
+		builder.AddNames(help.Item.Paths);
+		builder.AddSummary(help.Summary);
+		await builder.AddAttributesAsync(help.Attributes).ConfigureAwait(false);
+		await builder.AddPreconditionsAsync(help.Preconditions).ConfigureAwait(false);
+		await builder.AddParametersAsync(help.Parameters).ConfigureAwait(false);
 		return builder.ToString();
 	}
 
-	/// <inheritdoc />
-	public virtual HelpBuilder GetBuilder(IContext context)
+	/// <summary>
+	/// Creates a new <see cref="StringHelpBuilder"/>.
+	/// </summary>
+	/// <param name="context">The context invoking this help command.</param>
+	/// <returns>A new help builder.</returns>
+	protected virtual StringHelpBuilder GetBuilder(IContext context)
 		=> new(context, TypeNames, FormatProvider);
 
 	/// <summary>
@@ -62,6 +69,6 @@ public class HelpFormatter(
 		{
 			command = command.Source;
 		}
-		return _Commands.GetOrAdd(command, k => new(k));
+		return Commands.GetOrAdd(command, k => new(k));
 	}
 }

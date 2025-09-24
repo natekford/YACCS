@@ -16,9 +16,9 @@ public class Help : ConsoleCommands
 	private static readonly string _Separator = new('-', 10);
 
 	[InjectService]
-	public ICommandService CommandService { get; set; } = null!;
+	public required ICommandService CommandService { get; set; }
 	[InjectService]
-	public IHelpFormatter HelpFormatter { get; set; } = null!;
+	public required StringHelpFactory HelpFactory { get; set; }
 
 	[Disabled]
 	public override string Abstract() => "21";
@@ -27,7 +27,7 @@ public class Help : ConsoleCommands
 	public Task<IResult> Category(
 		[OverrideTypeReader<CommandsCategoryTypeReader>]
 		[Remainder]
-		IReadOnlyCollection<IImmutableCommand> commands)
+		IReadOnlyList<IImmutableCommand> commands)
 		=> HelpCommand(commands);
 
 	[Command]
@@ -84,8 +84,8 @@ public class Help : ConsoleCommands
 
 		Console.WriteLine();
 		Console.WriteLine(_Separator);
-		var text = await HelpFormatter.FormatAsync(Context, command).ConfigureAwait(false);
-		Console.WriteLine(text);
+		var output = await HelpFactory.CreateHelpAsync(Context, command).ConfigureAwait(false);
+		Console.WriteLine(output);
 		Console.WriteLine(_Separator);
 		return Result.EmptySuccess;
 	}

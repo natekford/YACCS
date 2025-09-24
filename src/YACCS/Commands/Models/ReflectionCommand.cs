@@ -212,9 +212,9 @@ public sealed class ReflectionCommand : Command
 					return injector.CreateInjection(context, member);
 				});
 				var body = Expression.Block(
-				[
-					group
-				], setters.Prepend(assignGroup).Append(group));
+					[group],
+					setters.Prepend(assignGroup).Append(group)
+				);
 
 				var lambda = Expression.Lambda<Func<IContext, ICommandGroup>>(
 					body,

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
+using YACCS.NamedArguments;
 using YACCS.Preconditions;
 using YACCS.TypeReaders;
 
@@ -22,6 +24,17 @@ public class HelpParameter(IImmutableParameter item)
 	/// Whether or not this parameter is a remainder.
 	/// </summary>
 	public virtual bool IsRemainder { get; } = item.Length is null;
+	/// <summary>
+	/// Sub parameters for named arguments.
+	/// </summary>
+	public virtual IReadOnlyList<HelpParameter>? NamedArguments { get; }
+		= item.Preconditions
+		.SelectMany(x => x.Value)
+		.OfType<INamedArgumentParameters>()
+		.SingleOrDefault()?
+		.Parameters?
+		.Select(x => new HelpParameter(x.Value))?
+		.ToImmutableArray();
 	/// <summary>
 	/// The type of this parameter.
 	/// </summary>

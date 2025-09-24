@@ -36,14 +36,12 @@ public sealed class Program
 				);
 			})
 			.AddSingleton<IFormatProvider, ConsoleTagFormatter>()
-			.AddSingleton<IHelpFormatter, HelpFormatter>()
+			.AddSingleton<StringHelpFactory>()
 			.AddSingleton<IReadOnlyDictionary<Type, ITypeReader>, TypeReaderRegistry>()
 			.AddSingleton<IReadOnlyDictionary<Type, string>, TypeNameRegistry>()
 			.BuildServiceProvider();
 
-		_Services
-			.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>()
-			.ThrowIfUnregisteredServices(_Services);
+		_Services.ThrowIfUnregisteredServices();
 
 #if DEBUG
 		Localize.Instance.KeyNotFound += (key, culture)

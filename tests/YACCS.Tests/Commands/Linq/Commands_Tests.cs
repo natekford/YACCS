@@ -121,7 +121,7 @@ public class Commands_Tests
 		}
 	}
 
-	private sealed class NotSevenPM : Precondition<FakeContext>
+	private sealed class NotSevenPM : SummarizablePrecondition<FakeContext>
 	{
 		public override ValueTask<IResult> CheckAsync(
 			IImmutableCommand command,
@@ -134,7 +134,7 @@ public class Commands_Tests
 			return new(Result.Failure("It's seven PM."));
 		}
 
-		public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+		public override ValueTask<string> GetSummaryAsync(FakeContext context, IFormatProvider? formatProvider = null)
 			=> throw new NotImplementedException();
 	}
 }

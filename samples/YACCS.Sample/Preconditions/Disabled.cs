@@ -5,7 +5,7 @@ using YACCS.Results;
 
 namespace YACCS.Sample.Preconditions;
 
-public class Disabled : Precondition<IContext>
+public class Disabled : SummarizablePrecondition<IContext>
 {
 	public override ValueTask<IResult> CheckAsync(
 		IImmutableCommand command,
@@ -13,5 +13,5 @@ public class Disabled : Precondition<IContext>
 		=> new(Result.Failure("Command is disabled."));
 
 	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
-		=> new("Command is disabled.");
+		=> new("Command is disabled and is not able to be executed.");
 }

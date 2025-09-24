@@ -10,7 +10,7 @@ using YACCS.Results;
 namespace YACCS.Preconditions;
 
 /// <summary>
-/// The base class for a parameter precondition attribute.
+/// The base class for a parameter precondition.
 /// </summary>
 /// <typeparam name="TContext"></typeparam>
 /// <typeparam name="TValue"></typeparam>

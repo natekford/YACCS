@@ -34,7 +34,7 @@ public static class Utils
 		var commandService = new FakeCommandService(config, handler, readers);
 		var names = new TypeNameRegistry();
 		var formatter = new TagFormatter();
-		var helpFormatter = new HelpFormatter(names, formatter);
+		var helpFormatter = new StringHelpFactory(names, formatter);
 
 		return new ServiceCollection()
 			.AddSingleton<IArgumentHandler>(handler)
@@ -45,7 +45,7 @@ public static class Utils
 			.AddSingleton(names)
 			.AddSingleton<IFormatProvider>(formatter)
 			.AddSingleton(formatter)
-			.AddSingleton<IHelpFormatter>(helpFormatter)
+			.AddSingleton<IHelpFactory<IContext, string>>(helpFormatter)
 			.AddSingleton(helpFormatter)
 			.AddSingleton<ICommandService>(commandService)
 			.AddSingleton(commandService);

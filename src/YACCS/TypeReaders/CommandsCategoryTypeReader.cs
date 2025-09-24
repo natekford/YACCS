@@ -15,16 +15,16 @@ namespace YACCS.TypeReaders;
 /// </summary>
 /// <remarks>Order is NOT guaranteed</remarks>
 public class CommandsCategoryTypeReader
-	: TypeReader<IReadOnlyCollection<IImmutableCommand>>
+	: TypeReader<IReadOnlyList<IImmutableCommand>>
 {
 	/// <inheritdoc />
-	public override ITask<ITypeReaderResult<IReadOnlyCollection<IImmutableCommand>>> ReadAsync(
+	public override ITask<ITypeReaderResult<IReadOnlyList<IImmutableCommand>>> ReadAsync(
 		IContext context,
 		ReadOnlyMemory<string> input)
 	{
 		if (input.Length == 0)
 		{
-			return TypeReaderResult<IReadOnlyCollection<IImmutableCommand>>.ParseFailed.Task;
+			return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.ParseFailed.Task;
 		}
 
 		var commands = GetCommands(context.Services);
@@ -36,15 +36,21 @@ public class CommandsCategoryTypeReader
 			categories.Add(category);
 		}
 
-		var found = new List<IImmutableCommand>();
+		var found = new HashSet<IImmutableCommand>();
 		var matchedCategories = new HashSet<string>(categories.Count, categories.Comparer);
 		foreach (var command in commands.Commands)
 		{
-			foreach (var category in command.GetAttributes<ICategoryAttribute>())
+			// Don't include generated commands because they are copies
+			if (command.Source is not null)
 			{
-				if (categories.Contains(category.Category))
+				continue;
+			}
+
+			foreach (var category in command.Categories)
+			{
+				if (categories.Contains(category))
 				{
-					matchedCategories.Add(category.Category);
+					matchedCategories.Add(category);
 				}
 
 				// An equal amount of categories found to categories searched for
@@ -60,9 +66,9 @@ public class CommandsCategoryTypeReader
 
 		if (found.Count == 0)
 		{
-			return TypeReaderResult<IReadOnlyCollection<IImmutableCommand>>.ParseFailed.Task;
+			return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.ParseFailed.Task;
 		}
-		return Success(found).AsITask();
+		return Success([.. found]).AsITask();
 	}
 
 	[GetServiceMethod]

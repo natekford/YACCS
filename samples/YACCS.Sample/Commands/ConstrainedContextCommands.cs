@@ -8,7 +8,7 @@ namespace YACCS.Sample.Commands;
 public class ConstrainedContextCommands : CommandGroup<IContext>
 {
 	[InjectContext]
-	public IMessagable Messagable { get; set; } = null!;
+	public required IMessagable Messagable { get; set; }
 
 	[Command(nameof(Message))]
 	public Task Message([Remainder] string message)

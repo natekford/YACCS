@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using YACCS.Commands;
 using YACCS.Commands.Models;
 using YACCS.Preconditions;
 using YACCS.Results;
@@ -45,12 +44,12 @@ public class Precondition_Tests
 		Assert.AreSame(Task.CompletedTask, after);
 	}
 
-	private class FakePrecondition : Precondition<FakeContext>
+	private class FakePrecondition : SummarizablePrecondition<FakeContext>
 	{
 		public override ValueTask<IResult> CheckAsync(IImmutableCommand command, FakeContext context)
 			=> new(Result.EmptySuccess);
 
-		public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+		public override ValueTask<string> GetSummaryAsync(FakeContext context, IFormatProvider? formatProvider = null)
 			=> throw new NotImplementedException();
 	}
 }

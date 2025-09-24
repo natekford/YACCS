@@ -276,7 +276,7 @@ public class GeneratedNamedArguments_Tests
 		public string S { get; set; } = "";
 	}
 
-	private class NotNegative : ParameterPrecondition<IContext, int>
+	private class NotNegative : SummarizableParameterPrecondition<IContext, int>
 	{
 		public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
 			=> throw new NotImplementedException();

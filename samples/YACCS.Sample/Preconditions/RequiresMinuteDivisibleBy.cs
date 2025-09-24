@@ -10,7 +10,7 @@ namespace YACCS.Sample.Preconditions;
 
 [AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = true, Inherited = true)]
 public class RequiresMinuteDivisibleBy(int divisor)
-	: Precondition<IContext>, ISummarizableAttribute
+	: SummarizablePrecondition<IContext>, ISummarizableAttribute
 {
 	public int Divisor { get; } = divisor;
 

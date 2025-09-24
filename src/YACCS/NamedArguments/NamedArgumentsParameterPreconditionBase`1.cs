@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
@@ -18,10 +17,6 @@ public abstract class NamedArgumentsParameterPreconditionBase<T>
 {
 	/// <inheritdoc />
 	public abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
-
-	/// <inheritdoc />
-	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
-		=> this.CombineSummariesAsync(context);
 
 	/// <inheritdoc />
 	protected override async ValueTask<IResult> CheckNotNullAsync(

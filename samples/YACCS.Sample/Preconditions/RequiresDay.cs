@@ -10,7 +10,7 @@ namespace YACCS.Sample.Preconditions;
 
 [AttributeUsage(AttributeUtils.COMMANDS, AllowMultiple = true, Inherited = true)]
 public class RequiresDay(DayOfWeek day)
-	: Precondition<IContext>, ISummarizableAttribute
+	: SummarizablePrecondition<IContext>, ISummarizableAttribute
 {
 	public DayOfWeek Day { get; } = day;
 

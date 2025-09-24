@@ -4,7 +4,8 @@ using YACCS.Results;
 
 namespace YACCS.Sample.Preconditions;
 
-public class RangeParameterPrecondition : ParameterPrecondition<IContext, int>
+public class RangeParameterPrecondition
+	: SummarizableParameterPrecondition<IContext, int>
 {
 	private readonly int _Max;
 	private readonly int _Min;

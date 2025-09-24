@@ -9,11 +9,11 @@ namespace YACCS.Sample.Commands;
 public abstract class ConsoleCommands : CommandGroup<ConsoleContext>
 {
 	[InjectService]
-	public ConsoleHandler Console { get; set; } = null!;
+	public required ConsoleHandler Console { get; set; }
 	[InjectService]
-	public ConsoleInput Input { get; set; } = null!;
+	public required ConsoleInput Input { get; set; }
 	[InjectService]
-	public ConsolePaginator Paginator { get; set; } = null!;
+	public required ConsolePaginator Paginator { get; set; }
 
 	[Command(nameof(Abstract), AllowInheritance = true)]
 	public abstract string Abstract();

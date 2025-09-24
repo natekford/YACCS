@@ -87,7 +87,7 @@ public class CommandsGroup : CommandGroup<FakeContext>
 	{
 	}
 
-	private class DisabledPrecondition : Precondition<FakeContext>
+	private class DisabledPrecondition : SummarizablePrecondition<FakeContext>
 	{
 		private static readonly Result _Failure = Result.Failure(_DisabledMessage);
 
@@ -96,11 +96,12 @@ public class CommandsGroup : CommandGroup<FakeContext>
 			FakeContext context)
 			=> new(_Failure);
 
-		public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+		public override ValueTask<string> GetSummaryAsync(FakeContext context, IFormatProvider? formatProvider = null)
 			=> throw new NotImplementedException();
 	}
 
-	private class FakePreconditionWhichThrowsAfter : Precondition<FakeContext>
+	private class FakePreconditionWhichThrowsAfter
+		: SummarizablePrecondition<FakeContext>
 	{
 		public override Task AfterExecutionAsync(
 			IImmutableCommand command,
@@ -113,11 +114,12 @@ public class CommandsGroup : CommandGroup<FakeContext>
 			FakeContext context)
 			=> new(Result.EmptySuccess);
 
-		public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+		public override ValueTask<string> GetSummaryAsync(FakeContext context, IFormatProvider? formatProvider = null)
 			=> throw new NotImplementedException();
 	}
 
-	private class FakePreconditionWhichThrowsBefore : Precondition<FakeContext>
+	private class FakePreconditionWhichThrowsBefore
+		: SummarizablePrecondition<FakeContext>
 	{
 		public override Task BeforeExecutionAsync(
 			IImmutableCommand command,
@@ -129,17 +131,17 @@ public class CommandsGroup : CommandGroup<FakeContext>
 			FakeContext context)
 			=> new(Result.EmptySuccess);
 
-		public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+		public override ValueTask<string> GetSummaryAsync(FakeContext context, IFormatProvider? formatProvider = null)
 			=> throw new NotImplementedException();
 	}
 }
 
 public class FakeParameterPreconditionAttribute(int value)
-	: ParameterPrecondition<FakeContext, int>
+	: SummarizableParameterPrecondition<FakeContext, int>
 {
 	public int DisallowedValue { get; } = value;
 
-	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+	public override ValueTask<string> GetSummaryAsync(FakeContext context, IFormatProvider? formatProvider = null)
 		=> throw new NotImplementedException();
 
 	protected override ValueTask<IResult> CheckNotNullAsync(
@@ -149,22 +151,24 @@ public class FakeParameterPreconditionAttribute(int value)
 		=> new(value == DisallowedValue ? Result.Failure("lol") : Result.EmptySuccess);
 }
 
-public class FakePrecondition(bool success) : Precondition<FakeContext>
+public class FakePrecondition(bool success)
+	: SummarizablePrecondition<FakeContext>
 {
 	public override ValueTask<IResult> CheckAsync(
 		IImmutableCommand command,
 		FakeContext context)
 		=> new(success ? Result.EmptySuccess : Result.EmptyFailure);
 
-	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+	public override ValueTask<string> GetSummaryAsync(FakeContext context, IFormatProvider? formatProvider = null)
 		=> throw new NotImplementedException();
 }
 
-public class WasIReachedParameterPreconditionAttribute : ParameterPrecondition<FakeContext, int>
+public class WasIReachedParameterPreconditionAttribute
+	: SummarizableParameterPrecondition<FakeContext, int>
 {
 	public bool IWasReached { get; private set; }
 
-	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+	public override ValueTask<string> GetSummaryAsync(FakeContext context, IFormatProvider? formatProvider = null)
 		=> throw new NotImplementedException();
 
 	protected override ValueTask<IResult> CheckNotNullAsync(
@@ -177,7 +181,7 @@ public class WasIReachedParameterPreconditionAttribute : ParameterPrecondition<F
 	}
 }
 
-public class WasIReachedPrecondition : Precondition<FakeContext>
+public class WasIReachedPrecondition : SummarizablePrecondition<FakeContext>
 {
 	public bool IWasReached { get; private set; }
 
@@ -189,6 +193,6 @@ public class WasIReachedPrecondition : Precondition<FakeContext>
 		return new(default(IResult)!);
 	}
 
-	public override ValueTask<string> GetSummaryAsync(IContext context, IFormatProvider? formatProvider = null)
+	public override ValueTask<string> GetSummaryAsync(FakeContext context, IFormatProvider? formatProvider = null)
 		=> throw new NotImplementedException();
 }

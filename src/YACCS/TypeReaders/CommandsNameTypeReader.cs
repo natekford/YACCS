@@ -14,13 +14,18 @@ namespace YACCS.TypeReaders;
 /// </summary>
 /// <remarks>Order is NOT guaranteed</remarks>
 public class CommandsNameTypeReader
-	: TypeReader<IReadOnlyCollection<IImmutableCommand>>
+	: TypeReader<IReadOnlyList<IImmutableCommand>>
 {
 	/// <inheritdoc />
-	public override ITask<ITypeReaderResult<IReadOnlyCollection<IImmutableCommand>>> ReadAsync(
+	public override ITask<ITypeReaderResult<IReadOnlyList<IImmutableCommand>>> ReadAsync(
 		IContext context,
 		ReadOnlyMemory<string> input)
 	{
+		if (input.Length == 0)
+		{
+			return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.ParseFailed.Task;
+		}
+
 		var commands = GetCommands(context.Services);
 
 		var node = commands.Commands.Root.FollowPath(input.Span);
@@ -29,9 +34,9 @@ public class CommandsNameTypeReader
 		var found = node?.GetAllDistinctItems(x => x.Source is null);
 		if (found is null || found.Count == 0)
 		{
-			return TypeReaderResult<IReadOnlyCollection<IImmutableCommand>>.ParseFailed.Task;
+			return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.ParseFailed.Task;
 		}
-		return Success(found).AsITask();
+		return Success([.. found]).AsITask();
 	}
 
 	[GetServiceMethod]

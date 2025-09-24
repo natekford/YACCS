@@ -3,10 +3,14 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
+using YACCS.Commands;
+using YACCS.Commands.Building;
 using YACCS.Commands.Models;
 
 namespace YACCS.TypeReaders;
@@ -130,26 +134,44 @@ public static class TypeReaderUtils
 	}
 
 	/// <summary>
-	/// Throws an exception if any <paramref name="readers"/> requires a service which
+	/// Throws an exception if any registered <see cref="ITypeReader"/> or
+	/// <see cref="IImmutableCommand"/> requires a service which
 	/// <paramref name="services"/> does not currently have created.
 	/// </summary>
 	/// <remarks>
-	/// Each <paramref name="readers"/> must have <see langword="static"/> methods marked
+	/// Each <see cref="ITypeReader"/> must have <see langword="static"/> methods marked
 	/// with <see cref="GetServiceMethodAttribute"/> for the method to be validated.
 	/// </remarks>
-	/// <param name="readers">The type readers to validate.</param>
 	/// <param name="services">The services which are currently registered.</param>
 	/// <exception cref="InvalidOperationException">
-	/// When any <paramref name="readers"/> requires a service which
-	/// <paramref name="services"/> does not currently have created.
+	/// When any service is required but not found in <paramref name="services"/>.
 	/// </exception>
-	public static void ThrowIfUnregisteredServices(
-		this IReadOnlyDictionary<Type, ITypeReader> readers,
-		IServiceProvider services)
+	public static void ThrowIfUnregisteredServices(this IServiceProvider services)
 	{
+		var readers = services.GetRequiredService<IReadOnlyDictionary<Type, ITypeReader>>();
 		foreach (var reader in readers.Values)
 		{
 			reader.ThrowIfUnregisteredServices(services);
+		}
+		var assemblies = services.GetRequiredService<IEnumerable<Assembly>>();
+		foreach (var type in assemblies.SelectMany(x => x.GetExportedTypes()))
+		{
+			if (!typeof(ICommandGroup).IsAssignableFrom(type))
+			{
+				continue;
+			}
+
+			var (properties, fields) = type.GetWritableMembers();
+			var members = properties.Select(x => (x.PropertyType, (MemberInfo)x))
+				.Concat(fields.Select(x => (x.FieldType, (MemberInfo)x)));
+			foreach (var (mType, member) in members)
+			{
+				if (services.GetService(mType) is null && member.GetCustomAttribute<InjectServiceAttribute>() is not null)
+				{
+					throw new InvalidOperationException($"Unable to get {mType} for " +
+						$"{member.Name} declared in {member.DeclaringType}.");
+				}
+			}
 		}
 	}
 
@@ -193,7 +215,7 @@ public static class TypeReaderUtils
 				}
 				catch (Exception e)
 				{
-					throw new InvalidOperationException("Unable to get a service for " +
+					throw new InvalidOperationException($"Unable to get {method.ReturnType} for " +
 						$"{method} declared in {method.DeclaringType}.", e);
 				}
 			}
