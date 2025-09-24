@@ -83,7 +83,7 @@ public abstract class Command : Entity, IMutableCommand
 		/// <inheritdoc />
 		public IReadOnlyList<AttributeInfo> Attributes { get; }
 		/// <inheritdoc />
-		public IReadOnlyList<string> Categories { get; }
+		public IReadOnlyList<ICategoryAttribute> Categories { get; }
 		/// <inheritdoc />
 		public Type ContextType { get; }
 		/// <inheritdoc />
@@ -154,7 +154,7 @@ public abstract class Command : Entity, IMutableCommand
 			Parameters = parameters.MoveToImmutable();
 
 			var attributes = ImmutableArray.CreateBuilder<AttributeInfo>(mutable.Attributes.Count);
-			var categories = new HashSet<string>();
+			var categories = new HashSet<ICategoryAttribute>();
 			// Use ConcurrentDictionary because it has GetOrAdd by default, not threading reasons
 			var preconditions = new ConcurrentDictionary<string, List<IPrecondition>>();
 			var p = 0;
@@ -180,7 +180,7 @@ public abstract class Command : Entity, IMutableCommand
 				}
 				if (attribute.Value is ICategoryAttribute category)
 				{
-					categories.Add(category.Category);
+					categories.Add(category);
 				}
 			}
 			Attributes = attributes.MoveToImmutable();

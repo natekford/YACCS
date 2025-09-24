@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,20 +8,34 @@ namespace YACCS.NamedArguments;
 
 internal static class NamedArgumentsUtils
 {
-	internal static FrozenDictionary<string, IImmutableParameter> CreateParamDict(
-		this Type type,
-		Func<IImmutableParameter, string> keySelector)
+	internal static IReadOnlyList<IImmutableParameter> CreateParameters(this Type type)
 	{
 		var (properties, fields) = type.GetWritableMembers();
-		return properties
+		return [.. properties
 			.Select(x => new Parameter(x))
 			.Concat(fields.Select(x => new Parameter(x)))
 			.Select(x => x.ToImmutable())
-			.ToParamDict(keySelector);
+		];
 	}
 
-	internal static FrozenDictionary<string, IImmutableParameter> ToParamDict(
+	internal static IImmutableParameter? GetParameter(
 		this IEnumerable<IImmutableParameter> parameters,
-		Func<IImmutableParameter, string> keySelector)
-		=> parameters.ToFrozenDictionary(keySelector, StringComparer.OrdinalIgnoreCase);
+		string search)
+	{
+		var pName = default(IImmutableParameter?);
+		var oName = default(IImmutableParameter?);
+		foreach (var parameter in parameters)
+		{
+			if (parameter.ParameterName?.Name is string n
+				&& n.Equals(search, StringComparison.OrdinalIgnoreCase))
+			{
+				pName = parameter;
+			}
+			else if (parameter.OriginalParameterName.Equals(search, StringComparison.OrdinalIgnoreCase))
+			{
+				oName = parameter;
+			}
+		}
+		return pName ?? oName;
+	}
 }

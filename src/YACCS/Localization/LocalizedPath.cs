@@ -14,13 +14,16 @@ namespace YACCS.Localization;
 [DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 public sealed class LocalizedPath : IReadOnlyList<string>
 {
-	private readonly ImmutableArray<string> _Keys;
 	/// <inheritdoc />
-	public int Count => _Keys.Length;
-	private string DebuggerDisplay => $"Name = {ToString()}, Count = {_Keys.Length}";
+	public int Count => Keys.Length;
+	/// <summary>
+	/// The unlocalized keys used for this path.
+	/// </summary>
+	public ImmutableArray<string> Keys { get; }
+	private string DebuggerDisplay => $"Name = {ToString()}, Count = {Keys.Length}";
 
 	/// <inheritdoc />
-	public string this[int index] => Localize.This(_Keys[index]);
+	public string this[int index] => Localize.This(Keys[index]);
 
 	/// <summary>
 	/// Creates a new <see cref="LocalizedPath"/>.
@@ -30,11 +33,11 @@ public sealed class LocalizedPath : IReadOnlyList<string>
 	{
 		if (keys is LocalizedPath name)
 		{
-			_Keys = name._Keys;
+			Keys = name.Keys;
 		}
 		else
 		{
-			_Keys = [.. keys];
+			Keys = [.. keys];
 		}
 	}
 
@@ -49,7 +52,7 @@ public sealed class LocalizedPath : IReadOnlyList<string>
 	/// <inheritdoc />
 	public IEnumerator<string> GetEnumerator()
 	{
-		foreach (var key in _Keys)
+		foreach (var key in Keys)
 		{
 			yield return Localize.This(key);
 		}

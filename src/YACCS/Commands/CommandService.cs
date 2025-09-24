@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using YACCS.Commands.Models;
+using YACCS.Localization;
 using YACCS.Parsing;
 using YACCS.Results;
 using YACCS.Trie;
@@ -18,7 +19,7 @@ namespace YACCS.Commands;
 public class CommandService : ICommandService
 {
 	/// <inheritdoc cref="ICommandService.Commands"/>
-	public virtual ITrie<string, IImmutableCommand> Commands { get; }
+	public virtual ITrie<string, IImmutableCommand> Commands => LocalizedCommands.GetCurrent();
 	IReadOnlyTrie<string, IImmutableCommand> ICommandService.Commands => Commands;
 	/// <summary>
 	/// The command queue to run commands in.
@@ -32,6 +33,10 @@ public class CommandService : ICommandService
 	/// The argument handler to use for splitting input.
 	/// </summary>
 	protected virtual IArgumentHandler Handler { get; }
+	/// <summary>
+	/// The commands this command service has in each locale.
+	/// </summary>
+	protected virtual Localized<ITrie<string, IImmutableCommand>> LocalizedCommands { get; }
 	/// <summary>
 	/// The type readers to use for parsing.
 	/// </summary>
@@ -58,7 +63,7 @@ public class CommandService : ICommandService
 		Readers = readers;
 		Handler = handler;
 
-		Commands = new CommandTrie(readers, config.Separator, config.CommandNameComparer);
+		LocalizedCommands = new(_ => new CommandTrie(readers, config.Separator, config.CommandNameComparer));
 		var commandQueue = new BackgroundCommandQueue();
 		commandQueue.Start(parallelCount: 4);
 		CommandQueue = commandQueue;

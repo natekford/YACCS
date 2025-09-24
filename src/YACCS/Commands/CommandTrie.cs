@@ -69,7 +69,7 @@ public sealed class CommandTrie(
 			catch (Exception e)
 			{
 				throw new ArgumentException("Unregistered type reader for " +
-					$"'{parameter.ParameterName}' from '{item.Paths?.FirstOrDefault()}'.",
+					$"'{parameter.OriginalParameterName}' from '{item.Paths?.FirstOrDefault()}'.",
 					nameof(item), e);
 			}
 
@@ -79,7 +79,7 @@ public sealed class CommandTrie(
 				!item.ContextType.IsAssignableFrom(reader.ContextType))
 			{
 				throw new ArgumentException("Invalid type reader for " +
-					$"'{parameter.ParameterName}' from '{item.Paths?.FirstOrDefault()}'. " +
+					$"'{parameter.OriginalParameterName}' from '{item.Paths?.FirstOrDefault()}'. " +
 					$"Type reader accepts '{reader.ContextType}', " +
 					$"command accepts '{item.ContextType}'. " +
 					"The type reader will never receive a valid context.", nameof(item));

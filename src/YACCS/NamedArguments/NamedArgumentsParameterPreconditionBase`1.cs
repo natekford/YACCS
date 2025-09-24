@@ -16,7 +16,7 @@ public abstract class NamedArgumentsParameterPreconditionBase<T>
 	: ParameterPrecondition<IContext, T>, INamedArgumentParameters
 {
 	/// <inheritdoc />
-	public abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
+	public abstract IReadOnlyList<IImmutableParameter> Parameters { get; }
 
 	/// <inheritdoc />
 	protected override async ValueTask<IResult> CheckNotNullAsync(
@@ -24,8 +24,9 @@ public abstract class NamedArgumentsParameterPreconditionBase<T>
 		IContext context,
 		T value)
 	{
-		foreach (var (property, parameter) in Parameters)
+		foreach (var parameter in Parameters)
 		{
+			var property = parameter.OriginalParameterName;
 			if (!TryGetProperty(value, property, out var propertyValue))
 			{
 				return Result.NamedArgMissingValue(property);

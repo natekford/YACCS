@@ -136,7 +136,7 @@ public abstract class Trie<TKey, TValue> : ITrie<TKey, TValue>
 				{
 					path = "ROOT";
 				}
-				return $"Path = {path}, Count = {_Items.Count}";
+				return $"Path = {path.TrimEnd()}, Count = {_Items.Count}";
 			}
 		}
 		public Node this[TKey key]

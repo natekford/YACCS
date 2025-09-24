@@ -15,7 +15,7 @@ public interface IImmutableCommand : IImmutableEntity, IQueryableCommand
 	/// <summary>
 	/// The categories this command belongs to.
 	/// </summary>
-	IReadOnlyList<string> Categories { get; }
+	IReadOnlyList<ICategoryAttribute> Categories { get; }
 	/// <summary>
 	/// Whether or not this command should show up for help commands.
 	/// </summary>

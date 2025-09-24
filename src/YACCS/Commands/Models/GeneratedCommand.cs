@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
+using YACCS.Commands.Attributes;
 using YACCS.Preconditions;
 using YACCS.Results;
 
@@ -22,7 +23,7 @@ public abstract class GeneratedCommand(IImmutableCommand source, int priorityDif
 	/// <inheritdoc />
 	public virtual IReadOnlyList<AttributeInfo> Attributes => Source.Attributes;
 	/// <inheritdoc />
-	public virtual IReadOnlyList<string> Categories => Source.Categories;
+	public virtual IReadOnlyList<ICategoryAttribute> Categories => Source.Categories;
 	/// <inheritdoc />
 	public virtual Type ContextType => Source.ContextType;
 	/// <inheritdoc />

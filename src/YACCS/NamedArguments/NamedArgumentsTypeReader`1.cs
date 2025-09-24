@@ -17,8 +17,8 @@ public sealed class NamedArgumentsTypeReader<T>
 	private readonly Action<T, string, object?> _Setter = ReflectionUtils.CreateDelegate(Setter);
 
 	/// <inheritdoc />
-	public override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
-		= typeof(T).CreateParamDict(x => x.ParameterName);
+	public override IReadOnlyList<IImmutableParameter> Parameters { get; }
+		= typeof(T).CreateParameters();
 
 	/// <inheritdoc />
 	protected override void SetProperty(T instance, string property, object? value)

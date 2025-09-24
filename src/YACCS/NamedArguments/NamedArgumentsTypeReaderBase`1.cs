@@ -22,7 +22,7 @@ public abstract class NamedArgumentsTypeReaderBase<T>
 	private static readonly char[] _TrimStart = ['/', '-'];
 
 	/// <inheritdoc />
-	public abstract IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
+	public abstract IReadOnlyList<IImmutableParameter> Parameters { get; }
 
 	/// <inheritdoc />
 	public override async ITask<ITypeReaderResult<T>> ReadAsync(
@@ -70,12 +70,13 @@ public abstract class NamedArgumentsTypeReaderBase<T>
 		for (var i = 0; i < input.Length; i += 2)
 		{
 			var name = input.Span[i].TrimStart(_TrimStart).TrimEnd(_TrimEnd);
-			if (!Parameters.TryGetValue(name, out var parameter))
+			var parameter = Parameters.GetParameter(name);
+			if (parameter is null)
 			{
 				return new(new DictResult(Error(Result.NamedArgNonExistent(name)), dict));
 			}
 
-			var property = parameter.ParameterName;
+			var property = parameter.OriginalParameterName;
 			if (dict.ContainsKey(property))
 			{
 				return new(new DictResult(Error(Result.NamedArgDuplicate(name)), dict));
@@ -101,8 +102,7 @@ public abstract class NamedArgumentsTypeReaderBase<T>
 		var instance = new T();
 		foreach (var (property, input) in dict)
 		{
-			var parameter = Parameters[property];
-
+			var parameter = Parameters.GetParameter(property)!;
 			var reader = readers.GetTypeReader(parameter);
 			var result = await reader.ReadAsync(context, new[] { input }).ConfigureAwait(false);
 			if (!result.InnerResult.IsSuccess)

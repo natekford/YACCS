@@ -33,7 +33,7 @@ public class HelpParameter(IImmutableParameter item)
 		.OfType<INamedArgumentParameters>()
 		.SingleOrDefault()?
 		.Parameters?
-		.Select(x => new HelpParameter(x.Value))?
+		.Select(x => new HelpParameter(x))?
 		.ToImmutableArray();
 	/// <summary>
 	/// The type of this parameter.

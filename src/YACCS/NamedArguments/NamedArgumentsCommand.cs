@@ -69,8 +69,8 @@ public sealed class NamedArgumentsCommand : GeneratedCommand
 	private sealed class GeneratedNamedArgumentsParameterPrecondition(IImmutableCommand command)
 		: NamedArgumentsParameterPreconditionBase<Dict>
 	{
-		public override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
-			= command.Parameters.ToParamDict(x => x.OriginalParameterName);
+		public override IReadOnlyList<IImmutableParameter> Parameters { get; }
+			= command.Parameters;
 
 		protected override bool TryGetProperty(Dict instance, string property, out object? value)
 		{
@@ -79,7 +79,7 @@ public sealed class NamedArgumentsCommand : GeneratedCommand
 			// No value or default value? Indicate failure
 			if (!instance.TryGetValue(property, out value))
 			{
-				var parameter = Parameters[property];
+				var parameter = Parameters.GetParameter(property)!;
 				if (!parameter.HasDefaultValue)
 				{
 					return false;
@@ -93,8 +93,8 @@ public sealed class NamedArgumentsCommand : GeneratedCommand
 	private sealed class GeneratedNamedArgumentsTypeReader(IImmutableCommand command)
 		: NamedArgumentsTypeReaderBase<Dict>
 	{
-		public override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
-			= command.Parameters.ToParamDict(x => x.ParameterName);
+		public override IReadOnlyList<IImmutableParameter> Parameters { get; }
+			= command.Parameters;
 
 		protected override void SetProperty(Dict instance, string property, object? value)
 			=> instance[property] = value;

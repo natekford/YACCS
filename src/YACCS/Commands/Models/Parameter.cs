@@ -138,7 +138,7 @@ public sealed class Parameter : Entity, IMutableParameter
 		public bool HasDefaultValue { get; }
 		public int? Length { get; } = 1;
 		public string OriginalParameterName { get; }
-		public string ParameterName { get; }
+		public INameAttribute? ParameterName { get; }
 		public Type ParameterType { get; }
 		public IReadOnlyDictionary<string, IReadOnlyList<IParameterPrecondition>> Preconditions { get; }
 		public string PrimaryId { get; }
@@ -171,7 +171,7 @@ public sealed class Parameter : Entity, IMutableParameter
 				}
 				if (attribute.Value is INameAttribute name)
 				{
-					ParameterName = name.ThrowIfDuplicate(x => x.Name, ref n);
+					ParameterName = name.ThrowIfDuplicate(x => x, ref n);
 				}
 				if (attribute.Value is IOverrideTypeReaderAttribute typeReader)
 				{
@@ -187,7 +187,6 @@ public sealed class Parameter : Entity, IMutableParameter
 			Preconditions = preconditions.ToImmutablePreconditions();
 
 			TypeReader ??= mutable.TypeReader;
-			ParameterName ??= mutable.OriginalParameterName;
 			PrimaryId ??= Guid.NewGuid().ToString();
 		}
 	}

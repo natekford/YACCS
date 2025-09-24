@@ -20,7 +20,7 @@ public interface IImmutableParameter : IImmutableEntity, IQueryableParameter
 	/// <summary>
 	/// The current parameter name.
 	/// </summary>
-	string ParameterName { get; }
+	INameAttribute? ParameterName { get; }
 	/// <summary>
 	/// The preconditions of this parameter grouped together.
 	/// </summary>

@@ -18,8 +18,8 @@ public sealed class NamedArgumentsParameterPrecondition<T>
 	private readonly Func<T, string, object> _Getter = ReflectionUtils.CreateDelegate(Getter);
 
 	/// <inheritdoc />
-	public override IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
-		= typeof(T).CreateParamDict(x => x.OriginalParameterName);
+	public override IReadOnlyList<IImmutableParameter> Parameters { get; }
+		= typeof(T).CreateParameters();
 
 	/// <inheritdoc />
 	protected override bool TryGetProperty(T instance, string property, out object? value)

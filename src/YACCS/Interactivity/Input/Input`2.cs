@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 using YACCS.Commands;
+using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
 using YACCS.Localization;
 using YACCS.Preconditions;
@@ -105,7 +106,7 @@ public abstract class Input<TContext, TInput>(IReadOnlyDictionary<Type, ITypeRea
 		bool IImmutableParameter.HasDefaultValue => false;
 		int? IImmutableParameter.Length => int.MaxValue;
 		string IQueryableParameter.OriginalParameterName => _Name;
-		string IImmutableParameter.ParameterName => _Name;
+		INameAttribute? IImmutableParameter.ParameterName => null;
 		Type IQueryableParameter.ParameterType { get; } = typeof(T);
 		IReadOnlyDictionary<string, IReadOnlyList<IParameterPrecondition>> IImmutableParameter.Preconditions { get; }
 			= ImmutableDictionary<string, IReadOnlyList<IParameterPrecondition>>.Empty;

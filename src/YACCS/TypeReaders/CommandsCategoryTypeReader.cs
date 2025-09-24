@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 
 using YACCS.Commands;
-using YACCS.Commands.Attributes;
-using YACCS.Commands.Linq;
 using YACCS.Commands.Models;
 
 namespace YACCS.TypeReaders;
@@ -48,9 +46,9 @@ public class CommandsCategoryTypeReader
 
 			foreach (var category in command.Categories)
 			{
-				if (categories.Contains(category))
+				if (categories.Contains(category.Category))
 				{
-					matchedCategories.Add(category);
+					matchedCategories.Add(category.Category);
 				}
 
 				// An equal amount of categories found to categories searched for

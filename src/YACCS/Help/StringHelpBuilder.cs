@@ -100,7 +100,7 @@ public class StringHelpBuilder(
 		{
 			var pType = parameter.ParameterType;
 			var typeName = pType.Name?.Name ?? TypeNames[pType.Item];
-			Append(parameter.Item.ParameterName);
+			Append(parameter.Item.ParameterName?.Name ?? parameter.Item.OriginalParameterName);
 			StringBuilder.Append(": ");
 			AppendLine(typeName);
 

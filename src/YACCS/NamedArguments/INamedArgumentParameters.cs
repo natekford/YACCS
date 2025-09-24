@@ -12,8 +12,5 @@ public interface INamedArgumentParameters
 	/// <summary>
 	/// The parameters this named argument type supports.
 	/// </summary>
-	/// <remarks>
-	/// The keys are the current localized parameter name, NOT the original parameter name.
-	/// </remarks>
-	public IReadOnlyDictionary<string, IImmutableParameter> Parameters { get; }
+	public IReadOnlyList<IImmutableParameter> Parameters { get; }
 }
