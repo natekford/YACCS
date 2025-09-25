@@ -33,7 +33,7 @@ public class CommandTrie_Tests
 		_Trie.Add(c1);
 		Assert.AreEqual(1, _Trie.Count);
 		Assert.AreEqual(1, _Trie.Root.Edges.Count);
-		Assert.AreEqual(1, _Trie.Root["1"].GetAllDistinctItems().Count);
+		Assert.AreEqual(1, _Trie.Root["1"].GetDistinctItems(true).Count);
 		Assert.AreEqual(1, _Trie.Root["1"].Count);
 
 		var c2 = FakeDelegateCommand.New()
@@ -43,9 +43,9 @@ public class CommandTrie_Tests
 		_Trie.Add(c2);
 		Assert.AreEqual(2, _Trie.Count);
 		Assert.AreEqual(3, _Trie.Root.Edges.Count);
-		Assert.AreEqual(1, _Trie.Root["2"].GetAllDistinctItems().Count);
+		Assert.AreEqual(1, _Trie.Root["2"].GetDistinctItems(true).Count);
 		Assert.AreEqual(1, _Trie.Root["2"].Count);
-		Assert.AreEqual(1, _Trie.Root["3"].GetAllDistinctItems().Count);
+		Assert.AreEqual(1, _Trie.Root["3"].GetDistinctItems(true).Count);
 		Assert.AreEqual(1, _Trie.Root["3"].Count);
 
 		var c3 = FakeDelegateCommand.New()
@@ -56,11 +56,11 @@ public class CommandTrie_Tests
 		_Trie.Add(c3);
 		Assert.AreEqual(3, _Trie.Count);
 		Assert.AreEqual(4, _Trie.Root.Edges.Count);
-		Assert.AreEqual(1, _Trie.Root["4"].GetAllDistinctItems().Count);
+		Assert.AreEqual(1, _Trie.Root["4"].GetDistinctItems(true).Count);
 		Assert.AreEqual(0, _Trie.Root["4"].Count);
-		Assert.AreEqual(1, _Trie.Root["4"]["1"].GetAllDistinctItems().Count);
-		Assert.AreEqual(1, _Trie.Root["4"]["2"].GetAllDistinctItems().Count);
-		Assert.AreEqual(1, _Trie.Root["4"]["3"].GetAllDistinctItems().Count);
+		Assert.AreEqual(1, _Trie.Root["4"]["1"].GetDistinctItems(true).Count);
+		Assert.AreEqual(1, _Trie.Root["4"]["2"].GetDistinctItems(true).Count);
+		Assert.AreEqual(1, _Trie.Root["4"]["3"].GetDistinctItems(true).Count);
 
 		var c4 = FakeDelegateCommand.New()
 			.AddPath(["4", "1"])
@@ -68,11 +68,11 @@ public class CommandTrie_Tests
 		_Trie.Add(c4);
 		Assert.AreEqual(4, _Trie.Count);
 		Assert.AreEqual(4, _Trie.Root.Edges.Count);
-		Assert.AreEqual(2, _Trie.Root["4"].GetAllDistinctItems().Count);
+		Assert.AreEqual(2, _Trie.Root["4"].GetDistinctItems(true).Count);
 		Assert.AreEqual(0, _Trie.Root["4"].Count);
-		Assert.AreEqual(2, _Trie.Root["4"]["1"].GetAllDistinctItems().Count);
-		Assert.AreEqual(1, _Trie.Root["4"]["2"].GetAllDistinctItems().Count);
-		Assert.AreEqual(1, _Trie.Root["4"]["3"].GetAllDistinctItems().Count);
+		Assert.AreEqual(2, _Trie.Root["4"]["1"].GetDistinctItems(true).Count);
+		Assert.AreEqual(1, _Trie.Root["4"]["2"].GetDistinctItems(true).Count);
+		Assert.AreEqual(1, _Trie.Root["4"]["3"].GetDistinctItems(true).Count);
 
 		var c5 = FakeDelegateCommand.New()
 			.AddAttribute(new IdAttribute(DUPE_ID))
@@ -81,7 +81,7 @@ public class CommandTrie_Tests
 		_Trie.Add(c5);
 		Assert.AreEqual(5, _Trie.Count);
 		Assert.AreEqual(5, _Trie.Root.Edges.Count);
-		Assert.AreEqual(1, _Trie.Root["5"].GetAllDistinctItems().Count);
+		Assert.AreEqual(1, _Trie.Root["5"].GetDistinctItems(true).Count);
 		Assert.AreEqual(1, _Trie.Root["5"].Count);
 
 		var c6 = FakeDelegateCommand.New()
@@ -90,20 +90,20 @@ public class CommandTrie_Tests
 		Assert.IsTrue(_Trie.Remove(c4));
 		_Trie.Add(c6);
 		Assert.AreEqual(5, _Trie.Root.Edges.Count);
-		Assert.AreEqual(2, _Trie.Root["4"].GetAllDistinctItems().Count);
+		Assert.AreEqual(2, _Trie.Root["4"].GetDistinctItems(true).Count);
 		Assert.AreEqual(1, _Trie.Root["4"].Count);
-		Assert.AreEqual(1, _Trie.Root["4"]["1"].GetAllDistinctItems().Count);
-		Assert.AreEqual(1, _Trie.Root["4"]["2"].GetAllDistinctItems().Count);
-		Assert.AreEqual(1, _Trie.Root["4"]["3"].GetAllDistinctItems().Count);
+		Assert.AreEqual(1, _Trie.Root["4"]["1"].GetDistinctItems(true).Count);
+		Assert.AreEqual(1, _Trie.Root["4"]["2"].GetDistinctItems(true).Count);
+		Assert.AreEqual(1, _Trie.Root["4"]["3"].GetDistinctItems(true).Count);
 
 		Assert.IsTrue(_Trie.Remove(c6));
-		Assert.AreEqual(1, _Trie.Root["4"].GetAllDistinctItems().Count);
+		Assert.AreEqual(1, _Trie.Root["4"].GetDistinctItems(true).Count);
 		Assert.AreEqual(0, _Trie.Root["4"].Count);
 		Assert.AreEqual(5, _Trie.Root.Edges.Count);
-		Assert.AreEqual(1, _Trie.Root["4"]["1"].GetAllDistinctItems().Count);
-		Assert.AreEqual(1, _Trie.Root["4"]["2"].GetAllDistinctItems().Count);
-		Assert.AreEqual(1, _Trie.Root["4"]["3"].GetAllDistinctItems().Count);
-		Assert.AreEqual(1, _Trie.Root["4"].GetAllDistinctItems().Count);
+		Assert.AreEqual(1, _Trie.Root["4"]["1"].GetDistinctItems(true).Count);
+		Assert.AreEqual(1, _Trie.Root["4"]["2"].GetDistinctItems(true).Count);
+		Assert.AreEqual(1, _Trie.Root["4"]["3"].GetDistinctItems(true).Count);
+		Assert.AreEqual(1, _Trie.Root["4"].GetDistinctItems(true).Count);
 
 		var c7 = FakeDelegateCommand.New().ToImmutable();
 		Assert.IsFalse(_Trie.Remove(c7));
@@ -121,13 +121,13 @@ public class CommandTrie_Tests
 		{
 			_Trie.Add(item);
 		}
-		Assert.AreEqual(1, _Trie.Root["4"].GetAllDistinctItems().Count);
+		Assert.AreEqual(1, _Trie.Root["4"].GetDistinctItems(true).Count);
 		Assert.AreEqual(0, _Trie.Root["4"].Count);
 		Assert.AreEqual(5, _Trie.Root.Edges.Count);
-		Assert.AreEqual(1, _Trie.Root["4"]["1"].GetAllDistinctItems().Count);
-		Assert.AreEqual(1, _Trie.Root["4"]["2"].GetAllDistinctItems().Count);
-		Assert.AreEqual(1, _Trie.Root["4"]["3"].GetAllDistinctItems().Count);
-		Assert.AreEqual(1, _Trie.Root["4"].GetAllDistinctItems().Count);
+		Assert.AreEqual(1, _Trie.Root["4"]["1"].GetDistinctItems(true).Count);
+		Assert.AreEqual(1, _Trie.Root["4"]["2"].GetDistinctItems(true).Count);
+		Assert.AreEqual(1, _Trie.Root["4"]["3"].GetDistinctItems(true).Count);
+		Assert.AreEqual(1, _Trie.Root["4"].GetDistinctItems(true).Count);
 
 		_Trie.Clear();
 		Assert.AreEqual(0, _Trie.Count);
@@ -160,7 +160,7 @@ public class CommandTrie_Tests
 			.ToImmutable();
 		_Trie.Add(c1);
 		Assert.AreEqual(1, _Trie.Count);
-		Assert.AreEqual(1, _Trie.Root["a"].GetAllDistinctItems().Count);
+		Assert.AreEqual(1, _Trie.Root["a"].GetDistinctItems(true).Count);
 		Assert.IsTrue(_Trie.Contains(c1));
 
 		var c2 = FakeDelegateCommand.New()
@@ -177,7 +177,7 @@ public class CommandTrie_Tests
 			.ToImmutable();
 		_Trie.Add(c3);
 		Assert.AreEqual(3, _Trie.Count);
-		Assert.AreEqual(1, _Trie.Root["b"].GetAllDistinctItems().Count);
+		Assert.AreEqual(1, _Trie.Root["b"].GetDistinctItems(true).Count);
 		Assert.IsTrue(_Trie.Contains(c3));
 
 		var c4 = new DelegateCommand((string x) => { }, [["a"]])
@@ -185,7 +185,7 @@ public class CommandTrie_Tests
 			.ToImmutable();
 		_Trie.Add(c4);
 		Assert.AreEqual(4, _Trie.Count);
-		Assert.AreEqual(3, _Trie.Root["a"].GetAllDistinctItems().Count);
+		Assert.AreEqual(3, _Trie.Root["a"].GetDistinctItems(true).Count);
 		Assert.IsTrue(_Trie.Contains(c4));
 	}
 
@@ -329,7 +329,7 @@ public class CommandTrie_Tests
 		}
 
 		Assert.IsNotNull(node);
-		var found = node!.GetAllDistinctItems();
+		var found = node!.GetDistinctItems(true);
 		Assert.AreEqual(expectedCount.Value, found.Count);
 		assert?.Invoke(found);
 	}

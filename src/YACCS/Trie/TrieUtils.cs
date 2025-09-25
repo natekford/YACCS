@@ -41,39 +41,32 @@ public static class TrieUtils
 	/// <typeparam name="TKey"></typeparam>
 	/// <typeparam name="TValue"></typeparam>
 	/// <param name="node">The node to get items from.</param>
-	/// <param name="predicate">The predicate to check nodes with.</param>
+	/// <param name="recursive">Whether to look deeper than the supplied node.</param>
 	/// <returns>
 	/// A set of all distinct nodes from <paramref name="node"/> and its edges.
 	/// </returns>
-	public static HashSet<TValue> GetAllDistinctItems<TKey, TValue>(
+	public static HashSet<TValue> GetDistinctItems<TKey, TValue>(
 		this INode<TKey, TValue> node,
-		Func<TValue, bool>? predicate = null)
+		bool recursive)
 	{
-		static IEnumerable<TValue> GetItems(INode<TKey, TValue> node)
+		static IEnumerable<TValue> GetItems(INode<TKey, TValue> node, bool recursive)
 		{
 			foreach (var item in node)
 			{
 				yield return item;
 			}
-			foreach (var edge in node.Edges)
+			if (recursive)
 			{
-				foreach (var item in GetItems(edge))
+				foreach (var edge in node.Edges)
 				{
-					yield return item;
+					foreach (var item in GetItems(edge, recursive))
+					{
+						yield return item;
+					}
 				}
 			}
 		}
 
-		predicate ??= _ => true;
-
-		var set = new HashSet<TValue>();
-		foreach (var item in GetItems(node))
-		{
-			if (predicate(item))
-			{
-				set.Add(item);
-			}
-		}
-		return set;
+		return [.. GetItems(node, recursive)];
 	}
 }

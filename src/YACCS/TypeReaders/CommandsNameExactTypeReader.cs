@@ -14,7 +14,7 @@ namespace YACCS.TypeReaders;
 /// Parses commands which start with the provided value.
 /// </summary>
 /// <remarks>Order is NOT guaranteed</remarks>
-public class CommandsNameTypeReader
+public class CommandsNameExactTypeReader
 	: TypeReader<IReadOnlyList<IImmutableCommand>>
 {
 	/// <inheritdoc />
@@ -32,7 +32,7 @@ public class CommandsNameTypeReader
 		var node = commands.Commands.Root.FollowPath(input.Span);
 		// Generated items have a source and that source gives them the same
 		// names/properties, so they should be ignored since they are copies
-		var found = node?.GetDistinctItems(recursive: true).Where(x => x.Source is null);
+		var found = node?.GetDistinctItems(recursive: false).Where(x => x.Source is null);
 		if (found?.Any() != true)
 		{
 			return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.ParseFailed.Task;

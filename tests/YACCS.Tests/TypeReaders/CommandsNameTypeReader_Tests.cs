@@ -8,8 +8,8 @@ using YACCS.TypeReaders;
 namespace YACCS.Tests.TypeReaders;
 
 [TestClass]
-public class CommandsNamesTypeReader_Tests :
-	TypeReader_Tests<IReadOnlyCollection<IImmutableCommand>>
+public class CommandsNameTypeReader_Tests
+	: TypeReader_Tests<IReadOnlyCollection<IImmutableCommand>>
 {
 	public override ITypeReader<IReadOnlyCollection<IImmutableCommand>> Reader { get; }
 		= new CommandsNameTypeReader();
@@ -19,15 +19,15 @@ public class CommandsNamesTypeReader_Tests :
 	{
 		var value = await AssertSuccessAsync(
 		[
-				FakeCommandGroup._Name
-			]).ConfigureAwait(false);
-		Assert.AreEqual(1, value.Count);
+			FakeCommandGroup._Name
+		]).ConfigureAwait(false);
+		Assert.AreEqual(2, value.Count);
 	}
 
 	protected override Task SetupAsync()
 	{
 		var commandService = Context.Get<FakeCommandService>();
-		var commands = typeof(FakeCommandGroup).GetDirectCommandsAsync(Context.Services);
+		var commands = typeof(FakeCommandGroup.Joeba).GetDirectCommandsAsync(Context.Services);
 		return commandService.AddRangeAsync(commands);
 	}
 
@@ -36,8 +36,17 @@ public class CommandsNamesTypeReader_Tests :
 		public const string _Name = "joeba";
 
 		[Command(_Name)]
-		public void Test()
+		public class Joeba : CommandGroup<IContext>
 		{
+			[Command]
+			public void Test()
+			{
+			}
+
+			[Command(nameof(Test2))]
+			public void Test2()
+			{
+			}
 		}
 	}
 }
