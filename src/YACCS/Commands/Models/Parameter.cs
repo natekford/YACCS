@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 using YACCS.Commands.Attributes;
@@ -133,8 +134,10 @@ public sealed class Parameter : Entity, IMutableParameter
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	private sealed class ImmutableParameter : IImmutableParameter
 	{
+		private readonly Func<object?>? _GetDefaultValue;
+
 		public IReadOnlyList<AttributeInfo> Attributes { get; }
-		public object? DefaultValue { get; }
+		public object? DefaultValue => _GetDefaultValue?.Invoke();
 		public bool HasDefaultValue { get; }
 		public int? Length { get; } = 1;
 		public string OriginalParameterName { get; }
@@ -148,10 +151,22 @@ public sealed class Parameter : Entity, IMutableParameter
 
 		public ImmutableParameter(Parameter mutable)
 		{
-			DefaultValue = mutable.DefaultValue;
 			HasDefaultValue = mutable.HasDefaultValue;
 			OriginalParameterName = mutable.OriginalParameterName;
 			ParameterType = mutable.ParameterType;
+
+			if (mutable.HasDefaultValue)
+			{
+				if (mutable.DefaultValue is null && mutable.ParameterType.IsValueType)
+				{
+					_GetDefaultValue = GenerateDefault(mutable.ParameterType);
+				}
+				else
+				{
+					var defaultValue = mutable.DefaultValue;
+					_GetDefaultValue = () => defaultValue;
+				}
+			}
 
 			var attributes = ImmutableArray.CreateBuilder<AttributeInfo>(mutable.Attributes.Count);
 			// Use ConcurrentDictionary because it has GetOrAdd by default, not threading reasons
@@ -188,6 +203,14 @@ public sealed class Parameter : Entity, IMutableParameter
 
 			TypeReader ??= mutable.TypeReader;
 			PrimaryId ??= Guid.NewGuid().ToString();
+		}
+
+		private static Func<object?> GenerateDefault(Type type)
+		{
+			var body = Expression.Convert(Expression.Default(type), typeof(object));
+
+			var lambda = Expression.Lambda<Func<object>>(body);
+			return lambda.Compile();
 		}
 	}
 }
