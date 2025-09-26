@@ -404,36 +404,22 @@ public class CommandService : ICommandService
 			return @new;
 		}
 
-		// If a CanExecute but b cannot, a > b and vice versa
-		// The instant a single command can execute, all failed commands are irrelevant
-		if (@new.Stage != best.Stage)
-		{
-			if (@new.Stage == CommandStage.CanExecute)
-			{
-				return @new;
-			}
-			else if (best.Stage == CommandStage.CanExecute)
-			{
-				return best;
-			}
-		}
-
 		static double GetModifier(CommandStage stage)
 		{
 			return stage switch
 			{
 				CommandStage.BadContext => 0,
-				CommandStage.BadArgCount => 0.1,
+				CommandStage.BadArgCount => 0.2,
 				CommandStage.FailedPrecondition => 0.4,
-				CommandStage.FailedTypeReader => 0.5,
-				CommandStage.FailedParameterPrecondition => 0.75,
+				CommandStage.FailedTypeReader => 0.6,
+				CommandStage.FailedParameterPrecondition => 0.8,
 				CommandStage.CanExecute => 1,
 				_ => throw new ArgumentOutOfRangeException(nameof(stage)),
 			};
 		}
 
-		var scoreNew = GetModifier(@new.Stage) * (@new.Index + @new.Command?.Priority);
-		var scoreOld = GetModifier(best.Stage) * (best.Index + best.Command?.Priority);
+		var scoreNew = (GetModifier(@new.Stage) * @new.Index) + @new.Command?.Priority;
+		var scoreOld = (GetModifier(best.Stage) * best.Index) + best.Command?.Priority;
 		return scoreNew > scoreOld ? @new : best;
 	}
 }

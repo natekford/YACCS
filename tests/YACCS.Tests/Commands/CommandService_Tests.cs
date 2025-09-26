@@ -11,6 +11,8 @@ using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Interactivity;
 using YACCS.Interactivity.Input;
+using YACCS.Preconditions;
+using YACCS.Results;
 using YACCS.TypeReaders;
 
 namespace YACCS.Tests.Commands;
@@ -72,6 +74,19 @@ public sealed class CommandService_Tests
 		Assert.AreEqual(EXPECTED, result.InnerResult.Response);
 	}
 
+	[TestMethod]
+	public async Task PrioritizeCommandThatFailsParameterPrecondition_Test()
+	{
+		var (commandService, context) = await CreateAsync().ConfigureAwait(false);
+
+		var input = $"{nameof(BanCommands.Ban)} 1234";
+		await commandService.ExecuteAsync(context, input).ConfigureAwait(false);
+
+		var result = await commandService.CommandNotExecuted.Task.ConfigureAwait(false);
+		Assert.IsFalse(result.InnerResult.IsSuccess);
+		Assert.AreEqual(BanCommands.AlwaysFails.RESPONSE, result.InnerResult.Response);
+	}
+
 	private static async ValueTask<(FakeCommandService, FakeContext)> CreateAsync()
 	{
 		var context = new FakeContext();
@@ -84,8 +99,11 @@ public sealed class CommandService_Tests
 		}));
 
 		var commandService = context.Get<FakeCommandService>();
-		var commands = typeof(OptionalValueType).GetDirectCommandsAsync(context.Services);
-		await commandService.AddRangeAsync(commands).ConfigureAwait(false);
+		foreach (var type in new[] { typeof(BanCommands), typeof(OptionalValueType) })
+		{
+			var commands = type.GetDirectCommandsAsync(context.Services);
+			await commandService.AddRangeAsync(commands).ConfigureAwait(false);
+		}
 
 		return (commandService, context);
 	}
@@ -104,6 +122,30 @@ public sealed class CommandService_Tests
 		public ValueType(string s)
 		{
 			String = s;
+		}
+	}
+
+	private class BanCommands : CommandGroup<FakeContext>
+	{
+		public const string BAN1 = "1";
+		public const string BAN2 = "2";
+
+		[Command(nameof(Ban))]
+		[YACCS.Commands.Attributes.Priority(1)]
+		public string Ban([AlwaysFails] string id)
+			=> BAN1;
+
+		[Command(nameof(Ban))]
+		[YACCS.Commands.Attributes.Priority(0)]
+		public string Ban(ulong id)
+			=> BAN2;
+
+		public sealed class AlwaysFails : ParameterPrecondition<IContext, string>
+		{
+			public const string RESPONSE = "nuh uh";
+
+			protected override ValueTask<IResult> CheckNotNullAsync(CommandMeta meta, IContext context, string value)
+				=> new(Result.Failure(RESPONSE));
 		}
 	}
 
