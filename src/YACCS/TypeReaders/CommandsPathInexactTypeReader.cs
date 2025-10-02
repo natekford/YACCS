@@ -22,6 +22,6 @@ public class CommandsPathInexactTypeReader : CommandsTypeReader
 		ReadOnlySpan<string> input)
 	{
 		var node = commands.Commands.Root.FollowPath(input);
-		return node?.GetDistinctItems(recursive: true) ?? [];
+		return node?.GetItems(recursive: true)?.Distinct() ?? [];
 	}
 }

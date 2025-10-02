@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
@@ -19,6 +20,6 @@ public class CommandsPathExactTypeReader : CommandsTypeReader
 		ReadOnlySpan<string> input)
 	{
 		var node = commands.Commands.Root.FollowPath(input);
-		return node?.GetDistinctItems(recursive: false) ?? [];
+		return node?.GetItems(recursive: false)?.Distinct() ?? [];
 	}
 }

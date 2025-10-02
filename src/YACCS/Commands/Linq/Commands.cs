@@ -115,6 +115,21 @@ public static class Commands
 		}
 	}
 
+	/// <summary>
+	/// Joins each command path together.
+	/// </summary>
+	/// <typeparam name="TCommand"></typeparam>
+	/// <param name="command">The command to get paths from.</param>
+	/// <returns>An enumerable of this command's joined paths.</returns>
+	public static IEnumerable<string> GetJoinedPaths<TCommand>(this TCommand command)
+		where TCommand : IQueryableCommand
+	{
+		foreach (var path in command.Paths)
+		{
+			yield return string.Join(CommandServiceUtils.SPACE, path);
+		}
+	}
+
 	[DebuggerDisplay(CommandServiceUtils.DEBUGGER_DISPLAY)]
 	private sealed class Command<TContext>(IMutableCommand actual)
 		: ICommand<TContext> where TContext : IContext

@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using YACCS.Commands.Linq;
+using YACCS.Commands.Models;
+using YACCS.Preconditions.Locked;
+
 namespace YACCS.Trie;
 
 /// <summary>
@@ -49,7 +53,7 @@ public static class TrieUtils
 	}
 
 	/// <summary>
-	/// Returns all distinct items directly inside <paramref name="node"/> and recursively
+	/// Returns all items directly inside <paramref name="node"/> and recursively
 	/// inside all of its edges until every edge that has <paramref name="node"/> as an
 	/// ancestor has been iterated through.
 	/// </summary>
@@ -58,30 +62,56 @@ public static class TrieUtils
 	/// <param name="node">The node to get items from.</param>
 	/// <param name="recursive">Whether to look deeper than the supplied node.</param>
 	/// <returns>
-	/// A set of all distinct nodes from <paramref name="node"/> and its edges.
+	/// An enumerable of all nodes from <paramref name="node"/> and its edges.
 	/// </returns>
-	public static HashSet<TValue> GetDistinctItems<TKey, TValue>(
+	public static IEnumerable<TValue> GetItems<TKey, TValue>(
 		this INode<TKey, TValue> node,
 		bool recursive)
 	{
-		static IEnumerable<TValue> GetItems(INode<TKey, TValue> node, bool recursive)
+		foreach (var item in node)
 		{
-			foreach (var item in node)
+			yield return item;
+		}
+		if (recursive)
+		{
+			foreach (var edge in node.Edges)
 			{
-				yield return item;
-			}
-			if (recursive)
-			{
-				foreach (var edge in node.Edges)
+				foreach (var item in GetItems(edge, recursive))
 				{
-					foreach (var item in GetItems(edge, recursive))
-					{
-						yield return item;
-					}
+					yield return item;
 				}
 			}
 		}
+	}
 
-		return [.. GetItems(node, recursive)];
+	/// <summary>
+	/// Returns all items at the end of each <paramref name="paths"/> after starting at
+	/// <paramref name="node"/>.
+	/// </summary>
+	/// <typeparam name="TKey"></typeparam>
+	/// <typeparam name="TValue"></typeparam>
+	/// <param name="node">The node to start searching for subitems in.</param>
+	/// <param name="paths">The paths to follow starting at <paramref name="node"/>.</param>
+	/// <returns>An enumerable of items at the end of each path.</returns>
+	public static IEnumerable<TValue> GetSubitems<TKey, TValue>(
+		this INode<TKey, TValue> node,
+		IEnumerable<IEnumerable<TKey>> paths)
+	{
+		foreach (var path in paths)
+		{
+			var followed = node.FollowPath(path);
+			if (followed is null)
+			{
+				continue;
+			}
+
+			foreach (var edge in followed.Edges)
+			{
+				foreach (var subitem in edge)
+				{
+					yield return subitem;
+				}
+			}
+		}
 	}
 }
