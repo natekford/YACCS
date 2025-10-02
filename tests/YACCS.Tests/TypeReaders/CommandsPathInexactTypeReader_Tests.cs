@@ -8,11 +8,11 @@ using YACCS.TypeReaders;
 namespace YACCS.Tests.TypeReaders;
 
 [TestClass]
-public class CommandsNameTypeReader_Tests
+public class CommandsPathInexactTypeReader_Tests
 	: TypeReader_Tests<IReadOnlyCollection<IImmutableCommand>>
 {
 	public override ITypeReader<IReadOnlyCollection<IImmutableCommand>> Reader { get; }
-		= new CommandsNameTypeReader();
+		= new CommandsPathInexactTypeReader();
 
 	[TestMethod]
 	public async Task Valid_Test()

@@ -33,6 +33,21 @@ public static class TrieUtils
 		return node;
 	}
 
+	/// <inheritdoc cref="FollowPath{TKey, TValue}(INode{TKey, TValue}, ReadOnlySpan{TKey})" />
+	public static INode<TKey, TValue>? FollowPath<TKey, TValue>(
+		this INode<TKey, TValue> node,
+		IEnumerable<TKey> path)
+	{
+		foreach (var key in path)
+		{
+			if (!node.TryGetEdge(key, out node!))
+			{
+				break;
+			}
+		}
+		return node;
+	}
+
 	/// <summary>
 	/// Returns all distinct items directly inside <paramref name="node"/> and recursively
 	/// inside all of its edges until every edge that has <paramref name="node"/> as an

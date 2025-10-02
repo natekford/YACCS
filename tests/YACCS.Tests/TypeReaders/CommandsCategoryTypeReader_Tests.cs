@@ -9,7 +9,7 @@ using YACCS.TypeReaders;
 namespace YACCS.Tests.TypeReaders;
 
 [TestClass]
-public class CommandsCategoriesTypeReader_Tests :
+public class CommandsCategoryTypeReader_Tests :
 	TypeReader_Tests<IReadOnlyCollection<IImmutableCommand>>
 {
 	public override ITypeReader<IReadOnlyCollection<IImmutableCommand>> Reader { get; }

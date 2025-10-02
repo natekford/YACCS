@@ -3,8 +3,6 @@
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Models;
-using YACCS.Tests;
-using YACCS.Tests.TypeReaders;
 using YACCS.TypeReaders;
 
 namespace YACCS.Tests.TypeReaders;
@@ -14,7 +12,7 @@ public class CommandsNameExactTypeReader_Tests
 	: TypeReader_Tests<IReadOnlyCollection<IImmutableCommand>>
 {
 	public override ITypeReader<IReadOnlyCollection<IImmutableCommand>> Reader { get; }
-		= new CommandsNameExactTypeReader();
+		= new CommandsPathExactTypeReader();
 
 	[TestMethod]
 	public async Task Valid_Test()

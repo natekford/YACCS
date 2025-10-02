@@ -12,24 +12,16 @@ namespace YACCS.TypeReaders;
 /// Parses commands which have all the supplied categories.
 /// </summary>
 /// <remarks>Order is NOT guaranteed</remarks>
-public class CommandsCategoryTypeReader
-	: TypeReader<IReadOnlyList<IImmutableCommand>>
+public class CommandsCategoryTypeReader : CommandsTypeReader
 {
 	/// <inheritdoc />
-	public override ITask<ITypeReaderResult<IReadOnlyList<IImmutableCommand>>> ReadAsync(
-		IContext context,
-		ReadOnlyMemory<string> input)
+	protected override IEnumerable<IImmutableCommand> GetMatchingCommands(
+		ICommandService commands,
+		ReadOnlySpan<string> input)
 	{
-		if (input.Length == 0)
-		{
-			return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.ParseFailed.Task;
-		}
-
-		var commands = GetCommands(context.Services);
-
 		// Create a hashset to remove duplicates and have a quicker Contains()
 		var categories = new HashSet<string>(input.Length, StringComparer.OrdinalIgnoreCase);
-		foreach (var category in input.Span)
+		foreach (var category in input)
 		{
 			categories.Add(category);
 		}
@@ -62,14 +54,6 @@ public class CommandsCategoryTypeReader
 			matchedCategories.Clear();
 		}
 
-		if (found.Count == 0)
-		{
-			return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.ParseFailed.Task;
-		}
-		return Success([.. found]).AsITask();
+		return found;
 	}
-
-	[GetServiceMethod]
-	private static ICommandService GetCommands(IServiceProvider services)
-		=> services.GetRequiredService<ICommandService>();
 }

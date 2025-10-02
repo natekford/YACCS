@@ -1,16 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 using YACCS.Commands;
 using YACCS.Commands.Attributes;
-using YACCS.Interactivity;
-using YACCS.Interactivity.Input;
 using YACCS.Preconditions;
 using YACCS.Results;
 using YACCS.TypeReaders;

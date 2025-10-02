@@ -36,7 +36,7 @@ public class Help : ConsoleCommands
 
 	[Command]
 	public async Task<IResult> HelpCommand(
-		[OverrideTypeReader<CommandsNameTypeReader>]
+		[OverrideTypeReader<CommandsPathInexactTypeReader>]
 		[Remainder]
 		IReadOnlyCollection<IImmutableCommand> commands)
 	{
