@@ -29,6 +29,14 @@ public class CommandsCategoryTypeReader_Tests :
 		Assert.AreEqual(2, value.Count);
 	}
 
+	[TestInitialize]
+	public override Task SetupAsync()
+	{
+		var commandService = Context.Get<FakeCommandService>();
+		var commands = typeof(FakeCommandGroup).GetDirectCommandsAsync(Context.Services);
+		return commandService.AddRangeAsync(commands);
+	}
+
 	[TestMethod]
 	public async Task TwoCategories_Test()
 	{
@@ -38,13 +46,6 @@ public class CommandsCategoryTypeReader_Tests :
 			FakeCommandGroup._Category2
 		]).ConfigureAwait(false);
 		Assert.AreEqual(1, value.Count);
-	}
-
-	protected override Task SetupAsync()
-	{
-		var commandService = Context.Get<FakeCommandService>();
-		var commands = typeof(FakeCommandGroup).GetDirectCommandsAsync(Context.Services);
-		return commandService.AddRangeAsync(commands);
 	}
 
 	private class FakeCommandGroup : CommandGroup<IContext>

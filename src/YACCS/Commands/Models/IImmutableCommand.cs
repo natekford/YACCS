@@ -38,6 +38,11 @@ public interface IImmutableCommand : IImmutableEntity, IQueryableCommand
 	IReadOnlyDictionary<string, IReadOnlyList<IPrecondition>> Preconditions { get; }
 	/// <inheritdoc cref="IPriorityAttribute.Priority"/>
 	int Priority { get; }
+	/// <summary>
+	/// An id that is unique to this command (and other commands generated from it).
+	/// This will not be consistent.
+	/// </summary>
+	int RuntimeId { get; }
 
 	/// <summary>
 	/// Executes the command.

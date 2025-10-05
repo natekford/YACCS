@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using YACCS.Commands.Attributes;
 using YACCS.Commands.Building;
 using YACCS.Commands.Linq;
+using YACCS.Help.Attributes;
 using YACCS.Localization;
 using YACCS.Preconditions;
 using YACCS.Results;
@@ -103,6 +104,8 @@ public abstract class Command : Entity, IMutableCommand
 		/// <inheritdoc />
 		public int Priority { get; }
 		/// <inheritdoc />
+		public int RuntimeId { get; }
+		/// <inheritdoc />
 		public IImmutableCommand? Source { get; }
 		IEnumerable<AttributeInfo> IQueryableEntity.Attributes => Attributes;
 		IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;
@@ -157,7 +160,7 @@ public abstract class Command : Entity, IMutableCommand
 			var categories = new HashSet<ICategoryAttribute>();
 			// Use ConcurrentDictionary because it has GetOrAdd by default, not threading reasons
 			var preconditions = new ConcurrentDictionary<string, List<IPrecondition>>();
-			var p = 0;
+			int p = 0, r = 0;
 			foreach (var attribute in mutable.Attributes)
 			{
 				attributes.Add(attribute);
@@ -181,6 +184,10 @@ public abstract class Command : Entity, IMutableCommand
 				if (attribute.Value is ICategoryAttribute category)
 				{
 					categories.Add(category);
+				}
+				if (attribute.Value is IRuntimeCommandId runtimeId)
+				{
+					RuntimeId = runtimeId.ThrowIfDuplicate(x => x.Id, ref r);
 				}
 			}
 			Attributes = attributes.MoveToImmutable();

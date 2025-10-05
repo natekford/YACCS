@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using YACCS.Commands.Building;
 using YACCS.Commands.Models;
+using YACCS.Help.Attributes;
 using YACCS.Results;
 
 namespace YACCS.Commands;
@@ -59,9 +60,10 @@ public abstract class CommandGroup<TContext> : ICommandGroup<TContext>, IOnComma
 			.Where(x => x.GetCustomAttribute<InjectContextAttribute>() is not null)
 			.Select(x => x.FieldType);
 		var constraints = pConstraints.Concat(fConstraints).Distinct().ToImmutableArray();
-		if (constraints.Length > 0)
+		foreach (var command in commands)
 		{
-			foreach (var command in commands)
+			command.Attributes.Add(new(new RuntimeCommandId()));
+			if (constraints.Length > 0)
 			{
 				command.Attributes.Add(new(new ContextMustImplementAttribute(constraints)));
 			}

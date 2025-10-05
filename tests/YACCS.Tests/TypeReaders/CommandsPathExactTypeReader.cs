@@ -14,6 +14,14 @@ public class CommandsNameExactTypeReader_Tests
 	public override ITypeReader<IReadOnlyCollection<IImmutableCommand>> Reader { get; }
 		= new CommandsPathExactTypeReader();
 
+	[TestInitialize]
+	public override Task SetupAsync()
+	{
+		var commandService = Context.Get<FakeCommandService>();
+		var commands = typeof(FakeCommandGroup.Joeba).GetDirectCommandsAsync(Context.Services);
+		return commandService.AddRangeAsync(commands);
+	}
+
 	[TestMethod]
 	public async Task Valid_Test()
 	{
@@ -22,13 +30,6 @@ public class CommandsNameExactTypeReader_Tests
 			FakeCommandGroup._Name
 		]).ConfigureAwait(false);
 		Assert.AreEqual(1, value.Count);
-	}
-
-	protected override Task SetupAsync()
-	{
-		var commandService = Context.Get<FakeCommandService>();
-		var commands = typeof(FakeCommandGroup.Joeba).GetDirectCommandsAsync(Context.Services);
-		return commandService.AddRangeAsync(commands);
 	}
 
 	private class FakeCommandGroup : CommandGroup<IContext>

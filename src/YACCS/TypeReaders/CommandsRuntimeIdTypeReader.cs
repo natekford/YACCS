@@ -4,15 +4,14 @@ using System.Linq;
 
 using YACCS.Commands;
 using YACCS.Commands.Models;
-using YACCS.Trie;
 
 namespace YACCS.TypeReaders;
 
 /// <summary>
-/// Parses commands which start with the provided value.
+/// Parses commands which have the supplied runtime id.
 /// </summary>
-/// <remarks>Order is NOT guaranteed.</remarks>
-public class CommandsPathInexactTypeReader : CommandsTypeReader
+/// <remarks>Only one command should be returned.</remarks>
+public class CommandsRuntimeIdTypeReader : CommandsTypeReader
 {
 	/// <inheritdoc />
 	protected override IEnumerable<IImmutableCommand> GetMatchingCommands(
@@ -20,7 +19,9 @@ public class CommandsPathInexactTypeReader : CommandsTypeReader
 		ICommandService commands,
 		ReadOnlyMemory<string> input)
 	{
-		var node = commands.Commands.Root.FollowPath(input.Span);
-		return node?.GetItems(recursive: true)?.Distinct() ?? [];
+		var joined = Join(context, input);
+		return int.TryParse(joined, out var id)
+			? commands.Commands.Where(x => x.RuntimeId == id).Distinct()
+			: [];
 	}
 }

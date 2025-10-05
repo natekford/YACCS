@@ -9,17 +9,18 @@ namespace YACCS.TypeReaders;
 /// <summary>
 /// Parses commands which have all the supplied categories.
 /// </summary>
-/// <remarks>Order is NOT guaranteed</remarks>
+/// <remarks>Order is NOT guaranteed.</remarks>
 public class CommandsCategoryTypeReader : CommandsTypeReader
 {
 	/// <inheritdoc />
 	protected override IEnumerable<IImmutableCommand> GetMatchingCommands(
+		IContext context,
 		ICommandService commands,
-		ReadOnlySpan<string> input)
+		ReadOnlyMemory<string> input)
 	{
 		// Create a hashset to remove duplicates and have a quicker Contains()
 		var categories = new HashSet<string>(input.Length, StringComparer.OrdinalIgnoreCase);
-		foreach (var category in input)
+		foreach (var category in input.Span)
 		{
 			categories.Add(category);
 		}

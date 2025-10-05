@@ -14,15 +14,15 @@ public abstract class TypeReader_Tests<T>
 	[TestMethod]
 	public async Task Invalid_Test()
 	{
-		await SetupAsync().ConfigureAwait(false);
 		var result = await Reader.ReadAsync(Context, new[] { Invalid }).ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
 	}
 
+	public virtual Task SetupAsync()
+		=> Task.CompletedTask;
+
 	protected async Task<TResult> AssertFailureAsync<TResult>(string[] input, IContext? context = null)
 	{
-		await SetupAsync().ConfigureAwait(false);
-
 		context ??= Context;
 		var result = await Reader.ReadAsync(context, input).ConfigureAwait(false);
 		Assert.IsFalse(result.InnerResult.IsSuccess);
@@ -32,15 +32,10 @@ public abstract class TypeReader_Tests<T>
 
 	protected async Task<T> AssertSuccessAsync(string[] input, IContext? context = null)
 	{
-		await SetupAsync().ConfigureAwait(false);
-
 		context ??= Context;
 		var result = await Reader.ReadAsync(context, input).ConfigureAwait(false);
 		Assert.IsTrue(result.InnerResult.IsSuccess);
 		Assert.IsInstanceOfType<T>(result.Value);
 		return result.Value!;
 	}
-
-	protected virtual Task SetupAsync()
-		=> Task.CompletedTask;
 }

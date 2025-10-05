@@ -47,6 +47,8 @@ public abstract class GeneratedCommand(IImmutableCommand source, int priorityDif
 	/// </summary>
 	public virtual int PriorityDifference { get; set; } = priorityDifference;
 	/// <inheritdoc />
+	public virtual int RuntimeId => Source.RuntimeId;
+	/// <inheritdoc />
 	public IImmutableCommand Source { get; } = source;
 	IEnumerable<AttributeInfo> IQueryableEntity.Attributes => Attributes;
 	IReadOnlyList<IQueryableParameter> IQueryableCommand.Parameters => Parameters;

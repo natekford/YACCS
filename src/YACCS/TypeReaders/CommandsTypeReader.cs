@@ -27,7 +27,7 @@ public abstract class CommandsTypeReader : TypeReader<IReadOnlyList<IImmutableCo
 		}
 
 		var commands = GetCommands(context.Services);
-		var found = GetMatchingCommands(commands, input.Span).Where(IsValidCommand);
+		var found = GetMatchingCommands(context, commands, input).Where(IsValidCommand);
 		if (!found.Any())
 		{
 			return TypeReaderResult<IReadOnlyList<IImmutableCommand>>.ParseFailed.Task;
@@ -38,12 +38,14 @@ public abstract class CommandsTypeReader : TypeReader<IReadOnlyList<IImmutableCo
 	/// <summary>
 	/// Filters for commands that match <paramref name="input"/>.
 	/// </summary>
+	/// <param name="context">The context executing this command.</param>
 	/// <param name="commands">All registered commands.</param>
 	/// <param name="input">The input to match.</param>
 	/// <returns>An unsorted enumerable of matching commands.</returns>
 	protected abstract IEnumerable<IImmutableCommand> GetMatchingCommands(
+		IContext context,
 		ICommandService commands,
-		ReadOnlySpan<string> input);
+		ReadOnlyMemory<string> input);
 
 	/// <summary>
 	/// Determines if a command should be returned.
